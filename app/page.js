@@ -66,6 +66,16 @@ async function aiIstek(prompt, maxTokens, cihazId, jsonModu) {
   return data.text;
 }
 
+// Uretilen sorulari kalici soru bankasina arsivler - sessizce, hata olsa da akisi bozmaz.
+function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
+  if (!sorular || sorular.length === 0) return;
+  fetch("/api/soru-bankasi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ders, sinif, unite, sorular, kaynakTuru }),
+  }).catch(() => {});
+}
+
 export default function Ana() {
   const [mod, setMod] = useState("anlatim");
   const [sinif, setSinif] = useState(8);
@@ -317,14 +327,17 @@ export default function Ana() {
     finally { setYukleniyor(null); }
   }
 
-  async function soruUret() {
+  async function soruUret(fasikulModu) {
     if (!ders || !konu.trim()) return;
-    setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
+    setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
     try {
       const uniteMetni2 = uniteSec ? ` (${uniteSec} unitesinden, gercek LGS tarzinda)` : "";
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni2} "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Sorular gercek sinav formatinda, mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan:
+      const p = fasikulModu
+        ? `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni2} "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde TAM 15 coktan secmeli soru hazirla: ILK 5 SORU KOLAY, SONRAKI 5 SORU ORTA, SON 5 SORU ZOR seviyede olsun (sirali ver, kolaydan zora). Bu, meshur ozel yayin kaynaklarinin (MEB yayinlarindan daha ust seviye, sik tercih edilen ek kaynaklar seviyesinde) fasikul formatinda olsun. Sorular mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]`
+        : `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni2} "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Sorular gercek sinav formatinda, mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
-      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
+      const cevap = await aiIstek(p, fasikulModu ? 7000 : 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
@@ -333,8 +346,34 @@ export default function Ana() {
       let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
       if (bitis === -1) bitis = temiz.lastIndexOf("]");
       if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
-      setQuiz(JSON.parse(temiz.slice(baslangic, bitis + 1)));
+      const uretilenSorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setQuiz(uretilenSorular);
+      sorulariBankayaKaydet(ders, sinif, uniteSec, uretilenSorular, fasikulModu ? "fasikul" : "quiz");
     } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
+  const [paragrafMetni, setParagrafMetni] = useState("");
+  const [paragrafPufNoktalari, setParagrafPufNoktalari] = useState("");
+
+  async function paragrafPratigiUret() {
+    if (!ders || !konu.trim()) return;
+    setYukleniyor("paragraf"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
+    try {
+      const uniteMetni3 = uniteSec ? ` (${uniteSec} unitesinden)` : "";
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni3} "${konu}" konusuyla ilgili once orta uzunlukta (120-180 kelime) bir metin/paragraf yaz, sonra bu metne dayali 20 coktan secmeli soru hazirla (${sinif}. sinif seviyesinde, kolaydan zora dogru sirali). Son olarak bu konuyla ilgili 3-5 maddelik kisa "puf noktalari / altin kurallar" listesi ekle (formul, dikkat edilecek nokta, sik yapilan hatalar gibi). Sorular okudugunu anlama, yorumlama ve dikkat gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme, markdown kullanma:
+{"metin":"...","pufNoktalari":["...","..."],"sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]}`;
+      const cevap = await aiIstek(p, 8000, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("{");
+      const bitis = temiz.lastIndexOf("}");
+      if (baslangic === -1 || bitis === -1) throw new Error("Paragraf pratigi olusturulamadi, tekrar dene");
+      const veri = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setParagrafMetni(veri.metin || "");
+      setParagrafPufNoktalari((veri.pufNoktalari || []).join("\n"));
+      setQuiz(veri.sorular || []);
+      sorulariBankayaKaydet(ders, sinif, uniteSec, veri.sorular, "paragraf");
+    } catch (e) { setHata(e.message || "Paragraf pratigi olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
 
@@ -391,7 +430,7 @@ export default function Ana() {
         ? `okul donem ici YAZILI SINAVI formatinda (sinirli kapsamli, ${{ yazili1: "1. Yazili", yazili2: "2. Yazili", yazili3: "3. Yazili" }[yaziliDonemNo] || ""})`
         : "gercek LGS DENEME SINAVI formatinda";
 
-      const p = `Sen bir LGS/ortaokul olcme-degerlendirme uzmanisin. "${denemeDers}" dersi icin ${baslikMetni} hazirla, ${sinif}. sinif seviyesinde, toplam ${sinavSoruSayisi} soru olsun. ${kapsamAciklama} Sorulari, 2022-2026 yillari arasindaki gercek sinavlarin soru tarzina, uslubuna ve zorluk seviyesine birebir benzet - ama sorularin kendisi ozgun olsun, gercek gecmis sorulari birebir kopyalama ya da "gecmis yil cikti" diye sunma. Sorular mantik yurutme, yorum ve analiz gerektirsin, ezber bilgi sorma. Zorluk dagilimi soru sayisina orantili kolay/orta/zor karisik olsun. Her sorunun hangi ALT KONUYU/KAZANIMI olctugunu 2-4 kelimeyle "altKonu" alaninda belirt (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa ve spesifik). Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
+      const p = `Sen bir LGS/ortaokul olcme-degerlendirme uzmanisin. "${denemeDers}" dersi icin ${baslikMetni} hazirla, ${sinif}. sinif seviyesinde, toplam ${sinavSoruSayisi} soru olsun. ${kapsamAciklama} Sorulari, 2022-2026 yillari arasindaki gercek sinavlarin soru tarzina, uslubuna ve zorluk seviyesine birebir benzet - ama sorularin kendisi ozgun olsun, gercek gecmis sorulari birebir kopyalama ya da "gecmis yil cikti" diye sunma. 2026 LGS onceki yillara gore belirgin sekilde daha zor ve secici geldi (uzmanlar hemfikir) - sorulari buna gore kalibre et: ezber bilgiden cok dikkat, zaman yonetimi, yorumlama ve strateji gerektiren sorular olsun, Turkce'de uzun paragraflar/celdiriciler, Matematik'te islem degil dikkat ve mantik agirlikli sorular kullan. Zorluk dagilimi GERCEK 2026 LGS oranina yakin olsun: soru sayisinin yaklasik %20'si kolay, %55'i orta, %25'i zor olsun (orn. 20 soruda ~4 kolay, ~11 orta, ~5 zor). Her sorunun hangi ALT KONUYU/KAZANIMI olctugunu 2-4 kelimeyle "altKonu" alaninda belirt (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa ve spesifik). Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"..."}]`;
       const cevap = await aiIstek(p, Math.min(6000, 400 + sinavSoruSayisi * 400), cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
@@ -404,7 +443,9 @@ export default function Ana() {
       if (baslangic === -1 || bitis === -1) throw new Error("Sinav olusturulamadi, tekrar dene");
       setSinavKapsamMetni(kapsamAciklama);
       setSinavKayitTuru(kayitTuru);
-      setDenemeSorulari(JSON.parse(temiz.slice(baslangic, bitis + 1)));
+      const uretilenSinavSorulari = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setDenemeSorulari(uretilenSinavSorulari);
+      sorulariBankayaKaydet(denemeDers, sinif, kapsamUnite, uretilenSinavSorulari, sinavTuru);
     } catch (e) { setHata(e.message || "Sinav olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
@@ -469,7 +510,14 @@ export default function Ana() {
       let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
       if (bitis === -1) bitis = temiz.lastIndexOf("]");
       if (baslangic === -1 || bitis === -1) throw new Error("Seviye tespit sinavi olusturulamadi, tekrar dene");
-      setSeviyeSorulari(JSON.parse(temiz.slice(baslangic, bitis + 1)));
+      const seviyeSorulariUretilen = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setSeviyeSorulari(seviyeSorulariUretilen);
+      const dersGruplari = {};
+      seviyeSorulariUretilen.forEach((s) => {
+        if (!dersGruplari[s.ders]) dersGruplari[s.ders] = [];
+        dersGruplari[s.ders].push(s);
+      });
+      Object.keys(dersGruplari).forEach((d) => sorulariBankayaKaydet(d, sinif, null, dersGruplari[d], "seviye"));
     } catch (e) { setHata(e.message || "Seviye tespit sinavi olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
@@ -788,6 +836,7 @@ export default function Ana() {
                     })}
                   </div>
                 )}
+                <button onClick={() => window.print()} style={{ width: "100%", marginTop: 14, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🖨️ PDF Olarak Kaydet / Yazdir</button>
               </div>
             ) : null}
           </div>
@@ -998,17 +1047,38 @@ export default function Ana() {
                 ))}
               </div>
               <input value={konu} onChange={(e) => setKonu(e.target.value)} placeholder="orn. Uslu Sayilar..." style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 14, marginBottom: 10 }} />
-              <div style={{ display: "flex", gap: 8 }}>
+              <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                 <button onClick={konuAnlat} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>{yukleniyor === "aciklama" ? "Hazirlaniyor…" : "Konuyu Anlat"}</button>
-                <button onClick={soruUret} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600 }}>{yukleniyor === "quiz" ? "Uretiliyor…" : "5 Soru Uret"}</button>
+                <button onClick={() => soruUret(false)} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600 }}>{yukleniyor === "quiz" ? "Uretiliyor…" : "5 Soru"}</button>
+                <button onClick={() => soruUret(true)} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.coral}`, background: "transparent", color: COLORS.coral, fontWeight: 600, fontSize: 12 }}>{yukleniyor === "quiz" ? "Uretiliyor…" : "15 Soru (Fasikul)"}</button>
               </div>
+              <button onClick={paragrafPratigiUret} disabled={!ders || !konu.trim() || yukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.mustard}`, background: "transparent", color: "#8A6D00", fontWeight: 600, fontSize: 12.5 }}>
+                {yukleniyor === "paragraf" ? "Hazirlaniyor…" : "📖 20 Soruluk Paragraf Pratigi + Puf Noktalari"}
+              </button>
             </div>
+            {paragrafMetni && (
+              <div style={{ background: "#FFF8E8", borderRadius: 12, padding: 16, marginBottom: 14, border: `1px solid ${COLORS.mustard}`, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>
+                <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 8, color: "#8A6D00" }}>📖 METIN</p>
+                {paragrafMetni}
+                {paragrafPufNoktalari && (
+                  <>
+                    <p style={{ fontWeight: 700, fontSize: 12, margin: "14px 0 8px", color: "#8A6D00" }}>💡 PUF NOKTALARI / ALTIN KURALLAR</p>
+                    {paragrafPufNoktalari}
+                  </>
+                )}
+              </div>
+            )}
             {aciklama && <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, marginBottom: 14, border: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>{aciklama}</div>}
             {quiz && (
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
                 {quiz.map((s, i) => (
                   <div key={i} style={{ marginBottom: 16 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>{i + 1}. {s.soru}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>
+                      {i + 1}. {s.soru}
+                      {s.zorluk && (
+                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: s.zorluk === "kolay" ? "#EAF7EE" : s.zorluk === "orta" ? "#FFF8E8" : "#FFF1EF", color: s.zorluk === "kolay" ? "#3DA35D" : s.zorluk === "orta" ? "#B8860B" : COLORS.coral }}>{s.zorluk}</span>
+                      )}
+                    </div>
                     {s.secenekler.map((sec, j) => {
                       const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
                       return <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: gonderildi ? "default" : "pointer", border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`, background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff" }}>{sec}</button>;
@@ -1018,7 +1088,10 @@ export default function Ana() {
                 {!gonderildi ? (
                   <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600 }}>Cevaplari Gonder</button>
                 ) : (
-                  <div style={{ textAlign: "center", fontWeight: 700, fontSize: 18, paddingTop: 4 }}>Sonuc: {dogruSayisi} / {quiz.length} dogru</div>
+                  <>
+                    <div style={{ textAlign: "center", fontWeight: 700, fontSize: 18, paddingTop: 4, marginBottom: 10 }}>Sonuc: {dogruSayisi} / {quiz.length} dogru</div>
+                    <button onClick={() => window.print()} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🖨️ PDF Olarak Kaydet / Yazdir</button>
+                  </>
                 )}
               </div>
             )}

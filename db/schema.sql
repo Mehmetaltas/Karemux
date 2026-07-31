@@ -72,6 +72,24 @@ CREATE TABLE IF NOT EXISTS sinav_sonuclari (
   olusturulma TIMESTAMPTZ DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS soru_bankasi (
+  id SERIAL PRIMARY KEY,
+  ders TEXT NOT NULL,
+  sinif INTEGER,
+  unite TEXT,
+  alt_konu TEXT,
+  zorluk TEXT,
+  soru TEXT NOT NULL,
+  secenekler JSONB NOT NULL,
+  dogru_index INTEGER NOT NULL,
+  kaynak_turu TEXT,          -- 'quiz' | 'fasikul' | 'paragraf' | 'yazili' | 'deneme' | 'seviye'
+  gosterim_sayisi INTEGER NOT NULL DEFAULT 0,
+  dogru_cevaplanma_sayisi INTEGER NOT NULL DEFAULT 0,
+  olusturulma TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_soru_bankasi_ders ON soru_bankasi(ders, sinif, unite);
+
 CREATE INDEX IF NOT EXISTS idx_ilerleme_kullanici ON ilerleme(kullanici_id);
 CREATE INDEX IF NOT EXISTS idx_abonelik_kullanici ON abonelikler(kullanici_id);
 CREATE INDEX IF NOT EXISTS idx_veli_ogrenci_veli ON veli_ogrenci(veli_id);
