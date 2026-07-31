@@ -12,6 +12,17 @@ const DERSLER = [
   { ad: "Din Kulturu", emoji: "🕌" }, { ad: "Ingilizce", emoji: "🇬🇧" },
 ];
 
+// Gercek MEB 8. sinif (LGS) mufredati - ders bazinda unite listesi.
+// Kaynak: MEB güncel müfredat + LGS konu dağılımı analizleri (2026).
+const MUFREDAT = {
+  "Matematik": ["Carpanlar ve Katlar", "Uslu Ifadeler", "Karekoklu Ifadeler", "Veri Analizi", "Olasilik", "Cebirsel Ifadeler ve Ozdeslikler", "Dogrusal Denklemler", "Esitsizlikler", "Ucgenler", "Eslik ve Benzerlik", "Donusum Geometrisi", "Geometrik Cisimler"],
+  "Fen Bilimleri": ["Mevsimler ve Iklim", "DNA ve Genetik Kod", "Basinc", "Madde ve Endustri", "Basit Makineler", "Enerji Donusumleri ve Cevre Bilimi", "Elektrik Yukleri ve Elektrik Enerjisi"],
+  "Turkce": ["Fiilimsiler", "Cumlenin Ogeleri", "Cumle Turleri", "Anlatim Bozukluklari", "Yazim Kurallari", "Noktalama Isaretleri", "Paragrafta Anlam", "Soz Sanatlari", "Fiilde Cati"],
+  "T.C. Inkilap Tarihi": ["Bir Kahraman Doguyor", "Milli Uyanis: Bagimsizlik Yolunda Atilan Adimlar", "Ya Istiklal Ya Olum", "Ataturkculuk ve Cagdaslasan Turkiye", "Demokratiklesme Cabalari", "Ataturk Donemi Turk Dis Politikasi", "Ataturk'un Olumu ve Sonrasi", "II. Dunya Savasi Surecinde Turkiye"],
+  "Din Kulturu": ["Kader Inanci", "Zekat ve Sadaka", "Hz. Muhammed'in Ornekligi", "Kur'an-i Kerim'de Sunulan Ornek Sahsiyetler", "Din ve Hayat"],
+  "Ingilizce": ["Friendship", "Teen Life", "In the Kitchen", "On the Phone", "The Internet", "Adventures", "Tourism", "Chores", "Science", "Natural Forces"],
+};
+
 // Auth henuz yok — tarayicida kalici anonim bir kimlik uretip ilerlemeyi buna bagliyoruz.
 function cihazIdAl() {
   if (typeof window === "undefined") return null;
@@ -25,11 +36,11 @@ function cihazIdAl() {
 
 // Tarayicidan DOGRUDAN Anthropic'e degil, kendi /api/claude route'umuza istek atiyoruz.
 // API anahtari sadece sunucuda (Vercel env) tutulur.
-async function aiIstek(prompt, maxTokens, cihazId) {
+async function aiIstek(prompt, maxTokens, cihazId, jsonModu) {
   const res = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, maxTokens, cihazId }),
+    body: JSON.stringify({ prompt, maxTokens, cihazId, jsonModu }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "AI istegi basarisiz");
@@ -40,6 +51,13 @@ export default function Ana() {
   const [mod, setMod] = useState("anlatim");
   const [ders, setDers] = useState(null);
   const [konu, setKonu] = useState("");
+  const [uniteSec, setUniteSec] = useState(null);
+
+  // Deneme Sinavi
+  const [denemeDers, setDenemeDers] = useState(null);
+  const [denemeSorulari, setDenemeSorulari] = useState(null);
+  const [denemeCevaplar, setDenemeCevaplar] = useState({});
+  const [denemeGonderildi, setDenemeGonderildi] = useState(false);
   const [aciklama, setAciklama] = useState("");
   const [quiz, setQuiz] = useState(null);
   const [cevaplar, setCevaplar] = useState({});
@@ -247,7 +265,8 @@ export default function Ana() {
     if (!ders || !konu.trim()) return;
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
-      const p = `Sen bir LGS (ortaokul 8. sinif) ogretmenisin. "${ders}" dersinden "${konu}" konusunu, 13-14 yasindaki bir ogrenciye sade, acik ve ornekli bir dille anlat. Madde isaretleri ve kisa paragraflar kullan. En fazla 250 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). Sadece Turkce yaz.`;
+      const uniteMetni = uniteSec ? ` (${uniteSec} unitesinden)` : "";
+      const p = `Sen bir LGS (ortaokul 8. sinif) ogretmenisin. "${ders}" dersinden${uniteMetni} "${konu}" konusunu, 13-14 yasindaki bir ogrenciye sade, acik ve ornekli bir dille anlat. Madde isaretleri ve kisa paragraflar kullan. En fazla 250 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). Sadece Turkce yaz.`;
       const cevap = await aiIstek(p, 2000, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "")
@@ -265,9 +284,10 @@ export default function Ana() {
     if (!ders || !konu.trim()) return;
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen bir LGS ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili 8. sinif seviyesinde 5 coktan secmeli soru hazirla. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme:
+      const uniteMetni2 = uniteSec ? ` (${uniteSec} unitesinden, gercek LGS tarzinda)` : "";
+      const p = `Sen bir LGS ogretmenisin. "${ders}" dersinden${uniteMetni2} "${konu}" konusuyla ilgili 8. sinif seviyesinde 5 coktan secmeli soru hazirla. Sorular gercek LGS sinav formatinda, mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
-      const cevap = await aiIstek(p, 3000, cihazIdRef.current);
+      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
@@ -290,6 +310,36 @@ export default function Ana() {
     } catch (e) { setHata(e.message || "Plan olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
+
+  async function denemeOlustur() {
+    if (!denemeDers) return;
+    setYukleniyor("deneme"); setHata(""); setDenemeCevaplar({}); setDenemeGonderildi(false); setDenemeSorulari(null);
+    try {
+      const uniteler = MUFREDAT[denemeDers] || [];
+      const uniteListesi = uniteler.length ? `Bu dersin tum uniteleri: ${uniteler.join(", ")}. Sorulari bu unitelerin TAMAMINA yayarak hazirla, her uniteden en az bir soru gelsin.` : "";
+      const p = `Sen bir LGS olcme-degerlendirme uzmanisin. "${denemeDers}" dersi icin gercek LGS sinavi formatinda, 8. sinif seviyesinde 10 soruluk bir DENEME SINAVI hazirla. ${uniteListesi} Sorulari, 2022-2026 yillari arasindaki gercek LGS sinavlarinin soru tarzina, uslubuna, uzunlugona ve zorluk seviyesine birebir benzet - ama sorularin kendisi ozgun olsun, gercek gecmis sorulari birebir kopyalama ya da "gecmis yil cikti" diye sunma. Sorular gercek sinavlardaki gibi mantik yurutme, yorum ve analiz gerektirsin, ezber bilgi sorma. Zorluk dagilimi: 3 kolay, 4 orta, 3 zor olsun. SADECE JSON dondur, baska hicbir aciklama ekleme:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]`;
+      const cevap = await aiIstek(p, 4500, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").trim();
+      const ankor = temiz.indexOf('"soru"');
+      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
+      if (baslangic === -1) baslangic = temiz.indexOf("[{");
+      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
+      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
+      if (bitis === -1) bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("Deneme olusturulamadi, tekrar dene");
+      setDenemeSorulari(JSON.parse(temiz.slice(baslangic, bitis + 1)));
+    } catch (e) { setHata(e.message || "Deneme olusturulamadi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
+  function denemeGonder() {
+    setDenemeGonderildi(true);
+  }
+
+  const denemeDogruSayisi = denemeSorulari && denemeGonderildi
+    ? denemeSorulari.filter((s, i) => denemeCevaplar[i] === s.dogruIndex).length
+    : null;
 
   async function premiumSatinAl(plan) {
     setOdemeHata(""); setCheckoutHtml("");
@@ -325,18 +375,78 @@ export default function Ana() {
         <p style={{ color: "#C9D4C7", fontSize: 13, margin: "0 0 16px" }}>Konu anlatimi, soru uretimi ve kisisel calisma plani — yapay zekâ ile.</p>
 
         <div style={{ display: "flex", gap: 6, marginBottom: 18, flexWrap: "wrap" }}>
-          {["anlatim", "sorucoz", "kocluk", "premium", "hesap"].map((m) => (
+          {["anlatim", "deneme", "sorucoz", "kocluk", "premium", "hesap"].map((m) => (
             <button key={m} onClick={() => setMod(m)} style={{
               flex: "1 1 auto", padding: "9px 4px", borderRadius: 8, border: "none", cursor: "pointer",
               background: mod === m ? COLORS.page : "transparent", color: mod === m ? COLORS.ink : "#C9D4C7",
               fontWeight: 600, fontSize: 12,
             }}>
-              {m === "anlatim" ? "📘 Konu" : m === "sorucoz" ? "📷 Soru Coz" : m === "kocluk" ? "🎯 Kocluk" : m === "premium" ? "💳 Premium" : hesap ? `👤 ${hesap.ad}` : "👤 Hesap"}
+              {m === "anlatim" ? "📘 Konu" : m === "deneme" ? "📝 Deneme" : m === "sorucoz" ? "📷 Soru Coz" : m === "kocluk" ? "🎯 Kocluk" : m === "premium" ? "💳 Premium" : hesap ? `👤 ${hesap.ad}` : "👤 Hesap"}
             </button>
           ))}
         </div>
 
         {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
+
+        {mod === "deneme" && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
+              Bir ders sec, tum unitelere yayilan, gercek LGS formatinda 10 soruluk bir deneme sinavi olustur.
+              <br /><em style={{ fontSize: 11.5 }}>(Sorular 2022-2026 gercek LGS tarzinda ozgun uretilir, birebir gecmis yil sorusu degildir.)</em>
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+              {DERSLER.map((d) => (
+                <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setDenemeSorulari(null); }} style={{ padding: "6px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${denemeDers === d.ad ? COLORS.coral : COLORS.line}`, background: denemeDers === d.ad ? "#FFF1EF" : "#fff", color: COLORS.ink }}>
+                  {d.emoji} {d.ad}
+                </button>
+              ))}
+            </div>
+            <button onClick={denemeOlustur} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, opacity: !denemeDers ? 0.5 : 1 }}>
+              {yukleniyor === "deneme" ? "Hazirlaniyor..." : "10 Soruluk Deneme Olustur"}
+            </button>
+
+            {denemeSorulari && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: `1px solid ${COLORS.line}` }}>
+                {denemeSorulari.map((s, i) => (
+                  <div key={i} style={{ marginBottom: 16 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
+                      {i + 1}. {s.soru}
+                      {s.zorluk && (
+                        <span style={{
+                          marginLeft: 6, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999,
+                          background: s.zorluk === "kolay" ? "#EAF7EE" : s.zorluk === "orta" ? "#FFF8E8" : "#FFF1EF",
+                          color: s.zorluk === "kolay" ? "#3DA35D" : s.zorluk === "orta" ? "#B8860B" : COLORS.coral,
+                        }}>{s.zorluk}</span>
+                      )}
+                    </div>
+                    {s.secenekler.map((sec, j) => {
+                      const secili = denemeCevaplar[i] === j;
+                      const dogru = denemeGonderildi && j === s.dogruIndex;
+                      const yanlis = denemeGonderildi && secili && j !== s.dogruIndex;
+                      return (
+                        <button key={j} onClick={() => !denemeGonderildi && setDenemeCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                          display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
+                          cursor: denemeGonderildi ? "default" : "pointer",
+                          border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
+                          background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff",
+                        }}>{sec}</button>
+                      );
+                    })}
+                  </div>
+                ))}
+                {!denemeGonderildi ? (
+                  <button onClick={denemeGonder} disabled={Object.keys(denemeCevaplar).length < denemeSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600 }}>
+                    Cevaplari Gonder
+                  </button>
+                ) : (
+                  <div style={{ textAlign: "center", fontWeight: 700, fontSize: 18, paddingTop: 4 }}>
+                    Sonuc: {denemeDogruSayisi} / {denemeSorulari.length} dogru
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {mod === "hesap" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
@@ -507,12 +617,22 @@ export default function Ana() {
           <>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 14 }}>
               {DERSLER.map((d) => (
-                <button key={d.ad} onClick={() => setDers(d.ad)} style={{ padding: "12px 6px", borderRadius: 10, border: `1.5px solid ${ders === d.ad ? COLORS.coral : COLORS.line}`, background: ders === d.ad ? "#FFF1EF" : COLORS.page, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                <button key={d.ad} onClick={() => { setDers(d.ad); setUniteSec(null); }} style={{ padding: "12px 6px", borderRadius: 10, border: `1.5px solid ${ders === d.ad ? COLORS.coral : COLORS.line}`, background: ders === d.ad ? "#FFF1EF" : COLORS.page, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                   <div style={{ fontSize: 18, marginBottom: 4 }}>{d.emoji}</div>{d.ad}
                 </button>
               ))}
             </div>
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
+              {ders && MUFREDAT[ders] && (
+                <div style={{ marginBottom: 10 }}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>UNITE SEC (istege bagli, MEB mufredati)</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                    {MUFREDAT[ders].map((u) => (
+                      <button key={u} onClick={() => setUniteSec(uniteSec === u ? null : u)} style={{ padding: "5px 9px", borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${uniteSec === u ? COLORS.coral : COLORS.line}`, background: uniteSec === u ? "#FFF1EF" : "#fff", color: COLORS.ink }}>{u}</button>
+                    ))}
+                  </div>
+                </div>
+              )}
               <input value={konu} onChange={(e) => setKonu(e.target.value)} placeholder="orn. Uslu Sayilar..." style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 14, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8 }}>
                 <button onClick={konuAnlat} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>{yukleniyor === "aciklama" ? "Hazirlaniyor…" : "Konuyu Anlat"}</button>
