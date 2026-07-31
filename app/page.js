@@ -82,6 +82,30 @@ export default function Ana() {
   const [ders, setDers] = useState(null);
   const [konu, setKonu] = useState("");
   const [uniteSec, setUniteSec] = useState(null);
+  const [tamamlananUniteler, setTamamlananUniteler] = useState({}); // { [ders]: [unite1, unite2, ...] }
+
+  useEffect(() => {
+    try {
+      const kayitli = localStorage.getItem("karemux_tamamlanan_uniteler");
+      if (kayitli) setTamamlananUniteler(JSON.parse(kayitli));
+    } catch (e) {}
+  }, []);
+
+  function uniteTamamlandiIsaretle(dersAdi, uniteAdi) {
+    setTamamlananUniteler((eski) => {
+      const guncel = { ...eski, [dersAdi]: [...new Set([...(eski[dersAdi] || []), uniteAdi])] };
+      try { localStorage.setItem("karemux_tamamlanan_uniteler", JSON.stringify(guncel)); } catch (e) {}
+      return guncel;
+    });
+  }
+
+  function uniteAcikMi(dersAdi, uniteAdi) {
+    const tumUniteler = MUFREDAT[dersAdi] || [];
+    const indeks = tumUniteler.indexOf(uniteAdi);
+    if (indeks <= 0) return true; // ilk unite her zaman acik
+    const tamamlanan = tamamlananUniteler[dersAdi] || [];
+    return tamamlanan.includes(tumUniteler[indeks - 1]); // bir onceki unite tamamlanmis mi
+  }
   const [zorlukSec, setZorlukSec] = useState("orta"); // "basit" | "orta" | "zor"
 
   // Sinav (Yazili/Deneme ortak) - Kapsam: konu | unite | donem
@@ -570,6 +594,9 @@ export default function Ana() {
     setGonderildi(true);
     const dogru = quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length;
     ilerlemeyiKaydet(ders, konu, dogru, quiz.length);
+    if (uniteSec && dogru / quiz.length >= 0.7) {
+      uniteTamamlandiIsaretle(ders, uniteSec);
+    }
   }
 
   return (
@@ -579,7 +606,11 @@ export default function Ana() {
         <p style={{ color: "#C9D4C7", fontSize: 13, margin: "0 0 16px" }}>Seviye tespiti, konu anlatimi, deneme/yazili ve kisisel calisma plani — 5. siniftan LGS'ye kadar tek sistemde.</p>
 
         <div style={{ marginBottom: 18 }}>
-          <select value={mod} onChange={(e) => setMod(e.target.value)} style={{
+          <select value={mod} onChange={(e) => {
+            setMod(e.target.value);
+            setDenemeSorulari(null); setDenemeCevaplar({}); setDenemeGonderildi(false); setDenemeBelgesi(null);
+            setQuiz(null); setCevaplar({}); setGonderildi(false); setAciklama(""); setParagrafMetni("");
+          }} style={{
             width: "100%", padding: "12px 14px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`,
             background: COLORS.page, color: COLORS.ink, fontWeight: 700, fontSize: 14, cursor: "pointer",
             appearance: "none", WebkitAppearance: "none",
@@ -853,7 +884,14 @@ export default function Ana() {
                     })}
                   </div>
                 )}
-                <button onClick={() => window.print()} style={{ width: "100%", marginTop: 14, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🖨️ PDF Olarak Kaydet / Yazdir</button>
+                <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                  <button onClick={() => {
+                    setZayifDersler((l) => (l.includes(denemeDers) ? l : [...l, denemeDers]));
+                    setOtomatikTespit(true);
+                    setMod("kocluk");
+                  }} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎯 Kocluk Planina Ekle</button>
+                  <button onClick={() => window.print()} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🖨️ PDF / Yazdir</button>
+                </div>
               </div>
             ) : null}
           </div>
@@ -1043,11 +1081,20 @@ export default function Ana() {
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
               {ders && sinif === 8 && MUFREDAT[ders] && (
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>UNITE SEC (istege bagli, MEB mufredati - dogrulanmis)</label>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>UNITE SEC (sirayla acilir - MEB mufredati, dogrulanmis)</label>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                    {MUFREDAT[ders].map((u) => (
-                      <button key={u} onClick={() => setUniteSec(uniteSec === u ? null : u)} style={{ padding: "5px 9px", borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${uniteSec === u ? COLORS.coral : COLORS.line}`, background: uniteSec === u ? "#FFF1EF" : "#fff", color: COLORS.ink }}>{u}</button>
-                    ))}
+                    {MUFREDAT[ders].map((u) => {
+                      const acikMi = uniteAcikMi(ders, u);
+                      const tamamMi = (tamamlananUniteler[ders] || []).includes(u);
+                      return (
+                        <button key={u} onClick={() => acikMi && setUniteSec(uniteSec === u ? null : u)} disabled={!acikMi} style={{
+                          padding: "5px 9px", borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: acikMi ? "pointer" : "not-allowed",
+                          border: `1.5px solid ${uniteSec === u ? COLORS.coral : COLORS.line}`,
+                          background: uniteSec === u ? "#FFF1EF" : tamamMi ? "#EAF7EE" : "#fff",
+                          color: acikMi ? COLORS.ink : "#B8B8B8", opacity: acikMi ? 1 : 0.6,
+                        }}>{tamamMi ? "✓ " : !acikMi ? "🔒 " : ""}{u}</button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
