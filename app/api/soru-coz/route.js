@@ -1,4 +1,3 @@
-// Fotografla soru cozumu - lib/ai.js soyutlamasi + gunluk kullanim limiti ile.
 import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
@@ -27,6 +26,6 @@ Eger gorsel bir soru degilse ya da okunamiyorsa bunu acikca belirt. Sadece Turkc
     return Response.json({ cozum, kalanHak: Math.max(0, limit.limit - limit.kullanim) });
   } catch (e) {
     console.error(e);
-    return Response.json({ error: "Cozum alinamadi" }, { status: 502 });
+    return Response.json({ error: "Cozum alinamadi: " + e.message }, { status: 502 });
   }
 }
