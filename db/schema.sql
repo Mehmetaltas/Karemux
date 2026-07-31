@@ -60,11 +60,24 @@ CREATE TABLE IF NOT EXISTS ilerleme (
   olusturulma TIMESTAMPTZ DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS sinav_sonuclari (
+  id SERIAL PRIMARY KEY,
+  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
+  tur TEXT NOT NULL,              -- 'deneme' | 'yazili1' | 'yazili2' | 'yazili3' | 'seviye'
+  ders TEXT NOT NULL,
+  dogru INTEGER NOT NULL,
+  yanlis INTEGER NOT NULL,
+  bos INTEGER NOT NULL,
+  net NUMERIC(5,2) NOT NULL,
+  olusturulma TIMESTAMPTZ DEFAULT now()
+);
+
 CREATE INDEX IF NOT EXISTS idx_ilerleme_kullanici ON ilerleme(kullanici_id);
 CREATE INDEX IF NOT EXISTS idx_abonelik_kullanici ON abonelikler(kullanici_id);
 CREATE INDEX IF NOT EXISTS idx_veli_ogrenci_veli ON veli_ogrenci(veli_id);
 CREATE INDEX IF NOT EXISTS idx_veli_ogrenci_ogrenci ON veli_ogrenci(ogrenci_id);
 CREATE INDEX IF NOT EXISTS idx_gunluk_kullanim ON gunluk_kullanim(kullanici_id, tarih);
+CREATE INDEX IF NOT EXISTS idx_sinav_sonuclari_kullanici ON sinav_sonuclari(kullanici_id, ders, tur);
 
 -- NOT: Bu tablolar sonradan eklendiği için mevcut bir veritabanında
 -- eksik sütunlar olabilir. Zaten schema.sql'i çalıştırmış olan projelerde
