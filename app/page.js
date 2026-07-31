@@ -240,7 +240,7 @@ export default function Ana() {
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const p = `Sen bir LGS (ortaokul 8. sinif) ogretmenisin. "${ders}" dersinden "${konu}" konusunu, 13-14 yasindaki bir ogrenciye sade, acik ve ornekli bir dille anlat. Madde isaretleri ve kisa paragraflar kullan. En fazla 250 kelime. Markdown bicimlendirme kullanma (yildiz **, baslik # gibi isaretler koyma), sadece duz metin yaz. Sadece Turkce yaz.`;
-      const cevap = await aiIstek(p, 1000, cihazIdRef.current);
+      const cevap = await aiIstek(p, 2000, cihazIdRef.current);
       setAciklama(cevap.replace(/\*\*/g, "").replace(/#+\s?/g, ""));
     } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
@@ -252,7 +252,7 @@ export default function Ana() {
     try {
       const p = `Sen bir LGS ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili 8. sinif seviyesinde 5 coktan secmeli soru hazirla. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
-      const cevap = await aiIstek(p, 2200, cihazIdRef.current);
+      const cevap = await aiIstek(p, 3000, cihazIdRef.current);
       const temiz = cevap.replace(/```json|```/g, "").trim();
       let baslangic = temiz.indexOf("[{");
       if (baslangic === -1) baslangic = temiz.indexOf("[");
@@ -269,7 +269,7 @@ export default function Ana() {
     setYukleniyor("plan"); setHata(""); setPlan("");
     try {
       const p = `Sen bir LGS calisma kocusun. Zayif dersler: ${zayifDersler.join(", ")}. Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Haftalik program hazirla, dersleri saatlere bol, kisa odak notu ekle. Motive edici ama abartisiz. Sadece Turkce duz metin, en fazla 300 kelime, markdown isareti kullanma.`;
-      setPlan(await aiIstek(p, 900, cihazIdRef.current));
+      setPlan(await aiIstek(p, 1500, cihazIdRef.current));
     } catch (e) { setHata(e.message || "Plan olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }

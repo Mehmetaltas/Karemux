@@ -22,7 +22,7 @@ Bir LGS ogretmeni gibi davran: kisa, net, ADIM ADIM coz. Her adimi 1 satirda oze
 gereksiz uzun aciklama yapma. En sonda "CEVAP: X" seklinde net sonucu yaz.
 Eger gorsel bir soru degilse ya da okunamiyorsa bunu acikca belirt. Sadece Turkce yaz.`;
 
-    const cozum = await aiCagir({ prompt: talimat, imageBase64, mediaType, maxTokens: 900 });
+    const cozum = await aiCagir({ prompt: talimat, imageBase64, mediaType, maxTokens: 1500 });
     return Response.json({ cozum, kalanHak: Math.max(0, limit.limit - limit.kullanim) });
   } catch (e) {
     console.error(e);
