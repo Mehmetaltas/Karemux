@@ -578,16 +578,21 @@ export default function Ana() {
         <h1 style={{ fontSize: 26, fontWeight: 700, color: COLORS.page, margin: "0 0 4px" }}>Karemux <span style={{ color: COLORS.mustard }}>·</span> 5.Siniftan LGS'ye Hazirlik</h1>
         <p style={{ color: "#C9D4C7", fontSize: 13, margin: "0 0 16px" }}>Seviye tespiti, konu anlatimi, deneme/yazili ve kisisel calisma plani — 5. siniftan LGS'ye kadar tek sistemde.</p>
 
-        <div style={{ display: "flex", gap: 6, marginBottom: 18, flexWrap: "wrap" }}>
-          {["seviye", "anlatim", "yazili", "deneme", "sorucoz", "kocluk", "premium", "hesap"].map((m) => (
-            <button key={m} onClick={() => setMod(m)} style={{
-              flex: "1 1 auto", padding: "9px 4px", borderRadius: 8, border: "none", cursor: "pointer",
-              background: mod === m ? COLORS.page : "transparent", color: mod === m ? COLORS.ink : "#C9D4C7",
-              fontWeight: 600, fontSize: 12,
-            }}>
-              {m === "seviye" ? "🧭 Seviye" : m === "anlatim" ? "📘 Konu" : m === "yazili" ? "✏️ Yazili" : m === "deneme" ? "📝 Deneme" : m === "sorucoz" ? "📷 Soru Coz" : m === "kocluk" ? "🎯 Kocluk" : m === "premium" ? "💳 Premium" : hesap ? `👤 ${hesap.ad}` : "👤 Hesap"}
-            </button>
-          ))}
+        <div style={{ marginBottom: 18 }}>
+          <select value={mod} onChange={(e) => setMod(e.target.value)} style={{
+            width: "100%", padding: "12px 14px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`,
+            background: COLORS.page, color: COLORS.ink, fontWeight: 700, fontSize: 14, cursor: "pointer",
+            appearance: "none", WebkitAppearance: "none",
+          }}>
+            <option value="seviye">🧭 Seviye Tespiti</option>
+            <option value="anlatim">📘 Konu Anlatimi</option>
+            <option value="yazili">✏️ Yazili Hazirligi</option>
+            <option value="deneme">📝 Deneme Sinavi</option>
+            <option value="sorucoz">📷 Soru Coz (Fotograf)</option>
+            <option value="kocluk">🎯 Kocluk Plani</option>
+            <option value="premium">💳 Premium</option>
+            <option value="hesap">{hesap ? `👤 ${hesap.ad}` : "👤 Hesap"}</option>
+          </select>
         </div>
 
         {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
@@ -654,13 +659,17 @@ export default function Ana() {
               Okul yazili sinavina hazirlik — kapsam sec (konu/unite/donem), soru sayisini ayarla.
               <br /><em style={{ fontSize: 11.5 }}>(Sorular gercek sinav tarzinda ozgun uretilir, birebir gecmis soru degildir.)</em>
             </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 5 }}>DERS SEC</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
               {DERSLER.map((d) => (
                 <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{ padding: "6px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${denemeDers === d.ad ? COLORS.coral : COLORS.line}`, background: denemeDers === d.ad ? "#FFF1EF" : "#fff", color: COLORS.ink }}>
                   {d.emoji} {d.ad}
                 </button>
               ))}
             </div>
+
+            {denemeDers && (
+              <>
             <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 5 }}>KAPSAM</label>
             <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
               {[["konu", "Konu"], ["unite", "Unite"], ["donem", "Donem"]].map(([k, etiket]) => (
@@ -703,6 +712,8 @@ export default function Ana() {
             <button onClick={() => sinavOlustur("yazili")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, opacity: !denemeDers ? 0.5 : 1 }}>
               {yukleniyor === "yazili" ? "Hazirlaniyor..." : `${sinavSoruSayisi} Soruluk Yazili Hazirla`}
             </button>
+              </>
+            )}
           </div>
         )}
 
@@ -712,13 +723,17 @@ export default function Ana() {
               LGS deneme sinavina hazirlik — kapsam sec (konu/unite/donem/tam yil), soru sayisini ayarla.
               <br /><em style={{ fontSize: 11.5 }}>(Sorular 2022-2026 gercek LGS tarzinda ozgun uretilir, birebir gecmis yil sorusu degildir.)</em>
             </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+            <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 5 }}>DERS SEC</label>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
               {DERSLER.map((d) => (
                 <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{ padding: "6px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${denemeDers === d.ad ? COLORS.coral : COLORS.line}`, background: denemeDers === d.ad ? "#FFF1EF" : "#fff", color: COLORS.ink }}>
                   {d.emoji} {d.ad}
                 </button>
               ))}
             </div>
+
+            {denemeDers && (
+              <>
             <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 5 }}>KAPSAM</label>
             <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
               {[["konu", "Konu"], ["unite", "Unite"], ["donem", "Donem/Tam"]].map(([k, etiket]) => (
@@ -755,6 +770,8 @@ export default function Ana() {
             <button onClick={() => sinavOlustur("deneme")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, opacity: !denemeDers ? 0.5 : 1 }}>
               {yukleniyor === "deneme" ? "Hazirlaniyor..." : `${sinavSoruSayisi} Soruluk Deneme Olustur`}
             </button>
+              </>
+            )}
           </div>
         )}
 
