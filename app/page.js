@@ -8,11 +8,10 @@ const COLORS = {
 
 const DERSLER = [
   { ad: "Matematik", emoji: "➗" }, { ad: "Fen Bilimleri", emoji: "🔬" },
-  { ad: "Türkçe", emoji: "📖" }, { ad: "T.C. İnkılap Tarihi", emoji: "🏛️" },
-  { ad: "Din Kültürü", emoji: "🕌" }, { ad: "İngilizce", emoji: "🇬🇧" },
+  { ad: "Turkce", emoji: "📖" }, { ad: "T.C. Inkilap Tarihi", emoji: "🏛️" },
+  { ad: "Din Kulturu", emoji: "🕌" }, { ad: "Ingilizce", emoji: "🇬🇧" },
 ];
 
-// Auth henüz yok — tarayıcıda kalıcı anonim bir kimlik üretip ilerlemeyi buna bağlıyoruz.
 function cihazIdAl() {
   if (typeof window === "undefined") return null;
   let id = localStorage.getItem("karemux_cihaz_id");
@@ -23,8 +22,6 @@ function cihazIdAl() {
   return id;
 }
 
-// Tarayıcıdan DOĞRUDAN Anthropic'e değil, kendi /api/claude route'umuza istek atıyoruz.
-// API anahtarı sadece sunucuda (Vercel env) tutulur.
 async function aiIstek(prompt, maxTokens, cihazId) {
   const res = await fetch("/api/claude", {
     method: "POST",
@@ -32,7 +29,7 @@ async function aiIstek(prompt, maxTokens, cihazId) {
     body: JSON.stringify({ prompt, maxTokens, cihazId }),
   });
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "AI isteği başarısız");
+  if (!res.ok) throw new Error(data.error || "AI istegi basarisiz");
   return data.text;
 }
 
@@ -59,20 +56,17 @@ export default function Ana() {
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
   const [iptalMesaji, setIptalMesaji] = useState("");
 
-  // Hesap
-  const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
-  const [hesapModu, setHesapModu] = useState("giris"); // "giris" | "kayit"
+  const [hesap, setHesap] = useState(null);
+  const [hesapModu, setHesapModu] = useState("giris");
   const [epostaGir, setEpostaGir] = useState("");
   const [sifreGir, setSifreGir] = useState("");
   const [adGir, setAdGir] = useState("");
-  const [rolSec, setRolSec] = useState("ogrenci"); // "ogrenci" | "veli"
+  const [rolSec, setRolSec] = useState("ogrenci");
   const [hesapHata, setHesapHata] = useState("");
 
-  // E-posta doğrulama
   const [dogrulamaKoduGir, setDogrulamaKoduGir] = useState("");
   const [dogrulamaMesaj, setDogrulamaMesaj] = useState("");
 
-  // Veli bağlantısı
   const [baglantiKoduGir, setBaglantiKoduGir] = useState("");
   const [veliMesaj, setVeliMesaj] = useState("");
   const [veliOgrenciler, setVeliOgrenciler] = useState([]);
@@ -106,11 +100,10 @@ export default function Ana() {
       setIptalMesaji(data.mesaj);
       setAktifAbonelik(null);
     } catch (e) {
-      setIptalMesaji("İptal edilemedi: " + e.message);
+      setIptalMesaji("Iptal edilemedi: " + e.message);
     }
   }
 
-  // Soru Çöz (fotoğrafla)
   const [soruGorseli, setSoruGorseli] = useState(null);
   const [soruCozumu, setSoruCozumu] = useState("");
 
@@ -125,7 +118,7 @@ export default function Ana() {
           setOtomatikTespit(true);
         }
       })
-      .catch(() => {}); // ilk kullanımda geçmiş yoktur, sessizce geç
+      .catch(() => {});
   }, []);
 
   function dersToggle(ad) {
@@ -141,7 +134,7 @@ export default function Ana() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cihazId: cihazIdRef.current, ders: dersAdi, konu: konuAdi, dogruSayisi: dogru, toplamSoru: toplam }),
       });
-    } catch (e) { /* sessizce geç - ilerleme kaydı kritik değil */ }
+    } catch (e) {}
   }
 
   async function hesapGonder() {
@@ -155,13 +148,12 @@ export default function Ana() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      // Tam kullanıcı bilgisini (rol, doğrulama durumu, veli kodu dahil) tazele
       const me = await fetch("/api/auth/me").then((r) => r.json());
       if (me.girisYapmis) setHesap(me.kullanici);
       const p = await fetch(`/api/ilerleme?cihazId=${cihazIdRef.current}`).then((r) => r.json());
       if (p.zayifDersler?.length) { setZayifDersler(p.zayifDersler); setOtomatikTespit(true); }
     } catch (e) {
-      setHesapHata(e.message || "İşlem başarısız");
+      setHesapHata(e.message || "Islem basarisiz");
     }
   }
 
@@ -182,9 +174,9 @@ export default function Ana() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setHesap((h) => ({ ...h, eposta_dogrulandi: true }));
-      setDogrulamaMesaj("E-postan doğrulandı!");
+      setDogrulamaMesaj("E-postan dogrulandi!");
     } catch (e) {
-      setDogrulamaMesaj(e.message || "Doğrulama başarısız");
+      setDogrulamaMesaj(e.message || "Dogrulama basarisiz");
     }
   }
 
@@ -194,9 +186,9 @@ export default function Ana() {
       const res = await fetch("/api/auth/dogrulama-kodu-gonder", { method: "POST" });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setDogrulamaMesaj("Yeni kod gönderildi, gelen kutunu kontrol et.");
+      setDogrulamaMesaj("Yeni kod gonderildi, gelen kutunu kontrol et.");
     } catch (e) {
-      setDogrulamaMesaj(e.message || "Kod gönderilemedi");
+      setDogrulamaMesaj(e.message || "Kod gonderilemedi");
     }
   }
 
@@ -210,12 +202,12 @@ export default function Ana() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setVeliMesaj(`${data.ogrenciAdi} adlı öğrenciye bağlandın.`);
+      setVeliMesaj(`${data.ogrenciAdi} adli ogrenciye baglandin.`);
       setBaglantiKoduGir("");
       const d = await fetch("/api/veli/ilerleme").then((r) => r.json());
       if (d.ogrenciler) setVeliOgrenciler(d.ogrenciler);
     } catch (e) {
-      setVeliMesaj(e.message || "Bağlantı kurulamadı");
+      setVeliMesaj(e.message || "Baglanti kurulamadi");
     }
   }
 
@@ -237,7 +229,7 @@ export default function Ana() {
       if (!res.ok) throw new Error(data.error);
       setSoruCozumu(data.cozum);
     } catch (e) {
-      setHata(e.message || "Soru çözülemedi, tekrar dene.");
+      setHata(e.message || "Soru cozulemedi, tekrar dene.");
     } finally {
       setYukleniyor(null);
     }
@@ -247,9 +239,10 @@ export default function Ana() {
     if (!ders || !konu.trim()) return;
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
-      const p = `Sen bir LGS (ortaokul 8. sınıf) öğretmenisin. "${ders}" dersinden "${konu}" konusunu, 13-14 yaşındaki bir öğrenciye sade, açık ve örnekli bir dille anlat. Madde işaretleri ve kısa paragraflar kullan. En fazla 250 kelime. Sadece Türkçe yaz.`;
-      setAciklama(await aiIstek(p, 800, cihazIdRef.current));
-    } catch (e) { setHata(e.message || "Anlatım alınamadı, tekrar dene."); }
+      const p = `Sen bir LGS (ortaokul 8. sinif) ogretmenisin. "${ders}" dersinden "${konu}" konusunu, 13-14 yasindaki bir ogrenciye sade, acik ve ornekli bir dille anlat. Madde isaretleri ve kisa paragraflar kullan. En fazla 250 kelime. Markdown bicimlendirme kullanma (yildiz **, baslik # gibi isaretler koyma), sadece duz metin yaz. Sadece Turkce yaz.`;
+      const cevap = await aiIstek(p, 1000, cihazIdRef.current);
+      setAciklama(cevap.replace(/\*\*/g, "").replace(/#+\s?/g, ""));
+    } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
 
@@ -257,11 +250,17 @@ export default function Ana() {
     if (!ders || !konu.trim()) return;
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen bir LGS öğretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili 8. sınıf seviyesinde 5 çoktan seçmeli soru hazırla. SADECE JSON döndür, markdown kod bloğu kullanma:
+      const p = `Sen bir LGS ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili 8. sinif seviyesinde 5 coktan secmeli soru hazirla. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
-      const cevap = await aiIstek(p, 1200, cihazIdRef.current);
-      setQuiz(JSON.parse(cevap.replace(/```json|```/g, "").trim()));
-    } catch (e) { setHata(e.message || "Sorular üretilemedi, tekrar dene."); }
+      const cevap = await aiIstek(p, 2200, cihazIdRef.current);
+      const temiz = cevap.replace(/```json|```/g, "").trim();
+      let baslangic = temiz.indexOf("[{");
+      if (baslangic === -1) baslangic = temiz.indexOf("[");
+      const bitisEslesme = temiz.lastIndexOf("}]");
+      const bitis = bitisEslesme !== -1 ? bitisEslesme + 1 : temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
+      setQuiz(JSON.parse(temiz.slice(baslangic, bitis + 1)));
+    } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
 
@@ -269,9 +268,9 @@ export default function Ana() {
     if (zayifDersler.length === 0) return;
     setYukleniyor("plan"); setHata(""); setPlan("");
     try {
-      const p = `Sen bir LGS çalışma koçusun. Zayıf dersler: ${zayifDersler.join(", ")}. Haftalık ${haftalikSaat} saat, sınava ${kalanHafta} hafta kaldı. Haftalık program hazırla, dersleri saatlere böl, kısa odak notu ekle. Motive edici ama abartısız. Sadece Türkçe düz metin, en fazla 300 kelime, markdown işareti kullanma.`;
+      const p = `Sen bir LGS calisma kocusun. Zayif dersler: ${zayifDersler.join(", ")}. Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Haftalik program hazirla, dersleri saatlere bol, kisa odak notu ekle. Motive edici ama abartisiz. Sadece Turkce duz metin, en fazla 300 kelime, markdown isareti kullanma.`;
       setPlan(await aiIstek(p, 900, cihazIdRef.current));
-    } catch (e) { setHata(e.message || "Plan oluşturulamadı, tekrar dene."); }
+    } catch (e) { setHata(e.message || "Plan olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
 
@@ -283,14 +282,14 @@ export default function Ana() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan,
-          kullanici: { ad: "Test", soyad: "Kullanici", eposta: "test@karemux.com", adres: "İstanbul, Türkiye", sehir: "Istanbul" },
+          kullanici: { ad: "Test", soyad: "Kullanici", eposta: "test@karemux.com", adres: "Istanbul, Turkiye", sehir: "Istanbul" },
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setCheckoutHtml(data.checkoutFormContent);
     } catch (e) {
-      setOdemeHata("Ödeme başlatılamadı: " + e.message);
+      setOdemeHata("Odeme baslatilamadi: " + e.message);
     }
   }
 
@@ -305,8 +304,8 @@ export default function Ana() {
   return (
     <div style={{ minHeight: "100vh", background: COLORS.bg, fontFamily: "system-ui, sans-serif", padding: "24px 14px" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: COLORS.page, margin: "0 0 4px" }}>Karemux <span style={{ color: COLORS.mustard }}>·</span> LGS Ders Koçu</h1>
-        <p style={{ color: "#C9D4C7", fontSize: 13, margin: "0 0 16px" }}>Konu anlatımı, soru üretimi ve kişisel çalışma planı — yapay zekâ ile.</p>
+        <h1 style={{ fontSize: 26, fontWeight: 700, color: COLORS.page, margin: "0 0 4px" }}>Karemux <span style={{ color: COLORS.mustard }}>·</span> LGS Ders Kocu</h1>
+        <p style={{ color: "#C9D4C7", fontSize: 13, margin: "0 0 16px" }}>Konu anlatimi, soru uretimi ve kisisel calisma plani - yapay zeka ile.</p>
 
         <div style={{ display: "flex", gap: 6, marginBottom: 18, flexWrap: "wrap" }}>
           {["anlatim", "sorucoz", "kocluk", "premium", "hesap"].map((m) => (
@@ -315,7 +314,7 @@ export default function Ana() {
               background: mod === m ? COLORS.page : "transparent", color: mod === m ? COLORS.ink : "#C9D4C7",
               fontWeight: 600, fontSize: 12,
             }}>
-              {m === "anlatim" ? "📘 Konu" : m === "sorucoz" ? "📷 Soru Çöz" : m === "kocluk" ? "🎯 Koçluk" : m === "premium" ? "💳 Premium" : hesap ? `👤 ${hesap.ad}` : "👤 Hesap"}
+              {m === "anlatim" ? "📘 Konu" : m === "sorucoz" ? "📷 Soru Coz" : m === "kocluk" ? "🎯 Kocluk" : m === "premium" ? "💳 Premium" : hesap ? `👤 ${hesap.ad}` : "👤 Hesap"}
             </button>
           ))}
         </div>
@@ -327,17 +326,17 @@ export default function Ana() {
             {hesap ? (
               <div>
                 <p style={{ fontSize: 14, marginBottom: 4 }}>
-                  Giriş yapıldı: <strong>{hesap.ad}</strong> <span style={{ color: COLORS.muted, fontSize: 12 }}>({hesap.rol === "veli" ? "veli hesabı" : "öğrenci hesabı"})</span>
+                  Giris yapildi: <strong>{hesap.ad}</strong> <span style={{ color: COLORS.muted, fontSize: 12 }}>({hesap.rol === "veli" ? "veli hesabi" : "ogrenci hesabi"})</span>
                 </p>
 
                 {!hesap.eposta_dogrulandi && (
                   <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 8, padding: 12, margin: "10px 0" }}>
-                    <p style={{ fontSize: 13, marginBottom: 8 }}>E-postan henüz doğrulanmadı. Gelen kutunu kontrol et.</p>
+                    <p style={{ fontSize: 13, marginBottom: 8 }}>E-postan henuz dogrulanmadi. Gelen kutunu kontrol et.</p>
                     <div style={{ display: "flex", gap: 6 }}>
                       <input value={dogrulamaKoduGir} onChange={(e) => setDogrulamaKoduGir(e.target.value)} placeholder="6 haneli kod" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
-                      <button onClick={dogrulaGonder} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Doğrula</button>
+                      <button onClick={dogrulaGonder} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Dogrula</button>
                     </div>
-                    <button onClick={kodTekrarGonder} style={{ marginTop: 8, padding: 0, border: "none", background: "none", color: COLORS.muted, fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>Kodu tekrar gönder</button>
+                    <button onClick={kodTekrarGonder} style={{ marginTop: 8, padding: 0, border: "none", background: "none", color: COLORS.muted, fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>Kodu tekrar gonder</button>
                     {dogrulamaMesaj && <p style={{ fontSize: 12, marginTop: 6 }}>{dogrulamaMesaj}</p>}
                   </div>
                 )}
@@ -345,18 +344,18 @@ export default function Ana() {
                 {hesap.rol === "ogrenci" && hesap.veli_baglanti_kodu && (
                   <div style={{ background: "#EAF7EE", borderRadius: 8, padding: 12, margin: "10px 0" }}>
                     <p style={{ fontSize: 13, margin: 0 }}>
-                      Veli bağlantı kodun: <strong style={{ fontFamily: "monospace", fontSize: 15 }}>{hesap.veli_baglanti_kodu}</strong>
+                      Veli baglanti kodun: <strong style={{ fontFamily: "monospace", fontSize: 15 }}>{hesap.veli_baglanti_kodu}</strong>
                     </p>
-                    <p style={{ fontSize: 12, color: COLORS.muted, margin: "4px 0 0" }}>Bu kodu velinle paylaş, ilerlemeni görebilsin.</p>
+                    <p style={{ fontSize: 12, color: COLORS.muted, margin: "4px 0 0" }}>Bu kodu velinle paylas, ilerlemeni gorebilsin.</p>
                   </div>
                 )}
 
                 {hesap.rol === "veli" && (
                   <div style={{ margin: "14px 0" }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>ÖĞRENCİ BAĞLA</label>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>OGRENCI BAGLA</label>
                     <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Öğrencinin bağlantı kodu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
-                      <button onClick={veliBaglan} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Bağla</button>
+                      <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Ogrencinin baglanti kodu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+                      <button onClick={veliBaglan} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Bagla</button>
                     </div>
                     {veliMesaj && <p style={{ fontSize: 12, marginBottom: 10 }}>{veliMesaj}</p>}
 
@@ -364,14 +363,14 @@ export default function Ana() {
                       <div key={i} style={{ borderTop: `1px solid ${COLORS.line}`, paddingTop: 10, marginTop: 10 }}>
                         <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>{o.ogrenci.ad}</p>
                         {o.zayifDersler.length > 0 && (
-                          <p style={{ fontSize: 12, color: COLORS.coral, marginBottom: 6 }}>Zayıf dersler: {o.zayifDersler.join(", ")}</p>
+                          <p style={{ fontSize: 12, color: COLORS.coral, marginBottom: 6 }}>Zayif dersler: {o.zayifDersler.join(", ")}</p>
                         )}
                         {o.gecmis.length === 0 ? (
-                          <p style={{ fontSize: 12, color: COLORS.muted }}>Henüz quiz çözmemiş.</p>
+                          <p style={{ fontSize: 12, color: COLORS.muted }}>Henuz quiz cozmemis.</p>
                         ) : (
                           o.gecmis.map((g, j) => (
                             <p key={j} style={{ fontSize: 12, margin: "2px 0" }}>
-                              {g.ders} · {g.konu}: {g.dogru}/{g.toplam} doğru
+                              {g.ders} - {g.konu}: {g.dogru}/{g.toplam} dogru
                             </p>
                           ))
                         )}
@@ -380,28 +379,28 @@ export default function Ana() {
                   </div>
                 )}
 
-                <button onClick={cikisYap} style={{ padding: "8px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>Çıkış Yap</button>
+                <button onClick={cikisYap} style={{ padding: "8px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>Cikis Yap</button>
               </div>
             ) : (
               <div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                  <button onClick={() => setHesapModu("giris")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "giris" ? COLORS.coral : "#fff", color: hesapModu === "giris" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Giriş Yap</button>
-                  <button onClick={() => setHesapModu("kayit")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "kayit" ? COLORS.coral : "#fff", color: hesapModu === "kayit" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Kayıt Ol</button>
+                  <button onClick={() => setHesapModu("giris")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "giris" ? COLORS.coral : "#fff", color: hesapModu === "giris" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Giris Yap</button>
+                  <button onClick={() => setHesapModu("kayit")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "kayit" ? COLORS.coral : "#fff", color: hesapModu === "kayit" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Kayit Ol</button>
                 </div>
                 {hesapModu === "kayit" && (
                   <>
-                    <input value={adGir} onChange={(e) => setAdGir(e.target.value)} placeholder="Adın" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                    <input value={adGir} onChange={(e) => setAdGir(e.target.value)} placeholder="Adin" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                     <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                      <button onClick={() => setRolSec("ogrenci")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "ogrenci" ? COLORS.coral : COLORS.line}`, background: rolSec === "ogrenci" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎓 Öğrenciyim</button>
+                      <button onClick={() => setRolSec("ogrenci")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "ogrenci" ? COLORS.coral : COLORS.line}`, background: rolSec === "ogrenci" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎓 Ogrenciyim</button>
                       <button onClick={() => setRolSec("veli")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "veli" ? COLORS.coral : COLORS.line}`, background: rolSec === "veli" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>👪 Veliyim</button>
                     </div>
                   </>
                 )}
                 <input value={epostaGir} onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
-                <input value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Şifre (en az 6 karakter)" type="password" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 10 }} />
+                <input value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" type="password" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 10 }} />
                 {hesapHata && <p style={{ color: COLORS.coral, fontSize: 13, marginBottom: 8 }}>{hesapHata}</p>}
                 <button onClick={hesapGonder} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
-                  {hesapModu === "giris" ? "Giriş Yap" : "Hesap Oluştur"}
+                  {hesapModu === "giris" ? "Giris Yap" : "Hesap Olustur"}
                 </button>
               </div>
             )}
@@ -414,25 +413,25 @@ export default function Ana() {
               <div>
                 <p style={{ fontSize: 14, marginBottom: 10 }}>
                   Aktif plan: <strong>{aktifAbonelik.plan}</strong>
-                  {aktifAbonelik.bitis && ` · Yenilenme: ${new Date(aktifAbonelik.bitis).toLocaleDateString("tr-TR")}`}
+                  {aktifAbonelik.bitis && ` - Yenilenme: ${new Date(aktifAbonelik.bitis).toLocaleDateString("tr-TR")}`}
                 </p>
                 <button onClick={abonelikIptalEt} style={{ padding: "9px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.coral}`, background: "transparent", color: COLORS.coral, fontWeight: 600, cursor: "pointer" }}>
-                  Aboneliği İptal Et
+                  Aboneligi Iptal Et
                 </button>
                 {iptalMesaji && <p style={{ fontSize: 13, marginTop: 8, color: COLORS.muted }}>{iptalMesaji}</p>}
               </div>
             ) : (
               <>
                 <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
-                  Sınırsız konu anlatımı, soru üretimi ve çalışma planı için Premium'a geç.
-                  <br /><em>İstediğin an, tek tıkla, hiç uğraşmadan iptal edebilirsin.</em>
+                  Sinirsiz konu anlatimi, soru uretimi ve calisma plani icin Premium'a gec.
+                  <br /><em>Istedigin an, tek tikla, hic ugrasmadan iptal edebilirsin.</em>
                 </p>
                 <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                   <button onClick={() => premiumSatinAl("premium_aylik")} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>
-                    Aylık 99,90₺
+                    Aylik 99,90TL
                   </button>
                   <button onClick={() => premiumSatinAl("premium_yillik")} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", color: COLORS.ink, fontWeight: 600 }}>
-                    Yıllık 899,90₺
+                    Yillik 899,90TL
                   </button>
                 </div>
                 {odemeHata && <p style={{ color: COLORS.coral, fontSize: 13 }}>{odemeHata}</p>}
@@ -445,16 +444,15 @@ export default function Ana() {
         {mod === "sorucoz" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
-              Çözemediğin sorunun fotoğrafını yükle, yapay zekâ saniyeler içinde adım adım çözsün.
-              <br /><em>(Rakiplerin insan eğitmenle 15 dakikada verdiği hizmeti anında sunuyoruz.)</em>
+              Cozemedigin sorunun fotografini yukle, yapay zeka saniyeler icinde adim adim cozsun.
             </p>
             <input
               type="file" accept="image/*" capture="environment"
               onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
               style={{ marginBottom: 12 }}
             />
-            {soruGorseli && <img src={soruGorseli} alt="Yüklenen soru" style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 12, border: `1px solid ${COLORS.line}` }} />}
-            {yukleniyor === "soru" && <p style={{ fontSize: 13, color: COLORS.muted }}>Çözülüyor…</p>}
+            {soruGorseli && <img src={soruGorseli} alt="Yuklenen soru" style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 12, border: `1px solid ${COLORS.line}` }} />}
+            {yukleniyor === "soru" && <p style={{ fontSize: 13, color: COLORS.muted }}>Cozuluyor...</p>}
             {soruCozumu && <div style={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, borderTop: `1px solid ${COLORS.line}`, paddingTop: 12 }}>{soruCozumu}</div>}
           </div>
         )}
@@ -462,7 +460,7 @@ export default function Ana() {
         {mod === "kocluk" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
             <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 8 }}>
-              ZAYIF DERSLER {otomatikTespit && <span style={{ color: COLORS.coral }}>· geçmiş performansına göre otomatik tespit edildi</span>}
+              ZAYIF DERSLER {otomatikTespit && <span style={{ color: COLORS.coral }}>- gecmis performansina gore otomatik tespit edildi</span>}
             </label>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
               {DERSLER.map((d) => {
@@ -481,7 +479,7 @@ export default function Ana() {
               </div>
             </div>
             <button onClick={planOlustur} disabled={zayifDersler.length === 0 || yukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, opacity: zayifDersler.length === 0 ? 0.5 : 1 }}>
-              {yukleniyor === "plan" ? "Hazırlanıyor…" : "Çalışma Planı Oluştur"}
+              {yukleniyor === "plan" ? "Hazirlaniyor..." : "Calisma Plani Olustur"}
             </button>
             {plan && <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 13.5, lineHeight: 1.7 }}>{plan}</div>}
           </div>
@@ -497,10 +495,10 @@ export default function Ana() {
               ))}
             </div>
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
-              <input value={konu} onChange={(e) => setKonu(e.target.value)} placeholder="örn. Üslü Sayılar..." style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 14, marginBottom: 10 }} />
+              <input value={konu} onChange={(e) => setKonu(e.target.value)} placeholder="orn. Uslu Sayilar..." style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 14, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8 }}>
-                <button onClick={konuAnlat} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>{yukleniyor === "aciklama" ? "Hazırlanıyor…" : "Konuyu Anlat"}</button>
-                <button onClick={soruUret} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600 }}>{yukleniyor === "quiz" ? "Üretiliyor…" : "5 Soru Üret"}</button>
+                <button onClick={konuAnlat} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>{yukleniyor === "aciklama" ? "Hazirlaniyor..." : "Konuyu Anlat"}</button>
+                <button onClick={soruUret} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600 }}>{yukleniyor === "quiz" ? "Uretiliyor..." : "5 Soru Uret"}</button>
               </div>
             </div>
             {aciklama && <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, marginBottom: 14, border: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>{aciklama}</div>}
@@ -516,9 +514,9 @@ export default function Ana() {
                   </div>
                 ))}
                 {!gonderildi ? (
-                  <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600 }}>Cevapları Gönder</button>
+                  <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600 }}>Cevaplari Gonder</button>
                 ) : (
-                  <div style={{ textAlign: "center", fontWeight: 700, fontSize: 18, paddingTop: 4 }}>Sonuç: {dogruSayisi} / {quiz.length} doğru</div>
+                  <div style={{ textAlign: "center", fontWeight: 700, fontSize: 18, paddingTop: 4 }}>Sonuc: {dogruSayisi} / {quiz.length} dogru</div>
                 )}
               </div>
             )}
@@ -526,7 +524,7 @@ export default function Ana() {
         )}
       </div>
       <p style={{ textAlign: "center", fontSize: 11, color: "#7C8AA5", marginTop: 24 }}>
-        <a href="/gizlilik" style={{ color: "#7C8AA5" }}>Gizlilik Politikası</a> · <a href="/kullanim-sartlari" style={{ color: "#7C8AA5" }}>Kullanım Şartları</a>
+        <a href="/gizlilik" style={{ color: "#7C8AA5" }}>Gizlilik Politikasi</a> - <a href="/kullanim-sartlari" style={{ color: "#7C8AA5" }}>Kullanim Sartlari</a>
       </p>
     </div>
   );
