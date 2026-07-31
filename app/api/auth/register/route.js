@@ -1,25 +1,22 @@
 import { sql } from "@/lib/db";
 import { sifreHashle, tokenUret, oturumCookieBaslik, altiHaneliKodUret, veliBaglantiKoduUret } from "@/lib/auth";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { resendIstemcisi } from "@/lib/email";
 
 export async function POST(req) {
   try {
     const { eposta, sifre, ad, rol } = await req.json();
     if (!eposta || !sifre || sifre.length < 6) {
-      return Response.json({ error: "Geçerli bir e-posta ve en az 6 karakterli şifre gerekli" }, { status: 400 });
+      return Response.json({ error: "Gecerli bir e-posta ve en az 6 karakterli sifre gerekli" }, { status: 400 });
     }
     const rolTemiz = rol === "veli" ? "veli" : "ogrenci";
 
     const mevcut = await sql`SELECT id FROM kullanicilar WHERE eposta = ${eposta}`;
     if (mevcut.length > 0) {
-      return Response.json({ error: "Bu e-posta zaten kayıtlı" }, { status: 409 });
+      return Response.json({ error: "Bu e-posta zaten kayitli" }, { status: 409 });
     }
 
     const hash = await sifreHashle(sifre);
     const dogrulamaKodu = altiHaneliKodUret();
-    // Öğrenciyse veliye verebileceği bir bağlantı kodu üretiyoruz; velide gerek yok
     const veliKodu = rolTemiz === "ogrenci" ? veliBaglantiKoduUret() : null;
 
     const sonuc = await sql`
@@ -30,16 +27,15 @@ export async function POST(req) {
     const kullanici = sonuc[0];
     const token = tokenUret(kullanici.id);
 
-    // E-posta doğrulama kodu gönder — best-effort, başarısız olsa da kaydı bozmuyoruz
     try {
-      await resend.emails.send({
+      await resendIstemcisi().emails.send({
         from: "Karemux <bildirim@karemux.com>",
         to: eposta,
-        subject: "Karemux doğrulama kodun",
-        text: `Merhaba ${kullanici.ad},\n\nDoğrulama kodun: ${dogrulamaKodu}\n\nBu kod 30 dakika geçerlidir. Hesap ayarları > E-posta Doğrula bölümünden girebilirsin.\n\nKaremux Ekibi`,
+        subject: "Karemux dogrulama kodun",
+        text: `Merhaba ${kullanici.ad},\n\nDogrulama kodun: ${dogrulamaKodu}\n\nBu kod 30 dakika gecerlidir.\n\nKaremux Ekibi`,
       });
     } catch (e) {
-      console.error("Doğrulama e-postası gönderilemedi:", e);
+      console.error("Dogrulama e-postasi gonderilemedi:", e);
     }
 
     return new Response(JSON.stringify({ ok: true, ad: kullanici.ad, rol: rolTemiz }), {
@@ -48,6 +44,6 @@ export async function POST(req) {
     });
   } catch (e) {
     console.error(e);
-    return Response.json({ error: "Kayıt oluşturulamadı" }, { status: 500 });
+    return Response.json({ error: "Kayit olusturulamadi" }, { status: 500 });
   }
 }

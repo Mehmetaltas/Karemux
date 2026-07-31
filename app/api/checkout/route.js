@@ -1,19 +1,17 @@
-// iyzico ile ödeme başlatma (Checkout Form yöntemi).
-// iyzico Merchant Panel'den (sandbox veya production) API_KEY / SECRET_KEY alıp
-// Vercel ortam değişkenlerine ekleyin: IYZICO_API_KEY, IYZICO_SECRET_KEY, IYZICO_BASE_URL
-// Sandbox: https://sandbox-api.iyzipay.com | Production: https://api.iyzipay.com
-
+// iyzico ile odeme baslatma (Checkout Form yontemi).
 import Iyzipay from "iyzipay";
 
-const iyzipay = new Iyzipay({
-  apiKey: process.env.IYZICO_API_KEY,
-  secretKey: process.env.IYZICO_SECRET_KEY,
-  uri: process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com",
-});
+function iyzipayIstemcisi() {
+  return new Iyzipay({
+    apiKey: process.env.IYZICO_API_KEY,
+    secretKey: process.env.IYZICO_SECRET_KEY,
+    uri: process.env.IYZICO_BASE_URL || "https://sandbox-api.iyzipay.com",
+  });
+}
 
 const PLANLAR = {
-  premium_aylik: { fiyat: "99.90", ad: "Karemux Premium (Aylık)" },
-  premium_yillik: { fiyat: "899.90", ad: "Karemux Premium (Yıllık)" },
+  premium_aylik: { fiyat: "99.90", ad: "Karemux Premium (Aylik)" },
+  premium_yillik: { fiyat: "899.90", ad: "Karemux Premium (Yillik)" },
 };
 
 export async function POST(req) {
@@ -21,10 +19,10 @@ export async function POST(req) {
     const { plan, kullanici } = await req.json();
     const secilenPlan = PLANLAR[plan];
     if (!secilenPlan) {
-      return Response.json({ error: "Geçersiz plan" }, { status: 400 });
+      return Response.json({ error: "Gecersiz plan" }, { status: 400 });
     }
     if (!kullanici?.eposta || !kullanici?.ad || !kullanici?.adres) {
-      return Response.json({ error: "Kullanıcı bilgileri eksik" }, { status: 400 });
+      return Response.json({ error: "Kullanici bilgileri eksik" }, { status: 400 });
     }
 
     const conversationId = `karemux-${Date.now()}`;
@@ -43,7 +41,7 @@ export async function POST(req) {
         name: kullanici.ad,
         surname: kullanici.soyad || "-",
         email: kullanici.eposta,
-        identityNumber: "11111111111", // gerçek üründe TC kimlik no zorunlu, formdan alınmalı
+        identityNumber: "11111111111",
         registrationAddress: kullanici.adres,
         city: kullanici.sehir || "Istanbul",
         country: "Turkey",
@@ -65,7 +63,7 @@ export async function POST(req) {
         {
           id: plan,
           name: secilenPlan.ad,
-          category1: "Eğitim",
+          category1: "Egitim",
           itemType: Iyzipay.BASKET_ITEM_TYPE.VIRTUAL,
           price: secilenPlan.fiyat,
         },
@@ -73,19 +71,19 @@ export async function POST(req) {
     };
 
     const sonuc = await new Promise((resolve, reject) => {
-      iyzipay.checkoutFormInitialize.create(request, (err, result) => {
+      iyzipayIstemcisi().checkoutFormInitialize.create(request, (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
     });
 
     if (sonuc.status !== "success") {
-      return Response.json({ error: sonuc.errorMessage || "Ödeme başlatılamadı" }, { status: 400 });
+      return Response.json({ error: sonuc.errorMessage || "Odeme baslatilamadi" }, { status: 400 });
     }
 
     return Response.json({ checkoutFormContent: sonuc.checkoutFormContent, token: sonuc.token });
   } catch (e) {
     console.error(e);
-    return Response.json({ error: "Ödeme sunucu hatası" }, { status: 500 });
+    return Response.json({ error: "Odeme sunucu hatasi" }, { status: 500 });
   }
 }

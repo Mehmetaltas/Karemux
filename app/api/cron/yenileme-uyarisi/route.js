@@ -1,13 +1,7 @@
-// Vercel Cron her gün bu route'u tetikler (bkz. vercel.json).
-// 3 gün içinde yenilenecek abonelikleri bulur ve kullanıcıya e-posta uyarısı gönderir.
-// Kunduz şikayetlerinde sık görülen "haber vermeden kart kesildi" sorununa karşı.
 import { sql } from "@/lib/db";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { resendIstemcisi } from "@/lib/email";
 
 export async function GET(req) {
-  // Vercel Cron dışından çağrılmasını engellemek için basit bir gizli anahtar kontrolü
   const yetki = req.headers.get("authorization");
   if (yetki !== `Bearer ${process.env.CRON_SECRET}`) {
     return Response.json({ error: "Yetkisiz" }, { status: 401 });
@@ -26,21 +20,21 @@ export async function GET(req) {
     let gonderilen = 0;
     for (const a of yenilenecekler) {
       try {
-        await resend.emails.send({
+        await resendIstemcisi().emails.send({
           from: "Karemux <bildirim@karemux.com>",
           to: a.eposta,
-          subject: "Karemux aboneliğin 3 gün içinde yenilenecek",
-          text: `Merhaba ${a.ad},\n\n${a.plan} aboneliğin ${new Date(a.bitis).toLocaleDateString("tr-TR")} tarihinde otomatik olarak yenilenecek.\n\nDevam etmek istemiyorsan karemux.com/hesap üzerinden tek tıkla iptal edebilirsin — hiçbir ücret çekilmez.\n\nKaremux Ekibi`,
+          subject: "Karemux aboneligin 3 gun icinde yenilenecek",
+          text: `Merhaba ${a.ad},\n\n${a.plan} aboneligin ${new Date(a.bitis).toLocaleDateString("tr-TR")} tarihinde otomatik yenilenecek.\n\nDevam etmek istemiyorsan karemux.com/hesap uzerinden tek tikla iptal edebilirsin.\n\nKaremux Ekibi`,
         });
         gonderilen++;
       } catch (e) {
-        console.error(`${a.eposta} adresine e-posta gönderilemedi:`, e);
+        console.error(`${a.eposta} adresine e-posta gonderilemedi:`, e);
       }
     }
 
     return Response.json({ ok: true, kontrolEdilen: yenilenecekler.length, gonderilen });
   } catch (e) {
     console.error(e);
-    return Response.json({ error: "Cron görevi başarısız" }, { status: 500 });
+    return Response.json({ error: "Cron gorevi basarisiz" }, { status: 500 });
   }
 }

@@ -1,12 +1,10 @@
 import { sql } from "@/lib/db";
 import { oturumdanKullaniciId, altiHaneliKodUret } from "@/lib/auth";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { resendIstemcisi } from "@/lib/email";
 
 export async function POST(req) {
   const kullaniciId = oturumdanKullaniciId(req);
-  if (!kullaniciId) return Response.json({ error: "Giriş yapmalısın" }, { status: 401 });
+  if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
 
   try {
     const kodu = altiHaneliKodUret();
@@ -17,18 +15,18 @@ export async function POST(req) {
       RETURNING eposta, ad
     `;
     const kullanici = sonuc[0];
-    if (!kullanici) return Response.json({ error: "Kullanıcı bulunamadı" }, { status: 404 });
+    if (!kullanici) return Response.json({ error: "Kullanici bulunamadi" }, { status: 404 });
 
-    await resend.emails.send({
+    await resendIstemcisi().emails.send({
       from: "Karemux <bildirim@karemux.com>",
       to: kullanici.eposta,
-      subject: "Karemux doğrulama kodun (yeni)",
-      text: `Merhaba ${kullanici.ad},\n\nYeni doğrulama kodun: ${kodu}\n\nBu kod 30 dakika geçerlidir.\n\nKaremux Ekibi`,
+      subject: "Karemux dogrulama kodun (yeni)",
+      text: `Merhaba ${kullanici.ad},\n\nYeni dogrulama kodun: ${kodu}\n\nBu kod 30 dakika gecerlidir.\n\nKaremux Ekibi`,
     });
 
     return Response.json({ ok: true });
   } catch (e) {
     console.error(e);
-    return Response.json({ error: "Kod gönderilemedi" }, { status: 500 });
+    return Response.json({ error: "Kod gonderilemedi" }, { status: 500 });
   }
 }
