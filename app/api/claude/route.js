@@ -3,7 +3,7 @@ import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
 export async function POST(req) {
   try {
-    const { prompt, maxTokens, cihazId } = await req.json();
+    const { prompt, maxTokens, cihazId, jsonModu } = await req.json();
     if (!prompt || typeof prompt !== "string" || prompt.length > 4000) {
       return Response.json({ error: "Gecersiz istek" }, { status: 400 });
     }
@@ -16,7 +16,7 @@ export async function POST(req) {
       );
     }
 
-    const metin = await aiCagir({ prompt, maxTokens });
+    const metin = await aiCagir({ prompt, maxTokens, jsonModu });
     return Response.json({ text: metin, kalanHak: Math.max(0, limit.limit - limit.kullanim) });
   } catch (e) {
     console.error(e);
