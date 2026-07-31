@@ -24,7 +24,13 @@ export async function POST(req) {
     `;
     const oncekiNet = gecmis.length > 1 ? Number(gecmis[1].net) : null;
 
-    return Response.json({ ok: true, oncekiNet });
+    const testSayisi = await sql`
+      SELECT COUNT(*)::int AS adet FROM sinav_sonuclari
+      WHERE kullanici_id = ${kullaniciId} AND ders = ${ders} AND tur = ${tur}
+    `;
+    const testNo = testSayisi[0]?.adet || 1;
+
+    return Response.json({ ok: true, oncekiNet, testNo });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Kaydedilemedi" }, { status: 500 });
