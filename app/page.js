@@ -696,7 +696,8 @@ export default function Ana() {
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
           }}>☰</button>
           <div>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.page, margin: 0 }}>Karemux <span style={{ color: COLORS.mustard }}>·</span> 5.Siniftan LGS'ye Hazirlik</h1>
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.5, color: COLORS.mustard, margin: "0 0 2px", textTransform: "uppercase" }}>Karemux Egitim Sistemleri</p>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.page, margin: 0 }}>5.Siniftan LGS'ye Hazirlik</h1>
           </div>
         </div>
         <p style={{ color: "#C9D4C7", fontSize: 13, margin: "6px 0 16px" }}>5. siniftan LGS'ye kadar tek sistem</p>
@@ -707,7 +708,7 @@ export default function Ana() {
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
             <div style={{ fontSize: 36, marginBottom: 10 }}>🎓</div>
-            <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldin</p>
+            <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
               Baslamak icin sol ustteki <strong style={{ color: COLORS.mustard }}>☰</strong> menuden bir ders sec.
@@ -1311,7 +1312,7 @@ export default function Ana() {
         )}
       </div>
       <p style={{ textAlign: "center", fontSize: 11, color: "#7C8AA5", marginTop: 24 }}>
-        <a href="/gizlilik" style={{ color: "#7C8AA5" }}>Gizlilik Politikasi</a> · <a href="/kullanim-sartlari" style={{ color: "#7C8AA5" }}>Kullanim Sartlari</a>
+        <a href="/gizlilik" style={{ color: "#7C8AA5" }}>Gizlilik Politikasi</a> · <a href="/kullanim-sartlari" style={{ color: "#7C8AA5" }}>Kullanim Sartlari</a> · <a href="/erisilebilirlik" style={{ color: "#7C8AA5" }}>Erisilebilirlik</a>
       </p>
     </div>
   );
