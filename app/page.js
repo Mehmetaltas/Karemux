@@ -89,7 +89,8 @@ function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
 }
 
 export default function Ana() {
-  const [mod, setMod] = useState("anlatim");
+  const [mod, setMod] = useState("bos");
+  const [secilenDers, setSecilenDers] = useState(null);
   const [menuAcik, setMenuAcik] = useState(false);
 
   function modGecis(yeniMod) {
@@ -704,28 +705,26 @@ export default function Ana() {
           <>
             <div onClick={() => setMenuAcik(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40 }} />
             <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 260, background: COLORS.bg, borderRight: `1px solid ${COLORS.panelBorder || COLORS.line}`, zIndex: 50, padding: "20px 14px", overflowY: "auto", boxShadow: "4px 0 20px rgba(0,0,0,0.3)" }}>
-              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Menu</p>
-              {[
-                ["seviye", "🧭 Seviye Tespiti"],
-                ["anlatim", "📘 Konu Anlatimi"],
-                ["yazili", "✏️ Yazili Hazirligi"],
-                ["deneme", "📝 Deneme Sinavi"],
-                ["sorucoz", "📷 Soru Coz (Fotograf)"],
-                ["kocluk", "🎯 Kocluk Plani"],
-                ["premium", "💳 Premium"],
-                ["hesap", hesap ? `👤 ${hesap.ad}` : "👤 Hesap"],
-              ].map(([k, etiket]) => (
-                <button key={k} onClick={() => modGecis(k)} style={{
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
+              {DERSLER.map((d) => (
+                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
-                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
-                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : "#C9D4C7",
-                }}>{etiket}</button>
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: secilenDers === d.ad ? 700 : 500,
+                  background: secilenDers === d.ad ? COLORS.page : "transparent", color: secilenDers === d.ad ? COLORS.ink : "#C9D4C7",
+                }}>{d.emoji} {d.ad}</button>
               ))}
             </div>
           </>
         )}
 
         {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
+
+        {secilenDers && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{secilenDers}</p>
+            <p style={{ fontSize: 13, color: COLORS.muted }}>Bu dersin icini birlikte dolduracagiz.</p>
+          </div>
+        )}
 
         {mod === "seviye" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
