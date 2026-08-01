@@ -222,14 +222,21 @@ export default function Ana() {
     const oncekiSinif = Math.max(1, sinif - 1);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
-      const baslangic = temiz.indexOf("[");
-      const bitis = temiz.lastIndexOf("]");
+      const ankor = temiz.indexOf('"soru"');
+      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
+      if (baslangic === -1) baslangic = temiz.indexOf("[{");
+      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
+      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
+      if (bitis === -1) bitis = temiz.lastIndexOf("]");
       if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
-      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const hamSorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      // Gecersiz (secenekleri eksik/bozuk) sorulari ayikla - cokme yerine sessizce filtrele
+      const sorular = hamSorular.filter((s) => s && s.soru && Array.isArray(s.secenekler) && s.secenekler.length >= 2 && typeof s.dogruIndex === "number");
+      if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
       setQuiz(sorular);
     } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
     finally { setYukleniyor(null); }
@@ -1469,9 +1476,6 @@ export default function Ana() {
                       Test: {durum.testSayisi} / 3 — 3 test sonunda ortalama %60+ ile bu tur tamamlanir.
                       {durum.tur === 2 && " (1. turda yeterli basari saglanamadi, konu tekrar anlatiliyor.)"}
                     </p>
-                    <p style={{ fontSize: 9, color: "#B8860B", marginBottom: 10, fontFamily: "monospace" }}>
-                      [teshis] kayitli: {JSON.stringify(dersTekrarSonuclari[secilenDers] || [])}
-                    </p>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button onClick={() => dersKonuTekrariAnlat(secilenDers)} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                         {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konu Tekrari"}
@@ -1493,7 +1497,7 @@ export default function Ana() {
                       {quiz.map((s, i) => (
                         <div key={i} style={{ marginBottom: 16 }}>
                           <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
-                          {s.secenekler.map((sec, j) => {
+                          {(s.secenekler || []).map((sec, j) => {
                             const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
                             return (
                               <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
@@ -1541,7 +1545,7 @@ export default function Ana() {
                     <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
                       <span style={{ color: COLORS.coral, fontSize: 11 }}>{s.ders}</span> — {i + 1}. {s.soru}
                     </div>
-                    {s.secenekler.map((sec, j) => {
+                    {(s.secenekler || []).map((sec, j) => {
                       const secili = seviyeCevaplar[i] === j;
                       return (
                         <button key={j} onClick={() => setSeviyeCevaplar((c) => ({ ...c, [i]: j }))} style={{
@@ -1716,7 +1720,7 @@ export default function Ana() {
                     }}>{s.zorluk}</span>
                   )}
                 </div>
-                {s.secenekler.map((sec, j) => {
+                {(s.secenekler || []).map((sec, j) => {
                   const secili = denemeCevaplar[i] === j;
                   const dogru = denemeGonderildi && j === s.dogruIndex;
                   const yanlis = denemeGonderildi && secili && j !== s.dogruIndex;
@@ -2061,7 +2065,7 @@ export default function Ana() {
                         <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: s.zorluk === "kolay" ? "#EAF7EE" : s.zorluk === "orta" ? "#FFF8E8" : "#FFF1EF", color: s.zorluk === "kolay" ? "#3DA35D" : s.zorluk === "orta" ? "#B8860B" : COLORS.coral }}>{s.zorluk}</span>
                       )}
                     </div>
-                    {s.secenekler.map((sec, j) => {
+                    {(s.secenekler || []).map((sec, j) => {
                       const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
                       return <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: gonderildi ? "default" : "pointer", border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`, background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff" }}>{sec}</button>;
                     })}
