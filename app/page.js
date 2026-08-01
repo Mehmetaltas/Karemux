@@ -313,6 +313,25 @@ export default function Ana() {
     return tumUniteler.find((u) => !tamamlanan.includes(u)) || null;
   }
 
+  async function gecmisYilTakviyesiAnlat() {
+    const oncekiSinif = Math.max(1, sinif - 1);
+    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
+    try {
+      const p = `Sen deneyimli, alaninda uzman bir "${kocPaneliDers}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${kocPaneliDers}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille OZETLE - once tanim, sonra somut ornek. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const cevap = await aiIstek(p, 3000, cihazIdRef.current);
+      const temizMetin = cevap
+        .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
+        .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
+        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "");
+      setAciklama(temizMetin);
+    } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
+  async function gecmisYilTestiTekrarla() {
+    setGecenYilRaporu(null); setGecenYilTamamlandiMi(false); setGecenYilSorulari(null); setGecenYilGonderildi(false);
+  }
+
   async function oneriliUniteAnlat() {
     const unite = oneriliUniteHesapla(kocPaneliDers);
     if (!unite) return;
@@ -1155,11 +1174,33 @@ export default function Ana() {
             {gecenYilTamamlandiMi === true && (
               <>
                 {gecenYilRaporu && (
-                  <div style={{ background: gecenYilRaporu.seviye === "Zayif" ? "#FFF1EF" : "#EAF7EE", borderRadius: 8, padding: 10, marginBottom: 16, textAlign: "center" }}>
+                  <div style={{ background: gecenYilRaporu.seviye === "Zayif" ? "#FFF1EF" : "#EAF7EE", borderRadius: 8, padding: 10, marginBottom: gecenYilRaporu.seviye === "Zayif" ? 10 : 16, textAlign: "center" }}>
                     <p style={{ fontSize: 11.5, color: "#1B2430" }}>
                       📊 {Math.max(1, sinif - 1)}. sinif temeli: <strong>{gecenYilRaporu.seviye}</strong>
                       {gecenYilRaporu.seviye === "Zayif" && " — koc buna gore dikkatli ilerleyecek"}
                     </p>
+                  </div>
+                )}
+
+                {gecenYilRaporu && gecenYilRaporu.seviye === "Zayif" && (
+                  <div style={{ background: "#FFF8E8", borderRadius: 10, padding: 14, marginBottom: 16, border: `1.5px solid ${COLORS.mustard}` }}>
+                    <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8, textAlign: "center" }}>📚 Gecmis Yil Takviyesi</p>
+                    <p style={{ fontSize: 11.5, color: "#6B7566", marginBottom: 10, textAlign: "center" }}>
+                      {sinif}. sinifla birlikte, gecmis yilin temelini de guclendirelim - ikisi paralel yurur.
+                    </p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={gecmisYilTakviyesiAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                        {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konu Tekrari"}
+                      </button>
+                      <button onClick={gecmisYilTestiTekrarla} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", color: "#1B2430", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                        🔄 Hazirim, Test Ol
+                      </button>
+                    </div>
+                    {aciklama && (
+                      <div style={{ background: "#fff", borderRadius: 8, padding: 14, marginTop: 12, whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.6, color: "#1B2430" }}>
+                        {aciklama}
+                      </div>
+                    )}
                   </div>
                 )}
 
