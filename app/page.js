@@ -227,6 +227,17 @@ export default function Ana() {
     return gunFarki >= 45; // ~6 hafta - daha siki takip, tek gunun etkisini azaltmak icin sik guncelleme tesvik edilir
   }
 
+  // Seviye raporu her guncellendiginde, "Ileri" cikan uniteleri otomatik tamamlandi
+  // sayar - boylece kilitleme sirasi gercek seviyeye gore acilir/kapanir.
+  useEffect(() => {
+    if (!dersSeviyeRaporu || !secilenDers) return;
+    Object.keys(dersSeviyeRaporu).forEach((u) => {
+      if (dersSeviyeRaporu[u].seviye === "Ileri") {
+        uniteTamamlandiIsaretle(secilenDers, u);
+      }
+    });
+  }, [dersSeviyeRaporu, secilenDers]);
+
   async function dersSeviyeTespitiYap(dersAdi) {
     setDersSeviyeYukleniyor(true); setHata(""); setDersSeviyeCevaplar({}); setDersSeviyeGonderildi(false); setDersSeviyeSorulari(null); setDersSeviyeRaporu(null);
     try {
@@ -955,6 +966,25 @@ export default function Ana() {
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
 
+            {dersSeviyeRaporu && (() => {
+              const tumUniteler = MUFREDAT[secilenDers] || [];
+              const tamamlanan = tamamlananUniteler[secilenDers] || [];
+              const onerilenUnite = tumUniteler.find((u) => !tamamlanan.includes(u));
+              if (!onerilenUnite) {
+                return (
+                  <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 14, marginBottom: 16, textAlign: "center" }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>🎉 Tum uniteleri tamamladin!</p>
+                  </div>
+                );
+              }
+              return (
+                <div style={{ background: COLORS.gradient, borderRadius: 10, padding: 16, marginBottom: 16, textAlign: "center" }}>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 1, marginBottom: 4 }}>🎯 KOC ONERISI</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page }}>Simdi buna odaklan: {onerilenUnite}</p>
+                </div>
+              );
+            })()}
+
             {dersSeviyeGecmisYukleniyor && (
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
             )}
@@ -1018,12 +1048,13 @@ export default function Ana() {
                   );
                 })}
                 <p style={{ fontSize: 12, color: COLORS.muted, marginTop: 12, textAlign: "center" }}>
-                  Koc bu sonuca gore sana ozel bir calisma sirasi onerecek. (Sirada bunu birlikte kuracagiz.)
+                  🎯 Koc bu sonuca gore senin icin ozel bir calisma sirasi belirledi, asagida gorebilirsin.
                 </p>
-                {!donemGuncellemesiZamaniGeldiMi(dersSeviyeSonTarih) && (
-                  <button onClick={() => dersSeviyeTespitiYap(secilenDers)} disabled={dersSeviyeYukleniyor} style={{ width: "100%", marginTop: 12, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
-                    Simdiden Yeniden Degerlendir
-                  </button>
+                {!donemGuncellemesiZamaniGeldiMi(dersSeviyeSonTarih) && dersSeviyeSonTarih && (
+                  <p style={{ fontSize: 11, color: COLORS.muted, textAlign: "center", marginTop: 8 }}>
+                    Sonraki degerlendirme: {new Date(new Date(dersSeviyeSonTarih).getTime() + 45 * 24 * 60 * 60 * 1000).toLocaleDateString("tr-TR")}
+                    <br />(Guvenilir bir seviye olcumu icin sik tekrar onerilmez.)
+                  </p>
                 )}
               </div>
             )}
