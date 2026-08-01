@@ -122,6 +122,8 @@ function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
 export default function Ana() {
   const [mod, setMod] = useState("bos");
   const [secilenDers, setSecilenDers] = useState(null);
+  const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
+  const [kocPaneliDers, setKocPaneliDers] = useState(null);
   const [tema, setTema] = useState("orman");
   const [duyuruIndex, setDuyuruIndex] = useState(0);
 
@@ -242,8 +244,6 @@ export default function Ana() {
   const [dersSeviyeGonderildi, setDersSeviyeGonderildi] = useState(false);
   const [dersSeviyeRaporu, setDersSeviyeRaporu] = useState(null);
   const [dersSeviyeYukleniyor, setDersSeviyeYukleniyor] = useState(false);
-  const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
-  const [kocPaneliDers, setKocPaneliDers] = useState(null);
   const [dersSeviyeSonTarih, setDersSeviyeSonTarih] = useState(null);
   const [dersSeviyeGecmisYukleniyor, setDersSeviyeGecmisYukleniyor] = useState(false);
 
