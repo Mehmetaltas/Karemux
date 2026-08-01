@@ -176,6 +176,45 @@ export default function Ana() {
   const [dersSeviyeGonderildi, setDersSeviyeGonderildi] = useState(false);
   const [dersSeviyeRaporu, setDersSeviyeRaporu] = useState(null);
   const [dersSeviyeYukleniyor, setDersSeviyeYukleniyor] = useState(false);
+  const [dersSeviyeSonTarih, setDersSeviyeSonTarih] = useState(null);
+  const [dersSeviyeGecmisYukleniyor, setDersSeviyeGecmisYukleniyor] = useState(false);
+
+  useEffect(() => {
+    if (!secilenDers || !cihazIdRef.current) return;
+    setDersSeviyeRaporu(null); setDersSeviyeSonTarih(null); setDersSeviyeSorulari(null); setDersSeviyeGonderildi(false);
+    setDersSeviyeGecmisYukleniyor(true);
+    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const sonuclar = (d.sonuclar || []).filter((s) => s.tur === "ders_seviye" && s.ders.startsWith(`${secilenDers}::`));
+        if (sonuclar.length === 0) return;
+        // Her unite icin en yeni kaydi al (API zaten en yeniden eskiye sirali donduruyor)
+        const gorulenUniteler = {};
+        const rapor = {};
+        let enYeniTarih = null;
+        sonuclar.forEach((s) => {
+          const unite = s.ders.split("::")[1];
+          if (gorulenUniteler[unite]) return;
+          gorulenUniteler[unite] = true;
+          const toplam = s.dogru + s.yanlis + s.bos;
+          const oran = toplam > 0 ? s.dogru / toplam : 0;
+          rapor[unite] = { dogru: s.dogru, toplam, seviye: oran >= 0.8 ? "Ileri" : oran >= 0.5 ? "Orta" : "Baslangic" };
+          if (!enYeniTarih || new Date(s.olusturulma) > new Date(enYeniTarih)) enYeniTarih = s.olusturulma;
+        });
+        if (Object.keys(rapor).length > 0) {
+          setDersSeviyeRaporu(rapor);
+          setDersSeviyeSonTarih(enYeniTarih);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setDersSeviyeGecmisYukleniyor(false));
+  }, [secilenDers]);
+
+  function donemGuncellemesiZamaniGeldiMi(sonTarih) {
+    if (!sonTarih) return false;
+    const gunFarki = (Date.now() - new Date(sonTarih).getTime()) / (1000 * 60 * 60 * 24);
+    return gunFarki >= 150; // ~5 ay - yaklasik donem araligi
+  }
 
   async function dersSeviyeTespitiYap(dersAdi) {
     setDersSeviyeYukleniyor(true); setHata(""); setDersSeviyeCevaplar({}); setDersSeviyeGonderildi(false); setDersSeviyeSorulari(null); setDersSeviyeRaporu(null);
@@ -214,6 +253,20 @@ export default function Ana() {
       rapor[u].seviye = oran >= 0.8 ? "Ileri" : oran >= 0.5 ? "Orta" : "Baslangic";
     });
     setDersSeviyeRaporu(rapor);
+    setDersSeviyeSonTarih(new Date().toISOString());
+
+    // Sonucu kalici olarak kaydet - her unite ayri satir, ogrenciye ozel (giris yapmissa
+    // hesabina, yapmamissa cihaz kimligine bagli). Boylece "hafizada tutulur".
+    Object.keys(rapor).forEach((u) => {
+      const r = rapor[u];
+      const yanlis = r.toplam - r.dogru;
+      const net = Math.max(0, r.dogru - yanlis / 4);
+      fetch("/api/sinav-sonuc", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, tur: "ders_seviye", ders: `${dersAdi}::${u}`, dogru: r.dogru, yanlis, bos: 0, net }),
+      }).catch(() => {});
+    });
   }
 
   function uniteTamamlandiIsaretle(dersAdi, uniteAdi) {
@@ -891,7 +944,11 @@ export default function Ana() {
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
 
-            {!dersSeviyeSorulari && !dersSeviyeRaporu && (
+            {dersSeviyeGecmisYukleniyor && (
+              <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
+            )}
+
+            {!dersSeviyeGecmisYukleniyor && !dersSeviyeSorulari && !dersSeviyeRaporu && (
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 14 }}>
                   Once seviyeni belirleyelim — {secilenDers} dersinin tumune yayilan 10 soruluk bir sinav.
@@ -902,7 +959,7 @@ export default function Ana() {
               </div>
             )}
 
-            {dersSeviyeSorulari && !dersSeviyeRaporu && (
+            {dersSeviyeSorulari && !dersSeviyeGonderildi && (
               <div>
                 {dersSeviyeSorulari.map((s, i) => (
                   <div key={i} style={{ marginBottom: 16 }}>
@@ -923,9 +980,22 @@ export default function Ana() {
               </div>
             )}
 
-            {dersSeviyeRaporu && (
+            {dersSeviyeRaporu && !dersSeviyeGecmisYukleniyor && (dersSeviyeGonderildi || !dersSeviyeSorulari) && (
               <div>
-                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 10, textAlign: "center" }}>{secilenDers} Seviye Raporun</p>
+                {!dersSeviyeGonderildi && donemGuncellemesiZamaniGeldiMi(dersSeviyeSonTarih) && (
+                  <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 8, padding: 12, marginBottom: 14, textAlign: "center" }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>📅 Donem seviye guncellemesi zamani geldi</p>
+                    <button onClick={() => dersSeviyeTespitiYap(secilenDers)} disabled={dersSeviyeYukleniyor} style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                      {dersSeviyeYukleniyor ? "Hazirlaniyor..." : "Yeniden Degerlendir"}
+                    </button>
+                  </div>
+                )}
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, textAlign: "center" }}>{secilenDers} Seviye Raporun</p>
+                {dersSeviyeSonTarih && (
+                  <p style={{ fontSize: 11, color: COLORS.muted, textAlign: "center", marginBottom: 10 }}>
+                    Son guncelleme: {new Date(dersSeviyeSonTarih).toLocaleDateString("tr-TR")}
+                  </p>
+                )}
                 {Object.keys(dersSeviyeRaporu).map((u) => {
                   const r = dersSeviyeRaporu[u];
                   const renk = r.seviye === "Ileri" ? "#3DA35D" : r.seviye === "Orta" ? "#B8860B" : COLORS.coral;
@@ -939,6 +1009,11 @@ export default function Ana() {
                 <p style={{ fontSize: 12, color: COLORS.muted, marginTop: 12, textAlign: "center" }}>
                   Koc bu sonuca gore sana ozel bir calisma sirasi onerecek. (Sirada bunu birlikte kuracagiz.)
                 </p>
+                {!donemGuncellemesiZamaniGeldiMi(dersSeviyeSonTarih) && (
+                  <button onClick={() => dersSeviyeTespitiYap(secilenDers)} disabled={dersSeviyeYukleniyor} style={{ width: "100%", marginTop: 12, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                    Simdiden Yeniden Degerlendir
+                  </button>
+                )}
               </div>
             )}
           </div>
