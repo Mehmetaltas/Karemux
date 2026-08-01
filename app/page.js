@@ -971,14 +971,21 @@ export default function Ana() {
                 background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : "#C9D4C7",
               }}>🏠 Ana Sayfa</button>
 
-              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler <span style={{ fontSize: 10, fontWeight: 400, color: COLORS.muted }}>(oncelikle Matematik)</span></p>
-              {DERSLER.filter((d) => d.ad === "Matematik").map((d) => (
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
+              {DERSLER.map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: secilenDers === d.ad ? 700 : 500,
                   background: secilenDers === d.ad ? COLORS.page : "transparent", color: secilenDers === d.ad ? COLORS.ink : "#C9D4C7",
                 }}>{d.emoji} {d.ad}</button>
               ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <button onClick={() => { setSecilenDers(null); setMod("kocpanel"); setMenuAcik(false); }} style={{
+                display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "kocpanel" ? 700 : 500,
+                background: mod === "kocpanel" ? COLORS.page : "transparent", color: mod === "kocpanel" ? COLORS.ink : "#C9D4C7",
+              }}>🎯 Koc Paneli</button>
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <button onClick={() => { setSecilenDers(null); setMod("hesap"); setMenuAcik(false); }} style={{
@@ -1006,6 +1013,23 @@ export default function Ana() {
         )}
 
         {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
+
+        {mod === "kocpanel" && !secilenDers && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6, textAlign: "center" }}>🎯 Koc Paneli</p>
+            <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 18, textAlign: "center" }}>
+              Hangi ders icin koclugunu gormek istiyorsun? (Bu bolumu ayrica daha detayli tasarlayacagiz.)
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+              {DERSLER.map((d) => (
+                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); }} style={{
+                  padding: "12px 16px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: "#FAF6EE",
+                  fontWeight: 600, fontSize: 13, cursor: "pointer", color: "#1B2430",
+                }}>{d.emoji} {d.ad}</button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {secilenDers && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
