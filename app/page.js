@@ -177,6 +177,7 @@ export default function Ana() {
   const [dersSeviyeRaporu, setDersSeviyeRaporu] = useState(null);
   const [dersSeviyeYukleniyor, setDersSeviyeYukleniyor] = useState(false);
   const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
+  const [kocPaneliDers, setKocPaneliDers] = useState(null);
   const [dersSeviyeSonTarih, setDersSeviyeSonTarih] = useState(null);
   const [dersSeviyeGecmisYukleniyor, setDersSeviyeGecmisYukleniyor] = useState(false);
 
@@ -1014,7 +1015,7 @@ export default function Ana() {
 
         {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
 
-        {mod === "kocpanel" && !secilenDers && (
+        {mod === "kocpanel" && !kocPaneliDers && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6, textAlign: "center" }}>🎯 Koc Paneli</p>
             <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 18, textAlign: "center" }}>
@@ -1022,12 +1023,20 @@ export default function Ana() {
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
               {DERSLER.map((d) => (
-                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); }} style={{
+                <button key={d.ad} onClick={() => setKocPaneliDers(d.ad)} style={{
                   padding: "12px 16px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: "#FAF6EE",
                   fontWeight: 600, fontSize: 13, cursor: "pointer", color: "#1B2430",
                 }}>{d.emoji} {d.ad}</button>
               ))}
             </div>
+          </div>
+        )}
+
+        {mod === "kocpanel" && kocPaneliDers && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <button onClick={() => setKocPaneliDers(null)} style={{ border: "none", background: "none", color: COLORS.muted, fontSize: 12, cursor: "pointer", marginBottom: 10 }}>← Geri</button>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{kocPaneliDers} Koc Paneli</p>
+            <p style={{ fontSize: 13, color: COLORS.muted }}>Icini birlikte dolduracagiz.</p>
           </div>
         )}
 
@@ -1132,56 +1141,12 @@ export default function Ana() {
             })()}
 
             {kocPaneliAcik && (
-              <div style={{ background: "#FAF6EE", borderRadius: 12, padding: 18, marginTop: 16, border: `1.5px solid ${COLORS.mustard}` }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ background: "#FAF6EE", borderRadius: 12, padding: 18, marginTop: 16, border: `1.5px solid ${COLORS.mustard}`, textAlign: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                   <p style={{ fontWeight: 700, fontSize: 14, color: "#1B2430" }}>📚 Koc Paneli — {oneriliUniteHesapla(secilenDers)}</p>
                   <button onClick={() => setKocPaneliAcik(false)} style={{ border: "none", background: "none", color: "#6B7566", fontSize: 18, cursor: "pointer", padding: 0, lineHeight: 1 }}>✕</button>
                 </div>
-                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-                  <button onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-                    {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konuyu Anlat"}
-                  </button>
-                  <button onClick={oneriliUniteSoruCoz} disabled={yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1.5px solid #1B2430", background: "transparent", color: "#1B2430", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-                    {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ 5 Soru Coz"}
-                  </button>
-                </div>
-
-                {aciklama && (
-                  <div style={{ background: "#fff", borderRadius: 10, padding: 16, marginBottom: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.7, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
-                    {aciklama}
-                  </div>
-                )}
-
-                {quiz && (
-                  <div style={{ background: "#fff", borderRadius: 10, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                    {quiz.map((s, i) => (
-                      <div key={i} style={{ marginBottom: 16 }}>
-                        <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
-                        {s.secenekler.map((sec, j) => {
-                          const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
-                          return (
-                            <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
-                              display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
-                              cursor: gonderildi ? "default" : "pointer",
-                              border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
-                              background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
-                            }}>{sec}</button>
-                          );
-                        })}
-                      </div>
-                    ))}
-                    {!gonderildi ? (
-                      <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
-                    ) : (
-                      <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
-                        Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
-                        {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length / quiz.length >= 0.7 && (
-                          <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>🎉 Basarili! Bu unite ilerlemene eklendi.</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
+                <p style={{ fontSize: 13, color: "#6B7566" }}>Icini birlikte dolduracagiz.</p>
               </div>
             )}
           </div>
