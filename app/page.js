@@ -124,6 +124,80 @@ export default function Ana() {
   const [secilenDers, setSecilenDers] = useState(null);
   const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
   const [kocPaneliDers, setKocPaneliDers] = useState(null);
+
+  // Dersler ekraninda: gecmis yil zayifsa konu tekrari + test dongusu burada calisir.
+  const [dersGecenYilZayifMi, setDersGecenYilZayifMi] = useState(null); // null=bilinmiyor, true/false
+  const [dersTekrarSayaci, setDersTekrarSayaci] = useState({}); // { [ders]: sayi }
+  const [dersTekrarKontrolYukleniyor, setDersTekrarKontrolYukleniyor] = useState(false);
+
+  useEffect(() => {
+    try {
+      const kayitli = localStorage.getItem("karemux_ders_tekrar_sayaci");
+      if (kayitli) setDersTekrarSayaci(JSON.parse(kayitli));
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    if (!secilenDers || !cihazIdRef.current) return;
+    setDersGecenYilZayifMi(null); setAciklama(""); setQuiz(null); setGonderildi(false);
+    setDersTekrarKontrolYukleniyor(true);
+    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const kayit = (d.sonuclar || []).find((s) => s.tur === "gecen_yil_genel" && s.ders === secilenDers);
+        if (!kayit) { setDersGecenYilZayifMi(false); return; }
+        const toplam = kayit.dogru + kayit.yanlis + kayit.bos;
+        const oran = toplam > 0 ? kayit.dogru / toplam : 0;
+        setDersGecenYilZayifMi(oran < 0.4);
+      })
+      .catch(() => setDersGecenYilZayifMi(false))
+      .finally(() => setDersTekrarKontrolYukleniyor(false));
+  }, [secilenDers]);
+
+  function dersTekrarSayaciArtir(dersAdi) {
+    setDersTekrarSayaci((eski) => {
+      const guncel = { ...eski, [dersAdi]: (eski[dersAdi] || 0) + 1 };
+      try { localStorage.setItem("karemux_ders_tekrar_sayaci", JSON.stringify(guncel)); } catch (e) {}
+      return guncel;
+    });
+  }
+
+  async function dersKonuTekrariAnlat(dersAdi) {
+    const oncekiSinif = Math.max(1, sinif - 1);
+    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
+    try {
+      const p = `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra somut ornek, gerekirse formul/kural. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const cevap = await aiIstek(p, 3000, cihazIdRef.current);
+      const temizMetin = cevap
+        .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
+        .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
+        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "");
+      setAciklama(temizMetin);
+    } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
+  async function dersTekrarTestiUret(dersAdi) {
+    const oncekiSinif = Math.max(1, sinif - 1);
+    setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
+    try {
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("[");
+      const bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
+      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setQuiz(sorular);
+    } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
+  function dersTekrarTestiGonder(dersAdi) {
+    setGonderildi(true);
+    dersTekrarSayaciArtir(dersAdi);
+  }
   const [tema, setTema] = useState("orman");
   const [duyuruIndex, setDuyuruIndex] = useState(0);
 
@@ -1174,33 +1248,11 @@ export default function Ana() {
             {gecenYilTamamlandiMi === true && (
               <>
                 {gecenYilRaporu && (
-                  <div style={{ background: gecenYilRaporu.seviye === "Zayif" ? "#FFF1EF" : "#EAF7EE", borderRadius: 8, padding: 10, marginBottom: gecenYilRaporu.seviye === "Zayif" ? 10 : 16, textAlign: "center" }}>
+                  <div style={{ background: gecenYilRaporu.seviye === "Zayif" ? "#FFF1EF" : "#EAF7EE", borderRadius: 8, padding: 10, marginBottom: 16, textAlign: "center" }}>
                     <p style={{ fontSize: 11.5, color: "#1B2430" }}>
                       📊 {Math.max(1, sinif - 1)}. sinif temeli: <strong>{gecenYilRaporu.seviye}</strong>
-                      {gecenYilRaporu.seviye === "Zayif" && " — koc buna gore dikkatli ilerleyecek"}
+                      {gecenYilRaporu.seviye === "Zayif" && " — konu tekrari icin Dersler'den bu dersi sec"}
                     </p>
-                  </div>
-                )}
-
-                {gecenYilRaporu && gecenYilRaporu.seviye === "Zayif" && (
-                  <div style={{ background: "#FFF8E8", borderRadius: 10, padding: 14, marginBottom: 16, border: `1.5px solid ${COLORS.mustard}` }}>
-                    <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8, textAlign: "center" }}>📚 Gecmis Yil Takviyesi</p>
-                    <p style={{ fontSize: 11.5, color: "#6B7566", marginBottom: 10, textAlign: "center" }}>
-                      {sinif}. sinifla birlikte, gecmis yilin temelini de guclendirelim - ikisi paralel yurur.
-                    </p>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={gecmisYilTakviyesiAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
-                        {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konu Tekrari"}
-                      </button>
-                      <button onClick={gecmisYilTestiTekrarla} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", color: "#1B2430", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
-                        🔄 Hazirim, Test Ol
-                      </button>
-                    </div>
-                    {aciklama && (
-                      <div style={{ background: "#fff", borderRadius: 8, padding: 14, marginTop: 12, whiteSpace: "pre-wrap", fontSize: 13, lineHeight: 1.6, color: "#1B2430" }}>
-                        {aciklama}
-                      </div>
-                    )}
                   </div>
                 )}
 
@@ -1320,9 +1372,84 @@ export default function Ana() {
         )}
 
         {secilenDers && !kocPaneliDers && (
-          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
-            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{secilenDers}</p>
-            <p style={{ fontSize: 13, color: COLORS.muted }}>Icini birlikte dolduracagiz.</p>
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
+
+            {dersTekrarKontrolYukleniyor && (
+              <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Kontrol ediliyor...</p>
+            )}
+
+            {!dersTekrarKontrolYukleniyor && dersGecenYilZayifMi === false && (
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 6 }}>
+                  Bu ders icin ozel bir tekrar gerekmiyor.
+                </p>
+                <p style={{ fontSize: 12, color: COLORS.muted }}>
+                  Takip icin Koc Panel'e git ve {secilenDers}'i sec.
+                </p>
+              </div>
+            )}
+
+            {!dersTekrarKontrolYukleniyor && dersGecenYilZayifMi === true && (dersTekrarSayaci[secilenDers] || 0) >= 3 && (
+              <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 16, textAlign: "center" }}>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>✅ Gecmis Yil Tekrari Tamamlandi</p>
+                <p style={{ fontSize: 12.5, color: "#6B7566" }}>{dersTekrarSayaci[secilenDers]} tekrar yaptin. Artik normal takip icin Koc Panel'den {secilenDers}'i sec.</p>
+              </div>
+            )}
+
+            {!dersTekrarKontrolYukleniyor && dersGecenYilZayifMi === true && (dersTekrarSayaci[secilenDers] || 0) < 3 && (
+              <div>
+                <div style={{ background: "#FFF8E8", borderRadius: 10, padding: 14, marginBottom: 16, border: `1.5px solid ${COLORS.mustard}`, textAlign: "center" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>📚 Gecmis Yil Tekrari</p>
+                  <p style={{ fontSize: 11.5, color: "#6B7566", marginBottom: 10 }}>
+                    Tekrar: {dersTekrarSayaci[secilenDers] || 0} / 3 — en az 3 tekrarla bu bolum tamamlanir.
+                  </p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => dersKonuTekrariAnlat(secilenDers)} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                      {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konu Tekrari"}
+                    </button>
+                    <button onClick={() => dersTekrarTestiUret(secilenDers)} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", color: "#1B2430", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                      {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ Test Ol"}
+                    </button>
+                  </div>
+                </div>
+
+                {aciklama && (
+                  <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginBottom: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
+                    {aciklama}
+                  </div>
+                )}
+
+                {quiz && (
+                  <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                    {quiz.map((s, i) => (
+                      <div key={i} style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
+                        {s.secenekler.map((sec, j) => {
+                          const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
+                          return (
+                            <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                              display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
+                              cursor: gonderildi ? "default" : "pointer",
+                              border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
+                              background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
+                            }}>{sec}</button>
+                          );
+                        })}
+                      </div>
+                    ))}
+                    {!gonderildi ? (
+                      <button onClick={() => dersTekrarTestiGonder(secilenDers)} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                    ) : (
+                      <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
+                        Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
+                        <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>✓ Tekrar sayacina eklendi ({(dersTekrarSayaci[secilenDers] || 0)}/3)</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
