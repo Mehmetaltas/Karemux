@@ -176,6 +176,7 @@ export default function Ana() {
   const [dersSeviyeGonderildi, setDersSeviyeGonderildi] = useState(false);
   const [dersSeviyeRaporu, setDersSeviyeRaporu] = useState(null);
   const [dersSeviyeYukleniyor, setDersSeviyeYukleniyor] = useState(false);
+  const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
   const [dersSeviyeSonTarih, setDersSeviyeSonTarih] = useState(null);
   const [dersSeviyeGecmisYukleniyor, setDersSeviyeGecmisYukleniyor] = useState(false);
 
@@ -251,8 +252,8 @@ export default function Ana() {
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const zorlukMetni = { basit: "cok basit ve yavas", orta: "orta seviyede", zor: "ileri seviyede" }[zorlukSec] || "orta seviyede";
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinden "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} bir dille anlat. Madde isaretleri ve kisa paragraflar kullan. En fazla 300 kelime. SADECE duz metin yaz: markdown, LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
-      const cevap = await aiIstek(p, 2200, cihazIdRef.current);
+      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
@@ -1010,70 +1011,6 @@ export default function Ana() {
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
 
-            {dersSeviyeRaporu && (() => {
-              const tumUniteler = MUFREDAT[secilenDers] || [];
-              const tamamlanan = tamamlananUniteler[secilenDers] || [];
-              const onerilenUnite = tumUniteler.find((u) => !tamamlanan.includes(u));
-              if (!onerilenUnite) {
-                return (
-                  <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 14, marginBottom: 16, textAlign: "center" }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>🎉 Tum uniteleri tamamladin!</p>
-                  </div>
-                );
-              }
-              return (
-                <div style={{ background: COLORS.gradient, borderRadius: 10, padding: 16, marginBottom: 16, textAlign: "center" }}>
-                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 1, marginBottom: 4 }}>🎯 KOC ONERISI</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>Simdi buna odaklan: {onerilenUnite}</p>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
-                      {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konuyu Anlat"}
-                    </button>
-                    <button onClick={oneriliUniteSoruCoz} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.page}`, background: "transparent", color: COLORS.page, fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
-                      {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ 5 Soru Coz"}
-                    </button>
-                  </div>
-                </div>
-              );
-            })()}
-
-            {aciklama && (
-              <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginBottom: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
-                {aciklama}
-              </div>
-            )}
-
-            {quiz && (
-              <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginBottom: 16, border: `1px solid ${COLORS.line}` }}>
-                {quiz.map((s, i) => (
-                  <div key={i} style={{ marginBottom: 16 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
-                    {s.secenekler.map((sec, j) => {
-                      const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
-                      return (
-                        <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
-                          display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
-                          cursor: gonderildi ? "default" : "pointer",
-                          border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
-                          background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
-                        }}>{sec}</button>
-                      );
-                    })}
-                  </div>
-                ))}
-                {!gonderildi ? (
-                  <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
-                ) : (
-                  <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
-                    Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
-                    {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length / quiz.length >= 0.7 && (
-                      <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>🎉 Basarili! Bu unite ilerlemene eklendi.</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-
             {dersSeviyeGecmisYukleniyor && (
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
             )}
@@ -1144,6 +1081,82 @@ export default function Ana() {
                     Sonraki degerlendirme: {new Date(new Date(dersSeviyeSonTarih).getTime() + 45 * 24 * 60 * 60 * 1000).toLocaleDateString("tr-TR")}
                     <br />(Guvenilir bir seviye olcumu icin sik tekrar onerilmez.)
                   </p>
+                )}
+              </div>
+            )}
+
+            {dersSeviyeRaporu && (() => {
+              const tumUniteler = MUFREDAT[secilenDers] || [];
+              const tamamlanan = tamamlananUniteler[secilenDers] || [];
+              const onerilenUnite = tumUniteler.find((u) => !tamamlanan.includes(u));
+              if (!onerilenUnite) {
+                return (
+                  <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 14, marginTop: 16, textAlign: "center" }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>🎉 Tum uniteleri tamamladin!</p>
+                  </div>
+                );
+              }
+              return (
+                <div style={{ background: COLORS.gradient, borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 1, marginBottom: 4 }}>🎯 KOC ONERISI</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>Simdi buna odaklan: {onerilenUnite}</p>
+                  <button onClick={() => setKocPaneliAcik(true)} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    📚 Koc Panelini Ac
+                  </button>
+                </div>
+              );
+            })()}
+
+            {kocPaneliAcik && (
+              <div style={{ background: "#FAF6EE", borderRadius: 12, padding: 18, marginTop: 16, border: `1.5px solid ${COLORS.mustard}` }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: "#1B2430" }}>📚 Koc Paneli — {oneriliUniteHesapla(secilenDers)}</p>
+                  <button onClick={() => setKocPaneliAcik(false)} style={{ border: "none", background: "none", color: "#6B7566", fontSize: 18, cursor: "pointer", padding: 0, lineHeight: 1 }}>✕</button>
+                </div>
+                <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                  <button onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konuyu Anlat"}
+                  </button>
+                  <button onClick={oneriliUniteSoruCoz} disabled={yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1.5px solid #1B2430", background: "transparent", color: "#1B2430", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ 5 Soru Coz"}
+                  </button>
+                </div>
+
+                {aciklama && (
+                  <div style={{ background: "#fff", borderRadius: 10, padding: 16, marginBottom: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.7, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
+                    {aciklama}
+                  </div>
+                )}
+
+                {quiz && (
+                  <div style={{ background: "#fff", borderRadius: 10, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                    {quiz.map((s, i) => (
+                      <div key={i} style={{ marginBottom: 16 }}>
+                        <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
+                        {s.secenekler.map((sec, j) => {
+                          const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
+                          return (
+                            <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                              display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
+                              cursor: gonderildi ? "default" : "pointer",
+                              border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
+                              background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
+                            }}>{sec}</button>
+                          );
+                        })}
+                      </div>
+                    ))}
+                    {!gonderildi ? (
+                      <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                    ) : (
+                      <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
+                        Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
+                        {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length / quiz.length >= 0.7 && (
+                          <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>🎉 Basarili! Bu unite ilerlemene eklendi.</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
