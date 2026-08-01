@@ -128,6 +128,28 @@ export default function Ana() {
   // Dersler ekraninda: gecmis yil zayifsa konu tekrari + test dongusu burada calisir.
   const [dersGecenYilZayifMi, setDersGecenYilZayifMi] = useState(null); // null=bilinmiyor, true/false
   const [dersTekrarSayaci, setDersTekrarSayaci] = useState({}); // { [ders]: sayi } (eski, geriye uyumluluk)
+  const [soruAciklamalari, setSoruAciklamalari] = useState({}); // { [soruIndex]: aciklama metni }
+  const [soruAciklamaYukleniyor, setSoruAciklamaYukleniyor] = useState(null); // hangi soru indexi yukleniyor
+
+  async function soruAciklamasiGetir(index, soru, secenekler, dogruIndex, secilenIndex) {
+    if (soruAciklamalari[index]) return; // zaten var
+    setSoruAciklamaYukleniyor(index);
+    try {
+      const p = `Bir ogrenci su coktan secmeli soruyu yanlis cevapladi:
+Soru: ${soru}
+Secenekler: ${secenekler.join(" | ")}
+Ogrencinin verdigi cevap: ${secenekler[secilenIndex] || "bos birakildi"}
+Dogru cevap: ${secenekler[dogruIndex]}
+Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDEN yanlis oldugunu, kisa (60-90 kelime), net ve ogretici bir dille acikla. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Markdown kullanma, sadece duz metin.`;
+      const cevap = await aiIstek(p, 500, cihazIdRef.current);
+      const temiz = cevap.replace(/\*\*/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "");
+      setSoruAciklamalari((eski) => ({ ...eski, [index]: temiz }));
+    } catch (e) {
+      setSoruAciklamalari((eski) => ({ ...eski, [index]: "Aciklama alinamadi, tekrar dene." }));
+    } finally {
+      setSoruAciklamaYukleniyor(null);
+    }
+  }
   const [dersTekrarSonuclari, setDersTekrarSonuclari] = useState({}); // { [ders]: [{tur, dogru, toplam}, ...] }
   const [dersTekrarKontrolYukleniyor, setDersTekrarKontrolYukleniyor] = useState(false);
 
@@ -222,8 +244,8 @@ export default function Ana() {
     const oncekiSinif = Math.max(1, sinif - 1);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat (ogrenci yanlis yaparsa bunu okuyup ogrensin). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
       const ankor = temiz.indexOf('"soru"');
@@ -484,8 +506,8 @@ export default function Ana() {
     setDers(kocPaneliDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${kocPaneliDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${kocPaneliDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
       const baslangic = temiz.indexOf("[");
@@ -1508,6 +1530,19 @@ export default function Ana() {
                               }}>{sec}</button>
                             );
                           })}
+                          {gonderildi && cevaplar[i] !== s.dogruIndex && (
+                            <div style={{ marginTop: 4 }}>
+                              {s.aciklama ? (
+                                <p style={{ fontSize: 12, color: "#1B2430", background: "#FFF8E8", borderRadius: 6, padding: 8, marginTop: 4, lineHeight: 1.5 }}>💡 {s.aciklama}</p>
+                              ) : !soruAciklamalari[i] ? (
+                                <button onClick={() => soruAciklamasiGetir(i, s.soru, s.secenekler, s.dogruIndex, cevaplar[i])} disabled={soruAciklamaYukleniyor === i} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 600, cursor: "pointer", padding: 0 }}>
+                                  {soruAciklamaYukleniyor === i ? "Aciklaniyor..." : "💡 Neden? (aciklama al)"}
+                                </button>
+                              ) : (
+                                <p style={{ fontSize: 12, color: "#1B2430", background: "#FFF8E8", borderRadius: 6, padding: 8, marginTop: 4, lineHeight: 1.5 }}>{soruAciklamalari[i]}</p>
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))}
                       {!gonderildi ? (
