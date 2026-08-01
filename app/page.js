@@ -183,13 +183,13 @@ export default function Ana() {
   const [gecenYilTamamlandiMi, setGecenYilTamamlandiMi] = useState(null); // null = henuz bilinmiyor
 
   useEffect(() => {
-    if (!secilenDers || !cihazIdRef.current) return;
+    if (!kocPaneliDers || !cihazIdRef.current) return;
     setGecenYilRaporu(null); setGecenYilSorulari(null); setGecenYilGonderildi(false); setGecenYilTamamlandiMi(null);
     setGecenYilGecmisYukleniyor(true);
     fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
       .then((r) => r.json())
       .then((d) => {
-        const kayit = (d.sonuclar || []).find((s) => s.tur === "gecen_yil_genel" && s.ders === secilenDers);
+        const kayit = (d.sonuclar || []).find((s) => s.tur === "gecen_yil_genel" && s.ders === kocPaneliDers);
         if (kayit) {
           const toplam = kayit.dogru + kayit.yanlis + kayit.bos;
           const oran = toplam > 0 ? kayit.dogru / toplam : 0;
@@ -201,7 +201,7 @@ export default function Ana() {
       })
       .catch(() => setGecenYilTamamlandiMi(false))
       .finally(() => setGecenYilGecmisYukleniyor(false));
-  }, [secilenDers]);
+  }, [kocPaneliDers]);
 
   async function gecenYilDegerlendirmesiYap(dersAdi) {
     const oncekiSinif = Math.max(1, sinif - 1);
@@ -248,13 +248,13 @@ export default function Ana() {
   const [dersSeviyeGecmisYukleniyor, setDersSeviyeGecmisYukleniyor] = useState(false);
 
   useEffect(() => {
-    if (!secilenDers || !cihazIdRef.current) return;
+    if (!kocPaneliDers || !cihazIdRef.current) return;
     setDersSeviyeRaporu(null); setDersSeviyeSonTarih(null); setDersSeviyeSorulari(null); setDersSeviyeGonderildi(false);
     setDersSeviyeGecmisYukleniyor(true);
     fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
       .then((r) => r.json())
       .then((d) => {
-        const sonuclar = (d.sonuclar || []).filter((s) => s.tur === "ders_seviye" && s.ders.startsWith(`${secilenDers}::`));
+        const sonuclar = (d.sonuclar || []).filter((s) => s.tur === "ders_seviye" && s.ders.startsWith(`${kocPaneliDers}::`));
         if (sonuclar.length === 0) return;
         // Her unite icin son 3 degerlendirmenin ORTALAMASINI al - tek bir kotu/iyi
         // gunun sonucu carpitmasini onlemek icin. Ne kadar cok degerlendirme
@@ -287,7 +287,7 @@ export default function Ana() {
       })
       .catch(() => {})
       .finally(() => setDersSeviyeGecmisYukleniyor(false));
-  }, [secilenDers]);
+  }, [kocPaneliDers]);
 
   function donemGuncellemesiZamaniGeldiMi(sonTarih) {
     if (!sonTarih) return false;
@@ -298,13 +298,13 @@ export default function Ana() {
   // Seviye raporu her guncellendiginde, "Ileri" cikan uniteleri otomatik tamamlandi
   // sayar - boylece kilitleme sirasi gercek seviyeye gore acilir/kapanir.
   useEffect(() => {
-    if (!dersSeviyeRaporu || !secilenDers) return;
+    if (!dersSeviyeRaporu || !kocPaneliDers) return;
     Object.keys(dersSeviyeRaporu).forEach((u) => {
       if (dersSeviyeRaporu[u].seviye === "Ileri") {
-        uniteTamamlandiIsaretle(secilenDers, u);
+        uniteTamamlandiIsaretle(kocPaneliDers, u);
       }
     });
-  }, [dersSeviyeRaporu, secilenDers]);
+  }, [dersSeviyeRaporu, kocPaneliDers]);
 
   function oneriliUniteHesapla(dersAdi) {
     const tumUniteler = MUFREDAT[dersAdi] || [];
@@ -313,16 +313,16 @@ export default function Ana() {
   }
 
   async function oneriliUniteAnlat() {
-    const unite = oneriliUniteHesapla(secilenDers);
+    const unite = oneriliUniteHesapla(kocPaneliDers);
     if (!unite) return;
-    setDers(secilenDers); setUniteSec(unite); setKonu(unite);
+    setDers(kocPaneliDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const zorlukMetni = { basit: "cok basit ve yavas", orta: "orta seviyede", zor: "ileri seviyede" }[zorlukSec] || "orta seviyede";
       const temelUyarisi = gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"
         ? ` ONEMLI: Bu ogrencinin bir onceki sinif temeli zayif olcyuldu, bu yuzden konuya girmeden once cok kisa (1-2 cumle) bir "on bilgi hatirlatmasi" ekle, temel kavramlari atlamadan anlat.`
         : "";
-      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi} Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const p = `Sen deneyimli, alaninda uzman bir "${kocPaneliDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi} Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
@@ -334,12 +334,12 @@ export default function Ana() {
   }
 
   async function oneriliUniteSoruCoz() {
-    const unite = oneriliUniteHesapla(secilenDers);
+    const unite = oneriliUniteHesapla(kocPaneliDers);
     if (!unite) return;
-    setDers(secilenDers); setUniteSec(unite); setKonu(unite);
+    setDers(kocPaneliDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${kocPaneliDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
@@ -348,7 +348,7 @@ export default function Ana() {
       if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
       const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
       setQuiz(sorular);
-      sorulariBankayaKaydet(secilenDers, sinif, unite, sorular, "quiz");
+      sorulariBankayaKaydet(kocPaneliDers, sinif, unite, sorular, "quiz");
     } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
@@ -1102,16 +1102,8 @@ export default function Ana() {
         )}
 
         {mod === "kocpanel" && kocPaneliDers && (
-          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
-            <button onClick={() => setKocPaneliDers(null)} style={{ border: "none", background: "none", color: COLORS.muted, fontSize: 12, cursor: "pointer", marginBottom: 10 }}>← Geri</button>
-            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{kocPaneliDers} Koc Paneli</p>
-            <p style={{ fontSize: 13, color: COLORS.muted }}>Icini birlikte dolduracagiz.</p>
-          </div>
-        )}
-
-        {secilenDers && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
-            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{kocPaneliDers}</p>
 
             {gecenYilGecmisYukleniyor && (
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
@@ -1121,10 +1113,10 @@ export default function Ana() {
               <div style={{ background: "#FFF8E8", borderRadius: 12, padding: 18, textAlign: "center", border: `1.5px solid ${COLORS.mustard}` }}>
                 <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>📊 Once Genel Degerlendirme</p>
                 <p style={{ fontSize: 13, color: "#6B7566", marginBottom: 14 }}>
-                  {secilenDers} icin ilk kez buradasin. {Math.max(1, sinif - 1)}. siniftan gercek temelinin ne kadar saglam oldugunu olcelim,
+                  {kocPaneliDers} icin ilk kez buradasin. {Math.max(1, sinif - 1)}. siniftan gercek temelinin ne kadar saglam oldugunu olcelim,
                   sonra {sinif}. sinif takibine geceriz. (Bu, AI tarafindan olusturulan genel bir degerlendirmedir, resmi MEB sinavi degildir.)
                 </p>
-                <button onClick={() => gecenYilDegerlendirmesiYap(secilenDers)} disabled={gecenYilYukleniyor} style={{ padding: "11px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+                <button onClick={() => gecenYilDegerlendirmesiYap(kocPaneliDers)} disabled={gecenYilYukleniyor} style={{ padding: "11px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
                   {gecenYilYukleniyor ? "Hazirlaniyor..." : "Genel Degerlendirmeyi Baslat"}
                 </button>
               </div>
@@ -1145,7 +1137,7 @@ export default function Ana() {
                     ))}
                   </div>
                 ))}
-                <button onClick={() => gecenYilGonder(secilenDers)} disabled={Object.keys(gecenYilCevaplar).length < gecenYilSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                <button onClick={() => gecenYilGonder(kocPaneliDers)} disabled={Object.keys(gecenYilCevaplar).length < gecenYilSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   Sonuclari Gor
                 </button>
               </div>
@@ -1177,10 +1169,10 @@ export default function Ana() {
             {!dersSeviyeGecmisYukleniyor && !dersSeviyeSorulari && !dersSeviyeRaporu && (
               <div style={{ textAlign: "center" }}>
                 <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 14 }}>
-                  Once seviyeni belirleyelim — {secilenDers} dersinin tumune yayilan 10 soruluk bir sinav.
+                  Once seviyeni belirleyelim — {kocPaneliDers} dersinin tumune yayilan 10 soruluk bir sinav.
                 </p>
-                <button onClick={() => dersSeviyeTespitiYap(secilenDers)} disabled={dersSeviyeYukleniyor} style={{ padding: "11px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
-                  {dersSeviyeYukleniyor ? "Hazirlaniyor..." : `🧭 ${secilenDers} Seviyeni Belirle`}
+                <button onClick={() => dersSeviyeTespitiYap(kocPaneliDers)} disabled={dersSeviyeYukleniyor} style={{ padding: "11px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+                  {dersSeviyeYukleniyor ? "Hazirlaniyor..." : `🧭 ${kocPaneliDers} Seviyeni Belirle`}
                 </button>
               </div>
             )}
@@ -1200,7 +1192,7 @@ export default function Ana() {
                     ))}
                   </div>
                 ))}
-                <button onClick={() => dersSeviyeGonder(secilenDers)} disabled={Object.keys(dersSeviyeCevaplar).length < dersSeviyeSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                <button onClick={() => dersSeviyeGonder(kocPaneliDers)} disabled={Object.keys(dersSeviyeCevaplar).length < dersSeviyeSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   Sonuclari Gor
                 </button>
               </div>
@@ -1211,12 +1203,12 @@ export default function Ana() {
                 {!dersSeviyeGonderildi && donemGuncellemesiZamaniGeldiMi(dersSeviyeSonTarih) && (
                   <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 8, padding: 12, marginBottom: 14, textAlign: "center" }}>
                     <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>📅 Donem seviye guncellemesi zamani geldi</p>
-                    <button onClick={() => dersSeviyeTespitiYap(secilenDers)} disabled={dersSeviyeYukleniyor} style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    <button onClick={() => dersSeviyeTespitiYap(kocPaneliDers)} disabled={dersSeviyeYukleniyor} style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
                       {dersSeviyeYukleniyor ? "Hazirlaniyor..." : "Yeniden Degerlendir"}
                     </button>
                   </div>
                 )}
-                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, textAlign: "center" }}>{secilenDers} Seviye Raporun</p>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, textAlign: "center" }}>{kocPaneliDers} Seviye Raporun</p>
                 {dersSeviyeSonTarih && (
                   <p style={{ fontSize: 11, color: COLORS.muted, textAlign: "center", marginBottom: 10 }}>
                     Son guncelleme: {new Date(dersSeviyeSonTarih).toLocaleDateString("tr-TR")}
@@ -1245,8 +1237,8 @@ export default function Ana() {
             )}
 
             {dersSeviyeRaporu && (() => {
-              const tumUniteler = MUFREDAT[secilenDers] || [];
-              const tamamlanan = tamamlananUniteler[secilenDers] || [];
+              const tumUniteler = MUFREDAT[kocPaneliDers] || [];
+              const tamamlanan = tamamlananUniteler[kocPaneliDers] || [];
               const onerilenUnite = tumUniteler.find((u) => !tamamlanan.includes(u));
               if (!onerilenUnite) {
                 return (
@@ -1274,7 +1266,7 @@ export default function Ana() {
             {kocPaneliAcik && (
               <div style={{ background: "#FAF6EE", borderRadius: 12, padding: 18, marginTop: 16, border: `1.5px solid ${COLORS.mustard}`, textAlign: "center" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <p style={{ fontWeight: 700, fontSize: 14, color: "#1B2430" }}>📚 Koc Paneli — {oneriliUniteHesapla(secilenDers)}</p>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: "#1B2430" }}>📚 Koc Paneli — {oneriliUniteHesapla(kocPaneliDers)}</p>
                   <button onClick={() => setKocPaneliAcik(false)} style={{ border: "none", background: "none", color: "#6B7566", fontSize: 18, cursor: "pointer", padding: 0, lineHeight: 1 }}>✕</button>
                 </div>
                 <p style={{ fontSize: 13, color: "#6B7566" }}>Icini birlikte dolduracagiz.</p>
@@ -1284,6 +1276,14 @@ export default function Ana() {
             )}
           </div>
         )}
+
+        {secilenDers && !kocPaneliDers && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{secilenDers}</p>
+            <p style={{ fontSize: 13, color: COLORS.muted }}>Icini birlikte dolduracagiz.</p>
+          </div>
+        )}
+
 
         {mod === "seviye" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
