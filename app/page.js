@@ -1,6 +1,15 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
+const DUYURULAR = [
+  { ikon: "🧭", baslik: "Seviye Tespiti ile basla", metin: "6 dersten 12 soru — nerede guclu, nerede zayif oldugunu 5 dakikada ogren." },
+  { ikon: "🤖", baslik: "Yapay zeka 7/24 hazir", metin: "Gece yarisi bile olsa, istedigin konuyu aninda anlatir, soru uretir." },
+  { ikon: "📸", baslik: "Fotografla soru coz", metin: "Cozemedigin sorunun fotografini cek, saniyeler icinde adim adim cozum al." },
+  { ikon: "📊", baslik: "Gercek sonuc belgesi", metin: "Her denemede net hesaplamasi, zorluk kirilimi ve alt konu analizi." },
+  { ikon: "🔒", baslik: "Sirali, kilitli ilerleme", metin: "Bir konu bitmeden digeri acilmaz — dagitmadan, duzenli calis." },
+  { ikon: "🎯", baslik: "Kisisel calisma plani", metin: "Zayif olduguen dersler otomatik tespit edilir, haftalik program cikarilir." },
+];
+
 const TEMALAR = {
   orman: {
     isim: "Orman", ikon: "🌲",
@@ -114,6 +123,14 @@ export default function Ana() {
   const [mod, setMod] = useState("bos");
   const [secilenDers, setSecilenDers] = useState(null);
   const [tema, setTema] = useState("orman");
+  const [duyuruIndex, setDuyuruIndex] = useState(0);
+
+  useEffect(() => {
+    const zamanlayici = setInterval(() => {
+      setDuyuruIndex((i) => (i + 1) % DUYURULAR.length);
+    }, 4000);
+    return () => clearInterval(zamanlayici);
+  }, []);
   const COLORS = TEMALAR[tema];
 
   useEffect(() => {
@@ -749,6 +766,33 @@ export default function Ana() {
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
               Baslamak icin sol ustteki <strong style={{ color: COLORS.mustard }}>☰</strong> menuden bir ders sec.
             </p>
+          </div>
+        )}
+
+        {mod === "bos" && !secilenDers && (
+          <div style={{
+            background: COLORS.page, borderRadius: 14, padding: "18px 20px", marginBottom: 16,
+            border: `1.5px solid ${COLORS.mustard}`, minHeight: 90, position: "relative", overflow: "hidden",
+          }}>
+            <div key={duyuruIndex} style={{
+              display: "flex", alignItems: "center", gap: 12,
+              animation: "duyuruFadeIn 0.6s ease",
+            }}>
+              <div style={{ fontSize: 30, flexShrink: 0 }}>{DUYURULAR[duyuruIndex].ikon}</div>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.ink, margin: "0 0 3px" }}>{DUYURULAR[duyuruIndex].baslik}</p>
+                <p style={{ fontSize: 12.5, color: COLORS.muted, margin: 0, lineHeight: 1.5 }}>{DUYURULAR[duyuruIndex].metin}</p>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 5, justifyContent: "center", marginTop: 12 }}>
+              {DUYURULAR.map((_, i) => (
+                <div key={i} onClick={() => setDuyuruIndex(i)} style={{
+                  width: i === duyuruIndex ? 16 : 6, height: 6, borderRadius: 999, cursor: "pointer",
+                  background: i === duyuruIndex ? COLORS.coral : COLORS.line, transition: "width 0.3s ease",
+                }} />
+              ))}
+            </div>
+            <style>{`@keyframes duyuruFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }`}</style>
           </div>
         )}
 
