@@ -238,6 +238,50 @@ export default function Ana() {
     });
   }, [dersSeviyeRaporu, secilenDers]);
 
+  function oneriliUniteHesapla(dersAdi) {
+    const tumUniteler = MUFREDAT[dersAdi] || [];
+    const tamamlanan = tamamlananUniteler[dersAdi] || [];
+    return tumUniteler.find((u) => !tamamlanan.includes(u)) || null;
+  }
+
+  async function oneriliUniteAnlat() {
+    const unite = oneriliUniteHesapla(secilenDers);
+    if (!unite) return;
+    setDers(secilenDers); setUniteSec(unite); setKonu(unite);
+    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
+    try {
+      const zorlukMetni = { basit: "cok basit ve yavas", orta: "orta seviyede", zor: "ileri seviyede" }[zorlukSec] || "orta seviyede";
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinden "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} bir dille anlat. Madde isaretleri ve kisa paragraflar kullan. En fazla 300 kelime. SADECE duz metin yaz: markdown, LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const cevap = await aiIstek(p, 2200, cihazIdRef.current);
+      const temizMetin = cevap
+        .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
+        .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
+        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "");
+      setAciklama(temizMetin);
+    } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
+  async function oneriliUniteSoruCoz() {
+    const unite = oneriliUniteHesapla(secilenDers);
+    if (!unite) return;
+    setDers(secilenDers); setUniteSec(unite); setKonu(unite);
+    setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
+    try {
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("[");
+      const bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
+      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setQuiz(sorular);
+      sorulariBankayaKaydet(secilenDers, sinif, unite, sorular, "quiz");
+    } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
   async function dersSeviyeTespitiYap(dersAdi) {
     setDersSeviyeYukleniyor(true); setHata(""); setDersSeviyeCevaplar({}); setDersSeviyeGonderildi(false); setDersSeviyeSorulari(null); setDersSeviyeRaporu(null);
     try {
@@ -980,10 +1024,55 @@ export default function Ana() {
               return (
                 <div style={{ background: COLORS.gradient, borderRadius: 10, padding: 16, marginBottom: 16, textAlign: "center" }}>
                   <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 1, marginBottom: 4 }}>🎯 KOC ONERISI</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page }}>Simdi buna odaklan: {onerilenUnite}</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>Simdi buna odaklan: {onerilenUnite}</p>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                      {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konuyu Anlat"}
+                    </button>
+                    <button onClick={oneriliUniteSoruCoz} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.page}`, background: "transparent", color: COLORS.page, fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                      {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ 5 Soru Coz"}
+                    </button>
+                  </div>
                 </div>
               );
             })()}
+
+            {aciklama && (
+              <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginBottom: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
+                {aciklama}
+              </div>
+            )}
+
+            {quiz && (
+              <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginBottom: 16, border: `1px solid ${COLORS.line}` }}>
+                {quiz.map((s, i) => (
+                  <div key={i} style={{ marginBottom: 16 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
+                    {s.secenekler.map((sec, j) => {
+                      const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
+                      return (
+                        <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                          display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
+                          cursor: gonderildi ? "default" : "pointer",
+                          border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
+                          background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
+                        }}>{sec}</button>
+                      );
+                    })}
+                  </div>
+                ))}
+                {!gonderildi ? (
+                  <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                ) : (
+                  <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
+                    Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
+                    {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length / quiz.length >= 0.7 && (
+                      <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>🎉 Basarili! Bu unite ilerlemene eklendi.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
             {dersSeviyeGecmisYukleniyor && (
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
