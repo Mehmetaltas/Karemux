@@ -188,18 +188,29 @@ export default function Ana() {
       .then((d) => {
         const sonuclar = (d.sonuclar || []).filter((s) => s.tur === "ders_seviye" && s.ders.startsWith(`${secilenDers}::`));
         if (sonuclar.length === 0) return;
-        // Her unite icin en yeni kaydi al (API zaten en yeniden eskiye sirali donduruyor)
-        const gorulenUniteler = {};
-        const rapor = {};
-        let enYeniTarih = null;
+        // Her unite icin son 3 degerlendirmenin ORTALAMASINI al - tek bir kotu/iyi
+        // gunun sonucu carpitmasini onlemek icin. Ne kadar cok degerlendirme
+        // birikirse, ogrencinin gercek seviyesine o kadar "tam hakimiyet" saglanir.
+        const uniteBazliListe = {};
         sonuclar.forEach((s) => {
           const unite = s.ders.split("::")[1];
-          if (gorulenUniteler[unite]) return;
-          gorulenUniteler[unite] = true;
-          const toplam = s.dogru + s.yanlis + s.bos;
-          const oran = toplam > 0 ? s.dogru / toplam : 0;
-          rapor[unite] = { dogru: s.dogru, toplam, seviye: oran >= 0.8 ? "Ileri" : oran >= 0.5 ? "Orta" : "Baslangic" };
-          if (!enYeniTarih || new Date(s.olusturulma) > new Date(enYeniTarih)) enYeniTarih = s.olusturulma;
+          if (!uniteBazliListe[unite]) uniteBazliListe[unite] = [];
+          if (uniteBazliListe[unite].length < 3) uniteBazliListe[unite].push(s); // en yeni 3 tanesi (API zaten yeniden eskiye sirali)
+        });
+        const rapor = {};
+        let enYeniTarih = null;
+        Object.keys(uniteBazliListe).forEach((unite) => {
+          const kayitlar = uniteBazliListe[unite];
+          const toplamDogru = kayitlar.reduce((t, k) => t + k.dogru, 0);
+          const toplamSoru = kayitlar.reduce((t, k) => t + k.dogru + k.yanlis + k.bos, 0);
+          const oran = toplamSoru > 0 ? toplamDogru / toplamSoru : 0;
+          rapor[unite] = {
+            dogru: toplamDogru, toplam: toplamSoru,
+            seviye: oran >= 0.8 ? "Ileri" : oran >= 0.5 ? "Orta" : "Baslangic",
+            degerlendirmeSayisi: kayitlar.length,
+          };
+          const buUnitenSonTarih = kayitlar[0].olusturulma; // en yenisi listenin basinda
+          if (!enYeniTarih || new Date(buUnitenSonTarih) > new Date(enYeniTarih)) enYeniTarih = buUnitenSonTarih;
         });
         if (Object.keys(rapor).length > 0) {
           setDersSeviyeRaporu(rapor);
@@ -213,7 +224,7 @@ export default function Ana() {
   function donemGuncellemesiZamaniGeldiMi(sonTarih) {
     if (!sonTarih) return false;
     const gunFarki = (Date.now() - new Date(sonTarih).getTime()) / (1000 * 60 * 60 * 24);
-    return gunFarki >= 150; // ~5 ay - yaklasik donem araligi
+    return gunFarki >= 45; // ~6 hafta - daha siki takip, tek gunun etkisini azaltmak icin sik guncelleme tesvik edilir
   }
 
   async function dersSeviyeTespitiYap(dersAdi) {
@@ -1001,7 +1012,7 @@ export default function Ana() {
                   const renk = r.seviye === "Ileri" ? "#3DA35D" : r.seviye === "Orta" ? "#B8860B" : COLORS.coral;
                   return (
                     <div key={u} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${COLORS.line}` }}>
-                      <span style={{ fontSize: 13 }}>{u}</span>
+                      <span style={{ fontSize: 13 }}>{u}{r.degerlendirmeSayisi > 1 && <span style={{ fontSize: 10, color: COLORS.muted }}> ({r.degerlendirmeSayisi} degerlendirme ort.)</span>}</span>
                       <span style={{ fontSize: 12, fontWeight: 700, color: renk }}>{r.seviye} ({r.dogru}/{r.toplam})</span>
                     </div>
                   );
