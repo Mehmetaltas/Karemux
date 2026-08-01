@@ -1469,6 +1469,9 @@ export default function Ana() {
                       Test: {durum.testSayisi} / 3 — 3 test sonunda ortalama %60+ ile bu tur tamamlanir.
                       {durum.tur === 2 && " (1. turda yeterli basari saglanamadi, konu tekrar anlatiliyor.)"}
                     </p>
+                    <p style={{ fontSize: 9, color: "#B8860B", marginBottom: 10, fontFamily: "monospace" }}>
+                      [teshis] kayitli: {JSON.stringify(dersTekrarSonuclari[secilenDers] || [])}
+                    </p>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button onClick={() => dersKonuTekrariAnlat(secilenDers)} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                         {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konu Tekrari"}
