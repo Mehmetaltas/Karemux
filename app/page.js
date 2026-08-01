@@ -1,9 +1,31 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-const COLORS = {
-  bg: "#1F3D2E", page: "#FAF6EE", ink: "#1B2430", muted: "#6B7566",
-  coral: "#FF6B5E", mustard: "#E8B339", line: "#DCD5C4",
+const TEMALAR = {
+  orman: {
+    isim: "Orman", ikon: "🌲",
+    bg: "#1F3D2E", page: "#FAF6EE", ink: "#1B2430", muted: "#6B7566",
+    coral: "#FF6B5E", mustard: "#E8B339", line: "#DCD5C4",
+    gradient: "linear-gradient(160deg, #24402F 0%, #1A2E22 100%)",
+  },
+  galaktik: {
+    isim: "Galaktik", ikon: "🌌",
+    bg: "#0D0B1F", page: "#F4F2FF", ink: "#1A1730", muted: "#8A7FC7",
+    coral: "#FF5CA8", mustard: "#7C4DFF", line: "#3A3268",
+    gradient: "linear-gradient(160deg, #241B4A 0%, #0D0B1F 100%)",
+  },
+  hologram: {
+    isim: "Hologram", ikon: "💠",
+    bg: "#071A22", page: "#EAFBFF", ink: "#062830", muted: "#4FB8C9",
+    coral: "#00E5C7", mustard: "#00B8FF", line: "#0F3A44",
+    gradient: "linear-gradient(160deg, #0D3A44 0%, #071A22 100%)",
+  },
+  uzay: {
+    isim: "Uzay", ikon: "🪐",
+    bg: "#14121F", page: "#FDF6EC", ink: "#221D33", muted: "#9C8FB5",
+    coral: "#FF9A3C", mustard: "#FFD166", line: "#3A3352",
+    gradient: "linear-gradient(160deg, #241F3D 0%, #14121F 100%)",
+  },
 };
 
 const DERSLER = [
@@ -91,6 +113,20 @@ function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
 export default function Ana() {
   const [mod, setMod] = useState("bos");
   const [secilenDers, setSecilenDers] = useState(null);
+  const [tema, setTema] = useState("orman");
+  const COLORS = TEMALAR[tema];
+
+  useEffect(() => {
+    try {
+      const kayitliTema = localStorage.getItem("karemux_tema");
+      if (kayitliTema && TEMALAR[kayitliTema]) setTema(kayitliTema);
+    } catch (e) {}
+  }, []);
+
+  function temaDegistir(yeniTema) {
+    setTema(yeniTema);
+    try { localStorage.setItem("karemux_tema", yeniTema); } catch (e) {}
+  }
   const [menuAcik, setMenuAcik] = useState(false);
 
   function modGecis(yeniMod) {
@@ -704,7 +740,7 @@ export default function Ana() {
 
         {mod === "bos" && !secilenDers && (
           <div style={{
-            background: "linear-gradient(160deg, #24402F 0%, #1A2E22 100%)", borderRadius: 16, padding: "28px 20px",
+            background: COLORS.gradient, borderRadius: 16, padding: "28px 20px",
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
             <div style={{ fontSize: 36, marginBottom: 10 }}>🎓</div>
@@ -741,6 +777,21 @@ export default function Ana() {
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "hesap" ? 700 : 500,
                 background: mod === "hesap" ? COLORS.page : "transparent", color: mod === "hesap" ? COLORS.ink : "#C9D4C7",
               }}>{hesap ? `👤 ${hesap.ad} (${hesap.rol === "veli" ? "Veli" : "Ogrenci"})` : "👤 Giris / Kayit"}</button>
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Tema</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                {Object.keys(TEMALAR).map((t) => (
+                  <button key={t} onClick={() => temaDegistir(t)} style={{
+                    padding: "10px 6px", borderRadius: 10, cursor: "pointer", textAlign: "center",
+                    border: `2px solid ${tema === t ? TEMALAR[t].mustard : "transparent"}`,
+                    background: TEMALAR[t].gradient, color: TEMALAR[t].page, fontSize: 11, fontWeight: 700,
+                  }}>
+                    <div style={{ fontSize: 18, marginBottom: 3 }}>{TEMALAR[t].ikon}</div>
+                    {TEMALAR[t].isim}
+                  </button>
+                ))}
+              </div>
             </div>
           </>
         )}
