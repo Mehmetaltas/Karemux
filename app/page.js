@@ -23,6 +23,18 @@ const MUFREDAT = {
   "Ingilizce": ["Friendship", "Teen Life", "In the Kitchen", "On the Phone", "The Internet", "Adventures", "Tourism", "Chores", "Science", "Natural Forces"],
 };
 
+// DOGRULANMIS MEB kazanim verisi (8. sinif Matematik) - resmi ogretim programindan
+// arastirilip alinmistir, AI tarafindan uydurulmamistir. Sadece dogrulanan uniteler
+// burada var; digerleri icin sistem AI'a alt konu onerdirir (ayri, acik etiketle).
+const DOGRULANMIS_ALT_KONULAR = {
+  "Matematik::Carpanlar ve Katlar": ["Asal Carpanlara Ayirma", "EBOB Hesaplama", "EKOK Hesaplama", "Aralarinda Asal Sayilar"],
+  "Matematik::Uslu Ifadeler": ["Tam Sayi Kuvvetleri", "Uslu Ifadelerde Temel Kurallar", "Bilimsel Gosterim"],
+  "Matematik::Karekoklu Ifadeler": ["Tam Kare Olmayan Sayinin Karekoku", "Kareklu Ifadeleri Sadelestirme", "Kareklu Ifadelerde Carpma-Bolme", "Kareklu Ifadelerde Toplama-Cikarma", "Rasyonel ve Irrasyonel Sayilar"],
+  "Matematik::Veri Analizi": ["Cizgi ve Sutun Grafigi Yorumlama", "Grafik Turleri Arasi Donusum"],
+  "Matematik::Cebirsel Ifadeler ve Ozdeslikler": ["Ozdeslikler", "Cebirsel Ifadeleri Carpanlara Ayirma"],
+  "Matematik::Dogrusal Denklemler": ["Birinci Dereceden Bir Bilinmeyenli Denklemler"],
+};
+
 function denemeKapsamiHesapla(dersAdi, tur) {
   const tumUniteler = MUFREDAT[dersAdi] || [];
   const yari = Math.ceil(tumUniteler.length / 2);
@@ -83,11 +95,17 @@ export default function Ana() {
   const [konu, setKonu] = useState("");
   const [uniteSec, setUniteSec] = useState(null);
   const [tamamlananUniteler, setTamamlananUniteler] = useState({}); // { [ders]: [unite1, unite2, ...] }
+  const [tamamlananAltKonular, setTamamlananAltKonular] = useState({}); // { [ders+"::"+unite]: [altKonu1, ...] }
+  const [altKonuCache, setAltKonuCache] = useState({}); // { [ders+"::"+unite]: [altKonu1, altKonu2, ...] }
+  const [altKonuYukleniyor, setAltKonuYukleniyor] = useState(false);
+  const [aktifAltKonu, setAktifAltKonu] = useState(null);
 
   useEffect(() => {
     try {
       const kayitli = localStorage.getItem("karemux_tamamlanan_uniteler");
       if (kayitli) setTamamlananUniteler(JSON.parse(kayitli));
+      const kayitliAlt = localStorage.getItem("karemux_tamamlanan_alt_konular");
+      if (kayitliAlt) setTamamlananAltKonular(JSON.parse(kayitliAlt));
     } catch (e) {}
   }, []);
 
@@ -105,6 +123,62 @@ export default function Ana() {
     if (indeks <= 0) return true; // ilk unite her zaman acik
     const tamamlanan = tamamlananUniteler[dersAdi] || [];
     return tamamlanan.includes(tumUniteler[indeks - 1]); // bir onceki unite tamamlanmis mi
+  }
+
+  function altKonuAnahtari(dersAdi, uniteAdi) { return `${dersAdi}::${uniteAdi}`; }
+
+  async function altKonulariGetir(dersAdi, uniteAdi) {
+    const anahtar = altKonuAnahtari(dersAdi, uniteAdi);
+    if (altKonuCache[anahtar]) return; // zaten var, tekrar uretme
+    if (DOGRULANMIS_ALT_KONULAR[anahtar]) {
+      // Gercek MEB kazanimi var, AI'a sormaya gerek yok
+      setAltKonuCache((eski) => ({ ...eski, [anahtar]: DOGRULANMIS_ALT_KONULAR[anahtar] }));
+      return;
+    }
+    setAltKonuYukleniyor(true);
+    try {
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${dersAdi}" dersinin "${uniteAdi}" unitesini, ogrencinin sirayla calisabilecegi 4-6 kisa ALT KONU basligina bol (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa, 2-4 kelimelik basliklar). Bu senin onerdigin bir calisma sirasi olsun, MEB'in resmi bir listesi oldugunu iddia etme. SADECE JSON dizisi dondur, baska hicbir aciklama ekleme, markdown kullanma:
+["Alt Konu 1","Alt Konu 2","Alt Konu 3"]`;
+      const cevap = await aiIstek(p, 500, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("[");
+      const bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("liste alinamadi");
+      const liste = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setAltKonuCache((eski) => ({ ...eski, [anahtar]: liste }));
+    } catch (e) {
+      setAltKonuCache((eski) => ({ ...eski, [anahtar]: [] })); // basarisizsa bos liste, serbest metne dusulur
+    } finally {
+      setAltKonuYukleniyor(false);
+    }
+  }
+
+  function altKonuAcikMi(dersAdi, uniteAdi, altKonuAdi) {
+    const anahtar = altKonuAnahtari(dersAdi, uniteAdi);
+    const liste = altKonuCache[anahtar] || [];
+    const indeks = liste.indexOf(altKonuAdi);
+    if (indeks <= 0) return true;
+    const tamamlanan = tamamlananAltKonular[anahtar] || [];
+    return tamamlanan.includes(liste[indeks - 1]);
+  }
+
+  function altKonuTamamlandiMi(dersAdi, uniteAdi, altKonuAdi) {
+    const anahtar = altKonuAnahtari(dersAdi, uniteAdi);
+    return (tamamlananAltKonular[anahtar] || []).includes(altKonuAdi);
+  }
+
+  function altKonuTamamlandiIsaretle(dersAdi, uniteAdi, altKonuAdi) {
+    const anahtar = altKonuAnahtari(dersAdi, uniteAdi);
+    setTamamlananAltKonular((eski) => {
+      const guncel = { ...eski, [anahtar]: [...new Set([...(eski[anahtar] || []), altKonuAdi])] };
+      try { localStorage.setItem("karemux_tamamlanan_alt_konular", JSON.stringify(guncel)); } catch (e) {}
+      // Tum alt konular tamamlandiysa uniteyi de tamamlandi say
+      const liste = altKonuCache[anahtar] || [];
+      if (liste.length > 0 && liste.every((ak) => guncel[anahtar].includes(ak))) {
+        uniteTamamlandiIsaretle(dersAdi, uniteAdi);
+      }
+      return guncel;
+    });
   }
   const [zorlukSec, setZorlukSec] = useState("orta"); // "basit" | "orta" | "zor"
 
@@ -594,8 +668,13 @@ export default function Ana() {
     setGonderildi(true);
     const dogru = quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length;
     ilerlemeyiKaydet(ders, konu, dogru, quiz.length);
-    if (uniteSec && dogru / quiz.length >= 0.7) {
-      uniteTamamlandiIsaretle(ders, uniteSec);
+    if (dogru / quiz.length >= 0.7) {
+      if (uniteSec && aktifAltKonu) {
+        altKonuTamamlandiIsaretle(ders, uniteSec, aktifAltKonu);
+      } else if (uniteSec) {
+        // Alt konu listesi henuz yoksa (AI onerisi basarisiz oldu) direkt uniteyi tamamlandi say
+        uniteTamamlandiIsaretle(ders, uniteSec);
+      }
     }
   }
 
@@ -1087,7 +1166,7 @@ export default function Ana() {
                       const acikMi = uniteAcikMi(ders, u);
                       const tamamMi = (tamamlananUniteler[ders] || []).includes(u);
                       return (
-                        <button key={u} onClick={() => acikMi && setUniteSec(uniteSec === u ? null : u)} disabled={!acikMi} style={{
+                        <button key={u} onClick={() => { if (acikMi) { const yeni = uniteSec === u ? null : u; setUniteSec(yeni); setAktifAltKonu(null); if (yeni) altKonulariGetir(ders, yeni); } }} disabled={!acikMi} style={{
                           padding: "5px 9px", borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: acikMi ? "pointer" : "not-allowed",
                           border: `1.5px solid ${uniteSec === u ? COLORS.coral : COLORS.line}`,
                           background: uniteSec === u ? "#FFF1EF" : tamamMi ? "#EAF7EE" : "#fff",
@@ -1096,6 +1175,29 @@ export default function Ana() {
                       );
                     })}
                   </div>
+                  {uniteSec && (
+                    <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${COLORS.line}` }}>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>
+                        ALT KONULAR {altKonuYukleniyor && "(hazirlaniyor…)"} <em style={{ fontWeight: 400 }}>
+                          {DOGRULANMIS_ALT_KONULAR[altKonuAnahtari(ders, uniteSec)] ? "(MEB kazanimi - dogrulanmis)" : "(AI onerisi, resmi liste degil)"}
+                        </em>
+                      </label>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                        {(altKonuCache[altKonuAnahtari(ders, uniteSec)] || []).map((ak) => {
+                          const acik = altKonuAcikMi(ders, uniteSec, ak);
+                          const tam = altKonuTamamlandiMi(ders, uniteSec, ak);
+                          return (
+                            <button key={ak} onClick={() => { if (acik) { setAktifAltKonu(ak); setKonu(ak); } }} disabled={!acik} style={{
+                              padding: "5px 9px", borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: acik ? "pointer" : "not-allowed",
+                              border: `1.5px solid ${aktifAltKonu === ak ? COLORS.mustard : COLORS.line}`,
+                              background: aktifAltKonu === ak ? "#FEF8E8" : tam ? "#EAF7EE" : "#fff",
+                              color: acik ? COLORS.ink : "#B8B8B8", opacity: acik ? 1 : 0.6,
+                            }}>{tam ? "✓ " : !acik ? "🔒 " : ""}{ak}</button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
               {ders && sinif !== 8 && (
