@@ -110,6 +110,20 @@ async function aiIstek(prompt, maxTokens, cihazId, jsonModu) {
 }
 
 // Uretilen sorulari kalici soru bankasina arsivler - sessizce, hata olsa da akisi bozmaz.
+// Konu anlatimi metnini govde + "Dikkat Edilecek Noktalar" kutusuna ayirir - PDF kitap
+// formatindaki gorsel yapiyi canli sistemde de yansitmak icin.
+function konuMetniAyir(metin) {
+  if (!metin) return { govde: "", dikkatMaddeleri: null };
+  const upper = metin.toUpperCase().replace(/İ/g, "I");
+  const idx = upper.indexOf("DIKKAT EDILECEK") !== -1 ? upper.indexOf("DIKKAT EDILECEK")
+    : upper.indexOf("SIK YAPILAN HATALAR") !== -1 ? upper.indexOf("SIK YAPILAN HATALAR") : -1;
+  if (idx === -1) return { govde: metin, dikkatMaddeleri: null };
+  const govde = metin.slice(0, idx).trim();
+  const dikkatBlok = metin.slice(idx).split("\n").slice(1).join("\n"); // baslik satirini at
+  const maddeler = dikkatBlok.split("\n").map((s) => s.replace(/^[-•*]\s*/, "").trim()).filter((s) => s.length > 3);
+  return { govde, dikkatMaddeleri: maddeler.length > 0 ? maddeler : null };
+}
+
 function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
   if (!sorular || sorular.length === 0) return;
   fetch("/api/soru-bankasi", {
@@ -228,8 +242,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const p = durum.tur === 2
-        ? `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrenciye ${oncekiSinif}. sinif "${dersAdi}" temel konularini DAHA ONCE bir kez anlattin ama ogrenci testte basarili olamadi - yani ilk anlatim yeterli gelmedi. Bu sefer FARKLI BIR YAKLASIMLA anlat: farkli, gunluk hayattan daha somut ornekler kullan, kavramlari daha yavas ve adim adim ac, olasi kafa karistirici noktalari ONCEDEN tahmin edip aciklayarak onle, gerekirse bir konuyu iki farkli sekilde anlat (once basit benzetme, sonra teknik tanim). Bu, DAHA DETAYLI ve DAHA DERINLEMESINE bir anlatim olmali (ilk anlatimdan gorece daha uzun ve daha fazla ornekli). Toplamda 550-650 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`
-        : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra somut ornek, gerekirse formul/kural. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+        ? `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrenciye ${oncekiSinif}. sinif "${dersAdi}" temel konularini DAHA ONCE bir kez anlattin ama ogrenci testte basarili olamadi - yani ilk anlatim yeterli gelmedi. Bu sefer FARKLI BIR YAKLASIMLA anlat: farkli, gunluk hayattan daha somut ornekler kullan, kavramlari daha yavas ve adim adim ac, olasi kafa karistirici noktalari ONCEDEN tahmin edip aciklayarak onle. Her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut ornek coz. Bu, DAHA DETAYLI ve DAHA DERINLEMESINE bir anlatim olmali. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 550-650 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`
+        : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra "Ornek:" diye etiketlenmis somut ornek, gerekirse formul/kural. Konu basliklarina ayirarak yaz. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 350-450 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, durum.tur === 2 ? 4200 : 3000, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
@@ -874,8 +888,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uniteMetni = uniteSec ? ` (${uniteSec} unitesinden)` : "";
       const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
       const zorlukMetni = { basit: "cok basit ve yavas, temel seviyeden baslayarak", orta: "orta seviyede, ders kitabi diline uygun", zor: "ileri seviyede, LGS'de sik cikan zorlayici detaylara da deginerek" }[zorlukSec];
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni} "${konu}" konusunu, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye ${zorlukMetni} bir dille anlat. Madde isaretleri ve kisa paragraflar kullan. En fazla 250 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
-      const cevap = await aiIstek(p, 2000, cihazIdRef.current);
+      const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusunu${uniteMetni}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\\\sqrt, \\\\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
+      const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "")
         .replace(/#+\s?/g, "")
@@ -1508,11 +1522,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   </div>
 
-                  {aciklama && (
-                    <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginBottom: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
-                      {aciklama}
-                    </div>
-                  )}
+                  {aciklama && (() => {
+                    const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
+                    return (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
+                          {govde}
+                        </div>
+                        {dikkatMaddeleri && (
+                          <div style={{ background: COLORS.coral, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                            <p style={{ color: "#fff", fontWeight: 700, fontSize: 12.5, marginBottom: 6 }}>⚠ DIKKAT EDILECEK NOKTALAR</p>
+                            {dikkatMaddeleri.map((m, i) => (
+                              <p key={i} style={{ color: "#fff", fontSize: 12, lineHeight: 1.6, margin: "2px 0" }}>• {m}</p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {quiz && (
                     <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, border: `1px solid ${COLORS.line}` }}>
@@ -2089,7 +2116,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 )}
               </div>
             )}
-            {aciklama && <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, marginBottom: 14, border: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>{aciklama}</div>}
+            {aciklama && (() => {
+              const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
+              return (
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>
+                    {govde}
+                  </div>
+                  {dikkatMaddeleri && (
+                    <div style={{ background: COLORS.coral, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                      <p style={{ color: "#fff", fontWeight: 700, fontSize: 12.5, marginBottom: 6 }}>⚠ DIKKAT EDILECEK NOKTALAR</p>
+                      {dikkatMaddeleri.map((m, i) => (
+                        <p key={i} style={{ color: "#fff", fontSize: 12, lineHeight: 1.6, margin: "2px 0" }}>• {m}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             {quiz && (
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
                 {quiz.map((s, i) => (
