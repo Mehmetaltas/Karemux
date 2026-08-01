@@ -699,20 +699,47 @@ export default function Ana() {
             <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.page, margin: 0 }}>Karemux <span style={{ color: COLORS.mustard }}>·</span> 5.Siniftan LGS'ye Hazirlik</h1>
           </div>
         </div>
-        <p style={{ color: "#C9D4C7", fontSize: 13, margin: "6px 0 16px" }}>Seviye tespiti, konu anlatimi, deneme/yazili ve kisisel calisma plani — 5. siniftan LGS'ye kadar tek sistemde.</p>
+        <p style={{ color: "#C9D4C7", fontSize: 13, margin: "6px 0 16px" }}>5. siniftan LGS'ye kadar tek sistem</p>
+
+        {mod === "bos" && !secilenDers && (
+          <div style={{
+            background: "linear-gradient(160deg, #24402F 0%, #1A2E22 100%)", borderRadius: 16, padding: "28px 20px",
+            border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
+          }}>
+            <div style={{ fontSize: 36, marginBottom: 10 }}>🎓</div>
+            <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldin</p>
+            <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
+              Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
+              Baslamak icin sol ustteki <strong style={{ color: COLORS.mustard }}>☰</strong> menuden bir ders sec.
+            </p>
+          </div>
+        )}
 
         {menuAcik && (
           <>
             <div onClick={() => setMenuAcik(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40 }} />
             <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 260, background: COLORS.bg, borderRight: `1px solid ${COLORS.panelBorder || COLORS.line}`, zIndex: 50, padding: "20px 14px", overflowY: "auto", boxShadow: "4px 0 20px rgba(0,0,0,0.3)" }}>
+              <button onClick={() => { setSecilenDers(null); setMod("bos"); setMenuAcik(false); }} style={{
+                display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 14, borderRadius: 8,
+                border: "none", cursor: "pointer", fontSize: 14, fontWeight: 700,
+                background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : "#C9D4C7",
+              }}>🏠 Ana Sayfa</button>
+
               <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
               {DERSLER.map((d) => (
-                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMenuAcik(false); }} style={{
+                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: secilenDers === d.ad ? 700 : 500,
                   background: secilenDers === d.ad ? COLORS.page : "transparent", color: secilenDers === d.ad ? COLORS.ink : "#C9D4C7",
                 }}>{d.emoji} {d.ad}</button>
               ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <button onClick={() => { setSecilenDers(null); setMod("hesap"); setMenuAcik(false); }} style={{
+                display: "block", width: "100%", textAlign: "left", padding: "11px 12px", borderRadius: 8,
+                border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "hesap" ? 700 : 500,
+                background: mod === "hesap" ? COLORS.page : "transparent", color: mod === "hesap" ? COLORS.ink : "#C9D4C7",
+              }}>{hesap ? `👤 ${hesap.ad} (${hesap.rol === "veli" ? "Veli" : "Ogrenci"})` : "👤 Giris / Kayit"}</button>
             </div>
           </>
         )}
