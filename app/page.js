@@ -171,6 +171,51 @@ export default function Ana() {
     } catch (e) {}
   }, []);
 
+  const [dersSeviyeSorulari, setDersSeviyeSorulari] = useState(null);
+  const [dersSeviyeCevaplar, setDersSeviyeCevaplar] = useState({});
+  const [dersSeviyeGonderildi, setDersSeviyeGonderildi] = useState(false);
+  const [dersSeviyeRaporu, setDersSeviyeRaporu] = useState(null);
+  const [dersSeviyeYukleniyor, setDersSeviyeYukleniyor] = useState(false);
+
+  async function dersSeviyeTespitiYap(dersAdi) {
+    setDersSeviyeYukleniyor(true); setHata(""); setDersSeviyeCevaplar({}); setDersSeviyeGonderildi(false); setDersSeviyeSorulari(null); setDersSeviyeRaporu(null);
+    try {
+      const uniteler = MUFREDAT[dersAdi] || [];
+      const uniteListesi = uniteler.length ? `Bu dersin uniteleri: ${uniteler.join(", ")}. Her uniteden en az 1 soru gelsin, tum unitelere yayilsin.` : "";
+      const p = `Sen bir "${dersAdi}" dersi olcme-degerlendirme uzmanisin. Bu dersin TAMAMINA yayilan, ogrencinin genel seviyesini olcen 10 soruluk bir SEVIYE BELIRLEME sinavi hazirla, ${sinif}. sinif seviyesinde. ${uniteListesi} Her sorunun hangi uniteden oldugunu "unite" alaninda, hangi alt konuyu olctugunu "altKonu" alaninda belirt. Sorular kolaydan zora dogru sirali olsun, mantik yurutme gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme:
+[{"unite":"...","altKonu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+      const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
+      const ankor = temiz.indexOf('"unite"');
+      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
+      if (baslangic === -1) baslangic = temiz.indexOf("[{");
+      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
+      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
+      if (bitis === -1) bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("Seviye belirleme sinavi olusturulamadi, tekrar dene");
+      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setDersSeviyeSorulari(sorular);
+      sorulariBankayaKaydet(dersAdi, sinif, null, sorular, "ders_seviye");
+    } catch (e) { setHata(e.message || "Seviye belirleme sinavi olusturulamadi, tekrar dene."); }
+    finally { setDersSeviyeYukleniyor(false); }
+  }
+
+  function dersSeviyeGonder(dersAdi) {
+    setDersSeviyeGonderildi(true);
+    const rapor = {};
+    dersSeviyeSorulari.forEach((s, i) => {
+      const u = s.unite || "Genel";
+      if (!rapor[u]) rapor[u] = { dogru: 0, toplam: 0 };
+      rapor[u].toplam += 1;
+      if (dersSeviyeCevaplar[i] === s.dogruIndex) rapor[u].dogru += 1;
+    });
+    Object.keys(rapor).forEach((u) => {
+      const oran = rapor[u].dogru / rapor[u].toplam;
+      rapor[u].seviye = oran >= 0.8 ? "Ileri" : oran >= 0.5 ? "Orta" : "Baslangic";
+    });
+    setDersSeviyeRaporu(rapor);
+  }
+
   function uniteTamamlandiIsaretle(dersAdi, uniteAdi) {
     setTamamlananUniteler((eski) => {
       const guncel = { ...eski, [dersAdi]: [...new Set([...(eski[dersAdi] || []), uniteAdi])] };
@@ -806,8 +851,8 @@ export default function Ana() {
                 background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : "#C9D4C7",
               }}>🏠 Ana Sayfa</button>
 
-              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
-              {DERSLER.map((d) => (
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler <span style={{ fontSize: 10, fontWeight: 400, color: COLORS.muted }}>(oncelikle Matematik)</span></p>
+              {DERSLER.filter((d) => d.ad === "Matematik").map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: secilenDers === d.ad ? 700 : 500,
@@ -843,9 +888,59 @@ export default function Ana() {
         {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
 
         {secilenDers && (
-          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
-            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 6 }}>{secilenDers}</p>
-            <p style={{ fontSize: 13, color: COLORS.muted }}>Bu dersin icini birlikte dolduracagiz.</p>
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
+
+            {!dersSeviyeSorulari && !dersSeviyeRaporu && (
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 14 }}>
+                  Once seviyeni belirleyelim — {secilenDers} dersinin tumune yayilan 10 soruluk bir sinav.
+                </p>
+                <button onClick={() => dersSeviyeTespitiYap(secilenDers)} disabled={dersSeviyeYukleniyor} style={{ padding: "11px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+                  {dersSeviyeYukleniyor ? "Hazirlaniyor..." : `🧭 ${secilenDers} Seviyeni Belirle`}
+                </button>
+              </div>
+            )}
+
+            {dersSeviyeSorulari && !dersSeviyeRaporu && (
+              <div>
+                {dersSeviyeSorulari.map((s, i) => (
+                  <div key={i} style={{ marginBottom: 16 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
+                      <span style={{ color: COLORS.coral, fontSize: 11 }}>{s.unite}</span> — {i + 1}. {s.soru}
+                    </div>
+                    {s.secenekler.map((sec, j) => (
+                      <button key={j} onClick={() => setDersSeviyeCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                        display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: "pointer",
+                        border: `1.5px solid ${dersSeviyeCevaplar[i] === j ? COLORS.mustard : COLORS.line}`, background: dersSeviyeCevaplar[i] === j ? "#FEF8E8" : "#fff",
+                      }}>{sec}</button>
+                    ))}
+                  </div>
+                ))}
+                <button onClick={() => dersSeviyeGonder(secilenDers)} disabled={Object.keys(dersSeviyeCevaplar).length < dersSeviyeSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                  Sonuclari Gor
+                </button>
+              </div>
+            )}
+
+            {dersSeviyeRaporu && (
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 10, textAlign: "center" }}>{secilenDers} Seviye Raporun</p>
+                {Object.keys(dersSeviyeRaporu).map((u) => {
+                  const r = dersSeviyeRaporu[u];
+                  const renk = r.seviye === "Ileri" ? "#3DA35D" : r.seviye === "Orta" ? "#B8860B" : COLORS.coral;
+                  return (
+                    <div key={u} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${COLORS.line}` }}>
+                      <span style={{ fontSize: 13 }}>{u}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: renk }}>{r.seviye} ({r.dogru}/{r.toplam})</span>
+                    </div>
+                  );
+                })}
+                <p style={{ fontSize: 12, color: COLORS.muted, marginTop: 12, textAlign: "center" }}>
+                  Koc bu sonuca gore sana ozel bir calisma sirasi onerecek. (Sirada bunu birlikte kuracagiz.)
+                </p>
+              </div>
+            )}
           </div>
         )}
 
