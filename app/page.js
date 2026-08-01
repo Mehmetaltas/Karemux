@@ -90,6 +90,14 @@ function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
 
 export default function Ana() {
   const [mod, setMod] = useState("anlatim");
+  const [menuAcik, setMenuAcik] = useState(false);
+
+  function modGecis(yeniMod) {
+    setMod(yeniMod);
+    setMenuAcik(false);
+    setDenemeSorulari(null); setDenemeCevaplar({}); setDenemeGonderildi(false); setDenemeBelgesi(null);
+    setQuiz(null); setCevaplar({}); setGonderildi(false); setAciklama(""); setParagrafMetni("");
+  }
   const [sinif, setSinif] = useState(8);
   const [ders, setDers] = useState(null);
   const [konu, setKonu] = useState("");
@@ -681,29 +689,41 @@ export default function Ana() {
   return (
     <div style={{ minHeight: "100vh", background: COLORS.bg, fontFamily: "system-ui, sans-serif", padding: "24px 14px" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 26, fontWeight: 700, color: COLORS.page, margin: "0 0 4px" }}>Karemux <span style={{ color: COLORS.mustard }}>·</span> 5.Siniftan LGS'ye Hazirlik</h1>
-        <p style={{ color: "#C9D4C7", fontSize: 13, margin: "0 0 16px" }}>Seviye tespiti, konu anlatimi, deneme/yazili ve kisisel calisma plani — 5. siniftan LGS'ye kadar tek sistemde.</p>
-
-        <div style={{ marginBottom: 18 }}>
-          <select value={mod} onChange={(e) => {
-            setMod(e.target.value);
-            setDenemeSorulari(null); setDenemeCevaplar({}); setDenemeGonderildi(false); setDenemeBelgesi(null);
-            setQuiz(null); setCevaplar({}); setGonderildi(false); setAciklama(""); setParagrafMetni("");
-          }} style={{
-            width: "100%", padding: "12px 14px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`,
-            background: COLORS.page, color: COLORS.ink, fontWeight: 700, fontSize: 14, cursor: "pointer",
-            appearance: "none", WebkitAppearance: "none",
-          }}>
-            <option value="seviye">🧭 Seviye Tespiti</option>
-            <option value="anlatim">📘 Konu Anlatimi</option>
-            <option value="yazili">✏️ Yazili Hazirligi</option>
-            <option value="deneme">📝 Deneme Sinavi</option>
-            <option value="sorucoz">📷 Soru Coz (Fotograf)</option>
-            <option value="kocluk">🎯 Kocluk Plani</option>
-            <option value="premium">💳 Premium</option>
-            <option value="hesap">{hesap ? `👤 ${hesap.ad}` : "👤 Hesap"}</option>
-          </select>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
+          <button onClick={() => setMenuAcik((a) => !a)} style={{
+            width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
+            display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
+          }}>☰</button>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.page, margin: 0 }}>Karemux <span style={{ color: COLORS.mustard }}>·</span> 5.Siniftan LGS'ye Hazirlik</h1>
+          </div>
         </div>
+        <p style={{ color: "#C9D4C7", fontSize: 13, margin: "6px 0 16px" }}>Seviye tespiti, konu anlatimi, deneme/yazili ve kisisel calisma plani — 5. siniftan LGS'ye kadar tek sistemde.</p>
+
+        {menuAcik && (
+          <>
+            <div onClick={() => setMenuAcik(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40 }} />
+            <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 260, background: COLORS.bg, borderRight: `1px solid ${COLORS.panelBorder || COLORS.line}`, zIndex: 50, padding: "20px 14px", overflowY: "auto", boxShadow: "4px 0 20px rgba(0,0,0,0.3)" }}>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Menu</p>
+              {[
+                ["seviye", "🧭 Seviye Tespiti"],
+                ["anlatim", "📘 Konu Anlatimi"],
+                ["yazili", "✏️ Yazili Hazirligi"],
+                ["deneme", "📝 Deneme Sinavi"],
+                ["sorucoz", "📷 Soru Coz (Fotograf)"],
+                ["kocluk", "🎯 Kocluk Plani"],
+                ["premium", "💳 Premium"],
+                ["hesap", hesap ? `👤 ${hesap.ad}` : "👤 Hesap"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => modGecis(k)} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : "#C9D4C7",
+                }}>{etiket}</button>
+              ))}
+            </div>
+          </>
+        )}
 
         {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
 
