@@ -202,10 +202,13 @@ export default function Ana() {
 
   async function dersKonuTekrariAnlat(dersAdi) {
     const oncekiSinif = Math.max(1, sinif - 1);
+    const durum = dersTekrarDurumuHesapla(dersAdi);
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
-      const p = `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra somut ornek, gerekirse formul/kural. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
-      const cevap = await aiIstek(p, 3000, cihazIdRef.current);
+      const p = durum.tur === 2
+        ? `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrenciye ${oncekiSinif}. sinif "${dersAdi}" temel konularini DAHA ONCE bir kez anlattin ama ogrenci testte basarili olamadi - yani ilk anlatim yeterli gelmedi. Bu sefer FARKLI BIR YAKLASIMLA anlat: farkli, gunluk hayattan daha somut ornekler kullan, kavramlari daha yavas ve adim adim ac, olasi kafa karistirici noktalari ONCEDEN tahmin edip aciklayarak onle, gerekirse bir konuyu iki farkli sekilde anlat (once basit benzetme, sonra teknik tanim). Bu, DAHA DETAYLI ve DAHA DERINLEMESINE bir anlatim olmali (ilk anlatimdan gorece daha uzun ve daha fazla ornekli). Toplamda 550-650 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`
+        : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra somut ornek, gerekirse formul/kural. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const cevap = await aiIstek(p, durum.tur === 2 ? 4200 : 3000, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
