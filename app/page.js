@@ -240,6 +240,7 @@ export default function Ana() {
   }
 
 
+  const [dersSeviyeSorulari, setDersSeviyeSorulari] = useState(null);
   const [dersSeviyeCevaplar, setDersSeviyeCevaplar] = useState({});
   const [dersSeviyeGonderildi, setDersSeviyeGonderildi] = useState(false);
   const [dersSeviyeRaporu, setDersSeviyeRaporu] = useState(null);
