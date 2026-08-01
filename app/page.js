@@ -171,7 +171,73 @@ export default function Ana() {
     } catch (e) {}
   }, []);
 
-  const [dersSeviyeSorulari, setDersSeviyeSorulari] = useState(null);
+  // GECEN SENE GENEL DEGERLENDIRME - bir kez yapilir, mevcut sinifa gecmeden once
+  // onceki sinifin temel bilgisini olcer. Bu bolum AI onerisi ile olusturulur
+  // (onceki sinif icin dogrulanmis MEB verimiz henuz yok), acikca etiketlenir.
+  const [gecenYilSorulari, setGecenYilSorulari] = useState(null);
+  const [gecenYilCevaplar, setGecenYilCevaplar] = useState({});
+  const [gecenYilGonderildi, setGecenYilGonderildi] = useState(false);
+  const [gecenYilRaporu, setGecenYilRaporu] = useState(null);
+  const [gecenYilYukleniyor, setGecenYilYukleniyor] = useState(false);
+  const [gecenYilGecmisYukleniyor, setGecenYilGecmisYukleniyor] = useState(false);
+  const [gecenYilTamamlandiMi, setGecenYilTamamlandiMi] = useState(null); // null = henuz bilinmiyor
+
+  useEffect(() => {
+    if (!secilenDers || !cihazIdRef.current) return;
+    setGecenYilRaporu(null); setGecenYilSorulari(null); setGecenYilGonderildi(false); setGecenYilTamamlandiMi(null);
+    setGecenYilGecmisYukleniyor(true);
+    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
+      .then((r) => r.json())
+      .then((d) => {
+        const kayit = (d.sonuclar || []).find((s) => s.tur === "gecen_yil_genel" && s.ders === secilenDers);
+        if (kayit) {
+          const toplam = kayit.dogru + kayit.yanlis + kayit.bos;
+          const oran = toplam > 0 ? kayit.dogru / toplam : 0;
+          setGecenYilRaporu({ dogru: kayit.dogru, toplam, seviye: oran >= 0.7 ? "Saglam" : oran >= 0.4 ? "Orta" : "Zayif" });
+          setGecenYilTamamlandiMi(true);
+        } else {
+          setGecenYilTamamlandiMi(false);
+        }
+      })
+      .catch(() => setGecenYilTamamlandiMi(false))
+      .finally(() => setGecenYilGecmisYukleniyor(false));
+  }, [secilenDers]);
+
+  async function gecenYilDegerlendirmesiYap(dersAdi) {
+    const oncekiSinif = Math.max(1, sinif - 1);
+    setGecenYilYukleniyor(true); setHata(""); setGecenYilCevaplar({}); setGecenYilGonderildi(false); setGecenYilSorulari(null);
+    try {
+      const p = `Sen "${dersAdi}" dersi olcme-degerlendirme uzmanisin. Ogrenci simdi ${sinif}. sinifa gecti, once ${oncekiSinif}. sinifi gercekten ogrenmis mi olcmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin GENEL VE TEMEL konularini kapsayan 10 soruluk bir GENEL DEGERLENDIRME sinavi hazirla, farkli konu basliklarina yayilsin. Sorular temel kavram anlayisini olcsun, kolaydan zora dogru sirali olsun. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme:
+[{"konu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+      const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("[");
+      const bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("Genel degerlendirme olusturulamadi, tekrar dene");
+      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setGecenYilSorulari(sorular);
+      sorulariBankayaKaydet(dersAdi, oncekiSinif, null, sorular, "gecen_yil_genel");
+    } catch (e) { setHata(e.message || "Genel degerlendirme olusturulamadi, tekrar dene."); }
+    finally { setGecenYilYukleniyor(false); }
+  }
+
+  function gecenYilGonder(dersAdi) {
+    setGecenYilGonderildi(true);
+    const dogru = gecenYilSorulari.filter((s, i) => gecenYilCevaplar[i] === s.dogruIndex).length;
+    const yanlis = gecenYilSorulari.length - dogru;
+    const oran = dogru / gecenYilSorulari.length;
+    const rapor = { dogru, toplam: gecenYilSorulari.length, seviye: oran >= 0.7 ? "Saglam" : oran >= 0.4 ? "Orta" : "Zayif" };
+    setGecenYilRaporu(rapor);
+    setGecenYilTamamlandiMi(true);
+    const net = Math.max(0, dogru - yanlis / 4);
+    fetch("/api/sinav-sonuc", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cihazId: cihazIdRef.current, tur: "gecen_yil_genel", ders: dersAdi, dogru, yanlis, bos: 0, net }),
+    }).catch(() => {});
+  }
+
+
   const [dersSeviyeCevaplar, setDersSeviyeCevaplar] = useState({});
   const [dersSeviyeGonderildi, setDersSeviyeGonderildi] = useState(false);
   const [dersSeviyeRaporu, setDersSeviyeRaporu] = useState(null);
@@ -253,7 +319,10 @@ export default function Ana() {
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const zorlukMetni = { basit: "cok basit ve yavas", orta: "orta seviyede", zor: "ileri seviyede" }[zorlukSec] || "orta seviyede";
-      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const temelUyarisi = gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"
+        ? ` ONEMLI: Bu ogrencinin bir onceki sinif temeli zayif olcyuldu, bu yuzden konuya girmeden once cok kisa (1-2 cumle) bir "on bilgi hatirlatmasi" ekle, temel kavramlari atlamadan anlat.`
+        : "";
+      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi} Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
@@ -1044,6 +1113,63 @@ export default function Ana() {
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
 
+            {gecenYilGecmisYukleniyor && (
+              <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
+            )}
+
+            {gecenYilTamamlandiMi === false && !gecenYilGecmisYukleniyor && !gecenYilSorulari && !gecenYilRaporu && (
+              <div style={{ background: "#FFF8E8", borderRadius: 12, padding: 18, textAlign: "center", border: `1.5px solid ${COLORS.mustard}` }}>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>📊 Once Genel Degerlendirme</p>
+                <p style={{ fontSize: 13, color: "#6B7566", marginBottom: 14 }}>
+                  {secilenDers} icin ilk kez buradasin. {Math.max(1, sinif - 1)}. siniftan gercek temelinin ne kadar saglam oldugunu olcelim,
+                  sonra {sinif}. sinif takibine geceriz. (Bu, AI tarafindan olusturulan genel bir degerlendirmedir, resmi MEB sinavi degildir.)
+                </p>
+                <button onClick={() => gecenYilDegerlendirmesiYap(secilenDers)} disabled={gecenYilYukleniyor} style={{ padding: "11px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
+                  {gecenYilYukleniyor ? "Hazirlaniyor..." : "Genel Degerlendirmeyi Baslat"}
+                </button>
+              </div>
+            )}
+
+            {gecenYilSorulari && !gecenYilGonderildi && (
+              <div>
+                {gecenYilSorulari.map((s, i) => (
+                  <div key={i} style={{ marginBottom: 16 }}>
+                    <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
+                      {s.konu && <span style={{ color: COLORS.coral, fontSize: 11 }}>{s.konu}</span>} — {i + 1}. {s.soru}
+                    </div>
+                    {s.secenekler.map((sec, j) => (
+                      <button key={j} onClick={() => setGecenYilCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                        display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: "pointer",
+                        border: `1.5px solid ${gecenYilCevaplar[i] === j ? COLORS.mustard : COLORS.line}`, background: gecenYilCevaplar[i] === j ? "#FEF8E8" : "#fff",
+                      }}>{sec}</button>
+                    ))}
+                  </div>
+                ))}
+                <button onClick={() => gecenYilGonder(secilenDers)} disabled={Object.keys(gecenYilCevaplar).length < gecenYilSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                  Sonuclari Gor
+                </button>
+              </div>
+            )}
+
+            {gecenYilRaporu && gecenYilGonderildi && (
+              <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 16, textAlign: "center", marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>Genel Degerlendirme Sonucu</p>
+                <p style={{ fontSize: 13 }}>Onceki sinif temelin: <strong>{gecenYilRaporu.seviye}</strong> ({gecenYilRaporu.dogru}/{gecenYilRaporu.toplam})</p>
+                <p style={{ fontSize: 12, color: "#6B7566", marginTop: 8 }}>Simdi {sinif}. sinif takibine geciyoruz.</p>
+              </div>
+            )}
+
+            {gecenYilTamamlandiMi === true && (
+              <>
+                {gecenYilRaporu && (
+                  <div style={{ background: gecenYilRaporu.seviye === "Zayif" ? "#FFF1EF" : "#EAF7EE", borderRadius: 8, padding: 10, marginBottom: 16, textAlign: "center" }}>
+                    <p style={{ fontSize: 11.5, color: "#1B2430" }}>
+                      📊 {Math.max(1, sinif - 1)}. sinif temeli: <strong>{gecenYilRaporu.seviye}</strong>
+                      {gecenYilRaporu.seviye === "Zayif" && " — koc buna gore dikkatli ilerleyecek"}
+                    </p>
+                  </div>
+                )}
+
             {dersSeviyeGecmisYukleniyor && (
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
             )}
@@ -1132,7 +1258,12 @@ export default function Ana() {
               return (
                 <div style={{ background: COLORS.gradient, borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
                   <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 1, marginBottom: 4 }}>🎯 KOC ONERISI</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>Simdi buna odaklan: {onerilenUnite}</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 8 }}>Simdi buna odaklan: {onerilenUnite}</p>
+                  {gecenYilRaporu && gecenYilRaporu.seviye === "Zayif" && (
+                    <p style={{ fontSize: 11.5, color: "#FFD5D0", marginBottom: 10 }}>
+                      ⚠ Onceki sinif temelin zayif gorunuyor, konu anlatimi bunu dikkate alacak.
+                    </p>
+                  )}
                   <button onClick={() => setKocPaneliAcik(true)} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
                     📚 Koc Panelini Ac
                   </button>
@@ -1148,6 +1279,8 @@ export default function Ana() {
                 </div>
                 <p style={{ fontSize: 13, color: "#6B7566" }}>Icini birlikte dolduracagiz.</p>
               </div>
+            )}
+              </>
             )}
           </div>
         )}
