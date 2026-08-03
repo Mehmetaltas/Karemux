@@ -199,7 +199,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!secilenDers || !cihazIdRef.current) return;
     setDersGecenYilZayifMi(null); setAciklama(""); setQuiz(null); setGonderildi(false);
     setDersTekrarKontrolYukleniyor(true);
-    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
+    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}&ders=${encodeURIComponent(secilenDers)}`)
       .then((r) => r.json())
       .then((d) => {
         const sonuclar = d.sonuclar || [];
@@ -252,25 +252,26 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
     function ortalamaBasariliMi(liste) {
       if (liste.length < 3) return null;
-      const toplamDogru = liste.reduce((t, s) => t + s.dogru, 0);
-      const toplamSoru = liste.reduce((t, s) => t + s.toplam, 0);
+      const sonUc = liste.slice(-3); // SADECE en son 3 test - eski/birikmis kayitlar ortalamayi bozmasin
+      const toplamDogru = sonUc.reduce((t, s) => t + s.dogru, 0);
+      const toplamSoru = sonUc.reduce((t, s) => t + s.toplam, 0);
       return toplamSoru > 0 ? toplamDogru / toplamSoru >= 0.6 : false;
     }
 
     const tur1Sonuc = ortalamaBasariliMi(tur1); // null=devam ediyor, true=gecti, false=gecemedi
-    if (tur1Sonuc === null) return { durum: "devam", tur: 1, testSayisi: tur1.length, soruSayisi: 5 };
-    if (tur1Sonuc === true) return { durum: "tamamlandi", tur: 1, testSayisi: tur1.length, soruSayisi: 5 };
+    if (tur1Sonuc === null) return { durum: "devam", tur: 1, testSayisi: Math.min(tur1.length, 3), soruSayisi: 5 };
+    if (tur1Sonuc === true) return { durum: "tamamlandi", tur: 1, testSayisi: Math.min(tur1.length, 3), soruSayisi: 5 };
 
     const tur2Sonuc = ortalamaBasariliMi(tur2);
-    if (tur2Sonuc === null) return { durum: "devam", tur: 2, testSayisi: tur2.length, soruSayisi: 10 };
-    if (tur2Sonuc === true) return { durum: "tamamlandi", tur: 2, testSayisi: tur2.length, soruSayisi: 10 };
+    if (tur2Sonuc === null) return { durum: "devam", tur: 2, testSayisi: Math.min(tur2.length, 3), soruSayisi: 10 };
+    if (tur2Sonuc === true) return { durum: "tamamlandi", tur: 2, testSayisi: Math.min(tur2.length, 3), soruSayisi: 10 };
 
     const tur3Sonuc = ortalamaBasariliMi(tur3);
-    if (tur3Sonuc === null) return { durum: "devam", tur: 3, testSayisi: tur3.length, soruSayisi: 15 };
-    if (tur3Sonuc === true) return { durum: "tamamlandi", tur: 3, testSayisi: tur3.length, soruSayisi: 15 };
+    if (tur3Sonuc === null) return { durum: "devam", tur: 3, testSayisi: Math.min(tur3.length, 3), soruSayisi: 15 };
+    if (tur3Sonuc === true) return { durum: "tamamlandi", tur: 3, testSayisi: Math.min(tur3.length, 3), soruSayisi: 15 };
 
     // 3 tur da basarisiz - rehberlik/koc gorusme talebi
-    return { durum: "gorusme_talebi", tur: 3, testSayisi: tur3.length, soruSayisi: 15 };
+    return { durum: "gorusme_talebi", tur: 3, testSayisi: Math.min(tur3.length, 3), soruSayisi: 15 };
   }
 
   function dersTekrarSayaciArtir(dersAdi) {
@@ -396,7 +397,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!kocPaneliDers || !cihazIdRef.current) return;
     setGecenYilRaporu(null); setGecenYilSorulari(null); setGecenYilGonderildi(false); setGecenYilTamamlandiMi(null);
     setGecenYilGecmisYukleniyor(true);
-    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
+    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}&ders=${encodeURIComponent(kocPaneliDers)}`)
       .then((r) => r.json())
       .then((d) => {
         const kayit = (d.sonuclar || []).find((s) => s.tur === "gecen_yil_genel" && s.ders === kocPaneliDers);
@@ -460,7 +461,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!kocPaneliDers || !cihazIdRef.current) return;
     setDersSeviyeRaporu(null); setDersSeviyeSonTarih(null); setDersSeviyeSorulari(null); setDersSeviyeGonderildi(false);
     setDersSeviyeGecmisYukleniyor(true);
-    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
+    fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}&ders=${encodeURIComponent(kocPaneliDers)}`)
       .then((r) => r.json())
       .then((d) => {
         const sonuclar = (d.sonuclar || []).filter((s) => s.tur === "ders_seviye" && s.ders.startsWith(`${kocPaneliDers}::`));
