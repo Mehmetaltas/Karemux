@@ -156,7 +156,7 @@ Ogrencinin verdigi cevap: ${secenekler[secilenIndex] || "bos birakildi"}
 Dogru cevap: ${secenekler[dogruIndex]}
 Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDEN yanlis oldugunu, kisa (60-90 kelime), net ve ogretici bir dille acikla. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Markdown kullanma, sadece duz metin.`;
       const cevap = await aiIstek(p, 500, cihazIdRef.current);
-      const temiz = cevap.replace(/\*\*/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+      const temiz = cevap.replace(/\*\*/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setSoruAciklamalari((eski) => ({ ...eski, [index]: temiz }));
     } catch (e) {
       setSoruAciklamalari((eski) => ({ ...eski, [index]: "Aciklama alinamadi, tekrar dene." }));
@@ -202,11 +202,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`)
       .then((r) => r.json())
       .then((d) => {
-        const kayit = (d.sonuclar || []).find((s) => s.tur === "gecen_yil_genel" && s.ders === secilenDers);
-        if (!kayit) { setDersGecenYilZayifMi(false); return; }
-        const toplam = kayit.dogru + kayit.yanlis + kayit.bos;
-        const oran = toplam > 0 ? kayit.dogru / toplam : 0;
-        setDersGecenYilZayifMi(oran < 0.4);
+        const sonuclar = d.sonuclar || [];
+        const kayit = sonuclar.find((s) => s.tur === "gecen_yil_genel" && s.ders === secilenDers);
+        if (!kayit) { setDersGecenYilZayifMi(false); }
+        else {
+          const toplam = kayit.dogru + kayit.yanlis + kayit.bos;
+          const oran = toplam > 0 ? kayit.dogru / toplam : 0;
+          setDersGecenYilZayifMi(oran < 0.4);
+        }
+
+        // Veritabanindaki ders_tekrar_N kayitlarini da yukleyip yerel duruma yansit -
+        // boylece gizli sekme/farkli oturum arasi tutarlilik saglanir.
+        const tekrarKayitlari = sonuclar
+          .filter((s) => s.tur && s.tur.startsWith("ders_tekrar_") && s.ders === secilenDers)
+          .map((s) => ({ tur: Number(s.tur.replace("ders_tekrar_", "")), dogru: s.dogru, toplam: s.dogru + s.yanlis + s.bos }))
+          .reverse(); // API en yeniden eskiye donduruyor, kronolojik siraya cevir
+        if (tekrarKayitlari.length > 0) {
+          setDersTekrarSonuclari((eski) => ({ ...eski, [secilenDers]: tekrarKayitlari }));
+        }
       })
       .catch(() => setDersGecenYilZayifMi(false))
       .finally(() => setDersTekrarKontrolYukleniyor(false));
@@ -219,6 +232,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       try { localStorage.setItem("karemux_ders_tekrar_sonuclari", JSON.stringify(guncel)); } catch (e) {}
       return guncel;
     });
+    // Kalicilik icin veritabanina da yaz - sadece localStorage'a guvenmek
+    // (gizli sekme/farkli cihaz durumlarinda) veri kaybina yol acabiliyordu.
+    const yanlis = toplam - dogru;
+    const net = Math.max(0, dogru - yanlis / 4);
+    fetch("/api/sinav-sonuc", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cihazId: cihazIdRef.current, tur: `ders_tekrar_${tur}`, ders: dersAdi, dogru, yanlis, bos: 0, net }),
+    }).catch(() => {});
   }
 
   // Bir dersin tekrar durumunu hesaplar: hangi turda, kac test yapildi, gecti mi, canli gorusme gerekiyor mu.
@@ -271,7 +293,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
     } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
@@ -286,7 +308,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan ${soruSayisi} coktan secmeli soru hazirla. Mantik yurutme gerektirsin. ONEMLI: Her soruyu yazdiktan sonra HESABI KENDIN ADIM ADIM COZ ve dogruIndex'in GERCEKTEN dogru oldugundan emin ol - matematiksel hata yapma, cevaplar arasinda celiski olmasin. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, DOGRU VE TUTARLI bir sekilde anlat (ogrenci yanlis yaparsa bunu okuyup ogrensin). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, Math.min(8000, 600 + soruSayisi * 500), cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
       if (baslangic === -1) baslangic = temiz.indexOf("[{");
@@ -398,7 +420,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen "${dersAdi}" dersi olcme-degerlendirme uzmanisin. Ogrenci simdi ${sinif}. sinifa gecti, once ${oncekiSinif}. sinifi gercekten ogrenmis mi olcmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin GENEL VE TEMEL konularini kapsayan 10 soruluk bir GENEL DEGERLENDIRME sinavi hazirla, farkli konu basliklarina yayilsin. Sorular temel kavram anlayisini olcsun, kolaydan zora dogru sirali olsun. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"konu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const baslangic = temiz.indexOf("[");
       const bitis = temiz.lastIndexOf("]");
       if (baslangic === -1 || bitis === -1) throw new Error("Genel degerlendirme olusturulamadi, tekrar dene");
@@ -508,7 +530,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
     } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
@@ -533,7 +555,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
     } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
@@ -548,7 +570,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen bir LGS/ortaokul ogretmenisin. "${kocPaneliDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const baslangic = temiz.indexOf("[");
       const bitis = temiz.lastIndexOf("]");
       if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
@@ -567,7 +589,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen bir "${dersAdi}" dersi olcme-degerlendirme uzmanisin. Bu dersin TAMAMINA yayilan, ogrencinin genel seviyesini olcen 10 soruluk bir SEVIYE BELIRLEME sinavi hazirla, ${sinif}. sinif seviyesinde. ${uniteListesi} Her sorunun hangi uniteden oldugunu "unite" alaninda, hangi alt konuyu olctugunu "altKonu" alaninda belirt. Sorular kolaydan zora dogru sirali olsun, mantik yurutme gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"unite":"...","altKonu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const ankor = temiz.indexOf('"unite"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
       if (baslangic === -1) baslangic = temiz.indexOf("[{");
@@ -643,7 +665,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen bir LGS/ortaokul ogretmenisin. "${dersAdi}" dersinin "${uniteAdi}" unitesini, ogrencinin sirayla calisabilecegi 4-6 kisa ALT KONU basligina bol (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa, 2-4 kelimelik basliklar). Bu senin onerdigin bir calisma sirasi olsun, MEB'in resmi bir listesi oldugunu iddia etme. SADECE JSON dizisi dondur, baska hicbir aciklama ekleme, markdown kullanma:
 ["Alt Konu 1","Alt Konu 2","Alt Konu 3"]`;
       const cevap = await aiIstek(p, 500, cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const baslangic = temiz.indexOf("[");
       const bitis = temiz.lastIndexOf("]");
       if (baslangic === -1 || bitis === -1) throw new Error("liste alinamadi");
@@ -922,7 +944,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1")
         .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
         .replace(/\\[a-zA-Z]+/g, "")
-        .replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+        .replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
     } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
@@ -939,7 +961,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         : `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni2} "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Sorular gercek sinav formatinda, mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, fasikulModu ? 7000 : 3000, cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
       if (baslangic === -1) baslangic = temiz.indexOf("[{");
@@ -965,7 +987,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni3} "${konu}" konusuyla ilgili once orta uzunlukta (120-180 kelime) bir metin/paragraf yaz, sonra bu metne dayali 20 coktan secmeli soru hazirla (${sinif}. sinif seviyesinde, kolaydan zora dogru sirali). Son olarak bu konuyla ilgili 3-5 maddelik kisa "puf noktalari / altin kurallar" listesi ekle (formul, dikkat edilecek nokta, sik yapilan hatalar gibi). Sorular okudugunu anlama, yorumlama ve dikkat gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme, markdown kullanma:
 {"metin":"...","pufNoktalari":["...","..."],"sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]}`;
       const cevap = await aiIstek(p, 8000, cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const baslangic = temiz.indexOf("{");
       const bitis = temiz.lastIndexOf("}");
       if (baslangic === -1 || bitis === -1) throw new Error("Paragraf pratigi olusturulamadi, tekrar dene");
@@ -1034,7 +1056,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen bir LGS/ortaokul olcme-degerlendirme uzmanisin. "${denemeDers}" dersi icin ${baslikMetni} hazirla, ${sinif}. sinif seviyesinde, toplam ${sinavSoruSayisi} soru olsun. ${kapsamAciklama} Sorulari, 2022-2026 yillari arasindaki gercek sinavlarin soru tarzina, uslubuna ve zorluk seviyesine birebir benzet - ama sorularin kendisi ozgun olsun, gercek gecmis sorulari birebir kopyalama ya da "gecmis yil cikti" diye sunma. 2026 LGS onceki yillara gore belirgin sekilde daha zor ve secici geldi (uzmanlar hemfikir) - sorulari buna gore kalibre et: ezber bilgiden cok dikkat, zaman yonetimi, yorumlama ve strateji gerektiren sorular olsun, Turkce'de uzun paragraflar/celdiriciler, Matematik'te islem degil dikkat ve mantik agirlikli sorular kullan. Zorluk dagilimi GERCEK 2026 LGS oranina yakin olsun: soru sayisinin yaklasik %20'si kolay, %55'i orta, %25'i zor olsun (orn. 20 soruda ~4 kolay, ~11 orta, ~5 zor). Her sorunun hangi ALT KONUYU/KAZANIMI olctugunu 2-4 kelimeyle "altKonu" alaninda belirt (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa ve spesifik). Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"..."}]`;
       const cevap = await aiIstek(p, Math.min(6000, 400 + sinavSoruSayisi * 400), cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
       if (baslangic === -1) baslangic = temiz.indexOf("[{");
@@ -1103,7 +1125,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen bir egitim kurumunda seviye tespit sinavi hazirlayan bir olcme-degerlendirme uzmanisin. Su derslerin HER BIRINDEN 2'ser soru olmak uzere toplam 12 soruluk bir SEVIYE TESPIT SINAVI hazirla: ${dersListesi}. ${sinif}. sinif seviyesinde, her dersten 1 kolay 1 orta zorlukta soru olsun. Her sorunun hangi derse ait oldugunu "ders" alaninda MUTLAKA belirt (yukaridaki isimlerle BIREBIR ayni yaz). Sorular mantik yurutme gerektirsin, ezber bilgi sorma. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, ayrica Ingilizce/Almanca/Fransizca/Portekizce gibi baska dilden TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"ders":"Matematik","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
-      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
       if (baslangic === -1) baslangic = temiz.indexOf("[{");
