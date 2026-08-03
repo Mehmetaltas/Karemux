@@ -165,6 +165,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
   const [dersTekrarSonuclari, setDersTekrarSonuclari] = useState({}); // { [ders]: [{tur, dogru, toplam}, ...] }
+  const [randevuTarih, setRandevuTarih] = useState("");
+  const [randevuSaat, setRandevuSaat] = useState("");
+  const [randevuGonderildi, setRandevuGonderildi] = useState({}); // { [ders]: true }
+  const [randevuGonderiliyor, setRandevuGonderiliyor] = useState(false);
+
+  async function randevuTalebiGonder(dersAdi) {
+    if (!randevuTarih || !randevuSaat) return;
+    setRandevuGonderiliyor(true);
+    try {
+      await fetch("/api/randevu-talebi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, ders: dersAdi, tarih: randevuTarih, saat: randevuSaat }),
+      });
+      setRandevuGonderildi((eski) => ({ ...eski, [dersAdi]: true }));
+    } catch (e) {}
+    finally { setRandevuGonderiliyor(false); }
+  }
+
   const [dersTekrarKontrolYukleniyor, setDersTekrarKontrolYukleniyor] = useState(false);
 
   useEffect(() => {
@@ -207,6 +226,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const tumSonuclar = dersTekrarSonuclari[dersAdi] || [];
     const tur1 = tumSonuclar.filter((s) => s.tur === 1);
     const tur2 = tumSonuclar.filter((s) => s.tur === 2);
+    const tur3 = tumSonuclar.filter((s) => s.tur === 3);
 
     function ortalamaBasariliMi(liste) {
       if (liste.length < 3) return null;
@@ -216,16 +236,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
 
     const tur1Sonuc = ortalamaBasariliMi(tur1); // null=devam ediyor, true=gecti, false=gecemedi
-    if (tur1Sonuc === null) return { durum: "devam", tur: 1, testSayisi: tur1.length };
-    if (tur1Sonuc === true) return { durum: "tamamlandi", tur: 1, testSayisi: tur1.length };
+    if (tur1Sonuc === null) return { durum: "devam", tur: 1, testSayisi: tur1.length, soruSayisi: 5 };
+    if (tur1Sonuc === true) return { durum: "tamamlandi", tur: 1, testSayisi: tur1.length, soruSayisi: 5 };
 
-    // 1. tur basarisiz, 2. tura gecildi
     const tur2Sonuc = ortalamaBasariliMi(tur2);
-    if (tur2Sonuc === null) return { durum: "devam", tur: 2, testSayisi: tur2.length };
-    if (tur2Sonuc === true) return { durum: "tamamlandi", tur: 2, testSayisi: tur2.length };
+    if (tur2Sonuc === null) return { durum: "devam", tur: 2, testSayisi: tur2.length, soruSayisi: 10 };
+    if (tur2Sonuc === true) return { durum: "tamamlandi", tur: 2, testSayisi: tur2.length, soruSayisi: 10 };
 
-    // 2. tur da basarisiz - canli gorusme talebi
-    return { durum: "gorusme_talebi", tur: 2, testSayisi: tur2.length };
+    const tur3Sonuc = ortalamaBasariliMi(tur3);
+    if (tur3Sonuc === null) return { durum: "devam", tur: 3, testSayisi: tur3.length, soruSayisi: 15 };
+    if (tur3Sonuc === true) return { durum: "tamamlandi", tur: 3, testSayisi: tur3.length, soruSayisi: 15 };
+
+    // 3 tur da basarisiz - rehberlik/koc gorusme talebi
+    return { durum: "gorusme_talebi", tur: 3, testSayisi: tur3.length, soruSayisi: 15 };
   }
 
   function dersTekrarSayaciArtir(dersAdi) {
@@ -241,10 +264,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const durum = dersTekrarDurumuHesapla(dersAdi);
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
-      const p = durum.tur === 2
+      const p = durum.tur >= 2
         ? `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrenciye ${oncekiSinif}. sinif "${dersAdi}" temel konularini DAHA ONCE bir kez anlattin ama ogrenci testte basarili olamadi - yani ilk anlatim yeterli gelmedi. Bu sefer FARKLI BIR YAKLASIMLA anlat: farkli, gunluk hayattan daha somut ornekler kullan, kavramlari daha yavas ve adim adim ac, olasi kafa karistirici noktalari ONCEDEN tahmin edip aciklayarak onle. Her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut ornek coz. Bu, DAHA DETAYLI ve DAHA DERINLEMESINE bir anlatim olmali. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 550-650 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`
         : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra "Ornek:" diye etiketlenmis somut ornek, gerekirse formul/kural. Konu basliklarina ayirarak yaz. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 350-450 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
-      const cevap = await aiIstek(p, durum.tur === 2 ? 4200 : 3000, cihazIdRef.current);
+      const cevap = await aiIstek(p, durum.tur >= 2 ? 4200 : 3000, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
@@ -256,11 +279,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function dersTekrarTestiUret(dersAdi) {
     const oncekiSinif = Math.max(1, sinif - 1);
+    const durum = dersTekrarDurumuHesapla(dersAdi);
+    const soruSayisi = durum.soruSayisi || 5;
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin. ONEMLI: Her soruyu yazdiktan sonra HESABI KENDIN ADIM ADIM COZ ve dogruIndex'in GERCEKTEN dogru oldugundan emin ol - matematiksel hata yapma, cevaplar arasinda celiski olmasin. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, DOGRU VE TUTARLI bir sekilde anlat (ogrenci yanlis yaparsa bunu okuyup ogrensin). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan ${soruSayisi} coktan secmeli soru hazirla. Mantik yurutme gerektirsin. ONEMLI: Her soruyu yazdiktan sonra HESABI KENDIN ADIM ADIM COZ ve dogruIndex'in GERCEKTEN dogru oldugundan emin ol - matematiksel hata yapma, cevaplar arasinda celiski olmasin. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, DOGRU VE TUTARLI bir sekilde anlat (ogrenci yanlis yaparsa bunu okuyup ogrensin). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
-      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
+      const cevap = await aiIstek(p, Math.min(8000, 600 + soruSayisi * 500), cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
@@ -1495,10 +1520,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 return (
                   <div style={{ background: "#FFF1EF", borderRadius: 10, padding: 16, textAlign: "center", border: `1.5px solid ${COLORS.coral}` }}>
                     <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: COLORS.coral }}>🙋 Rehber Ogretmen / Koc Gorusmesi Onerilir</p>
-                    <p style={{ fontSize: 12.5, color: "#6B7566" }}>
-                      Iki tur tekrar denemesine ragmen zorlaniyorsun - bu normal, bazen birebir destek gerekir.
-                      Bu durum kaydedildi, rehber ogretmen/koc ile canli gorusme ozelligini yakinda ekleyecegiz.
+                    <p style={{ fontSize: 12.5, color: "#6B7566", marginBottom: 14 }}>
+                      Uc tur tekrar denemesine ragmen zorlaniyorsun - bu normal, bazen birebir destek gerekir.
                     </p>
+                    {randevuGonderildi[secilenDers] ? (
+                      <p style={{ fontSize: 13, fontWeight: 600, color: "#3DA35D" }}>✓ Talebin alindi, tercih ettigin zamana yakin bir egitmen seninle iletisime gececek.</p>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: 11.5, color: "#6B7566", marginBottom: 10, fontStyle: "italic" }}>
+                          (Not: bu, gorusme icin tercih tarihi/saatini kaydeder - gercek goruntulu gorusme ozelligi ayrica eklenecek, once bir egitmen sizinle iletisime gececek.)
+                        </p>
+                        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                          <input type="date" value={randevuTarih} onChange={(e) => setRandevuTarih(e.target.value)} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13 }} />
+                          <input type="time" value={randevuSaat} onChange={(e) => setRandevuSaat(e.target.value)} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13 }} />
+                        </div>
+                        <button onClick={() => randevuTalebiGonder(secilenDers)} disabled={!randevuTarih || !randevuSaat || randevuGonderiliyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                          {randevuGonderiliyor ? "Gonderiliyor..." : "Gorusme Talebi Gonder"}
+                        </button>
+                      </>
+                    )}
                   </div>
                 );
               }
@@ -1507,10 +1547,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               return (
                 <div>
                   <div style={{ background: "#FFF8E8", borderRadius: 10, padding: 14, marginBottom: 16, border: `1.5px solid ${COLORS.mustard}`, textAlign: "center" }}>
-                    <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>📚 Gecmis Yil Tekrari — {durum.tur}. Tur</p>
+                    <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>📚 Gecmis Yil Tekrari — {durum.tur}. Tur ({durum.soruSayisi} soru/test)</p>
                     <p style={{ fontSize: 11.5, color: "#6B7566", marginBottom: 10 }}>
                       Test: {durum.testSayisi} / 3 — 3 test sonunda ortalama %60+ ile bu tur tamamlanir.
-                      {durum.tur === 2 && " (1. turda yeterli basari saglanamadi, konu tekrar anlatiliyor.)"}
+                      {durum.tur === 2 && " (1. turda yeterli basari saglanamadi, konu tekrari yenilendi, soru sayisi 10'a cikti.)"}
+                      {durum.tur === 3 && " (2. turda da yeterli basari saglanamadi, son deneme: soru sayisi 15'e cikti.)"}
                     </p>
                     <div style={{ display: "flex", gap: 8 }}>
                       <button onClick={() => dersKonuTekrariAnlat(secilenDers)} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>

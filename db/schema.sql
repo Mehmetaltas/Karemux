@@ -97,6 +97,17 @@ CREATE INDEX IF NOT EXISTS idx_veli_ogrenci_ogrenci ON veli_ogrenci(ogrenci_id);
 CREATE INDEX IF NOT EXISTS idx_gunluk_kullanim ON gunluk_kullanim(kullanici_id, tarih);
 CREATE INDEX IF NOT EXISTS idx_sinav_sonuclari_kullanici ON sinav_sonuclari(kullanici_id, ders, tur);
 
+CREATE TABLE IF NOT EXISTS randevu_talepleri (
+  id SERIAL PRIMARY KEY,
+  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE SET NULL,
+  ders TEXT NOT NULL,
+  tercih_edilen_tarih TEXT NOT NULL,
+  tercih_edilen_saat TEXT NOT NULL,
+  durum TEXT NOT NULL DEFAULT 'beklemede', -- beklemede | onaylandi | tamamlandi | iptal
+  olusturulma TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_randevu_kullanici ON randevu_talepleri(kullanici_id, durum);
+
 -- NOT: Bu tablolar sonradan eklendiği için mevcut bir veritabanında
 -- eksik sütunlar olabilir. Zaten schema.sql'i çalıştırmış olan projelerde
 -- şu ek komutları da çalıştırın:
