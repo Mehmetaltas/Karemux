@@ -1,6 +1,8 @@
 import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
+export const maxDuration = 60; // Vercel fonksiyon zaman asimini mumkun oldugunca uzat
+
 export async function POST(req) {
   try {
     const { prompt, maxTokens, cihazId, jsonModu } = await req.json();
