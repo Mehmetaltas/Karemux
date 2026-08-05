@@ -165,6 +165,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
   const [dersTekrarSonuclari, setDersTekrarSonuclari] = useState({}); // { [ders]: [{tur, dogru, toplam}, ...] }
+  const [tekrarAnlatimOnbellek, setTekrarAnlatimOnbellek] = useState({}); // { "ders::tur": metin } - ayni turda tekrar uretmemek icin
   const [randevuTarih, setRandevuTarih] = useState("");
   const [randevuSaat, setRandevuSaat] = useState("");
   const [randevuGonderildi, setRandevuGonderildi] = useState({}); // { [ders]: true }
@@ -185,6 +186,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   const [dersTekrarKontrolYukleniyor, setDersTekrarKontrolYukleniyor] = useState(false);
+
+  // Tur degistiginde (ornegin 1.tur basarisiz olup 2.tura geçildiginde) o turun
+  // anlatimini otomatik goster - ogrenci butona basmadan tek bir akici oturum olsun.
+  useEffect(() => {
+    if (!secilenDers || dersTekrarKontrolYukleniyor || dersGecenYilZayifMi !== true) return;
+    const durum = dersTekrarDurumuHesapla(secilenDers);
+    if (durum.durum !== "devam") return;
+    const anahtar = `${secilenDers}::${durum.tur}`;
+    if (!tekrarAnlatimOnbellek[anahtar] && !aciklama && yukleniyor !== "aciklama") {
+      dersKonuTekrariAnlat(secilenDers);
+    }
+  }, [secilenDers, dersGecenYilZayifMi, dersTekrarKontrolYukleniyor, dersTekrarSonuclari]);
+
 
   useEffect(() => {
     try {
@@ -285,6 +299,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function dersKonuTekrariAnlat(dersAdi) {
     const oncekiSinif = Math.max(1, sinif - 1);
     const durum = dersTekrarDurumuHesapla(dersAdi);
+    const onbellekAnahtari = `${dersAdi}::${durum.tur}`;
+
+    // Bu tur icin daha once anlatim uretildiyse, TEKRAR URETME - ayniyi goster.
+    // Boylece ogrenci butona tekrar tekrar basinca her seferinde farkli bir
+    // anlatim gelmiyor, tur degismeden metin sabit kaliyor.
+    if (tekrarAnlatimOnbellek[onbellekAnahtari]) {
+      setAciklama(tekrarAnlatimOnbellek[onbellekAnahtari]);
+      setQuiz(null); setGonderildi(false); setHata("");
+      return;
+    }
+
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const p = durum.tur >= 2
@@ -296,6 +321,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
         .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
+      setTekrarAnlatimOnbellek((eski) => ({ ...eski, [onbellekAnahtari]: temizMetin }));
     } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
@@ -332,7 +358,62 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const durum = dersTekrarDurumuHesapla(dersAdi);
     dersTekrarSonucuKaydet(dersAdi, durum.tur, dogru, quiz.length);
     dersTekrarSayaciArtir(dersAdi);
+    yanlislariHataKitapciginaKaydet(dersAdi, null);
   }
+
+  // Bir quiz gonderildiginde YANLIS cevaplanan sorulari Hata Kitapcigi'na kaydeder.
+  function yanlislariHataKitapciginaKaydet(dersAdi, altKonu) {
+    if (!quiz) return;
+    quiz.forEach((s, i) => {
+      if (cevaplar[i] !== undefined && cevaplar[i] !== s.dogruIndex) {
+        fetch("/api/hata-kitapcigi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cihazId: cihazIdRef.current, ders: dersAdi, altKonu: altKonu || s.altKonu || null,
+            soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex,
+            verilenIndex: cevaplar[i], aciklama: s.aciklama || null,
+          }),
+        }).catch(() => {});
+      }
+    });
+  }
+
+  const [hataKitapcigi, setHataKitapcigi] = useState(null);
+  const [hataKitapcigiYukleniyor, setHataKitapcigiYukleniyor] = useState(false);
+  const [hataKitapcigiAcik, setHataKitapcigiAcik] = useState(false);
+
+  async function hataKitapciginiGetir(dersAdi) {
+    setHataKitapcigiYukleniyor(true);
+    try {
+      const res = await fetch(`/api/hata-kitapcigi?cihazId=${cihazIdRef.current}&ders=${encodeURIComponent(dersAdi)}`);
+      const data = await res.json();
+      setHataKitapcigi(data.kayitlar || []);
+      setHataKitapcigiAcik(true);
+    } catch (e) { setHataKitapcigi([]); }
+    finally { setHataKitapcigiYukleniyor(false); }
+  }
+
+  async function hataKitapciginaBenzerSorularUret(dersAdi) {
+    if (!hataKitapcigi || hataKitapcigi.length === 0) return;
+    const altKonular = [...new Set(hataKitapcigi.map((k) => k.alt_konu).filter(Boolean))];
+    const konuListesi = altKonular.length > 0 ? altKonular.join(", ") : "gecmiste yanlis yapilan konular";
+    setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
+    try {
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. Ogrencinin daha once yanlis yaptigi su konulardan: ${konuListesi} - bu konulari pekistirecek 5 YENI (birebir ayni olmayan, ama ayni beceriyi olcen) coktan secmeli soru hazirla. Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle acikla. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
+      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("[");
+      const bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("Sorular uretilemedi, tekrar dene");
+      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1)).filter((s) => s && Array.isArray(s.secenekler) && s.secenekler.length >= 2);
+      setQuiz(sorular);
+      setHataKitapcigiAcik(false);
+    } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    finally { setYukleniyor(null); }
+  }
+
   const [tema, setTema] = useState("orman");
   const [duyuruIndex, setDuyuruIndex] = useState(0);
 
@@ -1194,6 +1275,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setGonderildi(true);
     const dogru = quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length;
     ilerlemeyiKaydet(ders, konu, dogru, quiz.length);
+    yanlislariHataKitapciginaKaydet(ders, aktifAltKonu);
     if (dogru / quiz.length >= 0.7) {
       if (uniteSec && aktifAltKonu) {
         altKonuTamamlandiIsaretle(ders, uniteSec, aktifAltKonu);
@@ -1501,6 +1583,65 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 13, color: "#6B7566" }}>Icini birlikte dolduracagiz.</p>
               </div>
             )}
+
+            <div style={{ marginTop: 16, borderTop: `1px solid ${COLORS.line}`, paddingTop: 16 }}>
+              <button onClick={() => hataKitapciginiGetir(kocPaneliDers)} disabled={hataKitapcigiYukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                {hataKitapcigiYukleniyor ? "Yukleniyor..." : "📕 Hata Kitapcigim"}
+              </button>
+
+              {hataKitapcigiAcik && hataKitapcigi && (
+                <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginTop: 12, border: `1px solid ${COLORS.line}` }}>
+                  {hataKitapcigi.length === 0 ? (
+                    <p style={{ fontSize: 13, color: "#6B7566", textAlign: "center" }}>Henuz kayitli yanlisin yok - guzel gidiyor!</p>
+                  ) : (
+                    <>
+                      <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 10, color: "#1B2430" }}>{hataKitapcigi.length} kayitli yanlis</p>
+                      {Object.entries(hataKitapcigi.reduce((acc, k) => {
+                        const key = k.alt_konu || "Genel";
+                        acc[key] = (acc[key] || 0) + 1;
+                        return acc;
+                      }, {})).map(([konu, sayi]) => (
+                        <p key={konu} style={{ fontSize: 12.5, color: "#1B2430", margin: "4px 0" }}>⚠ {konu}: {sayi} yanlis</p>
+                      ))}
+                      <button onClick={() => hataKitapciginaBenzerSorularUret(kocPaneliDers)} disabled={yukleniyor} style={{ width: "100%", marginTop: 12, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                        {yukleniyor === "quiz" ? "Hazirlaniyor..." : "🔁 Benzer Sorularla Pratik Yap"}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+
+              {quiz && (
+                <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, marginTop: 12, border: `1px solid ${COLORS.line}` }}>
+                  {quiz.map((s, i) => (
+                    <div key={i} style={{ marginBottom: 16 }}>
+                      <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
+                      {(s.secenekler || []).map((sec, j) => {
+                        const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
+                        return (
+                          <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                            display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
+                            cursor: gonderildi ? "default" : "pointer",
+                            border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
+                            background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
+                          }}>{sec}</button>
+                        );
+                      })}
+                      {gonderildi && cevaplar[i] !== s.dogruIndex && s.aciklama && (
+                        <p style={{ fontSize: 12, color: "#1B2430", background: "#FFF8E8", borderRadius: 6, padding: 8, marginTop: 4, lineHeight: 1.5 }}>💡 {s.aciklama}</p>
+                      )}
+                    </div>
+                  ))}
+                  {!gonderildi ? (
+                    <button onClick={() => { setGonderildi(true); yanlislariHataKitapciginaKaydet(kocPaneliDers, null); }} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                  ) : (
+                    <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
+                      Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
               </>
             )}
           </div>
