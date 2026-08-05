@@ -2455,47 +2455,108 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         )}
 
         {mod === "sorucoz" && (
-          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-            <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
-              Cozemedigin sorunun fotografini yukle, yapay zekâ saniyeler icinde adim adim cozsun.
-              <br /><em>(Rakiplerin insan egitmenle 15 dakikada verdigi hizmeti aninda sunuyoruz.)</em>
-            </p>
-            <input
-              type="file" accept="image/*" capture="environment"
-              onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
-              style={{ marginBottom: 12 }}
-            />
-            {soruGorseli && <img src={soruGorseli} alt="Yuklenen soru" style={{ maxWidth: "100%", borderRadius: 8, marginBottom: 12, border: `1px solid ${COLORS.line}` }} />}
-            {yukleniyor === "soru" && <p style={{ fontSize: 13, color: COLORS.muted }}>Cozuluyor…</p>}
-            {soruCozumu && <div style={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, borderTop: `1px solid ${COLORS.line}`, paddingTop: 12 }}>{soruCozumu}</div>}
+          <div>
+            <div style={{ background: "linear-gradient(160deg, #1A3440 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 26, marginBottom: 4 }}>📷</p>
+              <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Soru Çöz</p>
+              <p style={{ fontSize: 12, color: "#A8C4C9", lineHeight: 1.5 }}>
+                Çözemediğin sorunun fotoğrafını yükle, yapay zekâ saniyeler içinde adım adım çözsün.
+              </p>
+            </div>
+
+            <div style={{ background: COLORS.page, borderRadius: 14, padding: 20, border: `2px dashed ${COLORS.line}`, marginBottom: 14, textAlign: "center" }}>
+              <label style={{ cursor: "pointer", display: "block" }}>
+                <div style={{ fontSize: 32, marginBottom: 8 }}>📸</div>
+                <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>Fotoğraf Yükle</p>
+                <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 12 }}>Kameradan çek ya da galeriden seç</p>
+                <input
+                  type="file" accept="image/*" capture="environment"
+                  onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
+                  style={{ display: "none" }}
+                />
+                <span style={{ display: "inline-block", padding: "9px 20px", borderRadius: 10, background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5 }}>Dosya Seç</span>
+              </label>
+            </div>
+
+            {soruGorseli && (
+              <div style={{ background: COLORS.page, borderRadius: 14, padding: 12, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                <img src={soruGorseli} alt="Yuklenen soru" style={{ width: "100%", borderRadius: 10, display: "block" }} />
+              </div>
+            )}
+
+            {yukleniyor === "soru" && (
+              <div style={{ background: COLORS.page, borderRadius: 14, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 13, color: COLORS.muted }}>🧠 Çözülüyor…</p>
+              </div>
+            )}
+
+            {soruCozumu && (
+              <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}` }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 8 }}>✅ ÇÖZÜM</p>
+                <div style={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.7 }}>{soruCozumu}</div>
+              </div>
+            )}
           </div>
         )}
 
         {mod === "kocluk" && (
-          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-            <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 8 }}>
-              ZAYIF DERSLER {otomatikTespit && <span style={{ color: COLORS.coral }}>· gecmis performansina gore otomatik tespit edildi</span>}
-            </label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-              {DERSLER.map((d) => {
-                const s = zayifDersler.includes(d.ad);
-                return <button key={d.ad} onClick={() => dersToggle(d.ad)} style={{ padding: "6px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${s ? COLORS.coral : COLORS.line}`, background: s ? "#FFF1EF" : "#fff", color: COLORS.ink }}>{d.emoji} {d.ad}</button>;
-              })}
+          <div>
+            <div style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 26, marginBottom: 4 }}>📅</p>
+              <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Haftalık Çalışma Planı</p>
+              <p style={{ fontSize: 12, color: "#B7C4BC", lineHeight: 1.5 }}>Koç, zayıf derslerine göre sana özel bir program hazırlar.</p>
             </div>
-            <div style={{ display: "flex", gap: 12, marginBottom: 14 }}>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted }}>HAFTALIK SAAT</label>
-                <input type="number" value={haftalikSaat} onChange={(e) => setHaftalikSaat(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+
+            <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>1</div>
+                <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Zayıf Dersler</p>
+                {otomatikTespit && <span style={{ fontSize: 10, color: COLORS.coral, fontWeight: 600 }}>· otomatik tespit edildi</span>}
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted }}>KALAN HAFTA</label>
-                <input type="number" value={kalanHafta} onChange={(e) => setKalanHafta(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                {DERSLER.map((d) => {
+                  const s = zayifDersler.includes(d.ad);
+                  return (
+                    <button key={d.ad} onClick={() => dersToggle(d.ad)} style={{
+                      padding: "12px 6px", borderRadius: 12, cursor: "pointer", textAlign: "center",
+                      border: `2px solid ${s ? COLORS.coral : COLORS.line}`,
+                      background: s ? "#FFF1EF" : "#FAF6EE",
+                    }}>
+                      <div style={{ fontSize: 20, marginBottom: 4 }}>{d.emoji}</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{d.ad}</div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
-            <button onClick={planOlustur} disabled={zayifDersler.length === 0 || yukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, opacity: zayifDersler.length === 0 ? 0.5 : 1 }}>
-              {yukleniyor === "plan" ? "Hazirlaniyor…" : "Calisma Plani Olustur"}
+
+            <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>2</div>
+                <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Zaman Planın</p>
+              </div>
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1, background: "#FAF6EE", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>HAFTALIK SAAT</p>
+                  <input type="number" value={haftalikSaat} onChange={(e) => setHaftalikSaat(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", textAlign: "center", padding: "6px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 16, fontWeight: 700, background: "#fff" }} />
+                </div>
+                <div style={{ flex: 1, background: "#FAF6EE", borderRadius: 10, padding: 12, textAlign: "center" }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>KALAN HAFTA</p>
+                  <input type="number" value={kalanHafta} onChange={(e) => setKalanHafta(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", textAlign: "center", padding: "6px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 16, fontWeight: 700, background: "#fff" }} />
+                </div>
+              </div>
+            </div>
+
+            <button onClick={planOlustur} disabled={zayifDersler.length === 0 || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: zayifDersler.length === 0 ? 0.5 : 1, boxShadow: "0 4px 14px rgba(255,107,94,0.35)" }}>
+              {yukleniyor === "plan" ? "Hazırlanıyor…" : "📅 Çalışma Planı Oluştur"}
             </button>
-            {plan && <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 13.5, lineHeight: 1.7 }}>{plan}</div>}
+
+            {plan && (
+              <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginTop: 14 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 8 }}>📋 PROGRAMIN</p>
+                <div style={{ whiteSpace: "pre-wrap", fontSize: 13.5, lineHeight: 1.7 }}>{plan}</div>
+              </div>
+            )}
           </div>
         )}
 
