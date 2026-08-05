@@ -1381,6 +1381,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   return (
     <div style={{ minHeight: "100vh", background: COLORS.bg, fontFamily: "system-ui, sans-serif", padding: "24px 14px" }}>
+      <style>{`
+        @keyframes kxFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes kxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        @keyframes kxShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        @keyframes kxPop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        .kx-fadein { animation: kxFadeUp 0.45s ease both; }
+        .kx-float { display: inline-block; animation: kxFloat 3s ease-in-out infinite; }
+        .kx-pop { animation: kxPop 0.3s ease both; }
+        .kx-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+        .kx-card:active { transform: scale(0.97); }
+        .kx-btn { transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease; }
+        .kx-btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+        .kx-btn:active { transform: scale(0.96); }
+        .kx-hero { background-size: 200% 100%; }
+        .kx-hero::after { content: ""; }
+      `}</style>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
           <img src="/icons/icon-192.png" alt="Karemux logo" style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0 }} />
@@ -1961,8 +1977,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {mod === "yazili" && (
           <div>
-            <div style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
-              <p style={{ fontSize: 26, marginBottom: 4 }}>✏️</p>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p className="kx-float" style={{ fontSize: 26, marginBottom: 4 }}>✏️</p>
               <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Yazılı Hazırlığı</p>
               <p style={{ fontSize: 12, color: "#B7C4BC", lineHeight: 1.5 }}>
                 Okul yazılı sınavına hazırlık — kapsam seç, soru sayısını ayarla.<br/>
@@ -1975,7 +1991,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>1</div>
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
                 {DERSLER.map((d) => (
                   <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{
                     padding: "12px 6px", borderRadius: 12, cursor: "pointer", textAlign: "center",
@@ -1990,7 +2006,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
 
             {denemeDers && (
-              <>
+              <div className="kx-fadein">
             <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>2</div>
@@ -2041,18 +2057,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             </div>
 
-            <button onClick={() => sinavOlustur("yazili")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !denemeDers ? 0.5 : 1, boxShadow: "0 4px 14px rgba(255,107,94,0.35)" }}>
+            <button className="kx-btn" onClick={() => sinavOlustur("yazili")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !denemeDers ? 0.5 : 1, boxShadow: "0 4px 14px rgba(255,107,94,0.35)" }}>
               {yukleniyor === "yazili" ? "Hazırlanıyor..." : `📝 ${sinavSoruSayisi} Soruluk Yazılı Hazırla`}
             </button>
-              </>
+              </div>
             )}
           </div>
         )}
 
         {mod === "deneme" && (
           <div>
-            <div style={{ background: "linear-gradient(160deg, #2A2510 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
-              <p style={{ fontSize: 26, marginBottom: 4 }}>📝</p>
+            <div className="kx-fadein" style={{ background: "linear-gradient(160deg, #2A2510 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p className="kx-float" style={{ fontSize: 26, marginBottom: 4 }}>📝</p>
               <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Deneme Sınavı</p>
               <p style={{ fontSize: 12, color: "#C9BE9E", lineHeight: 1.5 }}>
                 LGS deneme sınavına hazırlık — kapsam seç, soru sayısını ayarla.<br/>
@@ -2065,7 +2081,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.mustard, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>1</div>
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
                 {DERSLER.map((d) => (
                   <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{
                     padding: "12px 6px", borderRadius: 12, cursor: "pointer", textAlign: "center",
@@ -2080,7 +2096,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
 
             {denemeDers && (
-              <>
+              <div className="kx-fadein">
             <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.mustard, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>2</div>
@@ -2125,10 +2141,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             </div>
 
-            <button onClick={() => sinavOlustur("deneme")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.mustard, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !denemeDers ? 0.5 : 1, boxShadow: "0 4px 14px rgba(232,179,57,0.4)" }}>
+            <button className="kx-btn" onClick={() => sinavOlustur("deneme")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.mustard, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !denemeDers ? 0.5 : 1, boxShadow: "0 4px 14px rgba(232,179,57,0.4)" }}>
               {yukleniyor === "deneme" ? "Hazırlanıyor..." : `📝 ${sinavSoruSayisi} Soruluk Deneme Oluştur`}
             </button>
-              </>
+              </div>
             )}
           </div>
         )}
@@ -2456,8 +2472,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {mod === "sorucoz" && (
           <div>
-            <div style={{ background: "linear-gradient(160deg, #1A3440 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
-              <p style={{ fontSize: 26, marginBottom: 4 }}>📷</p>
+            <div className="kx-fadein" style={{ background: "linear-gradient(160deg, #1A3440 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p className="kx-float" style={{ fontSize: 26, marginBottom: 4 }}>📷</p>
               <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Soru Çöz</p>
               <p style={{ fontSize: 12, color: "#A8C4C9", lineHeight: 1.5 }}>
                 Çözemediğin sorunun fotoğrafını yükle, yapay zekâ saniyeler içinde adım adım çözsün.
@@ -2474,7 +2490,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
                   style={{ display: "none" }}
                 />
-                <span style={{ display: "inline-block", padding: "9px 20px", borderRadius: 10, background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5 }}>Dosya Seç</span>
+                <span className="kx-btn" style={{ display: "inline-block", padding: "9px 20px", borderRadius: 10, background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5 }}>Dosya Seç</span>
               </label>
             </div>
 
@@ -2501,8 +2517,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {mod === "kocluk" && (
           <div>
-            <div style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
-              <p style={{ fontSize: 26, marginBottom: 4 }}>📅</p>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p className="kx-float" style={{ fontSize: 26, marginBottom: 4 }}>📅</p>
               <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Haftalık Çalışma Planı</p>
               <p style={{ fontSize: 12, color: "#B7C4BC", lineHeight: 1.5 }}>Koç, zayıf derslerine göre sana özel bir program hazırlar.</p>
             </div>
@@ -2513,7 +2529,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Zayıf Dersler</p>
                 {otomatikTespit && <span style={{ fontSize: 10, color: COLORS.coral, fontWeight: 600 }}>· otomatik tespit edildi</span>}
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
                 {DERSLER.map((d) => {
                   const s = zayifDersler.includes(d.ad);
                   return (
@@ -2547,7 +2563,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             </div>
 
-            <button onClick={planOlustur} disabled={zayifDersler.length === 0 || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: zayifDersler.length === 0 ? 0.5 : 1, boxShadow: "0 4px 14px rgba(255,107,94,0.35)" }}>
+            <button className="kx-btn" onClick={planOlustur} disabled={zayifDersler.length === 0 || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: zayifDersler.length === 0 ? 0.5 : 1, boxShadow: "0 4px 14px rgba(255,107,94,0.35)" }}>
               {yukleniyor === "plan" ? "Hazırlanıyor…" : "📅 Çalışma Planı Oluştur"}
             </button>
 
