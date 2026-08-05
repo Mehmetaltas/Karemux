@@ -2228,6 +2228,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 {hesap.rol === "ogrenci" && (
                   <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Bekleyen Odevlerin (Koc onerileri)</p>
+                    {DERSLER.map((d) => {
+                      const onerilen = oneriliUniteHesapla(d.ad);
+                      if (!onerilen) return null;
+                      return (
+                        <div key={d.ad} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 12.5, borderBottom: `1px solid ${COLORS.line}` }}>
+                          <span>{d.emoji} {d.ad}: <strong>{onerilen}</strong></span>
+                          <span style={{ color: COLORS.mustard, fontWeight: 600, fontSize: 11 }}>bekliyor</span>
+                        </div>
+                      );
+                    })}
+                    {DERSLER.every((d) => !oneriliUniteHesapla(d.ad)) && (
+                      <p style={{ fontSize: 12.5, color: COLORS.muted }}>Su an bekleyen bir odevin yok.</p>
+                    )}
+                  </div>
+                )}
+
+                {hesap.rol === "ogrenci" && (
+                  <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
                     <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Ders Durumlarin</p>
                     {DERSLER.map((d) => {
                       const tumUnite = (MUFREDAT[d.ad] || []).length;
