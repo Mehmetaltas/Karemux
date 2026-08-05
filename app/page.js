@@ -187,18 +187,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [dersTekrarKontrolYukleniyor, setDersTekrarKontrolYukleniyor] = useState(false);
 
-  // Tur degistiginde (ornegin 1.tur basarisiz olup 2.tura geçildiginde) o turun
-  // anlatimini otomatik goster - ogrenci butona basmadan tek bir akici oturum olsun.
-  useEffect(() => {
-    if (!secilenDers || dersTekrarKontrolYukleniyor || dersGecenYilZayifMi !== true) return;
-    const durum = dersTekrarDurumuHesapla(secilenDers);
-    if (durum.durum !== "devam") return;
-    const anahtar = `${secilenDers}::${durum.tur}`;
-    if (!tekrarAnlatimOnbellek[anahtar] && !aciklama && yukleniyor !== "aciklama") {
-      dersKonuTekrariAnlat(secilenDers);
-    }
-  }, [secilenDers, dersGecenYilZayifMi, dersTekrarKontrolYukleniyor, dersTekrarSonuclari]);
-
+  // (Otomatik tetikleme effect'i asagida, temizleme effect'inden SONRA tanimlanacak -
+  // dogru calisma sirasi icin, bkz. 240 civari.)
 
   useEffect(() => {
     try {
@@ -238,6 +228,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       .catch(() => setDersGecenYilZayifMi(false))
       .finally(() => setDersTekrarKontrolYukleniyor(false));
   }, [secilenDers]);
+
+  // Tur degistiginde (ornegin 1.tur basarisiz olup 2.tura geçildiginde) o turun
+  // anlatimini otomatik goster - ogrenci butona basmadan tek bir akici oturum olsun.
+  // NOT: bu effect yukaridaki temizleme effect'inden SONRA tanimli olmali, cunku
+  // React effectleri tanim sirasina gore calistirir - once aciklama temizlenmeli,
+  // sonra bu effect "aciklama bos mu" diye kontrol etmeli. Sira karisirsa eski
+  // (baska bir dersten kalma) aciklama nedeniyle otomatik tetikleme atlanabilir.
+  useEffect(() => {
+    if (!secilenDers || dersTekrarKontrolYukleniyor || dersGecenYilZayifMi !== true) return;
+    const durum = dersTekrarDurumuHesapla(secilenDers);
+    if (durum.durum !== "devam") return;
+    const anahtar = `${secilenDers}::${durum.tur}`;
+    if (!tekrarAnlatimOnbellek[anahtar] && !aciklama && yukleniyor !== "aciklama") {
+      dersKonuTekrariAnlat(secilenDers);
+    }
+  }, [secilenDers, dersGecenYilZayifMi, dersTekrarKontrolYukleniyor, dersTekrarSonuclari]);
 
   function dersTekrarSonucuKaydet(dersAdi, tur, dogru, toplam) {
     setDersTekrarSonuclari((eski) => {
@@ -1440,7 +1446,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
                       {s.konu && <span style={{ color: COLORS.coral, fontSize: 11 }}>{s.konu}</span>} — {i + 1}. {s.soru}
                     </div>
-                    {s.secenekler.map((sec, j) => (
+                    {(s.secenekler || []).map((sec, j) => (
                       <button key={j} onClick={() => setGecenYilCevaplar((c) => ({ ...c, [i]: j }))} style={{
                         display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: "pointer",
                         border: `1.5px solid ${gecenYilCevaplar[i] === j ? COLORS.mustard : COLORS.line}`, background: gecenYilCevaplar[i] === j ? "#FEF8E8" : "#fff",
@@ -1495,7 +1501,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
                       <span style={{ color: COLORS.coral, fontSize: 11 }}>{s.unite}</span> — {i + 1}. {s.soru}
                     </div>
-                    {s.secenekler.map((sec, j) => (
+                    {(s.secenekler || []).map((sec, j) => (
                       <button key={j} onClick={() => setDersSeviyeCevaplar((c) => ({ ...c, [i]: j }))} style={{
                         display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: "pointer",
                         border: `1.5px solid ${dersSeviyeCevaplar[i] === j ? COLORS.mustard : COLORS.line}`, background: dersSeviyeCevaplar[i] === j ? "#FEF8E8" : "#fff",
