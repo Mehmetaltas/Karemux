@@ -840,6 +840,47 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [adGir, setAdGir] = useState("");
   const [rolSec, setRolSec] = useState("ogrenci"); // "ogrenci" | "veli"
   const [hesapHata, setHesapHata] = useState("");
+  const [sifreUnutAcik, setSifreUnutAcik] = useState(false);
+  const [sifreUnutAsama, setSifreUnutAsama] = useState("eposta"); // "eposta" | "kod"
+  const [sifreUnutEposta, setSifreUnutEposta] = useState("");
+  const [sifreUnutKod, setSifreUnutKod] = useState("");
+  const [sifreUnutYeniSifre, setSifreUnutYeniSifre] = useState("");
+  const [sifreUnutMesaj, setSifreUnutMesaj] = useState("");
+  const [sifreUnutYukleniyor, setSifreUnutYukleniyor] = useState(false);
+
+  async function sifreSifirlamaKoduGonder() {
+    if (!sifreUnutEposta) return;
+    setSifreUnutYukleniyor(true); setSifreUnutMesaj("");
+    try {
+      await fetch("/api/auth/sifre-sifirlama-iste", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: sifreUnutEposta }),
+      });
+      setSifreUnutAsama("kod");
+      setSifreUnutMesaj("Eger bu e-posta kayitliysa, bir kod gonderildi. Gelen kutunu kontrol et.");
+    } catch (e) { setSifreUnutMesaj("Bir hata olustu, tekrar dene."); }
+    finally { setSifreUnutYukleniyor(false); }
+  }
+
+  async function sifreSifirlamayiTamamla() {
+    if (!sifreUnutKod || !sifreUnutYeniSifre) return;
+    setSifreUnutYukleniyor(true); setSifreUnutMesaj("");
+    try {
+      const res = await fetch("/api/auth/sifre-sifirlama-tamamla", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: sifreUnutEposta, kod: sifreUnutKod, yeniSifre: sifreUnutYeniSifre }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSifreUnutMesaj("Sifren degistirildi! Simdi yeni sifrenle giris yapabilirsin.");
+      setTimeout(() => {
+        setSifreUnutAcik(false); setSifreUnutAsama("eposta"); setSifreUnutEposta(""); setSifreUnutKod(""); setSifreUnutYeniSifre(""); setSifreUnutMesaj("");
+      }, 2500);
+    } catch (e) { setSifreUnutMesaj(e.message || "Sifirlanamadi, tekrar dene."); }
+    finally { setSifreUnutYukleniyor(false); }
+  }
+
+
 
   // E-posta dogrulama
   const [dogrulamaKoduGir, setDogrulamaKoduGir] = useState("");
@@ -2172,6 +2213,38 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <button onClick={hesapGonder} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   {hesapModu === "giris" ? "Giris Yap" : "Hesap Olustur"}
                 </button>
+
+                {hesapModu === "giris" && !sifreUnutAcik && (
+                  <button onClick={() => setSifreUnutAcik(true)} style={{ display: "block", margin: "10px auto 0", border: "none", background: "none", color: COLORS.muted, fontSize: 12.5, cursor: "pointer", textDecoration: "underline" }}>
+                    Sifremi unuttum
+                  </button>
+                )}
+
+                {sifreUnutAcik && (
+                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${COLORS.line}` }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Sifre Sifirlama</p>
+                    {sifreUnutAsama === "eposta" ? (
+                      <>
+                        <input value={sifreUnutEposta} onChange={(e) => setSifreUnutEposta(e.target.value)} placeholder="Kayitli e-postan" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <button onClick={sifreSifirlamaKoduGonder} disabled={sifreUnutYukleniyor || !sifreUnutEposta} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                          {sifreUnutYukleniyor ? "Gonderiliyor..." : "Kod Gonder"}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <input value={sifreUnutKod} onChange={(e) => setSifreUnutKod(e.target.value)} placeholder="6 haneli kod" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <input value={sifreUnutYeniSifre} onChange={(e) => setSifreUnutYeniSifre(e.target.value)} placeholder="Yeni sifre (en az 6 karakter)" type="password" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <button onClick={sifreSifirlamayiTamamla} disabled={sifreUnutYukleniyor || !sifreUnutKod || !sifreUnutYeniSifre} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                          {sifreUnutYukleniyor ? "Gonderiliyor..." : "Sifreyi Degistir"}
+                        </button>
+                      </>
+                    )}
+                    {sifreUnutMesaj && <p style={{ fontSize: 12.5, color: COLORS.muted, marginTop: 8 }}>{sifreUnutMesaj}</p>}
+                    <button onClick={() => { setSifreUnutAcik(false); setSifreUnutAsama("eposta"); setSifreUnutMesaj(""); }} style={{ display: "block", margin: "8px auto 0", border: "none", background: "none", color: COLORS.muted, fontSize: 12, cursor: "pointer" }}>
+                      Vazgec
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>
