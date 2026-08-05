@@ -1160,7 +1160,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (zayifDersler.length === 0) return;
     setYukleniyor("plan"); setHata(""); setPlan("");
     try {
-      const p = `Sen bir LGS calisma kocususun - ama bir ogretmen ya da veli gibi degil, samimi bir MENTOR gibi konus. Zayif dersler: ${zayifDersler.join(", ")}. Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Haftalik program hazirla, dersleri saatlere bol, kisa odak notu ekle. Programin sonunda kisa bir mentorluk notu ekle: netlerin bazen bir sure ayni kalmasinin (plato) tamamen normal ve gelisimin dogal bir parcasi oldugunu, bunun basarisizlik anlamina gelmedigini hatirlat. Baski yapan degil, guven veren, yanindaki gibi hisseden bir dil kullan. Abartili motivasyon sozleri kullanma, gercekci ve sicak ol. Sadece Turkce duz metin, en fazla 320 kelime, markdown isareti kullanma.`;
+      const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
+      const ilerlemeOzeti = zayifDersler.map((d) => {
+        const tamamlanan = (tamamlananUniteler[d] || []).length;
+        const toplam = (MUFREDAT[d] || []).length;
+        return toplam > 0 ? `${d}: ${tamamlanan}/${toplam} unite tamamlanmis` : null;
+      }).filter(Boolean).join(", ");
+      const kisiselBaglam = [
+        ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}, ona ismiyle hitap et.` : "",
+        ilerlemeOzeti ? `Guncel ilerlemesi: ${ilerlemeOzeti}. Bu gercek veriyi dikkate alarak konus - mesela cok az ilerlemis bir derste "hadi baslayalim" gibi, epey ilerlemis bir derste "devam ediyoruz, guzel gidiyorsun" gibi ozel bir ton kullan.` : "",
+      ].filter(Boolean).join(" ");
+      const p = `Sen bir LGS calisma kocususun - ama bir ogretmen ya da veli gibi degil, samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}. Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Haftalik program hazirla, dersleri saatlere bol, kisa odak notu ekle. Programin sonunda kisa bir mentorluk notu ekle: netlerin bazen bir sure ayni kalmasinin (plato) tamamen normal ve gelisimin dogal bir parcasi oldugunu, bunun basarisizlik anlamina gelmedigini hatirlat. Baski yapan degil, guven veren, yanindaki gibi hisseden bir dil kullan. Ogrenciyi gercekten taniyormus gibi, onun guncel durumuna gore konus - genel gecer, herkese soylenebilecek seyler soyleme. Abartili motivasyon sozleri kullanma, gercekci ve sicak ol. Sadece Turkce duz metin, en fazla 320 kelime, markdown isareti kullanma.`;
       setPlan(await aiIstek(p, 1500, cihazIdRef.current));
     } catch (e) { setHata(e.message || "Plan olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
@@ -2592,9 +2602,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </button>
 
             {plan && (
-              <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginTop: 14 }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 8 }}>📋 PROGRAMIN</p>
-                <div style={{ whiteSpace: "pre-wrap", fontSize: 13.5, lineHeight: 1.7 }}>{plan}</div>
+              <div className="kx-fadein" style={{ display: "flex", gap: 10, marginTop: 16, alignItems: "flex-start" }}>
+                <div style={{ width: 36, height: 36, borderRadius: 999, background: COLORS.gradient, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17, flexShrink: 0, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }}>🎯</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 4 }}>Koçun</p>
+                  <div style={{ background: COLORS.page, borderRadius: "4px 16px 16px 16px", padding: 16, border: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 13.5, lineHeight: 1.7 }}>
+                    {plan}
+                  </div>
+                </div>
               </div>
             )}
           </div>
