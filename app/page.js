@@ -1258,13 +1258,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function premiumSatinAl(plan) {
     setOdemeHata(""); setCheckoutHtml("");
+    if (!hesap) {
+      setOdemeHata("Odeme yapabilmek icin once giris yapmalisin.");
+      return;
+    }
     try {
+      const [ad, ...soyadParcalari] = (hesap.ad || "Kullanici").split(" ");
+      const soyad = soyadParcalari.join(" ") || "-";
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan,
-          kullanici: { ad: "Test", soyad: "Kullanici", eposta: "test@karemux.com", adres: "Istanbul, Turkiye", sehir: "Istanbul" },
+          kullanici: { ad, soyad, eposta: hesap.eposta || "", adres: "Belirtilmedi", sehir: "Belirtilmedi" },
         }),
       });
       const data = await res.json();
@@ -1296,6 +1302,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     <div style={{ minHeight: "100vh", background: COLORS.bg, fontFamily: "system-ui, sans-serif", padding: "24px 14px" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
+          <img src="/icons/icon-192.png" alt="Karemux logo" style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0 }} />
           <button onClick={() => setMenuAcik((a) => !a)} style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
@@ -1373,6 +1380,21 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "kocpanel" ? 700 : 500,
                 background: mod === "kocpanel" ? COLORS.page : "transparent", color: mod === "kocpanel" ? COLORS.ink : "#C9D4C7",
               }}>🎯 Koc Paneli</button>
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              {[
+                ["yazili", "✏️ Yazili Hazirligi"],
+                ["deneme", "📝 Deneme Sinavi"],
+                ["sorucoz", "📷 Soru Coz (Fotograf)"],
+                ["kocluk", "📅 Haftalik Calisma Plani"],
+                ["premium", "💳 Premium"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : "#C9D4C7",
+                }}>{etiket}</button>
+              ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <button onClick={() => { setSecilenDers(null); setMod("hesap"); setMenuAcik(false); }} style={{
