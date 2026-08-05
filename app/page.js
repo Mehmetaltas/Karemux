@@ -830,10 +830,37 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [checkoutHtml, setCheckoutHtml] = useState("");
   const [odemeHata, setOdemeHata] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
+  const [profilOkul, setProfilOkul] = useState("");
+  const [profilTelefon, setProfilTelefon] = useState("");
+  const [profilSinifSec, setProfilSinifSec] = useState("");
+  const [profilKaydediliyor, setProfilKaydediliyor] = useState(false);
+  const [profilMesaj, setProfilMesaj] = useState("");
+  const [profilDuzenleAcik, setProfilDuzenleAcik] = useState(false);
+
+  async function profilKaydet() {
+    setProfilKaydediliyor(true); setProfilMesaj("");
+    try {
+      await fetch("/api/auth/profil-guncelle", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ okul: profilOkul, telefon: profilTelefon, sinif: profilSinifSec ? Number(profilSinifSec) : null }),
+      });
+      setHesap((h) => ({ ...h, okul: profilOkul, telefon: profilTelefon, sinif: profilSinifSec }));
+      setProfilMesaj("Kaydedildi."); setProfilDuzenleAcik(false);
+    } catch (e) { setProfilMesaj("Kaydedilemedi, tekrar dene."); }
+    finally { setProfilKaydediliyor(false); }
+  }
+
   const [iptalMesaji, setIptalMesaji] = useState("");
 
   // Hesap
   const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
+
+  useEffect(() => {
+    if (hesap) {
+      setProfilOkul(hesap.okul || ""); setProfilTelefon(hesap.telefon || ""); setProfilSinifSec(hesap.sinif || "");
+    }
+  }, [hesap]);
+
   const [hesapModu, setHesapModu] = useState("giris"); // "giris" | "kayit"
   const [epostaGir, setEpostaGir] = useState("");
   const [sifreGir, setSifreGir] = useState("");
@@ -2158,6 +2185,62 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       Veli baglanti kodun: <strong style={{ fontFamily: "monospace", fontSize: 15 }}>{hesap.veli_baglanti_kodu}</strong>
                     </p>
                     <p style={{ fontSize: 12, color: COLORS.muted, margin: "4px 0 0" }}>Bu kodu velinle paylas, ilerlemeni gorebilsin.</p>
+                  </div>
+                )}
+
+                <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700 }}>Profil Bilgilerin</p>
+                    <button onClick={() => setProfilDuzenleAcik((a) => !a)} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                      {profilDuzenleAcik ? "Vazgec" : "Duzenle"}
+                    </button>
+                  </div>
+
+                  {!profilDuzenleAcik ? (
+                    <div style={{ fontSize: 13, lineHeight: 1.9 }}>
+                      <p style={{ margin: 0 }}>👤 <strong>{hesap.ad}</strong></p>
+                      <p style={{ margin: 0, color: COLORS.muted }}>✉️ {hesap.eposta}</p>
+                      <p style={{ margin: 0, color: COLORS.muted }}>🎓 Sinif: {hesap.sinif || "Belirtilmedi"}</p>
+                      <p style={{ margin: 0, color: COLORS.muted }}>🏫 Okul: {hesap.okul || "Belirtilmedi"}</p>
+                      <p style={{ margin: 0, color: COLORS.muted }}>📞 Telefon: {hesap.telefon || "Belirtilmedi"}</p>
+                      <p style={{ margin: 0, color: aktifAbonelik ? "#3DA35D" : COLORS.muted }}>
+                        {aktifAbonelik ? `✓ Premium aktif (${aktifAbonelik.plan})` : "○ Premium yok"}
+                      </p>
+                    </div>
+                  ) : (
+                    <div>
+                      <select value={profilSinifSec} onChange={(e) => setProfilSinifSec(e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }}>
+                        <option value="">Sinif sec</option>
+                        <option value="5">5. Sinif</option>
+                        <option value="6">6. Sinif</option>
+                        <option value="7">7. Sinif</option>
+                        <option value="8">8. Sinif</option>
+                      </select>
+                      <input value={profilOkul} onChange={(e) => setProfilOkul(e.target.value)} placeholder="Okulun" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                      <input value={profilTelefon} onChange={(e) => setProfilTelefon(e.target.value)} placeholder="Telefon" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                      <button onClick={profilKaydet} disabled={profilKaydediliyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                        {profilKaydediliyor ? "Kaydediliyor..." : "Kaydet"}
+                      </button>
+                    </div>
+                  )}
+                  {profilMesaj && <p style={{ fontSize: 12, color: COLORS.muted, marginTop: 6 }}>{profilMesaj}</p>}
+                </div>
+
+                {hesap.rol === "ogrenci" && (
+                  <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Ders Durumlarin</p>
+                    {DERSLER.map((d) => {
+                      const tumUnite = (MUFREDAT[d.ad] || []).length;
+                      const tamamlanan = (tamamlananUniteler[d.ad] || []).length;
+                      return (
+                        <div key={d.ad} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 12.5 }}>
+                          <span>{d.emoji} {d.ad}</span>
+                          <span style={{ color: tamamlanan > 0 ? "#3DA35D" : COLORS.muted, fontWeight: 600 }}>
+                            {tumUnite > 0 ? `${tamamlanan}/${tumUnite} unite tamamlandi` : "veri yok"}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
 

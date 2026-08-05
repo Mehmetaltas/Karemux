@@ -135,3 +135,6 @@ CREATE INDEX IF NOT EXISTS idx_hata_kitapcigi_cihaz ON hata_kitapcigi(cihaz_id, 
 -- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS veli_baglanti_kodu TEXT UNIQUE;
 -- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS sifre_sifirlama_kodu TEXT;
 -- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS sifre_sifirlama_son_tarih TIMESTAMPTZ;
+-- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS okul TEXT;
+-- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS telefon TEXT;
+-- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS sinif INTEGER;
