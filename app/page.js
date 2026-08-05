@@ -11,29 +11,35 @@ const DUYURULAR = [
 ];
 
 const TEMALAR = {
+  minimal: {
+    isim: "Minimal", ikon: "⚪",
+    bg: "#F5F5F7", page: "#FFFFFF", ink: "#1D1D1F", muted: "#86868B",
+    coral: "#0A84FF", mustard: "#FF9F0A", line: "#E5E5EA",
+    gradient: "linear-gradient(160deg, #1D1D1F 0%, #000000 100%)", bgText: "#1D1D1F",
+  },
   orman: {
     isim: "Orman", ikon: "🌲",
     bg: "#1F3D2E", page: "#FAF6EE", ink: "#1B2430", muted: "#6B7566",
     coral: "#FF6B5E", mustard: "#E8B339", line: "#DCD5C4",
-    gradient: "linear-gradient(160deg, #24402F 0%, #1A2E22 100%)",
+    gradient: "linear-gradient(160deg, #24402F 0%, #1A2E22 100%)", bgText: "#FAF6EE",
   },
   galaktik: {
     isim: "Galaktik", ikon: "🌌",
     bg: "#0D0B1F", page: "#F4F2FF", ink: "#1A1730", muted: "#8A7FC7",
     coral: "#FF5CA8", mustard: "#7C4DFF", line: "#3A3268",
-    gradient: "linear-gradient(160deg, #241B4A 0%, #0D0B1F 100%)",
+    gradient: "linear-gradient(160deg, #241B4A 0%, #0D0B1F 100%)", bgText: "#F4F2FF",
   },
   hologram: {
     isim: "Hologram", ikon: "💠",
     bg: "#071A22", page: "#EAFBFF", ink: "#062830", muted: "#4FB8C9",
     coral: "#00E5C7", mustard: "#00B8FF", line: "#0F3A44",
-    gradient: "linear-gradient(160deg, #0D3A44 0%, #071A22 100%)",
+    gradient: "linear-gradient(160deg, #0D3A44 0%, #071A22 100%)", bgText: "#EAFBFF",
   },
   uzay: {
     isim: "Uzay", ikon: "🪐",
     bg: "#14121F", page: "#FDF6EC", ink: "#221D33", muted: "#9C8FB5",
     coral: "#FF9A3C", mustard: "#FFD166", line: "#3A3352",
-    gradient: "linear-gradient(160deg, #241F3D 0%, #14121F 100%)",
+    gradient: "linear-gradient(160deg, #241F3D 0%, #14121F 100%)", bgText: "#FDF6EC",
   },
 };
 
@@ -420,7 +426,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     finally { setYukleniyor(null); }
   }
 
-  const [tema, setTema] = useState("orman");
+  const [tema, setTema] = useState("minimal");
   const [duyuruIndex, setDuyuruIndex] = useState(0);
 
   useEffect(() => {
@@ -1416,10 +1422,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           }}>☰</button>
           <div>
             <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.5, color: COLORS.mustard, margin: "0 0 2px", textTransform: "uppercase" }}>Karemux Egitim Sistemleri</p>
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.page, margin: 0 }}>5.Siniftan LGS'ye Hazirlik</h1>
+            <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.bgText || COLORS.page, margin: 0 }}>5.Siniftan LGS'ye Hazirlik</h1>
           </div>
         </div>
-        <p style={{ color: "#C9D4C7", fontSize: 13, margin: "6px 0 16px" }}>5. siniftan LGS'ye kadar tek sistem</p>
+        <p style={{ color: COLORS.bgText || "#C9D4C7", opacity: 0.75, fontSize: 13, margin: "6px 0 16px" }}>5. siniftan LGS'ye kadar tek sistem</p>
 
         {mod === "bos" && !secilenDers && (
           <div style={{
@@ -1469,15 +1475,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <button onClick={() => { setSecilenDers(null); setMod("bos"); setMenuAcik(false); }} style={{
                 display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 14, borderRadius: 8,
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: 700,
-                background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : "#C9D4C7",
+                background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>🏠 Ana Sayfa</button>
 
-              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
               {DERSLER.map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: secilenDers === d.ad ? 700 : 500,
-                  background: secilenDers === d.ad ? COLORS.page : "transparent", color: secilenDers === d.ad ? COLORS.ink : "#C9D4C7",
+                  background: secilenDers === d.ad ? COLORS.page : "transparent", color: secilenDers === d.ad ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
                 }}>{d.emoji} {d.ad}</button>
               ))}
 
@@ -1485,7 +1491,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <button onClick={() => { setSecilenDers(null); setMod("kocpanel"); setMenuAcik(false); }} style={{
                 display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "kocpanel" ? 700 : 500,
-                background: mod === "kocpanel" ? COLORS.page : "transparent", color: mod === "kocpanel" ? COLORS.ink : "#C9D4C7",
+                background: mod === "kocpanel" ? COLORS.page : "transparent", color: mod === "kocpanel" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>🎯 Koc Paneli</button>
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
@@ -1499,7 +1505,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
-                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : "#C9D4C7",
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
                 }}>{etiket}</button>
               ))}
 
@@ -1507,11 +1513,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <button onClick={() => { setSecilenDers(null); setMod("hesap"); setMenuAcik(false); }} style={{
                 display: "block", width: "100%", textAlign: "left", padding: "11px 12px", borderRadius: 8,
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "hesap" ? 700 : 500,
-                background: mod === "hesap" ? COLORS.page : "transparent", color: mod === "hesap" ? COLORS.ink : "#C9D4C7",
+                background: mod === "hesap" ? COLORS.page : "transparent", color: mod === "hesap" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>{hesap ? `👤 ${hesap.ad} (${hesap.rol === "veli" ? "Veli" : "Ogrenci"})` : "👤 Giris / Kayit"}</button>
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Tema</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Tema</p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
                 {Object.keys(TEMALAR).map((t) => (
                   <button key={t} onClick={() => temaDegistir(t)} style={{
