@@ -2037,57 +2037,83 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         )}
 
         {mod === "deneme" && (
-          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-            <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
-              LGS deneme sinavina hazirlik — kapsam sec (konu/unite/donem/tam yil), soru sayisini ayarla.
-              <br /><em style={{ fontSize: 11.5 }}>(Sorular 2022-2026 gercek LGS tarzinda ozgun uretilir, birebir gecmis yil sorusu degildir.)</em>
-            </p>
-            <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 5 }}>DERS SEC</label>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-              {DERSLER.map((d) => (
-                <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{ padding: "6px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${denemeDers === d.ad ? COLORS.coral : COLORS.line}`, background: denemeDers === d.ad ? "#FFF1EF" : "#fff", color: COLORS.ink }}>
-                  {d.emoji} {d.ad}
-                </button>
-              ))}
+          <div>
+            <div style={{ background: "linear-gradient(160deg, #2A2510 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 26, marginBottom: 4 }}>📝</p>
+              <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Deneme Sınavı</p>
+              <p style={{ fontSize: 12, color: "#C9BE9E", lineHeight: 1.5 }}>
+                LGS deneme sınavına hazırlık — kapsam seç, soru sayısını ayarla.<br/>
+                <em>Sorular 2022-2026 gerçek LGS tarzında özgün üretilir, birebir geçmiş yıl sorusu değildir.</em>
+              </p>
+            </div>
+
+            <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.mustard, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>1</div>
+                <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                {DERSLER.map((d) => (
+                  <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{
+                    padding: "12px 6px", borderRadius: 12, cursor: "pointer", textAlign: "center",
+                    border: `2px solid ${denemeDers === d.ad ? COLORS.mustard : COLORS.line}`,
+                    background: denemeDers === d.ad ? "#FEF8E8" : "#FAF6EE",
+                  }}>
+                    <div style={{ fontSize: 20, marginBottom: 4 }}>{d.emoji}</div>
+                    <div style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.ink, lineHeight: 1.2 }}>{d.ad}</div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {denemeDers && (
               <>
-            <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 5 }}>KAPSAM</label>
-            <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-              {[["konu", "Konu"], ["unite", "Unite"], ["donem", "Donem/Tam"]].map(([k, etiket]) => (
-                <button key={k} onClick={() => { setKapsamTuru(k); setSinavSoruSayisi(onerilenSoruSayisi(k)); setDenemeSorulari(null); }} style={{ flex: 1, padding: "7px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${kapsamTuru === k ? COLORS.coral : COLORS.line}`, background: kapsamTuru === k ? "#FFF1EF" : "#fff", color: COLORS.ink }}>{etiket}</button>
-              ))}
-            </div>
+            <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.mustard, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>2</div>
+                <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Kapsamı Belirle</p>
+              </div>
+              <div style={{ display: "flex", gap: 6, marginBottom: 12, background: "#FAF6EE", padding: 4, borderRadius: 10 }}>
+                {[["konu", "Konu"], ["unite", "Ünite"], ["donem", "Dönem/Tam"]].map(([k, etiket]) => (
+                  <button key={k} onClick={() => { setKapsamTuru(k); setSinavSoruSayisi(onerilenSoruSayisi(k)); setDenemeSorulari(null); }} style={{ flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", border: "none", background: kapsamTuru === k ? COLORS.ink : "transparent", color: kapsamTuru === k ? "#fff" : COLORS.muted }}>{etiket}</button>
+                ))}
+              </div>
 
             {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && MUFREDAT[denemeDers] && (
               <div style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 5 }}>UNITE SEC</label>
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                   {MUFREDAT[denemeDers].map((u) => (
-                    <button key={u} onClick={() => setKapsamUnite(kapsamUnite === u ? null : u)} style={{ padding: "5px 9px", borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${kapsamUnite === u ? COLORS.coral : COLORS.line}`, background: kapsamUnite === u ? "#FFF1EF" : "#fff", color: COLORS.ink }}>{u}</button>
+                    <button key={u} onClick={() => setKapsamUnite(kapsamUnite === u ? null : u)} style={{ padding: "6px 11px", borderRadius: 999, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${kapsamUnite === u ? COLORS.mustard : COLORS.line}`, background: kapsamUnite === u ? "#FEF8E8" : "#FAF6EE", color: COLORS.ink }}>{u}</button>
                   ))}
                 </div>
               </div>
             )}
             {kapsamTuru === "konu" && (
-              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu (istege bagli)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 10, fontSize: 13 }} />
+              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu (isteğe bağlı)" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
             )}
             {kapsamTuru === "donem" && (
-              <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
-                {[["1", "1. Donem"], ["2", "2. Donem"], ["tam", "Tam Yil"]].map(([k, etiket]) => (
-                  <button key={k} onClick={() => setDenemeDonemNo(k)} style={{ flex: 1, padding: "7px 0", borderRadius: 8, fontSize: 11.5, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${denemeDonemNo === k ? COLORS.coral : COLORS.line}`, background: denemeDonemNo === k ? "#FFF1EF" : "#fff", color: COLORS.ink }}>{etiket}</button>
+              <div style={{ display: "flex", gap: 6 }}>
+                {[["1", "1. Dönem"], ["2", "2. Dönem"], ["tam", "Tam Yıl"]].map(([k, etiket]) => (
+                  <button key={k} onClick={() => setDenemeDonemNo(k)} style={{ flex: 1, padding: "8px 0", borderRadius: 10, fontSize: 11.5, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${denemeDonemNo === k ? COLORS.mustard : COLORS.line}`, background: denemeDonemNo === k ? "#FEF8E8" : "#FAF6EE", color: COLORS.ink }}>{etiket}</button>
                 ))}
               </div>
             )}
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
-              <label style={{ fontSize: 12, fontWeight: 700, color: COLORS.muted }}>SORU SAYISI</label>
-              <input type="number" min={3} max={20} value={sinavSoruSayisi} onChange={(e) => setSinavSoruSayisi(Math.max(3, Math.min(20, Number(e.target.value))))} style={{ width: 60, padding: "6px 8px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13 }} />
             </div>
 
-            <button onClick={() => sinavOlustur("deneme")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, opacity: !denemeDers ? 0.5 : 1 }}>
-              {yukleniyor === "deneme" ? "Hazirlaniyor..." : `${sinavSoruSayisi} Soruluk Deneme Olustur`}
+            <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}`, marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+                <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.mustard, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>3</div>
+                <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Soru Sayısı</p>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <input type="range" min={3} max={20} value={sinavSoruSayisi} onChange={(e) => setSinavSoruSayisi(Number(e.target.value))} style={{ flex: 1, accentColor: COLORS.mustard }} />
+                <div style={{ width: 44, height: 34, borderRadius: 10, background: "#FAF6EE", border: `1.5px solid ${COLORS.line}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>{sinavSoruSayisi}</div>
+              </div>
+            </div>
+
+            <button onClick={() => sinavOlustur("deneme")} disabled={!denemeDers || yukleniyor} style={{ width: "100%", padding: "14px 0", borderRadius: 12, border: "none", background: COLORS.mustard, color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !denemeDers ? 0.5 : 1, boxShadow: "0 4px 14px rgba(232,179,57,0.4)" }}>
+              {yukleniyor === "deneme" ? "Hazırlanıyor..." : `📝 ${sinavSoruSayisi} Soruluk Deneme Oluştur`}
             </button>
               </>
             )}
