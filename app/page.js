@@ -2020,11 +2020,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && MUFREDAT[denemeDers] && (
               <div style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                  {MUFREDAT[denemeDers].map((u) => (
-                    <button key={u} onClick={() => setKapsamUnite(kapsamUnite === u ? null : u)} style={{ padding: "6px 11px", borderRadius: 999, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${kapsamUnite === u ? COLORS.coral : COLORS.line}`, background: kapsamUnite === u ? "#FFF1EF" : "#FAF6EE", color: COLORS.ink }}>{u}</button>
-                  ))}
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {MUFREDAT[denemeDers].map((u, idx) => {
+                    const secili = kapsamUnite === u;
+                    return (
+                      <button key={u} onClick={() => setKapsamUnite(secili ? null : u)} className="kx-btn" style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                        border: `1.5px solid ${secili ? COLORS.coral : COLORS.line}`, background: secili ? "#FFF1EF" : "#FAF6EE",
+                      }}>
+                        <span style={{
+                          width: 22, height: 22, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 10.5, fontWeight: 700, background: secili ? COLORS.coral : "#fff", color: secili ? "#fff" : COLORS.muted, border: `1.5px solid ${secili ? COLORS.coral : COLORS.line}`,
+                        }}>{secili ? "✓" : idx + 1}</span>
+                        <span style={{ fontSize: 12.5, fontWeight: secili ? 700 : 500, color: COLORS.ink }}>{u}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -2110,11 +2122,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && MUFREDAT[denemeDers] && (
               <div style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                  {MUFREDAT[denemeDers].map((u) => (
-                    <button key={u} onClick={() => setKapsamUnite(kapsamUnite === u ? null : u)} style={{ padding: "6px 11px", borderRadius: 999, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${kapsamUnite === u ? COLORS.mustard : COLORS.line}`, background: kapsamUnite === u ? "#FEF8E8" : "#FAF6EE", color: COLORS.ink }}>{u}</button>
-                  ))}
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {MUFREDAT[denemeDers].map((u, idx) => {
+                    const secili = kapsamUnite === u;
+                    return (
+                      <button key={u} onClick={() => setKapsamUnite(secili ? null : u)} className="kx-btn" style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                        border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`, background: secili ? "#FEF8E8" : "#FAF6EE",
+                      }}>
+                        <span style={{
+                          width: 22, height: 22, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 10.5, fontWeight: 700, background: secili ? COLORS.mustard : "#fff", color: secili ? "#fff" : COLORS.muted, border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`,
+                        }}>{secili ? "✓" : idx + 1}</span>
+                        <span style={{ fontSize: 12.5, fontWeight: secili ? 700 : 500, color: COLORS.ink }}>{u}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
