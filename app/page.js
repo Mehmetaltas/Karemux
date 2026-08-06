@@ -673,16 +673,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function oneriliUniteAnlat() {
-    const unite = oneriliUniteHesapla(kocPaneliDers);
+    const unite = oneriliUniteHesapla(secilenDers);
     if (!unite) return;
-    setDers(kocPaneliDers); setUniteSec(unite); setKonu(unite);
+    setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const zorlukMetni = { basit: "cok basit ve yavas", orta: "orta seviyede", zor: "ileri seviyede" }[zorlukSec] || "orta seviyede";
       const temelUyarisi = gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"
         ? ` ONEMLI: Bu ogrencinin bir onceki sinif temeli zayif olcyuldu, bu yuzden konuya girmeden once cok kisa (1-2 cumle) bir "on bilgi hatirlatmasi" ekle, temel kavramlari atlamadan anlat.`
         : "";
-      const p = `Sen deneyimli, alaninda uzman bir "${kocPaneliDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
@@ -694,21 +694,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function oneriliUniteSoruCoz() {
-    const unite = oneriliUniteHesapla(kocPaneliDers);
+    const unite = oneriliUniteHesapla(secilenDers);
     if (!unite) return;
-    setDers(kocPaneliDers); setUniteSec(unite); setKonu(unite);
+    setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${kocPaneliDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const baslangic = temiz.indexOf("[");
       const bitis = temiz.lastIndexOf("]");
       if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
-      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const hamSorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const sorular = hamSorular.filter((s) => s && s.soru && Array.isArray(s.secenekler) && s.secenekler.length >= 2 && typeof s.dogruIndex === "number");
+      if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
       setQuiz(sorular);
-      sorulariBankayaKaydet(kocPaneliDers, sinif, unite, sorular, "quiz");
+      sorulariBankayaKaydet(secilenDers, sinif, unite, sorular, "quiz");
     } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
@@ -1869,16 +1871,81 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Kontrol ediliyor...</p>
             )}
 
-            {!dersTekrarKontrolYukleniyor && dersGecenYilZayifMi === false && (
-              <div style={{ textAlign: "center" }}>
-                <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 6 }}>
-                  Bu ders icin ozel bir tekrar gerekmiyor.
-                </p>
-                <p style={{ fontSize: 12, color: COLORS.muted }}>
-                  Takip icin Koc Panel'e git ve {secilenDers}'i sec.
-                </p>
-              </div>
-            )}
+            {!dersTekrarKontrolYukleniyor && dersGecenYilZayifMi === false && (() => {
+              const onerilenUnite = oneriliUniteHesapla(secilenDers);
+              if (!onerilenUnite) {
+                return (
+                  <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 16, textAlign: "center" }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>🎉 Bu dersin tum unitelerini tamamladin!</p>
+                  </div>
+                );
+              }
+              return (
+                <div>
+                  <div style={{ background: COLORS.gradient, borderRadius: 12, padding: 16, marginBottom: 14, textAlign: "center" }}>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 4 }}>🎯 KOC ONERISI</p>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>Simdi buna odaklan: {onerilenUnite}</p>
+                    <div className="kx-pop" style={{ display: "flex", gap: 8 }}>
+                      <button className="kx-btn" onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                        {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konuyu Anlat"}
+                      </button>
+                      <button className="kx-btn" onClick={oneriliUniteSoruCoz} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.page}`, background: "transparent", color: COLORS.page, fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                        {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ 5 Soru Coz"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {aciklama && (() => {
+                    const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
+                    return (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>{govde}</div>
+                        {dikkatMaddeleri && (
+                          <div style={{ background: "#E8503F", borderRadius: 10, padding: 14, marginTop: 10 }}>
+                            <p style={{ color: "#fff", fontWeight: 700, fontSize: 12.5, marginBottom: 6 }}>⚠ DIKKAT EDILECEK NOKTALAR</p>
+                            {dikkatMaddeleri.map((m, i) => <p key={i} style={{ color: "#fff", fontSize: 12, lineHeight: 1.6, margin: "2px 0" }}>• {m}</p>)}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+                  {quiz && (
+                    <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                      {quiz.map((s, i) => (
+                        <div key={i} style={{ marginBottom: 16 }}>
+                          <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8, color: "#1B2430" }}>{i + 1}. {s.soru}</div>
+                          {(s.secenekler || []).map((sec, j) => {
+                            const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
+                            return (
+                              <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
+                                display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
+                                cursor: gonderildi ? "default" : "pointer",
+                                border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
+                                background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
+                              }}>{sec}</button>
+                            );
+                          })}
+                          {gonderildi && cevaplar[i] !== s.dogruIndex && s.aciklama && (
+                            <p style={{ fontSize: 12, color: "#1B2430", background: "#FFF8E8", borderRadius: 6, padding: 8, marginTop: 4, lineHeight: 1.5 }}>💡 {s.aciklama}</p>
+                          )}
+                        </div>
+                      ))}
+                      {!gonderildi ? (
+                        <button className="kx-btn" onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                      ) : (
+                        <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
+                          Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
+                          {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length / quiz.length >= 0.7 && (
+                            <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>🎉 Basarili! Bu unite ilerlemene eklendi.</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             {!dersTekrarKontrolYukleniyor && dersGecenYilZayifMi === true && (() => {
               const durum = dersTekrarDurumuHesapla(secilenDers);
