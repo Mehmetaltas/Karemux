@@ -2080,7 +2080,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
             {kapsamTuru === "konu" && (
-              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu (isteğe bağlı, örn. Asal Çarpanlar)" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
+              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu (isteğe bağlı, spesifik bir başlık yaz)" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
             )}
             {kapsamTuru === "donem" && (
               <div style={{ display: "flex", gap: 6 }}>
@@ -2118,7 +2118,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {mod === "deneme" && (
           <div>
-            <div className="kx-fadein" style={{ background: "linear-gradient(160deg, #2A2510 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
               <p className="kx-float" style={{ fontSize: 26, marginBottom: 4 }}>📝</p>
               <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Deneme Sınavı</p>
               <p style={{ fontSize: 12, color: "#C9BE9E", lineHeight: 1.5 }}>
@@ -2535,7 +2535,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {mod === "sorucoz" && (
           <div>
-            <div className="kx-fadein" style={{ background: "linear-gradient(160deg, #1A3440 0%, #1F3D2E 100%)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
               <p className="kx-float" style={{ fontSize: 26, marginBottom: 4 }}>📷</p>
               <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Soru Çöz</p>
               <p style={{ fontSize: 12, color: "#A8C4C9", lineHeight: 1.5 }}>
