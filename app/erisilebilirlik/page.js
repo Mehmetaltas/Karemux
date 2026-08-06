@@ -27,9 +27,9 @@ export default function Erisilebilirlik() {
 
       <h2>4. Geri Bildirim</h2>
       <p>Erisilebilirlikle ilgili bir sorun yasarsaniz veya oneriniz varsa,
-      [E-POSTA ADRESINIZI BURAYA EKLEYIN] uzerinden bize ulasabilirsiniz.</p>
+      info@karemux.com uzerinden bize ulasabilirsiniz.</p>
 
-      <p style={{ marginTop: 30, fontSize: 13, color: "#6B7566" }}>Son guncelleme: [TARIH EKLEYIN]</p>
+      <p style={{ marginTop: 30, fontSize: 13, color: "#6B7566" }}>Son guncelleme: Agustos 2026</p>
     </div>
   );
 }

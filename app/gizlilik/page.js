@@ -49,7 +49,7 @@ export default function GizlilikPolitikasi() {
       iletişim adresini kullanabilirsiniz.</p>
 
       <h2>7. İletişim</h2>
-      <p>[E-POSTA ADRESİNİZİ BURAYA EKLEYİN] üzerinden bize ulaşabilirsiniz.</p>
+      <p>info@karemux.com üzerinden bize ulaşabilirsiniz.</p>
 
       <p style={{ marginTop: 30, fontSize: 13, color: "#6B7566" }}>Son güncelleme: [TARİH EKLEYİN]</p>
     </div>

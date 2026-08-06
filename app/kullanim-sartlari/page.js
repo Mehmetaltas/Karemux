@@ -43,7 +43,7 @@ export default function KullanimSartlari() {
       e-posta ile bilgilendirilir.</p>
 
       <h2>7. İletişim</h2>
-      <p>[E-POSTA ADRESİNİZİ BURAYA EKLEYİN]</p>
+      <p>info@karemux.com</p>
 
       <p style={{ marginTop: 30, fontSize: 13, color: "#6B7566" }}>Son güncelleme: [TARİH EKLEYİN]</p>
     </div>
