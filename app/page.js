@@ -168,6 +168,34 @@ function konuMetniAyir(metin) {
   return { govde, dikkatMaddeleri: maddeler.length > 0 ? maddeler : null };
 }
 
+// Kullaniciya gosterilecek hata mesajini temizler - JSON.parse gibi teknik/ham
+// hata mesajlarinin ekrana ciplak sekilde dusmesini engeller.
+function temizHataMesaji(e, varsayilan) {
+  const ham = e && e.message ? e.message : "";
+  if (!ham) return varsayilan;
+  const teknikMi = /JSON|Unexpected token|position \d+|SyntaxError|is not a function|undefined is not|Cannot read prop/i.test(ham);
+  return teknikMi ? varsayilan : ham;
+}
+
+// Konu anlatimi govde metnini kavram basliklari + Tanim/Ornek/Kural etiketleriyle
+// yapilandirilmis bir blok listesine cevirir - dijital kitap sayfasi hissi icin.
+function konuMetniBloklaraAyir(govde) {
+  if (!govde) return [];
+  const paragraflar = govde.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+  return paragraflar.map((p) => {
+    const etiketEslesme = p.match(/^(Tanim|Tanım|Ornek|Örnek|Kural|Giris|Giriş|Not)\s*:\s*/i);
+    if (etiketEslesme) {
+      return { tur: "etiketli", etiket: etiketEslesme[1], metin: p.slice(etiketEslesme[0].length).trim() };
+    }
+    // Kisa, nokta ile bitmeyen tek satirlik bloklar kavram basligi kabul edilir
+    const tekSatir = !p.includes("\n");
+    if (tekSatir && p.length < 90 && !/[.!?]$/.test(p)) {
+      return { tur: "baslik", metin: p };
+    }
+    return { tur: "govde", metin: p };
+  });
+}
+
 function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
   if (!sorular || sorular.length === 0) return;
   fetch("/api/soru-bankasi", {
@@ -375,7 +403,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
       setTekrarAnlatimOnbellek((eski) => ({ ...eski, [onbellekAnahtari]: temizMetin }));
-    } catch (e) { if (secilenDersRef.current === dersAdi) setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
+    } catch (e) { if (secilenDersRef.current === dersAdi) setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAdi) setYukleniyor(null); }
   }
 
@@ -402,7 +430,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const sorular = hamSorular.filter((s) => s && s.soru && Array.isArray(s.secenekler) && s.secenekler.length >= 2 && typeof s.dogruIndex === "number");
       if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
       setQuiz(sorular);
-    } catch (e) { if (secilenDersRef.current === dersAdi) setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    } catch (e) { if (secilenDersRef.current === dersAdi) setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAdi) setYukleniyor(null); }
   }
 
@@ -464,7 +492,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1)).filter((s) => s && Array.isArray(s.secenekler) && s.secenekler.length >= 2);
       setQuiz(sorular);
       setHataKitapcigiAcik(false);
-    } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -563,7 +591,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
       setGecenYilSorulari(sorular);
       sorulariBankayaKaydet(dersAdi, oncekiSinif, null, sorular, "gecen_yil_genel");
-    } catch (e) { setHata(e.message || "Genel degerlendirme olusturulamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Genel degerlendirme olusturulamadi, tekrar dene.")); }
     finally { setGecenYilYukleniyor(false); }
   }
 
@@ -668,7 +696,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
         .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
-    } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -695,7 +723,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
         .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
-    } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
+    } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAtCagri) setYukleniyor(null); }
   }
 
@@ -719,7 +747,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
       setQuiz(sorular);
       sorulariBankayaKaydet(secilenDers, sinif, unite, sorular, "quiz");
-    } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAtCagri) setYukleniyor(null); }
   }
 
@@ -742,7 +770,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
       setDersSeviyeSorulari(sorular);
       sorulariBankayaKaydet(dersAdi, sinif, null, sorular, "ders_seviye");
-    } catch (e) { setHata(e.message || "Seviye belirleme sinavi olusturulamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Seviye belirleme sinavi olusturulamadi, tekrar dene.")); }
     finally { setDersSeviyeYukleniyor(false); }
   }
 
@@ -1147,7 +1175,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       if (!res.ok) throw new Error(data.error);
       setSoruCozumu(data.cozum);
     } catch (e) {
-      setHata(e.message || "Soru cozulemedi, tekrar dene.");
+      setHata(temizHataMesaji(e, "Soru cozulemedi, tekrar dene."));
     } finally {
       setYukleniyor(null);
     }
@@ -1171,7 +1199,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\[a-zA-Z]+/g, "")
         .replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
-    } catch (e) { setHata(e.message || "Anlatim alinamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -1197,7 +1225,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uretilenSorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
       setQuiz(uretilenSorular);
       sorulariBankayaKaydet(ders, sinif, uniteSec, uretilenSorular, fasikulModu ? "fasikul" : "quiz");
-    } catch (e) { setHata(e.message || "Sorular uretilemedi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -1221,7 +1249,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       setParagrafPufNoktalari((veri.pufNoktalari || []).join("\n"));
       setQuiz(veri.sorular || []);
       sorulariBankayaKaydet(ders, sinif, uniteSec, veri.sorular, "paragraf");
-    } catch (e) { setHata(e.message || "Paragraf pratigi olusturulamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Paragraf pratigi olusturulamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -1261,7 +1289,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           body: JSON.stringify({ cihazId: cihazIdRef.current, haftaBaslangic: bugununPazartesiTarihi, gorevler: veri.program }),
         }).catch(() => {});
       }
-    } catch (e) { setHata(e.message || "Plan olusturulamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Plan olusturulamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -1324,7 +1352,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uretilenSinavSorulari = JSON.parse(temiz.slice(baslangic, bitis + 1));
       setDenemeSorulari(uretilenSinavSorulari);
       sorulariBankayaKaydet(denemeDers, sinif, kapsamUnite, uretilenSinavSorulari, sinavTuru);
-    } catch (e) { setHata(e.message || "Sinav olusturulamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Sinav olusturulamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -1409,7 +1437,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         dersGruplari[s.ders].push(s);
       });
       Object.keys(dersGruplari).forEach((d) => sorulariBankayaKaydet(d, sinif, null, dersGruplari[d], "seviye"));
-    } catch (e) { setHata(e.message || "Seviye tespit sinavi olusturulamadi, tekrar dene."); }
+    } catch (e) { setHata(temizHataMesaji(e, "Seviye tespit sinavi olusturulamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
@@ -1905,9 +1933,21 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                   {aciklama && (() => {
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
+                    const bloklar = konuMetniBloklaraAyir(govde);
                     return (
                       <div style={{ marginBottom: 16 }}>
-                        <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>{govde}</div>
+                        <div style={{ background: "#FDFBF6", borderRadius: 12, border: `1px solid ${COLORS.line}`, boxShadow: "0 3px 14px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+                          <div style={{ height: 5, background: COLORS.gradient }} />
+                          <div style={{ padding: "22px 20px", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                            {bloklar.map((b, i) => b.tur === "baslik" ? (
+                              <p key={i} style={{ fontSize: 15.5, fontWeight: 700, color: COLORS.coral, marginTop: i === 0 ? 0 : 20, marginBottom: 8, borderBottom: `2px solid ${COLORS.line}`, paddingBottom: 6 }}>{b.metin}</p>
+                            ) : b.tur === "etiketli" ? (
+                              <p key={i} style={{ fontSize: 14.5, lineHeight: 1.85, color: "#2A2A2A", margin: "0 0 12px" }}><span style={{ fontWeight: 700, color: COLORS.mustard, fontStyle: "italic" }}>{b.etiket}: </span>{b.metin}</p>
+                            ) : (
+                              <p key={i} style={{ fontSize: 14.5, lineHeight: 1.85, color: "#2A2A2A", margin: "0 0 12px" }}>{b.metin}</p>
+                            ))}
+                          </div>
+                        </div>
                         {dikkatMaddeleri && (
                           <div style={{ background: "#E8503F", borderRadius: 10, padding: 14, marginTop: 10 }}>
                             <p style={{ color: "#fff", fontWeight: 700, fontSize: 12.5, marginBottom: 6 }}>⚠ DIKKAT EDILECEK NOKTALAR</p>
@@ -2018,10 +2058,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                   {aciklama && (() => {
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
+                    const bloklar = konuMetniBloklaraAyir(govde);
                     return (
                       <div style={{ marginBottom: 16 }}>
-                        <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6, color: "#1B2430", border: `1px solid ${COLORS.line}` }}>
-                          {govde}
+                        <div style={{ background: "#FDFBF6", borderRadius: 12, border: `1px solid ${COLORS.line}`, boxShadow: "0 3px 14px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+                          <div style={{ height: 5, background: COLORS.gradient }} />
+                          <div style={{ padding: "22px 20px", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                            {bloklar.map((b, i) => b.tur === "baslik" ? (
+                              <p key={i} style={{ fontSize: 15.5, fontWeight: 700, color: COLORS.coral, marginTop: i === 0 ? 0 : 20, marginBottom: 8, borderBottom: `2px solid ${COLORS.line}`, paddingBottom: 6 }}>{b.metin}</p>
+                            ) : b.tur === "etiketli" ? (
+                              <p key={i} style={{ fontSize: 14.5, lineHeight: 1.85, color: "#2A2A2A", margin: "0 0 12px" }}><span style={{ fontWeight: 700, color: COLORS.mustard, fontStyle: "italic" }}>{b.etiket}: </span>{b.metin}</p>
+                            ) : (
+                              <p key={i} style={{ fontSize: 14.5, lineHeight: 1.85, color: "#2A2A2A", margin: "0 0 12px" }}>{b.metin}</p>
+                            ))}
+                          </div>
                         </div>
                         {dikkatMaddeleri && (
                           <div style={{ background: "#E8503F", borderRadius: 10, padding: 14, marginTop: 10 }}>
@@ -2893,10 +2943,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             )}
             {aciklama && (() => {
               const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
+              const bloklar = konuMetniBloklaraAyir(govde);
               return (
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>
-                    {govde}
+                  <div style={{ background: "#FDFBF6", borderRadius: 12, border: `1px solid ${COLORS.line}`, boxShadow: "0 3px 14px rgba(0,0,0,0.06)", overflow: "hidden" }}>
+                    <div style={{ height: 5, background: COLORS.gradient }} />
+                    <div style={{ padding: "22px 20px", fontFamily: "Georgia, 'Times New Roman', serif" }}>
+                      {bloklar.map((b, i) => b.tur === "baslik" ? (
+                        <p key={i} style={{ fontSize: 15.5, fontWeight: 700, color: COLORS.coral, marginTop: i === 0 ? 0 : 20, marginBottom: 8, borderBottom: `2px solid ${COLORS.line}`, paddingBottom: 6 }}>{b.metin}</p>
+                      ) : b.tur === "etiketli" ? (
+                        <p key={i} style={{ fontSize: 14.5, lineHeight: 1.85, color: "#2A2A2A", margin: "0 0 12px" }}><span style={{ fontWeight: 700, color: COLORS.mustard, fontStyle: "italic" }}>{b.etiket}: </span>{b.metin}</p>
+                      ) : (
+                        <p key={i} style={{ fontSize: 14.5, lineHeight: 1.85, color: "#2A2A2A", margin: "0 0 12px" }}>{b.metin}</p>
+                      ))}
+                    </div>
                   </div>
                   {dikkatMaddeleri && (
                     <div style={{ background: "#E8503F", borderRadius: 10, padding: 14, marginTop: 10 }}>
