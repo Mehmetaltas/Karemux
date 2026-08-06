@@ -93,6 +93,21 @@ const DOGRULANMIS_ALT_KONULAR = {
   "T.C. Inkilap Tarihi::Demokratiklesme Cabalari": ["Mustafa Kemal'e Suikast Girisimi", "Cumhuriyete Yonelik Ic Tehditler"],
   "T.C. Inkilap Tarihi::Ataturk Donemi Turk Dis Politikasi": ["Dis Politikanin Temel Ilkeleri", "Bogazlar ve Musul Sorunu", "Hatay'in Anavatana Katilmasi"],
   "T.C. Inkilap Tarihi::Ataturk'un Olumu ve Sonrasi": ["Ataturk'un Olumune Iliskin Degerlendirmeler", "Ataturk'un Fikir ve Eserlerinin Kalicilik Bilinci"],
+  // Din Kulturu ve Ahlak Bilgisi (8. sinif) - MEB resmi ogretim programindan (DKAB.8.x)
+  "Din Kulturu::Kader Inanci": ["Kader ve Kaza Inanci", "Ilim-Irade-Sorumluluk Iliskisi", "Kader ile Ilgili Yanlis Anlayislar"],
+  "Din Kulturu::Zekat ve Sadaka": ["Zekat Ibadeti", "Sadaka Ibadeti", "Maun Suresi"],
+  // Ingilizce (8. sinif) - MEB resmi ogretim programi HER UNITEYI ayni beceri
+  // cercevesiyle yapilandirir: Listening, Speaking, Reading, Writing (dogrulanmis format).
+  "Ingilizce::Friendship": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Teen Life": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::In the Kitchen": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::On the Phone": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::The Internet": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Adventures": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Tourism": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Chores": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Science": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Natural Forces": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
 };
 
 function denemeKapsamiHesapla(dersAdi, tur) {
@@ -855,6 +870,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [haftalikSaat, setHaftalikSaat] = useState(10);
   const [kalanHafta, setKalanHafta] = useState(8);
   const [plan, setPlan] = useState("");
+  const [haftalikGorevListesi, setHaftalikGorevListesi] = useState(null);
 
   const [checkoutHtml, setCheckoutHtml] = useState("");
   const [odemeHata, setOdemeHata] = useState("");
@@ -883,6 +899,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   // Hesap
   const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
+  const [profilGunlukGorevler, setProfilGunlukGorevler] = useState(null);
+
+  useEffect(() => {
+    if (!hesap || !cihazIdRef.current) return;
+    fetch(`/api/gunluk-gorevler?cihazId=${cihazIdRef.current}`)
+      .then((r) => r.json())
+      .then((d) => setProfilGunlukGorevler((d.gorevler || []).filter((g) => !g.tamamlandi)))
+      .catch(() => setProfilGunlukGorevler([]));
+  }, [hesap]);
+
+  async function gorevTamamlandiIsaretle(id) {
+    setProfilGunlukGorevler((liste) => liste.filter((g) => g.id !== id));
+    fetch("/api/gunluk-gorevler", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }).catch(() => {});
+  }
 
   useEffect(() => {
     if (hesap) {
@@ -1187,7 +1217,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function planOlustur() {
     if (zayifDersler.length === 0) return;
-    setYukleniyor("plan"); setHata(""); setPlan("");
+    setYukleniyor("plan"); setHata(""); setPlan(""); setHaftalikGorevListesi(null);
     try {
       const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const ilerlemeOzeti = zayifDersler.map((d) => {
@@ -1197,10 +1227,30 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       }).filter(Boolean).join(", ");
       const kisiselBaglam = [
         ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}, ona ismiyle hitap et.` : "",
-        ilerlemeOzeti ? `Guncel ilerlemesi: ${ilerlemeOzeti}. Bu gercek veriyi dikkate alarak konus - mesela cok az ilerlemis bir derste "hadi baslayalim" gibi, epey ilerlemis bir derste "devam ediyoruz, guzel gidiyorsun" gibi ozel bir ton kullan.` : "",
+        ilerlemeOzeti ? `Guncel ilerlemesi: ${ilerlemeOzeti}. Bu gercek veriyi dikkate alarak konus.` : "",
       ].filter(Boolean).join(" ");
-      const p = `Sen bir LGS calisma kocususun - ama bir ogretmen ya da veli gibi degil, samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}. Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Haftalik program hazirla, dersleri saatlere bol, kisa odak notu ekle. Programin sonunda kisa bir mentorluk notu ekle: netlerin bazen bir sure ayni kalmasinin (plato) tamamen normal ve gelisimin dogal bir parcasi oldugunu, bunun basarisizlik anlamina gelmedigini hatirlat. Baski yapan degil, guven veren, yanindaki gibi hisseden bir dil kullan. Ogrenciyi gercekten taniyormus gibi, onun guncel durumuna gore konus - genel gecer, herkese soylenebilecek seyler soyleme. Abartili motivasyon sozleri kullanma, gercekci ve sicak ol. Sadece Turkce duz metin, en fazla 320 kelime, markdown isareti kullanma.`;
-      setPlan(await aiIstek(p, 1500, cihazIdRef.current));
+      const p = `Sen bir LGS calisma kocususun - samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}. Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (150-200 kelime) bir konusma metni - programi ozetle, plato/basari notunu ekle. (2) "program": Pazartesi'den Pazar'a kadar HER GUN icin bir gorev nesnesi (bos gunler icin de "Dinlenme" gibi bir ders yaz) - {"gun":"Pazartesi","ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev tanimi"}. SADECE su JSON formatinda don, baska aciklama ekleme, markdown kullanma:
+{"mesaj":"...","program":[{"gun":"Pazartesi","ders":"...","gorev":"..."},{"gun":"Sali","ders":"...","gorev":"..."},{"gun":"Carsamba","ders":"...","gorev":"..."},{"gun":"Persembe","ders":"...","gorev":"..."},{"gun":"Cuma","ders":"...","gorev":"..."},{"gun":"Cumartesi","ders":"...","gorev":"..."},{"gun":"Pazar","ders":"...","gorev":"..."}]}`;
+      const cevap = await aiIstek(p, 2200, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").trim();
+      const baslangic = temiz.indexOf("{");
+      const bitis = temiz.lastIndexOf("}");
+      if (baslangic === -1 || bitis === -1) throw new Error("Plan olusturulamadi, tekrar dene");
+      const veri = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setPlan(veri.mesaj || "");
+      if (Array.isArray(veri.program) && veri.program.length > 0) {
+        setHaftalikGorevListesi(veri.program);
+        const bugununPazartesiTarihi = (() => {
+          const d = new Date();
+          const gun = d.getDay() === 0 ? 7 : d.getDay(); // Pazartesi=1..Pazar=7
+          d.setDate(d.getDate() - (gun - 1));
+          return d.toISOString().slice(0, 10);
+        })();
+        fetch("/api/gunluk-gorevler", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cihazId: cihazIdRef.current, haftaBaslangic: bugununPazartesiTarihi, gorevler: veri.program }),
+        }).catch(() => {});
+      }
     } catch (e) { setHata(e.message || "Plan olusturulamadi, tekrar dene."); }
     finally { setYukleniyor(null); }
   }
@@ -2389,6 +2439,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     {DERSLER.every((d) => !oneriliUniteHesapla(d.ad)) && (
                       <p style={{ fontSize: 12.5, color: COLORS.muted }}>Su an bekleyen bir odevin yok.</p>
                     )}
+
+                    {profilGunlukGorevler && profilGunlukGorevler.length > 0 && (
+                      <>
+                        <p style={{ fontSize: 12, fontWeight: 700, marginTop: 14, marginBottom: 6, color: COLORS.muted }}>📅 Haftalik Programindan Gunluk Gorevler</p>
+                        {profilGunlukGorevler.map((g) => (
+                          <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", fontSize: 12.5, borderBottom: `1px solid ${COLORS.line}` }}>
+                            <button onClick={() => gorevTamamlandiIsaretle(g.id)} style={{ width: 18, height: 18, borderRadius: 5, border: `1.5px solid ${COLORS.line}`, background: "#fff", cursor: "pointer", flexShrink: 0, padding: 0 }} title="Tamamlandi olarak isaretle" />
+                            <span style={{ flex: 1 }}><strong>{g.gun}</strong> · {g.ders}: {g.gorev}</span>
+                            <span style={{ fontSize: 9.5, color: COLORS.muted, textTransform: "uppercase" }}>{g.kaynak}</span>
+                          </div>
+                        ))}
+                      </>
+                    )}
                   </div>
                 )}
 
@@ -2638,6 +2701,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ background: COLORS.page, borderRadius: "4px 16px 16px 16px", padding: 16, border: `1px solid ${COLORS.line}`, whiteSpace: "pre-wrap", fontSize: 13.5, lineHeight: 1.7 }}>
                     {plan}
                   </div>
+
+                  {haftalikGorevListesi && (
+                    <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, marginTop: 10, border: `1px solid ${COLORS.line}` }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10, letterSpacing: 0.5 }}>📅 GUNLUK GOREVLER</p>
+                      {haftalikGorevListesi.map((g, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "8px 0", borderBottom: i < haftalikGorevListesi.length - 1 ? `1px solid ${COLORS.line}` : "none" }}>
+                          <span style={{ width: 62, flexShrink: 0, fontSize: 11, fontWeight: 700, color: COLORS.coral }}>{g.gun}</span>
+                          <div style={{ flex: 1 }}>
+                            <span style={{ fontSize: 12, fontWeight: 700 }}>{g.ders}</span>
+                            <p style={{ fontSize: 12, color: COLORS.muted, margin: "2px 0 0" }}>{g.gorev}</p>
+                          </div>
+                        </div>
+                      ))}
+                      <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 10, fontStyle: "italic" }}>Bu gorevler Profilinde "Bekleyen Odevlerin" altinda da gorunecek.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

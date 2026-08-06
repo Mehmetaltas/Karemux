@@ -125,6 +125,23 @@ CREATE TABLE IF NOT EXISTS hata_kitapcigi (
 CREATE INDEX IF NOT EXISTS idx_hata_kitapcigi_kullanici ON hata_kitapcigi(kullanici_id, ders, cozuldu);
 CREATE INDEX IF NOT EXISTS idx_hata_kitapcigi_cihaz ON hata_kitapcigi(cihaz_id, ders, cozuldu);
 
+-- Koc (AI) ya da ileride gercek bir ogretmen/veli tarafindan atanan gunluk gorevler.
+-- "kaynak" alani hangisinden geldigini ayirt eder, boylece ayni yapi ikisi icin de kullanilabilir.
+CREATE TABLE IF NOT EXISTS gunluk_gorevler (
+  id SERIAL PRIMARY KEY,
+  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
+  cihaz_id TEXT,
+  hafta_baslangic DATE NOT NULL,
+  gun TEXT NOT NULL, -- 'Pazartesi', 'Sali', ...
+  ders TEXT NOT NULL,
+  gorev TEXT NOT NULL,
+  kaynak TEXT NOT NULL DEFAULT 'koc', -- 'koc' | 'ogretmen' | 'veli'
+  tamamlandi BOOLEAN NOT NULL DEFAULT false,
+  olusturulma TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_kullanici ON gunluk_gorevler(kullanici_id, hafta_baslangic);
+CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id, hafta_baslangic);
+
 -- NOT: Bu tablolar sonradan eklendiği için mevcut bir veritabanında
 -- eksik sütunlar olabilir. Zaten schema.sql'i çalıştırmış olan projelerde
 -- şu ek komutları da çalıştırın:
