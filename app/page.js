@@ -179,21 +179,29 @@ function temizHataMesaji(e, varsayilan) {
 
 // Konu anlatimi govde metnini kavram basliklari + Tanim/Ornek/Kural etiketleriyle
 // yapilandirilmis bir blok listesine cevirir - dijital kitap sayfasi hissi icin.
+// AI bazen basligi ve etiketleri (Tanim/Ornek/Kural) ayri satira degil, ayni
+// paragrafin icine gomerek yaziyor - bu yuzden hem paragraf basindaki basligi
+// hem de paragraf icinde HERHANGI BIR YERDE gecen etiketleri ayiklar.
 function konuMetniBloklaraAyir(govde) {
   if (!govde) return [];
+  const rezerveEtiket = "Tanim|Tanım|Ornek|Örnek|Kural|Giris|Giriş|Not";
   const paragraflar = govde.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
-  return paragraflar.map((p) => {
-    const etiketEslesme = p.match(/^(Tanim|Tanım|Ornek|Örnek|Kural|Giris|Giriş|Not)\s*:\s*/i);
-    if (etiketEslesme) {
-      return { tur: "etiketli", etiket: etiketEslesme[1], metin: p.slice(etiketEslesme[0].length).trim() };
+  const bloklar = [];
+  paragraflar.forEach((p) => {
+    let govdeMetni = p;
+    const baslikEslesme = p.match(/^([A-ZÇĞİÖŞÜ][\wÇĞİÖŞÜçğıöşü'’ ]{2,50}):\s+(.+)/s);
+    if (baslikEslesme && !new RegExp(`^(${rezerveEtiket})$`, "i").test(baslikEslesme[1].trim())) {
+      bloklar.push({ tur: "baslik", metin: baslikEslesme[1].trim() });
+      govdeMetni = baslikEslesme[2];
     }
-    // Kisa, nokta ile bitmeyen tek satirlik bloklar kavram basligi kabul edilir
-    const tekSatir = !p.includes("\n");
-    if (tekSatir && p.length < 90 && !/[.!?]$/.test(p)) {
-      return { tur: "baslik", metin: p };
+    const parcalar = govdeMetni.split(new RegExp(`(${rezerveEtiket})\\s*:\\s*`, "gi"));
+    if (parcalar[0] && parcalar[0].trim()) bloklar.push({ tur: "govde", metin: parcalar[0].trim() });
+    for (let i = 1; i < parcalar.length; i += 2) {
+      const metin = (parcalar[i + 1] || "").trim();
+      if (metin) bloklar.push({ tur: "etiketli", etiket: parcalar[i], metin });
     }
-    return { tur: "govde", metin: p };
   });
+  return bloklar;
 }
 
 function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
