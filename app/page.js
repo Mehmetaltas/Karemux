@@ -188,6 +188,13 @@ function konuMetniBloklaraAyir(govde) {
   const paragraflar = govde.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
   const bloklar = [];
   paragraflar.forEach((p) => {
+    // Once: paragrafin TAMAMI kisa, iki nokta ustuste icermeyen, noktayla bitmeyen
+    // tek basina bir baslik mi? (orn. "NEGATIF KUVVET VE TABAN ISARETI")
+    const tekBasinaBaslikMi = !p.includes("\n") && !p.includes(":") && p.length < 90 && !/[.!?]$/.test(p);
+    if (tekBasinaBaslikMi) {
+      bloklar.push({ tur: "baslik", metin: p });
+      return;
+    }
     let govdeMetni = p;
     const baslikEslesme = p.match(/^([A-ZÇĞİÖŞÜ][\wÇĞİÖŞÜçğıöşü'’ ]{2,50}):\s+(.+)/s);
     if (baslikEslesme && !new RegExp(`^(${rezerveEtiket})$`, "i").test(baslikEslesme[1].trim())) {
@@ -1346,7 +1353,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
       const p = `Sen bir LGS/ortaokul olcme-degerlendirme uzmanisin. "${denemeDers}" dersi icin ${baslikMetni} hazirla, ${sinif}. sinif seviyesinde, toplam ${sinavSoruSayisi} soru olsun. ${kapsamAciklama} Sorulari, 2022-2026 yillari arasindaki gercek sinavlarin soru tarzina, uslubuna ve zorluk seviyesine birebir benzet - ama sorularin kendisi ozgun olsun, gercek gecmis sorulari birebir kopyalama ya da "gecmis yil cikti" diye sunma. 2026 LGS onceki yillara gore belirgin sekilde daha zor ve secici geldi (uzmanlar hemfikir) - sorulari buna gore kalibre et: ezber bilgiden cok dikkat, zaman yonetimi, yorumlama ve strateji gerektiren sorular olsun, Turkce'de uzun paragraflar/celdiriciler, Matematik'te islem degil dikkat ve mantik agirlikli sorular kullan. Zorluk dagilimi GERCEK 2026 LGS oranina yakin olsun: soru sayisinin yaklasik %20'si kolay, %55'i orta, %25'i zor olsun (orn. 20 soruda ~4 kolay, ~11 orta, ~5 zor). Her sorunun hangi ALT KONUYU/KAZANIMI olctugunu 2-4 kelimeyle "altKonu" alaninda belirt (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa ve spesifik). Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, dogru ve tutarli bir sekilde anlat. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"...","aciklama":"..."}]`;
-      const cevap = await aiIstek(p, Math.min(6000, 400 + sinavSoruSayisi * 400), cihazIdRef.current, true);
+      const cevap = await aiIstek(p, Math.min(8000, 500 + sinavSoruSayisi * 480), cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
       const ankor = temiz.indexOf('"soru"');
       let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
@@ -1653,7 +1660,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </>
         )}
 
-        {hata && <p style={{ color: "#FFD5D0", fontSize: 13, marginBottom: 12 }}>{hata}</p>}
+        {hata && (
+          <div className="kx-fadein" style={{ display: "flex", alignItems: "center", gap: 10, background: "#FFF1EF", border: "1.5px solid #FF6B5E", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+            <span style={{ fontSize: 18, flexShrink: 0 }}>⚠️</span>
+            <p style={{ color: "#B23A2E", fontSize: 13, fontWeight: 600, margin: 0 }}>{hata}</p>
+          </div>
+        )}
 
         {mod === "kocpanel" && !kocPaneliDers && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
