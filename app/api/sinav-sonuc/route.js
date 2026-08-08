@@ -39,17 +39,27 @@ export async function POST(req) {
 
 export async function GET(req) {
   try {
-    const cihazId = new URL(req.url).searchParams.get("cihazId");
+    const params = new URL(req.url).searchParams;
+    const cihazId = params.get("cihazId");
+    const dersFiltre = params.get("ders");
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ sonuclar: [] });
 
-    const sonuclar = await sql`
-      SELECT tur, ders, dogru, yanlis, bos, net, olusturulma
-      FROM sinav_sonuclari
-      WHERE kullanici_id = ${kullaniciId}
-      ORDER BY olusturulma DESC
-      LIMIT 30
-    `;
+    const sonuclar = dersFiltre
+      ? await sql`
+          SELECT tur, ders, dogru, yanlis, bos, net, olusturulma
+          FROM sinav_sonuclari
+          WHERE kullanici_id = ${kullaniciId} AND (ders = ${dersFiltre} OR ders LIKE ${dersFiltre + "::%"})
+          ORDER BY olusturulma DESC
+          LIMIT 100
+        `
+      : await sql`
+          SELECT tur, ders, dogru, yanlis, bos, net, olusturulma
+          FROM sinav_sonuclari
+          WHERE kullanici_id = ${kullaniciId}
+          ORDER BY olusturulma DESC
+          LIMIT 200
+        `;
     return Response.json({ sonuclar });
   } catch (e) {
     console.error(e);

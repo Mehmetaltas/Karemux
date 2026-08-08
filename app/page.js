@@ -177,6 +177,41 @@ function temizHataMesaji(e, varsayilan) {
   return teknikMi ? varsayilan : ham;
 }
 
+// AI'dan gelen soru listesi JSON'unu ayiklar. Bazen cevap token limitine takilip
+// yarida kesilebiliyor (ozellikle uzun/karmasik konularda) - bu durumda son
+// TAMAMLANMIS soru nesnesine kadar olan kismi kurtarip listeyi oradan kapatir,
+// boylece "5 istendi 4 geldi ama calisiyor" olur, tum sinav cokup atilmaz.
+function soruJsonAyikla(temizMetin) {
+  const ankor = temizMetin.indexOf('"soru"');
+  let baslangic = ankor !== -1 ? temizMetin.lastIndexOf("[", ankor) : temizMetin.indexOf("[");
+  if (baslangic === -1) baslangic = temizMetin.indexOf("[{");
+  if (baslangic === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
+
+  const sonAnkor = temizMetin.lastIndexOf('"dogruIndex"');
+  let bitis = sonAnkor !== -1 ? temizMetin.indexOf("]", sonAnkor) : temizMetin.lastIndexOf("]");
+  if (bitis === -1) bitis = temizMetin.lastIndexOf("]");
+
+  const denemeYolu = (metin) => {
+    try { return JSON.parse(metin); } catch (e) { return null; }
+  };
+
+  let sonuc = bitis !== -1 ? denemeYolu(temizMetin.slice(baslangic, bitis + 1)) : null;
+
+  if (!sonuc) {
+    const govde = temizMetin.slice(baslangic);
+    const sonTamObjeSonu = govde.lastIndexOf("}");
+    if (sonTamObjeSonu !== -1) {
+      const kirpilmis = govde.slice(0, sonTamObjeSonu + 1) + "]";
+      sonuc = denemeYolu(kirpilmis);
+    }
+  }
+
+  if (!Array.isArray(sonuc)) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
+  const gecerli = sonuc.filter((s) => s && s.soru && Array.isArray(s.secenekler) && s.secenekler.length >= 2 && typeof s.dogruIndex === "number");
+  if (gecerli.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
+  return gecerli;
+}
+
 // Konu anlatimi govde metnini kavram basliklari + Tanim/Ornek/Kural etiketleriyle
 // yapilandirilmis bir blok listesine cevirir - dijital kitap sayfasi hissi icin.
 // AI bazen basligi ve etiketleri (Tanim/Ornek/Kural) ayri satira degil, ayni
@@ -433,16 +468,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const cevap = await aiIstek(p, Math.min(8000, 600 + soruSayisi * 500), cihazIdRef.current, true);
       if (secilenDersRef.current !== dersAdi) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-      const ankor = temiz.indexOf('"soru"');
-      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
-      if (baslangic === -1) baslangic = temiz.indexOf("[{");
-      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
-      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
-      if (bitis === -1) bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
-      const hamSorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
-      // Gecersiz (secenekleri eksik/bozuk) sorulari ayikla - cokme yerine sessizce filtrele
-      const sorular = hamSorular.filter((s) => s && s.soru && Array.isArray(s.secenekler) && s.secenekler.length >= 2 && typeof s.dogruIndex === "number");
+      const sorular = soruJsonAyikla(temiz);
       if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
       setQuiz(sorular);
     } catch (e) { if (secilenDersRef.current === dersAdi) setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
@@ -501,10 +527,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
-      const baslangic = temiz.indexOf("[");
-      const bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("Sorular uretilemedi, tekrar dene");
-      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1)).filter((s) => s && Array.isArray(s.secenekler) && s.secenekler.length >= 2);
+      const sorular = soruJsonAyikla(temiz);
       setQuiz(sorular);
       setHataKitapcigiAcik(false);
     } catch (e) { setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
@@ -600,10 +623,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 [{"konu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-      const baslangic = temiz.indexOf("[");
-      const bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("Genel degerlendirme olusturulamadi, tekrar dene");
-      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const sorular = soruJsonAyikla(temiz);
       setGecenYilSorulari(sorular);
       sorulariBankayaKaydet(dersAdi, oncekiSinif, null, sorular, "gecen_yil_genel");
     } catch (e) { setHata(temizHataMesaji(e, "Genel degerlendirme olusturulamadi, tekrar dene.")); }
@@ -754,12 +774,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-      const baslangic = temiz.indexOf("[");
-      const bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
-      const hamSorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
-      const sorular = hamSorular.filter((s) => s && s.soru && Array.isArray(s.secenekler) && s.secenekler.length >= 2 && typeof s.dogruIndex === "number");
-      if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
+      const sorular = soruJsonAyikla(temiz);
       setQuiz(sorular);
       sorulariBankayaKaydet(secilenDers, sinif, unite, sorular, "quiz");
     } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
@@ -775,14 +790,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 [{"unite":"...","altKonu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-      const ankor = temiz.indexOf('"unite"');
-      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
-      if (baslangic === -1) baslangic = temiz.indexOf("[{");
-      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
-      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
-      if (bitis === -1) bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("Seviye belirleme sinavi olusturulamadi, tekrar dene");
-      const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const sorular = soruJsonAyikla(temiz);
       setDersSeviyeSorulari(sorular);
       sorulariBankayaKaydet(dersAdi, sinif, null, sorular, "ders_seviye");
     } catch (e) { setHata(temizHataMesaji(e, "Seviye belirleme sinavi olusturulamadi, tekrar dene.")); }
@@ -953,6 +961,51 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   // Hesap
   const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
   const [profilGunlukGorevler, setProfilGunlukGorevler] = useState(null);
+  const [karneAcik, setKarneAcik] = useState(false);
+  const [karneOzet, setKarneOzet] = useState(null);
+  const [karneYorum, setKarneYorum] = useState("");
+  const [karneYukleniyor, setKarneYukleniyor] = useState(false);
+
+  async function karneyiHazirla() {
+    setKarneYukleniyor(true); setKarneAcik(true); setKarneYorum(""); setKarneOzet(null);
+    try {
+      const res = await fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      const tumSonuclar = data.sonuclar || [];
+
+      // Net puanli olanlar (deneme/yazili) - ders bazinda ortalama
+      const netliTurler = tumSonuclar.filter((s) => s.tur === "deneme" || s.tur === "yazili");
+      const dersBazinda = {};
+      netliTurler.forEach((s) => {
+        const anaDers = s.ders.split("::")[0];
+        if (!dersBazinda[anaDers]) dersBazinda[anaDers] = { toplamNet: 0, adet: 0, sonNet: null };
+        dersBazinda[anaDers].toplamNet += Number(s.net);
+        dersBazinda[anaDers].adet += 1;
+        if (dersBazinda[anaDers].sonNet === null) dersBazinda[anaDers].sonNet = Number(s.net); // en yeni (DESC siralida ilk)
+      });
+
+      const ozet = Object.entries(dersBazinda).map(([ders, v]) => ({
+        ders, testSayisi: v.adet, ortalamaNet: (v.toplamNet / v.adet).toFixed(1), sonNet: v.sonNet.toFixed(1),
+      }));
+      setKarneOzet(ozet);
+
+      if (ozet.length === 0) {
+        setKarneYorum("Henuz yeterli sinav gecmisin yok. Bir kac Deneme ya da Yazili tamamladiktan sonra burada derin bir performans yorumu gorebileceksin.");
+        return;
+      }
+
+      const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
+      const veriMetni = ozet.map((o) => `${o.ders}: ${o.testSayisi} test, ortalama net ${o.ortalamaNet}, en son net ${o.sonNet}`).join("; ");
+      const p = `Sen bir egitim kocususun. ${ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}.` : ""} Su gercek sinav verilerine dayanarak DERIN, KISISEL bir karne/durum degerlendirmesi yaz: ${veriMetni}. Su noktalara deg: (1) En guclu oldugu 1-2 dersi somut sayilarla ovun, (2) En cok destege ihtiyaci olan 1-2 dersi nazik ama net sekilde belirt, (3) Son sinav ile ortalamasini kiyaslayip bir trend yorumu yap (yukseliyor mu, sabit mi, dususte mi), (4) Somut, uygulanabilir 2-3 tavsiye ver. Sicak, samimi, gercekci bir mentor tonu kullan - ne asiri ovucu ne cesaret kirici ol. 250-320 kelime, SADECE Turkce duz metin, markdown kullanma.`;
+      const yorum = await aiIstek(p, 1600, cihazIdRef.current);
+      setKarneYorum(yorum);
+    } catch (e) {
+      setKarneYorum("Karne olusturulamadi, tekrar dene.");
+    } finally {
+      setKarneYukleniyor(false);
+    }
+  }
+
 
   useEffect(() => {
     if (!hesap || !cihazIdRef.current) return;
@@ -1230,14 +1283,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, fasikulModu ? 7000 : 3000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-      const ankor = temiz.indexOf('"soru"');
-      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
-      if (baslangic === -1) baslangic = temiz.indexOf("[{");
-      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
-      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
-      if (bitis === -1) bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("AI gecerli bir soru listesi dondurmedi, tekrar dene");
-      const uretilenSorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const uretilenSorular = soruJsonAyikla(temiz);
       setQuiz(uretilenSorular);
       sorulariBankayaKaydet(ders, sinif, uniteSec, uretilenSorular, fasikulModu ? "fasikul" : "quiz");
     } catch (e) { setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
@@ -1355,16 +1401,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"...","aciklama":"..."}]`;
       const cevap = await aiIstek(p, Math.min(8000, 500 + sinavSoruSayisi * 480), cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-      const ankor = temiz.indexOf('"soru"');
-      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
-      if (baslangic === -1) baslangic = temiz.indexOf("[{");
-      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
-      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
-      if (bitis === -1) bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("Sinav olusturulamadi, tekrar dene");
       setSinavKapsamMetni(kapsamAciklama);
       setSinavKayitTuru(kayitTuru);
-      const uretilenSinavSorulari = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const uretilenSinavSorulari = soruJsonAyikla(temiz);
       setDenemeSorulari(uretilenSinavSorulari);
       sorulariBankayaKaydet(denemeDers, sinif, kapsamUnite, uretilenSinavSorulari, sinavTuru);
     } catch (e) { setHata(temizHataMesaji(e, "Sinav olusturulamadi, tekrar dene.")); }
@@ -1437,14 +1476,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 [{"ders":"Matematik","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-      const ankor = temiz.indexOf('"soru"');
-      let baslangic = ankor !== -1 ? temiz.lastIndexOf("[", ankor) : temiz.indexOf("[");
-      if (baslangic === -1) baslangic = temiz.indexOf("[{");
-      const sonAnkor = temiz.lastIndexOf('"dogruIndex"');
-      let bitis = sonAnkor !== -1 ? temiz.indexOf("]", sonAnkor) : temiz.lastIndexOf("]");
-      if (bitis === -1) bitis = temiz.lastIndexOf("]");
-      if (baslangic === -1 || bitis === -1) throw new Error("Seviye tespit sinavi olusturulamadi, tekrar dene");
-      const seviyeSorulariUretilen = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      const seviyeSorulariUretilen = soruJsonAyikla(temiz);
       setSeviyeSorulari(seviyeSorulariUretilen);
       const dersGruplari = {};
       seviyeSorulariUretilen.forEach((s) => {
@@ -2615,6 +2647,50 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         </div>
                       );
                     })}
+                  </div>
+                )}
+
+                {hesap.rol === "ogrenci" && (
+                  <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700 }}>🎓 Karnem</p>
+                      {!karneAcik && (
+                        <button onClick={karneyiHazirla} disabled={karneYukleniyor} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                          {karneYukleniyor ? "Hazirlaniyor..." : "Karneyi Goruntule"}
+                        </button>
+                      )}
+                    </div>
+
+                    {karneAcik && (
+                      <div id="karne-yazdirilacak">
+                        {karneYukleniyor ? (
+                          <p style={{ fontSize: 12.5, color: COLORS.muted, textAlign: "center" }}>Sinav gecmisin analiz ediliyor...</p>
+                        ) : (
+                          <>
+                            {karneOzet && karneOzet.length > 0 && (
+                              <div style={{ marginBottom: 12 }}>
+                                {karneOzet.map((o) => (
+                                  <div key={o.ders} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 12.5, borderBottom: `1px solid ${COLORS.line}` }}>
+                                    <span style={{ fontWeight: 600 }}>{o.ders}</span>
+                                    <span style={{ color: COLORS.muted }}>{o.testSayisi} test · ort. net {o.ortalamaNet} · son {o.sonNet}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {karneYorum && (
+                              <div style={{ background: "#FDFBF6", borderRadius: 10, border: `1px solid ${COLORS.line}`, padding: 16, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
+                                {karneYorum}
+                              </div>
+                            )}
+                            {karneOzet && karneOzet.length > 0 && (
+                              <button onClick={() => window.print()} style={{ width: "100%", marginTop: 10, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                                🖨️ PDF / Yazdir
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
 
