@@ -1659,11 +1659,33 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               }}>🎯 Koc Paneli (Rapor)</button>
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Okul/LGS sinavina hazirlik testleri</p>
               {[
                 ["yazili", "✏️ Yazili Hazirligi"],
                 ["deneme", "📝 Deneme Sinavi"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+                }}>{etiket}</button>
+              ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Ek araclar</p>
+              {[
                 ["sorucoz", "📷 Soru Coz (Fotograf)"],
                 ["kocluk", "📅 Haftalik Calisma Plani"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+                }}>{etiket}</button>
+              ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              {[
                 ["premium", "💳 Premium"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
