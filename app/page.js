@@ -1577,7 +1577,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       `}</style>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
-          <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, display: "block", objectFit: "cover" }} />
+          <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0, display: "block", objectFit: "cover" }} />
           <button onClick={() => setMenuAcik((a) => !a)} style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
@@ -1594,7 +1594,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             background: COLORS.gradient, borderRadius: 16, padding: "28px 20px",
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
-            <img src="/icons/icon-192.png" alt="Karemux" className="kx-logo-acilis" style={{ width: 64, height: 64, borderRadius: 16, marginBottom: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.25)" }} />
+            <img src="/icons/icon-192.png" alt="Karemux" className="kx-logo-acilis" style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.25)" }} />
             <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
