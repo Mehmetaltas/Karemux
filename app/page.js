@@ -1560,13 +1560,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         @keyframes kxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes kxShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         @keyframes kxPop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        @keyframes kxLogoAcilis { 0% { opacity: 0; transform: scale(0.4) rotate(-25deg); } 60% { opacity: 1; transform: scale(1.08) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
         .kx-fadein { animation: kxFadeUp 0.45s ease both; }
         .kx-float { display: inline-block; animation: kxFloat 3s ease-in-out infinite; }
         .kx-pop { animation: kxPop 0.3s ease both; }
-        .kx-logo-acilis { animation: kxLogoAcilis 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-        .kx-logo-header { transition: transform 0.2s ease; }
-        .kx-logo-header:hover { transform: rotate(-8deg) scale(1.08); }
         .kx-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
         .kx-card:active { transform: scale(0.97); }
         .kx-btn { transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease; }
@@ -1577,7 +1573,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       `}</style>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
-          <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0, display: "block", objectFit: "cover" }} />
+          <img src="/icons/icon-192.png" alt="Karemux logo" style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0 }} />
           <button onClick={() => setMenuAcik((a) => !a)} style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
@@ -1594,7 +1590,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             background: COLORS.gradient, borderRadius: 16, padding: "28px 20px",
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
-            <img src="/icons/icon-192.png" alt="Karemux" className="kx-logo-acilis" style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.25)" }} />
+            <div style={{ fontSize: 36, marginBottom: 10 }}>🎓</div>
             <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
@@ -1640,8 +1636,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>🏠 Ana Sayfa</button>
 
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 2 }}>📚 Ders Calisma Odasi</p>
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 10 }}>Konu anlat, test coz - asil calisma burada</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
               {DERSLER.map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -1651,41 +1646,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Karne, rapor, gecmis - sadece bakilir</p>
               <button onClick={() => { setSecilenDers(null); setMod("kocpanel"); setMenuAcik(false); }} style={{
                 display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "kocpanel" ? 700 : 500,
                 background: mod === "kocpanel" ? COLORS.page : "transparent", color: mod === "kocpanel" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
-              }}>🎯 Koc Paneli (Rapor)</button>
+              }}>🎯 Koc Paneli</button>
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Okul/LGS sinavina hazirlik testleri</p>
               {[
                 ["yazili", "✏️ Yazili Hazirligi"],
                 ["deneme", "📝 Deneme Sinavi"],
-              ].map(([k, etiket]) => (
-                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
-                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
-                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
-                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
-                }}>{etiket}</button>
-              ))}
-
-              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Ek araclar</p>
-              {[
                 ["sorucoz", "📷 Soru Coz (Fotograf)"],
                 ["kocluk", "📅 Haftalik Calisma Plani"],
-              ].map(([k, etiket]) => (
-                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
-                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
-                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
-                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
-                }}>{etiket}</button>
-              ))}
-
-              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              {[
                 ["premium", "💳 Premium"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
@@ -1899,12 +1871,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       ⚠ Onceki sinif temelin zayif gorunuyor, konu anlatimi bunu dikkate alacak.
                     </p>
                   )}
-                  <button onClick={() => { setSecilenDers(kocPaneliDers); setMod("ders"); setMenuAcik(false); }} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-                    📚 Derslere Git ve Calis
+                  <button onClick={() => setKocPaneliAcik(true)} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    📚 Koc Panelini Ac
                   </button>
                 </div>
               );
             })()}
+
+            {kocPaneliAcik && (
+              <div style={{ background: "#FAF6EE", borderRadius: 12, padding: 18, marginTop: 16, border: `1.5px solid ${COLORS.mustard}`, textAlign: "center" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: "#1B2430" }}>📚 Koc Paneli — {oneriliUniteHesapla(kocPaneliDers)}</p>
+                  <button onClick={() => setKocPaneliAcik(false)} style={{ border: "none", background: "none", color: "#6B7566", fontSize: 18, cursor: "pointer", padding: 0, lineHeight: 1 }}>✕</button>
+                </div>
+                <p style={{ fontSize: 13, color: "#6B7566" }}>Icini birlikte dolduracagiz.</p>
+              </div>
+            )}
 
             <div style={{ marginTop: 16, borderTop: `1px solid ${COLORS.line}`, paddingTop: 16 }}>
               <button onClick={() => hataKitapciginiGetir(kocPaneliDers)} disabled={hataKitapcigiYukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
