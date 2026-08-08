@@ -1636,7 +1636,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>🏠 Ana Sayfa</button>
 
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 14 }}>Dersler</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 2 }}>📚 Ders Calisma Odasi</p>
+              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 10 }}>Konu anlat, test coz - asil calisma burada</p>
               {DERSLER.map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -1646,11 +1647,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Karne, rapor, gecmis - sadece bakilir</p>
               <button onClick={() => { setSecilenDers(null); setMod("kocpanel"); setMenuAcik(false); }} style={{
                 display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "kocpanel" ? 700 : 500,
                 background: mod === "kocpanel" ? COLORS.page : "transparent", color: mod === "kocpanel" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
-              }}>🎯 Koc Paneli</button>
+              }}>🎯 Koc Paneli (Rapor)</button>
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               {[
@@ -1871,22 +1873,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       ⚠ Onceki sinif temelin zayif gorunuyor, konu anlatimi bunu dikkate alacak.
                     </p>
                   )}
-                  <button onClick={() => setKocPaneliAcik(true)} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-                    📚 Koc Panelini Ac
+                  <button onClick={() => { setSecilenDers(kocPaneliDers); setMod("ders"); setMenuAcik(false); }} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    📚 Derslere Git ve Calis
                   </button>
                 </div>
               );
             })()}
-
-            {kocPaneliAcik && (
-              <div style={{ background: "#FAF6EE", borderRadius: 12, padding: 18, marginTop: 16, border: `1.5px solid ${COLORS.mustard}`, textAlign: "center" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <p style={{ fontWeight: 700, fontSize: 14, color: "#1B2430" }}>📚 Koc Paneli — {oneriliUniteHesapla(kocPaneliDers)}</p>
-                  <button onClick={() => setKocPaneliAcik(false)} style={{ border: "none", background: "none", color: "#6B7566", fontSize: 18, cursor: "pointer", padding: 0, lineHeight: 1 }}>✕</button>
-                </div>
-                <p style={{ fontSize: 13, color: "#6B7566" }}>Icini birlikte dolduracagiz.</p>
-              </div>
-            )}
 
             <div style={{ marginTop: 16, borderTop: `1px solid ${COLORS.line}`, paddingTop: 16 }}>
               <button onClick={() => hataKitapciginiGetir(kocPaneliDers)} disabled={hataKitapcigiYukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
