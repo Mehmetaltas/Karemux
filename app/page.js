@@ -1560,9 +1560,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         @keyframes kxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes kxShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         @keyframes kxPop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes kxLogoAcilis { 0% { opacity: 0; transform: scale(0.4) rotate(-25deg); } 60% { opacity: 1; transform: scale(1.08) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
         .kx-fadein { animation: kxFadeUp 0.45s ease both; }
         .kx-float { display: inline-block; animation: kxFloat 3s ease-in-out infinite; }
         .kx-pop { animation: kxPop 0.3s ease both; }
+        .kx-logo-acilis { animation: kxLogoAcilis 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+        .kx-logo-header { transition: transform 0.2s ease; }
+        .kx-logo-header:hover { transform: rotate(-8deg) scale(1.08); }
         .kx-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
         .kx-card:active { transform: scale(0.97); }
         .kx-btn { transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease; }
@@ -1573,7 +1577,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       `}</style>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
-          <img src="/icons/icon-192.png" alt="Karemux logo" style={{ width: 40, height: 40, borderRadius: 10, flexShrink: 0 }} />
+          <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 30, height: 30, borderRadius: 8, flexShrink: 0, display: "block", objectFit: "cover" }} />
           <button onClick={() => setMenuAcik((a) => !a)} style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
@@ -1590,7 +1594,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             background: COLORS.gradient, borderRadius: 16, padding: "28px 20px",
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
-            <div style={{ fontSize: 36, marginBottom: 10 }}>🎓</div>
+            <img src="/icons/icon-192.png" alt="Karemux" className="kx-logo-acilis" style={{ width: 64, height: 64, borderRadius: 16, marginBottom: 12, boxShadow: "0 6px 20px rgba(0,0,0,0.25)" }} />
             <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
