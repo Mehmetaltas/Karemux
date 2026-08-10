@@ -1002,6 +1002,43 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [seviyeRaporu, setSeviyeRaporu] = useState(null); // { [ders]: { dogru, toplam, seviye } }
   const [denemeSorulari, setDenemeSorulari] = useState(null);
   const [denemeCevaplar, setDenemeCevaplar] = useState({});
+  const [optikYukleniyor, setOptikYukleniyor] = useState(false);
+  const [optikHata, setOptikHata] = useState("");
+
+  async function optikOkumaYap(dosya) {
+    if (!dosya || !denemeSorulari) return;
+    setOptikYukleniyor(true); setOptikHata("");
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = () => rej(new Error("Dosya okunamadi"));
+        r.readAsDataURL(dosya);
+      });
+      const res = await fetch("/api/optik-okuma", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: base64, mediaType: dosya.type, soruSayisi: denemeSorulari.length, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Optik okuma basarisiz");
+
+      const harfIndex = { A: 0, B: 1, C: 2, D: 3 };
+      const yeniCevaplar = {};
+      data.cevaplar.forEach((harf, i) => {
+        if (harf && harfIndex[harf.toUpperCase()] !== undefined) yeniCevaplar[i] = harfIndex[harf.toUpperCase()];
+      });
+      setDenemeCevaplar((eski) => ({ ...eski, ...yeniCevaplar }));
+      const okunanSayi = Object.keys(yeniCevaplar).length;
+      if (okunanSayi < denemeSorulari.length) {
+        setOptikHata(`${okunanSayi}/${denemeSorulari.length} cevap okunabildi - kalanlari elle isaretleyebilirsin.`);
+      }
+    } catch (e) {
+      setOptikHata(e.message || "Optik okuma basarisiz, tekrar dene.");
+    } finally {
+      setOptikYukleniyor(false);
+    }
+  }
+
   const [denemeGonderildi, setDenemeGonderildi] = useState(false);
   const [aciklama, setAciklama] = useState("");
   const [quiz, setQuiz] = useState(null);
@@ -2563,6 +2600,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         {(mod === "yazili" || mod === "deneme") && denemeSorulari && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginTop: 12 }}>
             {sinavKapsamMetni && <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10, fontStyle: "italic" }}>{sinavKapsamMetni}</p>}
+            {!denemeGonderildi && (
+              <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
+                <label style={{ cursor: "pointer" }}>
+                  <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+                    onChange={(e) => { const f = e.target.files[0]; if (f) optikOkumaYap(f); }} />
+                  <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
+                    {optikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
+                  </span>
+                </label>
+                <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Kagida isaretlediğin (A/B/C/D) cevapların fotoğrafını yükle, otomatik doldursun.</p>
+                {optikHata && <p style={{ fontSize: 11.5, color: COLORS.coral, marginTop: 6, fontWeight: 600 }}>{optikHata}</p>}
+              </div>
+            )}
             {denemeSorulari.map((s, i) => (
               <div key={i} style={{ marginBottom: 16 }}>
                 <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
