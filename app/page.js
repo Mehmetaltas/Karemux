@@ -118,6 +118,12 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Veri Analizi": ["Cizgi ve Sutun Grafigi Yorumlama", "Grafik Turleri Arasi Donusum"],
   "Matematik::Cebirsel Ifadeler ve Ozdeslikler": ["Ozdeslikler", "Cebirsel Ifadeleri Carpanlara Ayirma"],
   "Matematik::Dogrusal Denklemler": ["Birinci Dereceden Bir Bilinmeyenli Denklemler"],
+  "Matematik::Olasilik": ["Olasilik Kavrami", "Basit Olaylarin Olma Olasiligi"],
+  "Matematik::Esitsizlikler": ["Esitsizlik Cumleleri Yazma", "Sayi Dogrusunda Gosterim", "Esitsizlik Cozme"],
+  "Matematik::Ucgenler": ["Kenarortay Acortay Yukseklik", "Ucgen Esitsizligi", "Kenar-Aci Iliskisi", "Pisagor Bagintisi"],
+  "Matematik::Eslik ve Benzerlik": ["Es ve Benzer Sekiller", "Kenar ve Aci Iliskileri"],
+  "Matematik::Donusum Geometrisi": ["Oteleme", "Yansima", "Cokgenlerin Oteleme ve Yansima Goruntusu"],
+  "Matematik::Geometrik Cisimler": ["Dik Prizmalar", "Dik Dairesel Silindir", "Silindirin Yuzey Alani ve Hacmi", "Dik Piramit", "Dik Koni"],
   // Fen Bilimleri (8. sinif) - MEB resmi ogretim programi kazanimlarindan (F.8.1 - F.8.7)
   "Fen Bilimleri::Mevsimler ve Iklim": ["Mevsimlerin Olusumu", "Iklim ve Hava Hareketleri"],
   "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon"],
