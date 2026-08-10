@@ -1639,8 +1639,26 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
-              Baslamak icin sol ustteki <strong style={{ color: COLORS.mustard }}>☰</strong> menuden bir ders sec.
+              Baslamak icin bir ders sec.
             </p>
+          </div>
+        )}
+
+        {mod === "bos" && !secilenDers && (
+          <div className="kx-fadein" style={{ marginBottom: 16 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>DERSINI SEC</p>
+            <div className="kx-pop" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+              {DERSLER.map((d) => (
+                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); }} className="kx-card kx-btn" style={{
+                  padding: "16px 6px", borderRadius: 14, cursor: "pointer", textAlign: "center",
+                  border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                }}>
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>{d.emoji}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.ink, lineHeight: 1.25 }}>{d.ad}</div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
