@@ -168,6 +168,7 @@ const DOGRULANMIS_ALT_KONULAR = {
   "T.C. Inkilap Tarihi::Demokratiklesme Cabalari": ["Mustafa Kemal'e Suikast Girisimi", "Cumhuriyete Yonelik Ic Tehditler"],
   "T.C. Inkilap Tarihi::Ataturk Donemi Turk Dis Politikasi": ["Dis Politikanin Temel Ilkeleri", "Bogazlar ve Musul Sorunu", "Hatay'in Anavatana Katilmasi"],
   "T.C. Inkilap Tarihi::Ataturk'un Olumu ve Sonrasi": ["Ataturk'un Olumune Iliskin Degerlendirmeler", "Ataturk'un Fikir ve Eserlerinin Kalicilik Bilinci"],
+  "T.C. Inkilap Tarihi::II. Dunya Savasi Surecinde Turkiye": ["Ataturk'un II. Dunya Savasi Oncesi Tespitleri", "II. Dunya Savasi'nin Turkiye'ye Etkileri", "Cok Partili Siyasi Hayata Gecis"],
   // Din Kulturu ve Ahlak Bilgisi (8. sinif) - MEB resmi ogretim programindan (DKAB.8.x)
   "Din Kulturu::Kader Inanci": ["Kader ve Kaza Inanci", "Ilim-Irade-Sorumluluk Iliskisi", "Kader ile Ilgili Yanlis Anlayislar"],
   "Din Kulturu::Zekat ve Sadaka": ["Zekat Ibadeti", "Sadaka Ibadeti", "Maun Suresi"],
