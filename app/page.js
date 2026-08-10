@@ -53,8 +53,19 @@ const TEMALAR = {
 const DERSLER = [
   { ad: "Matematik", emoji: "➗" }, { ad: "Fen Bilimleri", emoji: "🔬" },
   { ad: "Turkce", emoji: "📖" }, { ad: "T.C. Inkilap Tarihi", emoji: "🏛️" },
+  { ad: "Sosyal Bilgiler", emoji: "🌍" },
   { ad: "Din Kulturu", emoji: "🕌" }, { ad: "Ingilizce", emoji: "🇬🇧" },
 ];
+
+// "T.C. Inkilap Tarihi" SADECE 8. sinifta (LGS) var - 5/6/7. sinifta bunun yerine
+// "Sosyal Bilgiler" dersi okutuluyor. Bu yuzden ham DERSLER listesini degil, ogrencinin
+// sinifina gore filtrelenmis bu listeyi kullaniyoruz - boylece 6/7. sinif ogrencisine
+// hic var olmayan bir ders (Inkilap Tarihi) gosterilmiyor, 8. sinifa da olmayan
+// "Sosyal Bilgiler" gosterilmiyor.
+function gorunurDersler(sinifNo) {
+  if (sinifNo === 8) return DERSLER.filter((d) => d.ad !== "Sosyal Bilgiler");
+  return DERSLER.filter((d) => d.ad !== "T.C. Inkilap Tarihi");
+}
 
 // Gercek MEB 8. sinif (LGS) mufredati - ders bazinda unite listesi.
 // Kaynak: MEB güncel müfredat + LGS konu dağılımı analizleri (2026).
@@ -99,6 +110,8 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "7::Din Kulturu": ["Melek ve Ahiret Inanci", "Hac ve Kurban", "Ahlaki Davranislar", "Allah'in Kulu ve Elcisi: Hz. Muhammed", "Islam Dusuncesinde Yorumlar"],
   "6::Ingilizce": ["Life", "Yummy Breakfast", "Downtown", "Weather and Emotions", "At the Fair", "Occupations", "Holidays", "Bookworms", "Saving the Planet", "Democracy"],
   "7::Ingilizce": ["Appearance and Personality", "Sports", "Biographies", "Wild Animals", "Television", "Celebrations", "Dreams", "Public Buildings", "Environment", "Planets"],
+  "6::Sosyal Bilgiler": ["Birey ve Toplum", "Kultur ve Miras", "Insanlar Yerler ve Cevreler", "Bilim Teknoloji ve Toplum", "Uretim Dagitim ve Tuketim", "Etkin Vatandaslik", "Kuresel Baglantilar"],
+  "7::Sosyal Bilgiler": ["Birey ve Toplum", "Kultur ve Miras", "Insanlar Yerler ve Cevreler", "Bilim Teknoloji ve Toplum", "Uretim Dagitim ve Tuketim", "Etkin Vatandaslik", "Kuresel Baglantilar"],
 };
 
 // Dersin (ve sinifin) unite listesini dondurur. O sinif icin ozel veri varsa onu,
@@ -1536,7 +1549,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function seviyeTespitiYap() {
     setYukleniyor("seviye"); setHata(""); setSeviyeCevaplar({}); setSeviyeGonderildi(false); setSeviyeSorulari(null); setSeviyeRaporu(null);
     try {
-      const dersListesi = DERSLER.map((d) => d.ad).join(", ");
+      const dersListesi = gorunurDersler(sinif).map((d) => d.ad).join(", ");
       const p = `Sen bir egitim kurumunda seviye tespit sinavi hazirlayan bir olcme-degerlendirme uzmanisin. Su derslerin HER BIRINDEN 2'ser soru olmak uzere toplam 12 soruluk bir SEVIYE TESPIT SINAVI hazirla: ${dersListesi}. ${sinif}. sinif seviyesinde, her dersten 1 kolay 1 orta zorlukta soru olsun. Her sorunun hangi derse ait oldugunu "ders" alaninda MUTLAKA belirt (yukaridaki isimlerle BIREBIR ayni yaz). Sorular mantik yurutme gerektirsin, ezber bilgi sorma. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, ayrica Ingilizce/Almanca/Fransizca/Portekizce gibi baska dilden TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"ders":"Matematik","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
@@ -1672,7 +1685,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           <div className="kx-fadein" style={{ marginBottom: 16 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>DERSINI SEC</p>
             <div className="kx-pop" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-              {DERSLER.map((d) => (
+              {gorunurDersler(sinif).map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); }} className="kx-card kx-btn" style={{
                   padding: "16px 6px", borderRadius: 14, cursor: "pointer", textAlign: "center",
                   border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
@@ -1725,7 +1738,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 2 }}>📚 Ders Calisma Odasi</p>
               <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 10 }}>Konu anlat, test coz - asil calisma burada</p>
-              {DERSLER.map((d) => (
+              {gorunurDersler(sinif).map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: secilenDers === d.ad ? 700 : 500,
@@ -1817,7 +1830,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               Hangi ders icin koclugunu gormek istiyorsun? (Bu bolumu ayrica daha detayli tasarlayacagiz.)
             </p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
-              {DERSLER.map((d) => (
+              {gorunurDersler(sinif).map((d) => (
                 <button key={d.ad} onClick={() => setKocPaneliDers(d.ad)} style={{
                   padding: "12px 16px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: "#FAF6EE",
                   fontWeight: 600, fontSize: 13, cursor: "pointer", color: "#1B2430",
@@ -2359,7 +2372,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
-                {DERSLER.map((d) => (
+                {gorunurDersler(sinif).map((d) => (
                   <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{
                     padding: "12px 6px", borderRadius: 12, cursor: "pointer", textAlign: "center",
                     border: `2px solid ${denemeDers === d.ad ? COLORS.coral : COLORS.line}`,
@@ -2461,7 +2474,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
-                {DERSLER.map((d) => (
+                {gorunurDersler(sinif).map((d) => (
                   <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{
                     padding: "12px 6px", borderRadius: 12, cursor: "pointer", textAlign: "center",
                     border: `2px solid ${denemeDers === d.ad ? COLORS.mustard : COLORS.line}`,
@@ -2741,7 +2754,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {hesap.rol === "ogrenci" && (
                   <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
                     <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Bekleyen Odevlerin (Koc onerileri)</p>
-                    {DERSLER.map((d) => {
+                    {gorunurDersler(sinif).map((d) => {
                       const onerilen = oneriliUniteHesapla(d.ad);
                       if (!onerilen) return null;
                       return (
@@ -2751,7 +2764,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         </div>
                       );
                     })}
-                    {DERSLER.every((d) => !oneriliUniteHesapla(d.ad)) && (
+                    {gorunurDersler(sinif).every((d) => !oneriliUniteHesapla(d.ad)) && (
                       <p style={{ fontSize: 12.5, color: COLORS.muted }}>Su an bekleyen bir odevin yok.</p>
                     )}
 
@@ -2773,7 +2786,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {hesap.rol === "ogrenci" && (
                   <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
                     <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Ders Durumlarin</p>
-                    {DERSLER.map((d) => {
+                    {gorunurDersler(sinif).map((d) => {
                       const tumUnite = dersinUniteleri(d.ad, sinif).length;
                       const tamamlanan = (tamamlananUniteler[d.ad] || []).length;
                       return (
@@ -3015,7 +3028,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {otomatikTespit && <span style={{ fontSize: 10, color: COLORS.coral, fontWeight: 600 }}>· otomatik tespit edildi</span>}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
-                {DERSLER.map((d) => {
+                {gorunurDersler(sinif).map((d) => {
                   const s = zayifDersler.includes(d.ad);
                   return (
                     <button key={d.ad} onClick={() => dersToggle(d.ad)} style={{
@@ -3092,7 +3105,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 14 }}>
-              {DERSLER.map((d) => (
+              {gorunurDersler(sinif).map((d) => (
                 <button key={d.ad} onClick={() => { setDers(d.ad); setUniteSec(null); }} style={{ padding: "12px 6px", borderRadius: 10, border: `1.5px solid ${ders === d.ad ? COLORS.coral : COLORS.line}`, background: ders === d.ad ? "#FFF1EF" : COLORS.page, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                   <div style={{ fontSize: 18, marginBottom: 4 }}>{d.emoji}</div>{d.ad}
                 </button>
