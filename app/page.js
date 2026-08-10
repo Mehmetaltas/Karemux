@@ -95,14 +95,20 @@ const MUFREDAT = {
 // gruplanmis/yer degistirmis olabilir) - ama YENI mufredat resmen yayinlanip
 // netlesince bu veri GOZDEN GECIRILMELI ve guncellenmelidir.
 const MUFREDAT_DIGER_SINIFLAR = {
+  // 5. sinif: YENI mufredat (Turkiye Yuzyili Maarif Modeli, 2024-25'ten beri).
+  // Kaynak: MEB resmi PDF + Ocak 2026 tarihli guncel haber kaynagi - nispeten
+  // oturmus (2. yilina girdi) ama yine de en dikkatli ele alinmasi gereken sinif.
+  "5::Matematik": ["Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)", "Sayilar ve Nicelikler - Cok Basamakli Sayilar", "Geometrik Nicelikler (Cevre ve Alan)", "Kesirler Ondalik Gosterim ve Yuzdeler", "Istatistiksel Arastirma Sureci", "Islemlerle Cebirsel Dusunme", "Veriden Olasiliga"],
   "6::Matematik": ["Carpanlar ve Katlar", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
   "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
+  "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
   "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Vucudumuzdaki Sistemler", "Kuvvet ve Hareket", "Madde ve Isi", "Ses ve Ozellikleri", "Vucudumuzdaki Sistemler ve Sagligi", "Elektrigin Iletimi", "Uygulamali Bilim"],
   "7::Fen Bilimleri": ["Gunes Sistemi ve Otesi", "Hucre ve Bolunmeler", "Kuvvet ve Enerji", "Saf Madde ve Karisimlar", "Isigin Madde ile Etkilesimi", "Canlilarda Ureme Buyume ve Gelisme", "Elektrik Devreleri", "Uygulamali Bilim"],
   // Turkce 6/7 - Matematik/Fen'in aksine Turkce kazanimlari numarali "unite" degil
   // beceri alani (Dinleme/Konusma/Okuma/Yazma) bazinda yapilandirilmis, bu yuzden asagidaki
   // liste 8. sinifta oldugu gibi standart konu basliklarindan derlenmistir - Matematik/Fen
   // kadar net resmi kaynaktan dogrulanmadi, ORTA guven seviyesi.
+  "5::Turkce": ["Sozcukte ve Cumlede Anlam", "Paragrafta Anlam", "Yazim Kurallari", "Noktalama Isaretleri", "Yazma ve Anlatim"],
   "6::Turkce": ["Sozcukte Anlam", "Isim Tamlamasi", "Sifat Tamlamasi", "Zamirler", "Edat Baglac Unlem", "Cumlede Anlam", "Paragrafta Anlam", "Yazim Kurallari", "Noktalama Isaretleri"],
   "7::Turkce": ["Fiilimsiler", "Cumlenin Ogeleri", "Fiilde Cati", "Anlatim Bozukluklari", "Cumle Turleri", "Paragrafta Anlam", "Soz Sanatlari", "Yazim Kurallari", "Noktalama Isaretleri"],
   // Din Kulturu 6. sinif: sadece 3 unite dogrulanabildi, listenin eksik olma ihtimali var.
