@@ -91,6 +91,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "6::Din Kulturu": ["Peygamber ve Ilahi Kitap Inanci", "Ramazan ve Oruc", "Ahlaki Davranislar"],
   "7::Din Kulturu": ["Melek ve Ahiret Inanci", "Hac ve Kurban", "Ahlaki Davranislar", "Allah'in Kulu ve Elcisi: Hz. Muhammed", "Islam Dusuncesinde Yorumlar"],
   "6::Ingilizce": ["Life", "Yummy Breakfast", "Downtown", "Weather and Emotions", "At the Fair", "Occupations", "Holidays", "Bookworms", "Saving the Planet", "Democracy"],
+  "7::Ingilizce": ["Appearance and Personality", "Sports", "Biographies", "Wild Animals", "Television", "Celebrations", "Dreams", "Public Buildings", "Environment", "Planets"],
 };
 
 // Dersin (ve sinifin) unite listesini dondurur. O sinif icin ozel veri varsa onu,
