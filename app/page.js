@@ -158,6 +158,9 @@ const DOGRULANMIS_ALT_KONULAR = {
   // Din Kulturu ve Ahlak Bilgisi (8. sinif) - MEB resmi ogretim programindan (DKAB.8.x)
   "Din Kulturu::Kader Inanci": ["Kader ve Kaza Inanci", "Ilim-Irade-Sorumluluk Iliskisi", "Kader ile Ilgili Yanlis Anlayislar"],
   "Din Kulturu::Zekat ve Sadaka": ["Zekat Ibadeti", "Sadaka Ibadeti", "Maun Suresi"],
+  "Din Kulturu::Din ve Hayat": ["Din Birey ve Toplum Iliskisi", "Can Nesil Akil Mal Din Emniyeti", "Hz. Yusuf'un Ornek Hayati", "Asr Suresi"],
+  "Din Kulturu::Hz. Muhammed'in Ornekligi": ["Cesaret ve Kararlilik", "Hakki Gozetme", "Insanlara Deger Verme", "Hikmetli Soz ve Davranislar", "Kureys Suresi"],
+  "Din Kulturu::Kur'an-i Kerim'de Sunulan Ornek Sahsiyetler": ["Kur'an'in Temel Kaynaklari", "Kur'an'in Ana Konulari", "Kur'an'in Ozellikleri", "Hz. Nuh'un Tevhide Daveti"],
   // Ingilizce (8. sinif) - MEB resmi ogretim programi HER UNITEYI ayni beceri
   // cercevesiyle yapilandirir: Listening, Speaking, Reading, Writing (dogrulanmis format).
   "Ingilizce::Friendship": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
