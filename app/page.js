@@ -2554,56 +2554,93 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 Cevaplari Gonder
               </button>
             ) : denemeBelgesi ? (
-              <div style={{ borderTop: `2px solid ${COLORS.ink}`, marginTop: 6, paddingTop: 14 }}>
-                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 2, textAlign: "center" }}>📄 SONUC BELGESI</p>
-                {denemeBelgesi.testNo > 1 && (
-                  <p style={{ fontSize: 11.5, color: COLORS.muted, textAlign: "center", marginBottom: 10 }}>
-                    {denemeBelgesi.kayitDersAdi} — {denemeBelgesi.testNo}. Test
-                  </p>
-                )}
-                <div style={{ display: "flex", justifyContent: "space-around", marginBottom: 12, textAlign: "center" }}>
-                  <div><div style={{ fontSize: 20, fontWeight: 700, color: "#3DA35D" }}>{denemeBelgesi.dogru}</div><div style={{ fontSize: 10, color: COLORS.muted }}>DOGRU</div></div>
-                  <div><div style={{ fontSize: 20, fontWeight: 700, color: COLORS.coral }}>{denemeBelgesi.yanlis}</div><div style={{ fontSize: 10, color: COLORS.muted }}>YANLIS</div></div>
-                  <div><div style={{ fontSize: 20, fontWeight: 700, color: COLORS.muted }}>{denemeBelgesi.bos}</div><div style={{ fontSize: 10, color: COLORS.muted }}>BOS</div></div>
-                  <div><div style={{ fontSize: 20, fontWeight: 700, color: COLORS.ink }}>{denemeBelgesi.net.toFixed(2)}</div><div style={{ fontSize: 10, color: COLORS.muted }}>NET</div></div>
-                </div>
-                <div style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10, textAlign: "center" }}>
-                  (Net = Dogru - Yanlis/4, gercek sinav hesaplama yontemi)
-                </div>
-                {denemeBelgesi.oncekiNet != null && (
-                  <p style={{ textAlign: "center", fontSize: 13, fontWeight: 600, marginBottom: 10, color: denemeBelgesi.net > denemeBelgesi.oncekiNet ? "#3DA35D" : denemeBelgesi.net < denemeBelgesi.oncekiNet ? COLORS.coral : COLORS.muted }}>
-                    {denemeBelgesi.net > denemeBelgesi.oncekiNet ? `⬆ Bir onceki sonucuna gore net ${(denemeBelgesi.net - denemeBelgesi.oncekiNet).toFixed(2)} arttin!` :
-                     denemeBelgesi.net < denemeBelgesi.oncekiNet ? `⬇ Bir onceki sonucuna gore net ${(denemeBelgesi.oncekiNet - denemeBelgesi.net).toFixed(2)} azaldi, tekrar calis.` :
-                     "Bir onceki sonucunla ayni nettesin."}
-                  </p>
-                )}
-                <div style={{ borderTop: `1px solid ${COLORS.line}`, paddingTop: 10 }}>
-                  <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>ZORLUGA GORE DAGILIM</p>
-                  {["kolay", "orta", "zor"].map((z) => denemeBelgesi.zorlukKirilim[z]?.toplam > 0 && (
-                    <p key={z} style={{ fontSize: 12, margin: "3px 0" }}>{z}: {denemeBelgesi.zorlukKirilim[z].dogru}/{denemeBelgesi.zorlukKirilim[z].toplam} dogru</p>
-                  ))}
-                </div>
-                {denemeBelgesi.altKonuKirilim && Object.keys(denemeBelgesi.altKonuKirilim).length > 0 && (
-                  <div style={{ borderTop: `1px solid ${COLORS.line}`, paddingTop: 10, marginTop: 10 }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>ALT KONU BAZLI PERFORMANS</p>
-                    {Object.keys(denemeBelgesi.altKonuKirilim).map((ak) => {
-                      const k = denemeBelgesi.altKonuKirilim[ak];
-                      const zayifMi = k.dogru / k.toplam < 0.5;
-                      return (
-                        <p key={ak} style={{ fontSize: 12, margin: "3px 0", color: zayifMi ? COLORS.coral : COLORS.ink }}>
-                          {zayifMi ? "⚠ " : "✓ "}{ak}: {k.dogru}/{k.toplam}
-                        </p>
-                      );
-                    })}
+              <div className="kx-fadein" style={{ marginTop: 16 }}>
+                <div style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                  <div style={{ background: COLORS.gradient, padding: "18px 20px", textAlign: "center" }}>
+                    <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 26, height: 26, borderRadius: 7, marginBottom: 8 }} />
+                    <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.page, margin: 0 }}>📄 Sonuç Belgesi</p>
+                    {denemeBelgesi.testNo > 1 && (
+                      <p style={{ fontSize: 11, color: "#B7C4BC", marginTop: 4 }}>{denemeBelgesi.kayitDersAdi} — {denemeBelgesi.testNo}. Test</p>
+                    )}
                   </div>
-                )}
-                <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
-                  <button onClick={() => {
-                    setZayifDersler((l) => (l.includes(denemeDers) ? l : [...l, denemeDers]));
-                    setOtomatikTespit(true);
-                    setMod("kocluk");
-                  }} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎯 Kocluk Planina Ekle</button>
-                  <button onClick={() => window.print()} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🖨️ PDF / Yazdir</button>
+
+                  <div style={{ padding: "20px 18px" }}>
+                    <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
+                      <div style={{
+                        width: 96, height: 96, borderRadius: 999, border: `6px solid ${denemeBelgesi.net >= (denemeBelgesi.dogru + denemeBelgesi.yanlis + denemeBelgesi.bos) * 0.6 ? "#3DA35D" : denemeBelgesi.net >= (denemeBelgesi.dogru + denemeBelgesi.yanlis + denemeBelgesi.bos) * 0.35 ? COLORS.mustard : COLORS.coral}`,
+                        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff",
+                      }}>
+                        <div style={{ fontSize: 24, fontWeight: 800, color: COLORS.ink, lineHeight: 1 }}>{denemeBelgesi.net.toFixed(2)}</div>
+                        <div style={{ fontSize: 9, color: COLORS.muted, fontWeight: 700, letterSpacing: 0.5 }}>NET</div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", justifyContent: "space-around", marginBottom: 14, textAlign: "center" }}>
+                      <div><div style={{ fontSize: 19, fontWeight: 700, color: "#3DA35D" }}>{denemeBelgesi.dogru}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>DOĞRU</div></div>
+                      <div><div style={{ fontSize: 19, fontWeight: 700, color: COLORS.coral }}>{denemeBelgesi.yanlis}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>YANLIŞ</div></div>
+                      <div><div style={{ fontSize: 19, fontWeight: 700, color: COLORS.muted }}>{denemeBelgesi.bos}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>BOŞ</div></div>
+                    </div>
+                    <p style={{ fontSize: 10.5, color: COLORS.muted, textAlign: "center", marginBottom: 16, fontStyle: "italic" }}>
+                      Net = Doğru − Yanlış/4 (gerçek sınav hesaplama yöntemi)
+                    </p>
+
+                    {denemeBelgesi.oncekiNet != null && (
+                      <div style={{
+                        textAlign: "center", fontSize: 12.5, fontWeight: 700, marginBottom: 16, padding: "9px 12px", borderRadius: 10,
+                        background: denemeBelgesi.net > denemeBelgesi.oncekiNet ? "#EAF7EE" : denemeBelgesi.net < denemeBelgesi.oncekiNet ? "#FFF1EF" : "#FAF6EE",
+                        color: denemeBelgesi.net > denemeBelgesi.oncekiNet ? "#2E7D4F" : denemeBelgesi.net < denemeBelgesi.oncekiNet ? "#B23A2E" : COLORS.muted,
+                      }}>
+                        {denemeBelgesi.net > denemeBelgesi.oncekiNet ? `⬆ Bir önceki sonucuna göre ${(denemeBelgesi.net - denemeBelgesi.oncekiNet).toFixed(2)} net arttın!` :
+                         denemeBelgesi.net < denemeBelgesi.oncekiNet ? `⬇ Bir önceki sonucuna göre ${(denemeBelgesi.oncekiNet - denemeBelgesi.net).toFixed(2)} net azaldı, tekrar çalış.` :
+                         "Bir önceki sonucunla aynı nettesin."}
+                      </div>
+                    )}
+
+                    <div style={{ borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>ZORLUĞA GÖRE DAĞILIM</p>
+                      {["kolay", "orta", "zor"].map((z) => {
+                        const veri = denemeBelgesi.zorlukKirilim[z];
+                        if (!veri || veri.toplam === 0) return null;
+                        const yuzde = Math.round((veri.dogru / veri.toplam) * 100);
+                        return (
+                          <div key={z} style={{ marginBottom: 8 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 3, textTransform: "capitalize" }}>
+                              <span style={{ fontWeight: 600 }}>{z}</span>
+                              <span style={{ color: COLORS.muted }}>{veri.dogru}/{veri.toplam}</span>
+                            </div>
+                            <div style={{ height: 6, borderRadius: 999, background: "#EDE8DC", overflow: "hidden" }}>
+                              <div style={{ height: "100%", width: `${yuzde}%`, borderRadius: 999, background: yuzde >= 60 ? "#3DA35D" : yuzde >= 35 ? COLORS.mustard : COLORS.coral }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {denemeBelgesi.altKonuKirilim && Object.keys(denemeBelgesi.altKonuKirilim).length > 0 && (
+                      <div style={{ borderTop: `1px solid ${COLORS.line}`, paddingTop: 14, marginTop: 14 }}>
+                        <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>ALT KONU BAZLI PERFORMANS</p>
+                        {Object.keys(denemeBelgesi.altKonuKirilim).map((ak) => {
+                          const k = denemeBelgesi.altKonuKirilim[ak];
+                          const zayifMi = k.dogru / k.toplam < 0.5;
+                          return (
+                            <div key={ak} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
+                              <span style={{ color: COLORS.ink }}>{zayifMi ? "⚠️ " : "✅ "}{ak}</span>
+                              <span style={{ fontWeight: 700, color: zayifMi ? COLORS.coral : "#3DA35D" }}>{k.dogru}/{k.toplam}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+                      <button className="kx-btn" onClick={() => {
+                        setZayifDersler((l) => (l.includes(denemeDers) ? l : [...l, denemeDers]));
+                        setOtomatikTespit(true);
+                        setMod("kocluk");
+                      }} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>🎯 Koçluk Planına Ekle</button>
+                      <button className="kx-btn" onClick={() => window.print()} style={{ flex: 1, padding: "10px 0", borderRadius: 10, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>🖨️ PDF / Yazdır</button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ) : null}
