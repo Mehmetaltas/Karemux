@@ -60,6 +60,34 @@ const MUFREDAT = {
   "Ingilizce": ["Friendship", "Teen Life", "In the Kitchen", "On the Phone", "The Internet", "Adventures", "Tourism", "Chores", "Science", "Natural Forces"],
 };
 
+// 5/6/7. sinif icin ayri unite listeleri - MUFREDAT (yukarida) 8. sinif icindir (LGS
+// sinifi - MEB henuz eski mufredati degistirmedi, o veri saglam/guncel).
+//
+// ONEMLI - MUFREDAT GECIS BELIRSIZLIGI (arastirilip dogrulandi, Agustos 2026):
+// MEB "Turkiye Yuzyili Maarif Modeli" adiyla YENI bir mufredati KADEMELI olarak
+// devreye sokuyor: 2024-25'te 5. sinif, 2025-26'da 6. sinif, 2026-27'de (yani TAM
+// SU AN) 7. sinifin gecmesi bekleniyor. Yani:
+//  - 6. sinif ARTIK YENI mufredatta olmali - ama asagidaki veri ESKI (2018, M.6.x)
+//    mufredata dayanmaktadir - konu isimleri/sirasi GUNCEL OLMAYABILIR.
+//  - 7. sinifin yeni mufredati bu yazi itibariyle HENUZ RESMEN NETLESMEMISTIR
+//    (kaynaklar "kesin ayrintilar icin MEB duyurulari takip edilmeli" diyor) -
+//    bu yuzden bilinen en guvenilir veri olarak eski (2018) mufredat kullanildi.
+// Eski mufredat verisi, sinif seviyesine 8. sinif icerigi gostermekten kesinlikle
+// daha dogrudur (konular hala pedagojik olarak gecerli, sadece YENIDEN
+// gruplanmis/yer degistirmis olabilir) - ama YENI mufredat resmen yayinlanip
+// netlesince bu veri GOZDEN GECIRILMELI ve guncellenmelidir.
+const MUFREDAT_DIGER_SINIFLAR = {
+  "6::Matematik": ["Carpanlar ve Katlar", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
+  "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
+};
+
+// Dersin (ve sinifin) unite listesini dondurur. O sinif icin ozel veri varsa onu,
+// yoksa 8. sinifin (MUFREDAT) verisini kullanir - boylece hicbir kombinasyon bos kalmaz.
+function dersinUniteleri(dersAdi, sinifNo) {
+  const anahtarli = MUFREDAT_DIGER_SINIFLAR[`${sinifNo}::${dersAdi}`];
+  return anahtarli || MUFREDAT[dersAdi] || [];
+}
+
 // DOGRULANMIS MEB kazanim verisi (8. sinif Matematik) - resmi ogretim programindan
 // arastirilip alinmistir, AI tarafindan uydurulmamistir. Sadece dogrulanan uniteler
 // burada var; digerleri icin sistem AI'a alt konu onerdirir (ayri, acik etiketle).
@@ -110,8 +138,8 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Ingilizce::Natural Forces": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
 };
 
-function denemeKapsamiHesapla(dersAdi, tur) {
-  const tumUniteler = MUFREDAT[dersAdi] || [];
+function denemeKapsamiHesapla(dersAdi, tur, sinifNo) {
+  const tumUniteler = dersinUniteleri(dersAdi, sinifNo || 8);
   const yari = Math.ceil(tumUniteler.length / 2);
   const donem1 = tumUniteler.slice(0, yari);
   const donem2 = tumUniteler.slice(yari);
@@ -715,7 +743,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }, [dersSeviyeRaporu, kocPaneliDers]);
 
   function oneriliUniteHesapla(dersAdi) {
-    const tumUniteler = MUFREDAT[dersAdi] || [];
+    const tumUniteler = dersinUniteleri(dersAdi, sinif);
     const tamamlanan = tamamlananUniteler[dersAdi] || [];
     return tumUniteler.find((u) => !tamamlanan.includes(u)) || null;
   }
@@ -784,7 +812,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function dersSeviyeTespitiYap(dersAdi) {
     setDersSeviyeYukleniyor(true); setHata(""); setDersSeviyeCevaplar({}); setDersSeviyeGonderildi(false); setDersSeviyeSorulari(null); setDersSeviyeRaporu(null);
     try {
-      const uniteler = MUFREDAT[dersAdi] || [];
+      const uniteler = dersinUniteleri(dersAdi, sinif);
       const uniteListesi = uniteler.length ? `Bu dersin uniteleri: ${uniteler.join(", ")}. Her uniteden en az 1 soru gelsin, tum unitelere yayilsin.` : "";
       const p = `Sen bir "${dersAdi}" dersi olcme-degerlendirme uzmanisin. Bu dersin TAMAMINA yayilan, ogrencinin genel seviyesini olcen 10 soruluk bir SEVIYE BELIRLEME sinavi hazirla, ${sinif}. sinif seviyesinde. ${uniteListesi} Her sorunun hangi uniteden oldugunu "unite" alaninda, hangi alt konuyu olctugunu "altKonu" alaninda belirt. Sorular kolaydan zora dogru sirali olsun, mantik yurutme gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"unite":"...","altKonu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
@@ -836,7 +864,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   function uniteAcikMi(dersAdi, uniteAdi) {
-    const tumUniteler = MUFREDAT[dersAdi] || [];
+    const tumUniteler = dersinUniteleri(dersAdi, sinif);
     const indeks = tumUniteler.indexOf(uniteAdi);
     if (indeks <= 0) return true; // ilk unite her zaman acik
     const tamamlanan = tamamlananUniteler[dersAdi] || [];
@@ -1321,7 +1349,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const ilerlemeOzeti = zayifDersler.map((d) => {
         const tamamlanan = (tamamlananUniteler[d] || []).length;
-        const toplam = (MUFREDAT[d] || []).length;
+        const toplam = dersinUniteleri(d, sinif).length;
         return toplam > 0 ? `${d}: ${tamamlanan}/${toplam} unite tamamlanmis` : null;
       }).filter(Boolean).join(", ");
       const kisiselBaglam = [
@@ -1361,7 +1389,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!denemeDers) return;
     setYukleniyor(sinavTuru); setHata(""); setDenemeCevaplar({}); setDenemeGonderildi(false); setDenemeSorulari(null); setDenemeBelgesi(null);
     try {
-      const tumUniteler = MUFREDAT[denemeDers] || [];
+      const tumUniteler = dersinUniteleri(denemeDers, sinif);
       let kapsamUniteler = tumUniteler;
       let kapsamAciklama = "";
       let kayitTuru = sinavTuru;
@@ -1378,7 +1406,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         kayitTuru = `${sinavTuru}_unite`;
       } else { // donem
         if (sinavTuru === "yazili") {
-          kapsamUniteler = denemeKapsamiHesapla(denemeDers, yaziliDonemNo);
+          kapsamUniteler = denemeKapsamiHesapla(denemeDers, yaziliDonemNo, sinif);
           kayitTuru = yaziliDonemNo;
         } else {
           if (denemeDonemNo === "tam") { kapsamUniteler = tumUniteler; kayitTuru = "deneme_tam"; }
@@ -1880,7 +1908,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             )}
 
             {dersSeviyeRaporu && (() => {
-              const tumUniteler = MUFREDAT[kocPaneliDers] || [];
+              const tumUniteler = dersinUniteleri(kocPaneliDers, sinif);
               const tamamlanan = tamamlananUniteler[kocPaneliDers] || [];
               const onerilenUnite = tumUniteler.find((u) => !tamamlanan.includes(u));
               if (!onerilenUnite) {
@@ -2302,11 +2330,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ))}
               </div>
 
-            {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && MUFREDAT[denemeDers] && (
+            {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && dersinUniteleri(denemeDers, sinif).length > 0 && (
               <div style={{ marginBottom: 10 }}>
                 <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {MUFREDAT[denemeDers].map((u, idx) => {
+                  {dersinUniteleri(denemeDers, sinif).map((u, idx) => {
                     const secili = kapsamUnite === u;
                     return (
                       <button key={u} onClick={() => setKapsamUnite(secili ? null : u)} className="kx-btn" style={{
@@ -2335,9 +2363,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
 
-            {denemeDers && kapsamTuru === "donem" && MUFREDAT[denemeDers] && (
+            {denemeDers && kapsamTuru === "donem" && dersinUniteleri(denemeDers, sinif).length > 0 && (
               <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 10, fontStyle: "italic", lineHeight: 1.5 }}>
-                📋 Kapsam: {denemeKapsamiHesapla(denemeDers, yaziliDonemNo).join(", ")}
+                📋 Kapsam: {denemeKapsamiHesapla(denemeDers, yaziliDonemNo, sinif).join(", ")}
               </p>
             )}
             </div>
@@ -2404,11 +2432,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ))}
               </div>
 
-            {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && MUFREDAT[denemeDers] && (
+            {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && dersinUniteleri(denemeDers, sinif).length > 0 && (
               <div style={{ marginBottom: 10 }}>
                 <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {MUFREDAT[denemeDers].map((u, idx) => {
+                  {dersinUniteleri(denemeDers, sinif).map((u, idx) => {
                     const secili = kapsamUnite === u;
                     return (
                       <button key={u} onClick={() => setKapsamUnite(secili ? null : u)} className="kx-btn" style={{
@@ -2654,7 +2682,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
                     <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Ders Durumlarin</p>
                     {DERSLER.map((d) => {
-                      const tumUnite = (MUFREDAT[d.ad] || []).length;
+                      const tumUnite = dersinUniteleri(d.ad, sinif).length;
                       const tamamlanan = (tamamlananUniteler[d.ad] || []).length;
                       return (
                         <div key={d.ad} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 12.5 }}>
