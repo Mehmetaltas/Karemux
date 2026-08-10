@@ -139,6 +139,14 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Turkce::Cumlenin Ogeleri": ["Ozne", "Yuklem", "Nesne", "Dolayli Tumlec", "Zarf Tumleci"],
   "Turkce::Anlatim Bozukluklari": ["Anlam Yonunden Anlatim Bozukluklari", "Dil Bilgisi Yonunden Anlatim Bozukluklari"],
   "Turkce::Paragrafta Anlam": ["Ana Fikir Belirleme", "Ozetleme", "Baslik Belirleme", "Yardimci Fikir Belirleme"],
+  // Cumle Turleri (T.8.4.19) ve Fiilde Cati (T.8.4.20) resmi kazanimda TEK madde
+  // ("kavramsal tanimlamalara girilmez") - asagidaki kirilim standart pedagojik
+  // siniflandirma, resmi ayri kazanim numarasi degil.
+  "Turkce::Cumle Turleri": ["Yapisina Gore Cumleler", "Anlamina Gore Cumleler", "Yuklemin Turune Gore Cumleler"],
+  "Turkce::Fiilde Cati": ["Ozne-Yuklem Iliskisine Gore Fiil Catisi", "Nesne-Yuklem Iliskisine Gore Fiil Catisi"],
+  "Turkce::Yazim Kurallari": ["Buyuk Harflerin Kullanimi", "Birlesik Kelimelerin Yazimi", "Sayilarin Yazimi", "Kisaltmalarin Yazimi"],
+  "Turkce::Noktalama Isaretleri": ["Nokta ve Virgul", "Soru ve Unlem Isareti", "Tirnak ve Kesme Isareti"],
+  "Turkce::Soz Sanatlari": ["Benzetme", "Kisilestirme", "Abartma", "Konusturma"],
   // T.C. Inkilap Tarihi ve Ataturkculuk (8. sinif) - MEB resmi ogretim programindan (ITA.8.x)
   "T.C. Inkilap Tarihi::Bir Kahraman Doguyor": ["Mustafa Kemal'in Cocuklugu ve Egitimi", "Askeri ve Idari Gorevleri", "I. Dunya Savasi'nda Osmanli Devleti"],
   "T.C. Inkilap Tarihi::Milli Uyanis: Bagimsizlik Yolunda Atilan Adimlar": ["Mondros Ateskes Antlasmasi ve Isgaller", "Kongreler Donemi (Amasya, Erzurum, Sivas)", "Misak-i Milli", "TBMM'nin Acilisi"],
