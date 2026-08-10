@@ -81,6 +81,12 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
   "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Vucudumuzdaki Sistemler", "Kuvvet ve Hareket", "Madde ve Isi", "Ses ve Ozellikleri", "Vucudumuzdaki Sistemler ve Sagligi", "Elektrigin Iletimi", "Uygulamali Bilim"],
   "7::Fen Bilimleri": ["Gunes Sistemi ve Otesi", "Hucre ve Bolunmeler", "Kuvvet ve Enerji", "Saf Madde ve Karisimlar", "Isigin Madde ile Etkilesimi", "Canlilarda Ureme Buyume ve Gelisme", "Elektrik Devreleri", "Uygulamali Bilim"],
+  // Turkce 6/7 - Matematik/Fen'in aksine Turkce kazanimlari numarali "unite" degil
+  // beceri alani (Dinleme/Konusma/Okuma/Yazma) bazinda yapilandirilmis, bu yuzden asagidaki
+  // liste 8. sinifta oldugu gibi standart konu basliklarindan derlenmistir - Matematik/Fen
+  // kadar net resmi kaynaktan dogrulanmadi, ORTA guven seviyesi.
+  "6::Turkce": ["Sozcukte Anlam", "Isim Tamlamasi", "Sifat Tamlamasi", "Zamirler", "Edat Baglac Unlem", "Cumlede Anlam", "Paragrafta Anlam", "Yazim Kurallari", "Noktalama Isaretleri"],
+  "7::Turkce": ["Fiilimsiler", "Cumlenin Ogeleri", "Fiilde Cati", "Anlatim Bozukluklari", "Cumle Turleri", "Paragrafta Anlam", "Soz Sanatlari", "Yazim Kurallari", "Noktalama Isaretleri"],
 };
 
 // Dersin (ve sinifin) unite listesini dondurur. O sinif icin ozel veri varsa onu,
