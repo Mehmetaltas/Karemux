@@ -10,6 +10,13 @@ const DUYURULAR = [
   { ikon: "🎯", baslik: "Kisisel calisma plani", metin: "Zayif olduguen dersler otomatik tespit edilir, haftalik program cikarilir." },
 ];
 
+// Basari/hata gibi anlamsal renkler (dogru/yanlis, trafik isigi mantigi) BILEREK
+// temadan bagimsiz tutulur - yesil her zaman "dogru" anlamina gelmeli, tema
+// degisince degismemeli. Ama kod icinde 18+ yerde ayni hex kodu tekrar tekrar
+// yazmak yerine TEK bir kaynaktan yonetiliyor - tutarlilik ve bakim kolayligi icin.
+const RENK_BASARI = "#3DA35D";
+const RENK_BASARI_ACIK = "#EAF7EE";
+
 const TEMALAR = {
   minimal: {
     isim: "Minimal", ikon: "⚪",
@@ -1918,7 +1925,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 )}
                 {Object.keys(dersSeviyeRaporu).map((u) => {
                   const r = dersSeviyeRaporu[u];
-                  const renk = r.seviye === "Ileri" ? "#3DA35D" : r.seviye === "Orta" ? "#B8860B" : COLORS.coral;
+                  const renk = r.seviye === "Ileri" ? RENK_BASARI : r.seviye === "Orta" ? "#B8860B" : COLORS.coral;
                   return (
                     <div key={u} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${COLORS.line}` }}>
                       <span style={{ fontSize: 13 }}>{u}{r.degerlendirmeSayisi > 1 && <span style={{ fontSize: 10, color: COLORS.muted }}> ({r.degerlendirmeSayisi} degerlendirme ort.)</span>}</span>
@@ -2003,7 +2010,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                           <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
                             display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
                             cursor: gonderildi ? "default" : "pointer",
-                            border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
+                            border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
                             background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
                           }}>{sec}</button>
                         );
@@ -2098,7 +2105,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                               <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
                                 display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
                                 cursor: gonderildi ? "default" : "pointer",
-                                border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
+                                border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
                                 background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
                               }}>{sec}</button>
                             );
@@ -2114,7 +2121,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
                           Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
                           {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length / quiz.length >= 0.7 && (
-                            <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>🎉 Basarili! Bu unite ilerlemene eklendi.</p>
+                            <p style={{ fontSize: 12, color: RENK_BASARI, marginTop: 6, fontWeight: 600 }}>🎉 Basarili! Bu unite ilerlemene eklendi.</p>
                           )}
                         </div>
                       )}
@@ -2146,7 +2153,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       Uc tur tekrar denemesine ragmen zorlaniyorsun - bu normal, bazen birebir destek gerekir.
                     </p>
                     {randevuGonderildi[secilenDers] ? (
-                      <p style={{ fontSize: 13, fontWeight: 600, color: "#3DA35D" }}>✓ Talebin alindi, tercih ettigin zamana yakin bir egitmen seninle iletisime gececek.</p>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: RENK_BASARI }}>✓ Talebin alindi, tercih ettigin zamana yakin bir egitmen seninle iletisime gececek.</p>
                     ) : (
                       <>
                         <p style={{ fontSize: 11.5, color: "#6B7566", marginBottom: 10, fontStyle: "italic" }}>
@@ -2225,7 +2232,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                               <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{
                                 display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
                                 cursor: gonderildi ? "default" : "pointer",
-                                border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
+                                border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
                                 background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
                               }}>{sec}</button>
                             );
@@ -2250,7 +2257,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       ) : (
                         <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
                           Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
-                          <p style={{ fontSize: 12, color: "#3DA35D", marginTop: 6, fontWeight: 600 }}>✓ Kaydedildi ({durum.testSayisi + 1}/3, {durum.tur}. tur)</p>
+                          <p style={{ fontSize: 12, color: RENK_BASARI, marginTop: 6, fontWeight: 600 }}>✓ Kaydedildi ({durum.testSayisi + 1}/3, {durum.tur}. tur)</p>
                         </div>
                       )}
                     </div>
@@ -2302,7 +2309,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 10 }}>Seviye Raporun</p>
                 {Object.keys(seviyeRaporu).map((d) => {
                   const r = seviyeRaporu[d];
-                  const renk = r.seviye === "Ileri" ? "#3DA35D" : r.seviye === "Orta" ? "#B8860B" : COLORS.coral;
+                  const renk = r.seviye === "Ileri" ? RENK_BASARI : r.seviye === "Orta" ? "#B8860B" : COLORS.coral;
                   return (
                     <div key={d} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${COLORS.line}` }}>
                       <span style={{ fontSize: 13 }}>{d}</span>
@@ -2527,7 +2534,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <span style={{
                       marginLeft: 6, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999,
                       background: s.zorluk === "kolay" ? "#EAF7EE" : s.zorluk === "orta" ? "#FFF8E8" : "#FFF1EF",
-                      color: s.zorluk === "kolay" ? "#3DA35D" : s.zorluk === "orta" ? "#B8860B" : COLORS.coral,
+                      color: s.zorluk === "kolay" ? RENK_BASARI : s.zorluk === "orta" ? "#B8860B" : COLORS.coral,
                     }}>{s.zorluk}</span>
                   )}
                 </div>
@@ -2539,7 +2546,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <button key={j} onClick={() => !denemeGonderildi && setDenemeCevaplar((c) => ({ ...c, [i]: j }))} style={{
                       display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13,
                       cursor: denemeGonderildi ? "default" : "pointer",
-                      border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
+                      border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
                       background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff",
                     }}>{sec}</button>
                   );
@@ -2567,7 +2574,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ padding: "20px 18px" }}>
                     <div style={{ display: "flex", justifyContent: "center", marginBottom: 18 }}>
                       <div style={{
-                        width: 96, height: 96, borderRadius: 999, border: `6px solid ${denemeBelgesi.net >= (denemeBelgesi.dogru + denemeBelgesi.yanlis + denemeBelgesi.bos) * 0.6 ? "#3DA35D" : denemeBelgesi.net >= (denemeBelgesi.dogru + denemeBelgesi.yanlis + denemeBelgesi.bos) * 0.35 ? COLORS.mustard : COLORS.coral}`,
+                        width: 96, height: 96, borderRadius: 999, border: `6px solid ${denemeBelgesi.net >= (denemeBelgesi.dogru + denemeBelgesi.yanlis + denemeBelgesi.bos) * 0.6 ? RENK_BASARI : denemeBelgesi.net >= (denemeBelgesi.dogru + denemeBelgesi.yanlis + denemeBelgesi.bos) * 0.35 ? COLORS.mustard : COLORS.coral}`,
                         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#fff",
                       }}>
                         <div style={{ fontSize: 24, fontWeight: 800, color: COLORS.ink, lineHeight: 1 }}>{denemeBelgesi.net.toFixed(2)}</div>
@@ -2576,7 +2583,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "space-around", marginBottom: 14, textAlign: "center" }}>
-                      <div><div style={{ fontSize: 19, fontWeight: 700, color: "#3DA35D" }}>{denemeBelgesi.dogru}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>DOĞRU</div></div>
+                      <div><div style={{ fontSize: 19, fontWeight: 700, color: RENK_BASARI }}>{denemeBelgesi.dogru}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>DOĞRU</div></div>
                       <div><div style={{ fontSize: 19, fontWeight: 700, color: COLORS.coral }}>{denemeBelgesi.yanlis}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>YANLIŞ</div></div>
                       <div><div style={{ fontSize: 19, fontWeight: 700, color: COLORS.muted }}>{denemeBelgesi.bos}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>BOŞ</div></div>
                     </div>
@@ -2609,7 +2616,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                               <span style={{ color: COLORS.muted }}>{veri.dogru}/{veri.toplam}</span>
                             </div>
                             <div style={{ height: 6, borderRadius: 999, background: "#EDE8DC", overflow: "hidden" }}>
-                              <div style={{ height: "100%", width: `${yuzde}%`, borderRadius: 999, background: yuzde >= 60 ? "#3DA35D" : yuzde >= 35 ? COLORS.mustard : COLORS.coral }} />
+                              <div style={{ height: "100%", width: `${yuzde}%`, borderRadius: 999, background: yuzde >= 60 ? RENK_BASARI : yuzde >= 35 ? COLORS.mustard : COLORS.coral }} />
                             </div>
                           </div>
                         );
@@ -2625,7 +2632,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                           return (
                             <div key={ak} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
                               <span style={{ color: COLORS.ink }}>{zayifMi ? "⚠️ " : "✅ "}{ak}</span>
-                              <span style={{ fontWeight: 700, color: zayifMi ? COLORS.coral : "#3DA35D" }}>{k.dogru}/{k.toplam}</span>
+                              <span style={{ fontWeight: 700, color: zayifMi ? COLORS.coral : RENK_BASARI }}>{k.dogru}/{k.toplam}</span>
                             </div>
                           );
                         })}
@@ -2691,7 +2698,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <p style={{ margin: 0, color: COLORS.muted }}>🎓 Sinif: {hesap.sinif || "Belirtilmedi"}</p>
                       <p style={{ margin: 0, color: COLORS.muted }}>🏫 Okul: {hesap.okul || "Belirtilmedi"}</p>
                       <p style={{ margin: 0, color: COLORS.muted }}>📞 Telefon: {hesap.telefon || "Belirtilmedi"}</p>
-                      <p style={{ margin: 0, color: aktifAbonelik ? "#3DA35D" : COLORS.muted }}>
+                      <p style={{ margin: 0, color: aktifAbonelik ? RENK_BASARI : COLORS.muted }}>
                         {aktifAbonelik ? `✓ Premium aktif (${aktifAbonelik.plan})` : "○ Premium yok"}
                       </p>
                     </div>
@@ -2755,7 +2762,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       return (
                         <div key={d.ad} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 12.5 }}>
                           <span>{d.emoji} {d.ad}</span>
-                          <span style={{ color: tamamlanan > 0 ? "#3DA35D" : COLORS.muted, fontWeight: 600 }}>
+                          <span style={{ color: tamamlanan > 0 ? RENK_BASARI : COLORS.muted, fontWeight: 600 }}>
                             {tumUnite > 0 ? `${tamamlanan}/${tumUnite} unite tamamlandi` : "veri yok"}
                           </span>
                         </div>
@@ -3186,12 +3193,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>
                       {i + 1}. {s.soru}
                       {s.zorluk && (
-                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: s.zorluk === "kolay" ? "#EAF7EE" : s.zorluk === "orta" ? "#FFF8E8" : "#FFF1EF", color: s.zorluk === "kolay" ? "#3DA35D" : s.zorluk === "orta" ? "#B8860B" : COLORS.coral }}>{s.zorluk}</span>
+                        <span style={{ marginLeft: 6, fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 999, background: s.zorluk === "kolay" ? "#EAF7EE" : s.zorluk === "orta" ? "#FFF8E8" : "#FFF1EF", color: s.zorluk === "kolay" ? RENK_BASARI : s.zorluk === "orta" ? "#B8860B" : COLORS.coral }}>{s.zorluk}</span>
                       )}
                     </div>
                     {(s.secenekler || []).map((sec, j) => {
                       const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
-                      return <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: gonderildi ? "default" : "pointer", border: `1.5px solid ${dogru ? "#3DA35D" : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`, background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff" }}>{sec}</button>;
+                      return <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: gonderildi ? "default" : "pointer", border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`, background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff" }}>{sec}</button>;
                     })}
                   </div>
                 ))}
