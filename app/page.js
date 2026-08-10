@@ -79,6 +79,8 @@ const MUFREDAT = {
 const MUFREDAT_DIGER_SINIFLAR = {
   "6::Matematik": ["Carpanlar ve Katlar", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
   "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
+  "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Vucudumuzdaki Sistemler", "Kuvvet ve Hareket", "Madde ve Isi", "Ses ve Ozellikleri", "Vucudumuzdaki Sistemler ve Sagligi", "Elektrigin Iletimi", "Uygulamali Bilim"],
+  "7::Fen Bilimleri": ["Gunes Sistemi ve Otesi", "Hucre ve Bolunmeler", "Kuvvet ve Enerji", "Saf Madde ve Karisimlar", "Isigin Madde ile Etkilesimi", "Canlilarda Ureme Buyume ve Gelisme", "Elektrik Devreleri", "Uygulamali Bilim"],
 };
 
 // Dersin (ve sinifin) unite listesini dondurur. O sinif icin ozel veri varsa onu,
