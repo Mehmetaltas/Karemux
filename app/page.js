@@ -373,6 +373,11 @@ export default function Ana() {
   const [secilenDers, setSecilenDers] = useState(null);
   const secilenDersRef = useRef(null);
   useEffect(() => { secilenDersRef.current = secilenDers; }, [secilenDers]);
+  // Yazili/Deneme'de bir unite secilince, o unitenin (dogrulanmis veya AI onerili) alt
+  // basliklarini onceden getirir - kullanici hemen tik isaretleyebilsin diye.
+  useEffect(() => {
+    if (kapsamUnite && denemeDers) { altKonulariGetir(denemeDers, kapsamUnite); setKapsamAltBasliklar([]); }
+  }, [kapsamUnite, denemeDers]);
   const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
   const [kocPaneliDers, setKocPaneliDers] = useState(null);
 
@@ -1030,6 +1035,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [kapsamTuru, setKapsamTuru] = useState("donem"); // "konu" | "unite" | "donem"
   const [kapsamUnite, setKapsamUnite] = useState(null);
   const [kapsamKonu, setKapsamKonu] = useState("");
+  const [kapsamAltBasliklar, setKapsamAltBasliklar] = useState([]);
   const [sinavSoruSayisi, setSinavSoruSayisi] = useState(10);
   const [yaziliDonemNo, setYaziliDonemNo] = useState("yazili1"); // "yazili1" | "yazili2" | "yazili3"
   const [denemeDonemNo, setDenemeDonemNo] = useState("tam"); // "1" | "2" | "tam"
@@ -1529,9 +1535,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
       if (kapsamTuru === "konu") {
         kapsamUniteler = kapsamUnite ? [kapsamUnite] : [];
-        kapsamAciklama = kapsamKonu.trim()
-          ? `SADECE "${kapsamUnite}" unitesindeki "${kapsamKonu.trim()}" konusundan sorular hazirla.`
-          : `SADECE "${kapsamUnite || "(ders geneli)"}" unitesinden sorular hazirla.`;
+        if (kapsamAltBasliklar.length > 0) {
+          kapsamAciklama = `SADECE "${kapsamUnite}" unitesinin su alt basliklarindan sorular hazirla: ${kapsamAltBasliklar.join(", ")}. Baska alt basliklardan soru sorma.`;
+        } else {
+          kapsamAciklama = kapsamKonu.trim()
+            ? `SADECE "${kapsamUnite}" unitesindeki "${kapsamKonu.trim()}" konusundan sorular hazirla.`
+            : `SADECE "${kapsamUnite || "(ders geneli)"}" unitesinden sorular hazirla.`;
+        }
         kayitTuru = `${sinavTuru}_konu`;
       } else if (kapsamTuru === "unite") {
         kapsamUniteler = kapsamUnite ? [kapsamUnite] : [];
@@ -2503,9 +2513,40 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
               </div>
             )}
-            {kapsamTuru === "konu" && (
-              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu (isteğe bağlı, spesifik bir başlık yaz)" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
-            )}
+            {kapsamTuru === "konu" && kapsamUnite && (() => {
+              const anahtar = altKonuAnahtari(denemeDers, kapsamUnite);
+              const altBasliklar = altKonuCache[anahtar] || [];
+              if (altBasliklar.length === 0) {
+                return (
+                  <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder={altKonuYukleniyor ? "Alt başlıklar hazırlanıyor..." : "Alt konu (isteğe bağlı, spesifik bir başlık yaz)"} style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
+                );
+              }
+              return (
+                <div style={{ marginBottom: 4 }}>
+                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>
+                    ALT BAŞLIK SEÇ (isteğe bağlı, hiç seçmezsen ünitenin tamamı kullanılır)
+                  </label>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {altBasliklar.map((ab) => {
+                      const secili = kapsamAltBasliklar.includes(ab);
+                      return (
+                        <button key={ab} onClick={() => setKapsamAltBasliklar((eski) => secili ? eski.filter((x) => x !== ab) : [...eski, ab])}
+                          className="kx-btn" style={{
+                            display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                            border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`, background: secili ? "#FEF8E8" : "#FAF6EE",
+                          }}>
+                          <span style={{
+                            width: 18, height: 18, borderRadius: 5, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: 11, fontWeight: 700, background: secili ? COLORS.mustard : "#fff", color: secili ? "#fff" : "transparent", border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`,
+                          }}>✓</span>
+                          <span style={{ fontSize: 12, fontWeight: secili ? 700 : 500, color: COLORS.ink }}>{ab}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
             {kapsamTuru === "donem" && (
               <div style={{ display: "flex", gap: 6 }}>
                 {[["yazili1", "1. Yazılı"], ["yazili2", "2. Yazılı"], ["yazili3", "3. Yazılı"]].map(([k, etiket]) => (
