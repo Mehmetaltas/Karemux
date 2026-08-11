@@ -1413,9 +1413,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (formulKartCache[anahtar]) return;
     setFormulKartYukleniyor(true);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. "${uniteAdi}" unitesinin TUM onemli formullerini, kurallarini ve "sinavda dikkat" noktalarini, ${sinif}. sinif seviyesinde, KISA VE YOGUN bir "hizli bakis karti" formatinda listele. Her madde tek satir, mumkun oldugunca kisa olsun (formul + 3-6 kelimelik aciklama). Uzun cumle kurma, sadece ozet madde madde yaz. 8-12 madde olsun. SADECE Turkce yaz, markdown kullanma (yildiz vb.), her maddeyi yeni satirda '•' ile basla.`;
-      const cevap = await aiIstek(p, 1200, cihazIdRef.current);
-      const temiz = cevap.replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. "${uniteAdi}" unitesinin EN ONEMLI 8-10 formulunu/kuralini/sinavda-dikkat noktasini, ${sinif}. sinif seviyesinde, COK KISA bir "hizli bakis karti" formatinda listele. HER MADDE TEK SATIR ve EN FAZLA 12 KELIME olsun (formul + 2-4 kelimelik aciklama) - uzun cumle YASAK. SADECE Turkce yaz, markdown kullanma (yildiz vb.), her maddeyi yeni satirda '•' ile basla. Son maddeyi MUTLAKA tamamla, yarim birakma.`;
+      const cevap = await aiIstek(p, 1800, cihazIdRef.current);
+      const temiz = cevap.replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "")
+        .split("\n").filter((satir) => satir.trim().length > 3).join("\n"); // yarim kalmis (sadece "•" gibi) satirlari at
       setFormulKartCache((eski) => ({ ...eski, [anahtar]: temiz }));
     } catch (e) {
       setFormulKartCache((eski) => ({ ...eski, [anahtar]: "Kart hazırlanamadı, tekrar dene." }));
@@ -3575,12 +3576,36 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
 
-            {soruCozumu && (
-              <div style={{ background: COLORS.page, borderRadius: 14, padding: 18, border: `1px solid ${COLORS.line}` }}>
-                <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 8 }}>✅ ÇÖZÜM</p>
-                <div style={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.7 }}>{soruCozumu}</div>
-              </div>
-            )}
+            {soruCozumu && (() => {
+              // "CEVAP: X" satirini metnin geri kalanindan ayirip, cevabi one cikan bir rozet olarak gosteriyoruz.
+              const satirlar = soruCozumu.split("\n").map((s) => s.trim()).filter(Boolean);
+              const cevapSatiriIndex = satirlar.findIndex((s) => /^CEVAP\s*:/i.test(s));
+              const cevapMetni = cevapSatiriIndex !== -1 ? satirlar[cevapSatiriIndex].replace(/^CEVAP\s*:\s*/i, "") : null;
+              const adimSatirlari = cevapSatiriIndex !== -1 ? satirlar.slice(0, cevapSatiriIndex) : satirlar;
+              return (
+                <div className="kx-fadein" style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                  <div style={{ background: COLORS.gradient, padding: "16px 20px", display: "flex", alignItems: "center", gap: 10 }}>
+                    <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0 }} />
+                    <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.page, margin: 0 }}>Karemux Çözüm</p>
+                  </div>
+                  <div style={{ padding: "20px 20px 8px" }}>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 12 }}>ADIM ADIM ÇÖZÜM</p>
+                    {adimSatirlari.map((satir, i) => (
+                      <div key={i} style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+                        <span style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>{i + 1}</span>
+                        <p style={{ fontSize: 13.5, lineHeight: 1.7, color: "#2A2A2A", margin: 0, fontFamily: "Georgia, 'Times New Roman', serif" }}>{satir.replace(/^Adım\s*\d+\s*[:.]\s*/i, "")}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {cevapMetni && (
+                    <div style={{ margin: "8px 20px 20px", background: RENK_BASARI_ACIK, border: `1.5px solid ${RENK_BASARI}`, borderRadius: 12, padding: "14px 16px", textAlign: "center" }}>
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: "#2E7D4F", letterSpacing: 0.5, marginBottom: 4 }}>SONUÇ</p>
+                      <p style={{ fontSize: 18, fontWeight: 800, color: "#1B2430" }}>{cevapMetni}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         )}
 
