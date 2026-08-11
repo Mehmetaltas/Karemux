@@ -99,7 +99,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // Kaynak: MEB resmi PDF + Ocak 2026 tarihli guncel haber kaynagi - nispeten
   // oturmus (2. yilina girdi) ama yine de en dikkatli ele alinmasi gereken sinif.
   "5::Matematik": ["Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)", "Sayilar ve Nicelikler - Cok Basamakli Sayilar", "Geometrik Nicelikler (Cevre ve Alan)", "Kesirler Ondalik Gosterim ve Yuzdeler", "Istatistiksel Arastirma Sureci", "Islemlerle Cebirsel Dusunme", "Veriden Olasiliga"],
-  "6::Matematik": ["Carpanlar ve Katlar", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
+  "6::Matematik": ["Dogal Sayilarla Islemler", "Carpanlar ve Katlar", "Kumeler", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
   "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
   "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Vucudumuzdaki Sistemler", "Kuvvet ve Hareket", "Madde ve Isi", "Ses ve Ozellikleri", "Vucudumuzdaki Sistemler ve Sagligi", "Elektrigin Iletimi", "Uygulamali Bilim"],
@@ -143,6 +143,22 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Eslik ve Benzerlik": ["Es ve Benzer Sekiller", "Kenar ve Aci Iliskileri"],
   "Matematik::Donusum Geometrisi": ["Oteleme", "Yansima", "Cokgenlerin Oteleme ve Yansima Goruntusu"],
   "Matematik::Geometrik Cisimler": ["Dik Prizmalar", "Dik Dairesel Silindir", "Silindirin Yuzey Alani ve Hacmi", "Dik Piramit", "Dik Koni"],
+
+  // ==== 6. SINIF MATEMATIK (resmi MEB kazanimlarindan - M.6.x.x) ====
+  "Matematik::Dogal Sayilarla Islemler::6": ["Uslu Ifade Olarak Yazma", "Islem Onceligi", "Ortak Carpan Parantezine Alma", "Dagilma Ozelligi"],
+  "Matematik::Carpanlar ve Katlar::6": ["Dogal Sayilarin Carpanlari ve Katlari", "Bolunebilme Kurallari (2 3 4 5 6 9 10)", "Asal Sayilar", "Asal Carpanlara Ayirma", "Ortak Bolen ve Ortak Kat (EBOB-EKOK)"],
+  "Matematik::Kumeler::6": ["Kume Kavrami", "Kumelerin Gosterimi", "Eleman Sayisi"],
+  "Matematik::Tam Sayilar::6": ["Tam Sayilari Tanima ve Sayi Dogrusu", "Tam Sayilari Karsilastirma ve Siralama", "Mutlak Deger"],
+  "Matematik::Kesirlerle Islemler::6": ["Kesirleri Karsilastirma ve Siralama", "Kesirlerde Toplama ve Cikarma", "Kesirlerde Carpma", "Kesirlerde Bolme"],
+  "Matematik::Ondalik Gosterim::6": ["Bolme Islemi ile Kesir Iliskisi", "Ondalik Gosterimi Cozumleme", "Ondalik Gosterimlerde Islemler"],
+  "Matematik::Oran::6": ["Oran Kavrami", "Oranti", "Orantiyla Ilgili Problemler"],
+  "Matematik::Cebirsel Ifadeler::6": ["Degisken Kavrami", "Cebirsel Ifade Olusturma", "Cebirsel Ifadelerde Islemler"],
+  "Matematik::Veri Toplama ve Degerlendirme::6": ["Veri Toplama Yontemleri", "Siklik Tablosu", "Sutun Grafigi"],
+  "Matematik::Merkezi Egilim ve Yayilim Olculeri::6": ["Aritmetik Ortalama", "Ortanca (Medyan)", "Tepe Deger (Mod)"],
+  "Matematik::Acilar::6": ["Aci Cesitleri", "Tumler ve Butunler Acilar", "Aci Olcme"],
+  "Matematik::Cember::6": ["Cember ve Daire Kavrami", "Cemberde Cap ve Yaricap", "Cember Uzunlugu"],
+  "Matematik::Alan Olcme::6": ["Dikdortgenin Alani", "Paralelkenarin Alani", "Ucgenin Alani"],
+  "Matematik::Geometrik Cisimler ve Sivi Olcme::6": ["Dikdortgenler Prizmasi", "Prizmanin Yuzey Alani", "Sivi Olcme Birimleri"],
   // Fen Bilimleri (8. sinif) - MEB resmi ogretim programi kazanimlarindan (F.8.1 - F.8.7)
   "Fen Bilimleri::Mevsimler ve Iklim": ["Mevsimlerin Olusumu", "Iklim ve Hava Hareketleri"],
   "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon"],
@@ -928,14 +944,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     return tamamlanan.includes(tumUniteler[indeks - 1]); // bir onceki unite tamamlanmis mi
   }
 
-  function altKonuAnahtari(dersAdi, uniteAdi) { return `${dersAdi}::${uniteAdi}`; }
+  // Sinif bilgisini de anahtara katiyoruz ki 6./7./8. sinifta ayni isimli bir unite
+  // olursa (orn. "Carpanlar ve Katlar") birbirinin alt konu verisini kullanmasin.
+  function altKonuAnahtari(dersAdi, uniteAdi, sinifNo) { return `${dersAdi}::${uniteAdi}::${sinifNo || sinif}`; }
+  // Eski (sinifsiz) format - TUM mevcut 8. sinif DOGRULANMIS_ALT_KONULAR kayitlari bu
+  // formatta yazildi, geriye donuk uyumluluk icin fallback olarak kullanilir.
+  function altKonuAnahtariEski(dersAdi, uniteAdi) { return `${dersAdi}::${uniteAdi}`; }
 
   async function altKonulariGetir(dersAdi, uniteAdi) {
     const anahtar = altKonuAnahtari(dersAdi, uniteAdi);
+    const eskiAnahtar = altKonuAnahtariEski(dersAdi, uniteAdi);
     if (altKonuCache[anahtar]) return; // zaten var, tekrar uretme
     if (DOGRULANMIS_ALT_KONULAR[anahtar]) {
-      // Gercek MEB kazanimi var, AI'a sormaya gerek yok
+      // Bu sinifa OZEL dogrulanmis veri var
       setAltKonuCache((eski) => ({ ...eski, [anahtar]: DOGRULANMIS_ALT_KONULAR[anahtar] }));
+      return;
+    }
+    if (sinif === 8 && DOGRULANMIS_ALT_KONULAR[eskiAnahtar]) {
+      // 8. sinif icin eski (sinifsiz) formatta yazilmis dogrulanmis veri var
+      setAltKonuCache((eski) => ({ ...eski, [anahtar]: DOGRULANMIS_ALT_KONULAR[eskiAnahtar] }));
       return;
     }
     setAltKonuYukleniyor(true);
@@ -3190,7 +3217,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${COLORS.line}` }}>
                       <label style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>
                         ALT KONULAR {altKonuYukleniyor && "(hazirlaniyor…)"} <em style={{ fontWeight: 400 }}>
-                          {DOGRULANMIS_ALT_KONULAR[altKonuAnahtari(ders, uniteSec)] ? "(MEB kazanimi - dogrulanmis)" : "(AI onerisi, resmi liste degil)"}
+                          {(DOGRULANMIS_ALT_KONULAR[altKonuAnahtari(ders, uniteSec)] || DOGRULANMIS_ALT_KONULAR[altKonuAnahtariEski(ders, uniteSec)]) ? "(MEB kazanimi - dogrulanmis)" : "(AI onerisi, resmi liste degil)"}
                         </em>
                       </label>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
