@@ -2113,6 +2113,29 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {mod === "bos" && !secilenDers && (
           <div className="kx-fadein" style={{ marginBottom: 16 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>SENİN İÇİN HAZIRLADIKLARIMIZ</p>
+            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+              {[
+                { mod: "paragrafstudyo", ikon: "📝", baslik: "Paragraf Stüdyosu", alt: "LGS'nin en çok soru çıkan alanı", bg: "linear-gradient(135deg,#8B5A2B,#C9A227)", cta: "8 türde pratik →" },
+                { mod: "puanhesap", ikon: "🧮", baslik: "Puan Hesaplayıcı", alt: "Kaç net yapman gerekiyor, hemen gör", bg: "linear-gradient(135deg,#0B3D5C,#144E75)", cta: "Hesapla →" },
+                { mod: "hedefokul", ikon: "🏫", baslik: "Hedef Okulum", alt: "Hayalindeki okulu belirle, ona çalış", bg: "linear-gradient(135deg,#1F3D2E,#2E5940)", cta: "Hedef koy →" },
+                { mod: "zayifharita", ikon: "🗺️", baslik: "Zayıf Konu Haritası", alt: "Nerede eksiğin var, tek bakışta gör", bg: "linear-gradient(135deg,#7A2E2E,#B23A2E)", cta: "Haritanı gör →" },
+                { mod: "formulkart", ikon: "📐", baslik: "Formül Kartları", alt: "Sınav öncesi son dakika tekrarı", bg: "linear-gradient(135deg,#3D2B6B,#5B3F94)", cta: "Karta bak →" },
+              ].map((k) => (
+                <button key={k.mod} onClick={() => { setSecilenDers(null); setMod(k.mod); }} className="kx-btn"
+                  style={{ flex: "0 0 auto", width: 168, scrollSnapAlign: "start", background: k.bg, borderRadius: 16, padding: "16px 14px", textAlign: "left", border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,0.18)" }}>
+                  <div className="kx-float" style={{ fontSize: 26, marginBottom: 8 }}>{k.ikon}</div>
+                  <p style={{ color: "#fff", fontWeight: 800, fontSize: 13, marginBottom: 4, lineHeight: 1.25 }}>{k.baslik}</p>
+                  <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 10.5, lineHeight: 1.4, marginBottom: 10, minHeight: 28 }}>{k.alt}</p>
+                  <p style={{ color: "#fff", fontWeight: 700, fontSize: 11 }}>{k.cta}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {mod === "bos" && !secilenDers && (
+          <div className="kx-fadein" style={{ marginBottom: 16 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>DERSINI SEC</p>
             <div className="kx-pop" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
               {gorunurDersler(sinif).map((d) => (
