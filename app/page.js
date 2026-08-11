@@ -1351,6 +1351,45 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  const PARAGRAF_TURLERI = [
+    { ad: "Ana Fikir Bulma", aciklama: "Paragrafın temel mesajını yakala" },
+    { ad: "Yardımcı Fikir Bulma", aciklama: "Ana fikri destekleyen düşünceler" },
+    { ad: "Başlık Bulma", aciklama: "Paragrafa en uygun başlığı seç" },
+    { ad: "Paragraf Tamamlama", aciklama: "Akışa uygun cümleyi bul" },
+    { ad: "Paragrafı İkiye Bölme", aciklama: "Konu değişim noktasını yakala" },
+    { ad: "Düşünceyi Geliştirme Yolları", aciklama: "Tanımlama, örnekleme, tanık gösterme" },
+    { ad: "Anlatım Biçimleri", aciklama: "Öznel-nesnel anlatım ayrımı" },
+    { ad: "Grafik ve Tablo Yorumlama", aciklama: "Görsel veri okuma becerisi" },
+  ];
+  const [paragrafTuru, setParagrafTuru] = useState(null);
+  const [paragrafZorluk, setParagrafZorluk] = useState("orta");
+  const [paragrafSoru, setParagrafSoru] = useState(null);
+  const [paragrafYukleniyor, setParagrafYukleniyor] = useState(false);
+  const [paragrafCevap, setParagrafCevap] = useState(null);
+  const [paragrafGonderildi, setParagrafGonderildi] = useState(false);
+
+  async function paragrafSorusuUret() {
+    setParagrafYukleniyor(true); setHata(""); setParagrafSoru(null); setParagrafCevap(null); setParagrafGonderildi(false);
+    try {
+      const zorlukMetni = { kolay: "kisa ve net, temel seviyede", orta: "orta uzunlukta, LGS standart zorlukta", zor: "uzun, cok katmanli, ust duzey dusunme gerektiren (LGS'nin en zor sorulari tarzinda)" }[paragrafZorluk];
+      const p = `Sen bir Turkce ogretmenisin ve LGS paragraf sorulari konusunda uzmansin. ${sinif}. sinif seviyesinde, "${paragrafTuru}" turunde, ${zorlukMetni} BIR paragraf sorusu hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} Paragraf gercek bir LGS paragrafi kalitesinde olsun - 100-180 kelime arasi, akici, gercek bir konu (bilim, sanat, tarih, gunluk hayat, cevre vb.) hakkinda olsun, yapay/bosluk doldurma hissi vermesin. Celdiriciler ozellikle bu paragraf turune ozgu tipik hatalari yansitsin (orn. Ana Fikir sorusunda "dogru ama paragrafin butununu kapsamayan" bir secenegi celdirici olarak kullan). SADECE JSON dondur, markdown kullanma:
+{"paragraf":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}`;
+      const cevap = await aiIstek(p, 1800, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("{");
+      const bitis = temiz.lastIndexOf("}");
+      if (baslangic === -1 || bitis === -1) throw new Error("Paragraf sorusu olusturulamadi, tekrar dene");
+      const veri = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      if (!veri.paragraf || !veri.soru || !Array.isArray(veri.secenekler)) throw new Error("Paragraf sorusu olusturulamadi, tekrar dene");
+      setParagrafSoru(veri);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Paragraf sorusu olusturulamadi, tekrar dene."));
+    } finally {
+      setParagrafYukleniyor(false);
+    }
+  }
+
+
 
   async function zayifHaritayiGetir() {
     setZayifHaritaYukleniyor(true);
@@ -2165,6 +2204,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["zayifharita", "🗺️ Zayif Konu Haritasi"],
                 ["sinavkaygisi", "🧘 Sinav Kaygisi Destegi"],
                 ["hedefokul", "🏫 Hedef Okulum"],
+                ["paragrafstudyo", "📝 Paragraf Studyosu"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3614,6 +3654,76 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 💡 Eğer kaygın günlük hayatını ciddi şekilde etkiliyorsa (uyku, iştah, sürekli endişe), bunu bir yetişkinle (ailen, okul rehberlik servisi) konuşmak en doğrusu — bu tamamen normal ve yardım istemek güçlü bir adımdır.
               </p>
             </div>
+          </div>
+        )}
+
+        {mod === "paragrafstudyo" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>📝</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Paragraf Stüdyosu</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>LGS'nin en çok soru çıkan alanı — türe göre derinlemesine pratik.</p>
+            </div>
+
+            <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+              <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>PARAGRAF TÜRÜ</label>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+                {PARAGRAF_TURLERI.map((t) => {
+                  const secili = paragrafTuru === t.ad;
+                  return (
+                    <button key={t.ad} onClick={() => setParagrafTuru(t.ad)} className="kx-btn" style={{
+                      display: "flex", flexDirection: "column", alignItems: "flex-start", padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                      border: `1.5px solid ${secili ? COLORS.coral : COLORS.line}`, background: secili ? "#FFF1EF" : "#FAF6EE",
+                    }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 700 }}>{t.ad}</span>
+                      <span style={{ fontSize: 10.5, color: COLORS.muted }}>{t.aciklama}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ZORLUK</label>
+              <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                {[["kolay", "Kolay"], ["orta", "Orta"], ["zor", "Zor"]].map(([k, etiket]) => (
+                  <button key={k} onClick={() => setParagrafZorluk(k)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${paragrafZorluk === k ? COLORS.coral : COLORS.line}`, background: paragrafZorluk === k ? "#FFF1EF" : "#fff" }}>{etiket}</button>
+                ))}
+              </div>
+
+              <button className="kx-btn" onClick={paragrafSorusuUret} disabled={!paragrafTuru || paragrafYukleniyor} style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: paragrafTuru ? COLORS.coral : COLORS.line, color: "#fff", fontWeight: 700, fontSize: 13, cursor: paragrafTuru ? "pointer" : "default" }}>
+                {paragrafYukleniyor ? "Hazırlanıyor..." : "📝 Paragraf Sorusu Üret"}
+              </button>
+            </div>
+
+            {paragrafSoru && (
+              <div className="kx-fadein" style={{ background: "#FDFBF6", borderRadius: 14, border: `1px solid ${COLORS.line}`, padding: 20, boxShadow: "0 3px 14px rgba(0,0,0,0.06)" }}>
+                <div style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14.5, lineHeight: 1.85, color: "#2A2A2A", marginBottom: 18, paddingBottom: 16, borderBottom: `2px dashed ${COLORS.line}` }}>
+                  {paragrafSoru.paragraf}
+                </div>
+                <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 10 }}>{paragrafSoru.soru}</p>
+                {paragrafSoru.secenekler.map((sec, j) => {
+                  const secili = paragrafCevap === j, dogru = paragrafGonderildi && j === paragrafSoru.dogruIndex, yanlis = paragrafGonderildi && secili && j !== paragrafSoru.dogruIndex;
+                  return (
+                    <button key={j} onClick={() => !paragrafGonderildi && setParagrafCevap(j)} style={{
+                      display: "block", width: "100%", textAlign: "left", padding: "10px 12px", marginBottom: 6, borderRadius: 8, fontSize: 13,
+                      cursor: paragrafGonderildi ? "default" : "pointer",
+                      border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? COLORS.mustard : COLORS.line}`,
+                      background: dogru ? RENK_BASARI_ACIK : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff",
+                    }}>{sec}</button>
+                  );
+                })}
+                {!paragrafGonderildi ? (
+                  <button className="kx-btn" onClick={() => setParagrafGonderildi(true)} disabled={paragrafCevap === null} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, marginTop: 8, cursor: "pointer" }}>Cevabı Gönder</button>
+                ) : (
+                  <div style={{ marginTop: 10 }}>
+                    <p style={{ textAlign: "center", fontWeight: 700, fontSize: 15, color: paragrafCevap === paragrafSoru.dogruIndex ? RENK_BASARI : "#E8503F", marginBottom: 8 }}>
+                      {paragrafCevap === paragrafSoru.dogruIndex ? "🎉 Doğru!" : "❌ Yanlış"}
+                    </p>
+                    <p style={{ fontSize: 12.5, color: "#1B2430", background: "#FFF8E8", borderRadius: 8, padding: 10, lineHeight: 1.6, marginBottom: 10 }}>💡 {paragrafSoru.aciklama}</p>
+                    <button className="kx-btn" onClick={paragrafSorusuUret} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>🔄 Aynı Türde Yeni Soru</button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
