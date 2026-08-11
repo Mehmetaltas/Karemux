@@ -1142,7 +1142,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setAciklama(""); setQuiz(null); setGonderildi(false); setCevaplar({});
   }, [manuelUnite, manuelAltBaslik, dersSecimModu]);
   useEffect(() => {
-    if (manuelUnite && secilenDers) { altKonulariGetir(secilenDers, manuelUnite); setManuelAltBaslik(null); }
+    if (manuelUnite && secilenDers) { altKonulariGetir(secilenDers, manuelUnite); setManuelAltBaslik([]); }
   }, [manuelUnite, secilenDers]);
   const [karneOzet, setKarneOzet] = useState(null);
   const [karneYorum, setKarneYorum] = useState("");
