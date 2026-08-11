@@ -373,14 +373,6 @@ export default function Ana() {
   const [secilenDers, setSecilenDers] = useState(null);
   const secilenDersRef = useRef(null);
   useEffect(() => { secilenDersRef.current = secilenDers; }, [secilenDers]);
-  // Yazili/Deneme'de bir unite secilince, o unitenin (dogrulanmis veya AI onerili) alt
-  // basliklarini onceden getirir - kullanici hemen tik isaretleyebilsin diye.
-  useEffect(() => {
-    if (kapsamUnite && denemeDers) { altKonulariGetir(denemeDers, kapsamUnite); setKapsamAltBasliklar([]); }
-  }, [kapsamUnite, denemeDers]);
-  useEffect(() => {
-    if (manuelUnite && secilenDers) { altKonulariGetir(secilenDers, manuelUnite); setManuelAltBaslik(null); }
-  }, [manuelUnite, secilenDers]);
   const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
   const [kocPaneliDers, setKocPaneliDers] = useState(null);
 
@@ -1045,6 +1037,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [kapsamUnite, setKapsamUnite] = useState(null);
   const [kapsamKonu, setKapsamKonu] = useState("");
   const [kapsamAltBasliklar, setKapsamAltBasliklar] = useState([]);
+  // Yazili/Deneme'de bir unite secilince, o unitenin (dogrulanmis veya AI onerili) alt
+  // basliklarini onceden getirir - kullanici hemen tik isaretleyebilsin diye.
+  useEffect(() => {
+    if (kapsamUnite && denemeDers) { altKonulariGetir(denemeDers, kapsamUnite); setKapsamAltBasliklar([]); }
+  }, [kapsamUnite, denemeDers]);
   const [sinavSoruSayisi, setSinavSoruSayisi] = useState(10);
   const [yaziliDonemNo, setYaziliDonemNo] = useState("yazili1"); // "yazili1" | "yazili2" | "yazili3"
   const [denemeDonemNo, setDenemeDonemNo] = useState("tam"); // "1" | "2" | "tam"
@@ -1141,6 +1138,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [dersSecimModu, setDersSecimModu] = useState("koc"); // "koc" | "manuel"
   const [manuelUnite, setManuelUnite] = useState(null);
   const [manuelAltBaslik, setManuelAltBaslik] = useState(null);
+  useEffect(() => {
+    if (manuelUnite && secilenDers) { altKonulariGetir(secilenDers, manuelUnite); setManuelAltBaslik(null); }
+  }, [manuelUnite, secilenDers]);
   const [karneOzet, setKarneOzet] = useState(null);
   const [karneYorum, setKarneYorum] = useState("");
   const [karneYukleniyor, setKarneYukleniyor] = useState(false);
