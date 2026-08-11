@@ -1351,7 +1351,53 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
-  const BURSLULUK_DERSLER = ["Turkce", "Matematik", "Fen Bilimleri", "Sosyal Bilgiler"];
+  const TATIL_TURLERI = [
+    { key: "ara", ad: "Ara Tatil", gun: 7, aciklama: "Kısa toparlanma, eksik konuları kapatma" },
+    { key: "yariyil", ad: "Yarıyıl Tatili", gun: 14, aciklama: "2 haftalık dengeli tekrar programı" },
+    { key: "yaz", ad: "Yaz Tatili (İlk Ay)", gun: 30, aciklama: "Uzun soluklu, sürdürülebilir tempo" },
+  ];
+  const [tatilTuru, setTatilTuru] = useState(null);
+  const [tatilProgramiMesaj, setTatilProgramiMesaj] = useState("");
+  const [tatilProgramiListesi, setTatilProgramiListesi] = useState(null);
+  const [tatilProgramiYukleniyor, setTatilProgramiYukleniyor] = useState(false);
+
+  async function tatilProgramiOlustur() {
+    if (!tatilTuru) return;
+    const secilenTatil = TATIL_TURLERI.find((t) => t.key === tatilTuru);
+    setTatilProgramiYukleniyor(true); setHata(""); setTatilProgramiMesaj(""); setTatilProgramiListesi(null);
+    try {
+      const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
+      const zayifMetni = zayifDersler.length > 0 ? `Ozellikle zayif oldugu dersler: ${zayifDersler.join(", ")}.` : "";
+      const p = `Sen bir LGS calisma kocususun. ${ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}.` : ""} ${zayifMetni} Ogrenci ${sinif}. sinifta, "${secilenTatil.ad}" donemine giriyor (${secilenTatil.gun} gunluk). ${secilenTatil.key === "yaz" ? "Yaz tatili UZUN oldugu icin, tempo dusuk-orta tutulmali, her gun 1-1.5 saatlik hafif ama DUZENLI bir aliskanlik kurmali, tukenmisligi onlemek icin haftada 1 gun tam dinlenme olmali." : secilenTatil.key === "yariyil" ? "Yariyil tatili orta uzunlukta, eksik konulari kapatmaya ve 2. donem'e hazirliga odaklanmali." : "Ara tatil kisa, sadece son donemdeki eksikleri toparlamaya ve dinlenmeye odaklanmali, agir yeni konu YOK."} Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (120-160 kelime) bir konusma - tatilin ruhuna uygun (dinlenmeyi de onemsediginizi belirt). (2) "program": ${secilenTatil.gun} GUNUN HER BIRI icin bir gorev nesnesi - {"gunNo":1,"ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev"}. Haftada en az 1 gun "Dinlenme" olarak ayarla (agir calisma yok). SADECE JSON dondur, markdown kullanma:
+{"mesaj":"...","program":[{"gunNo":1,"ders":"...","gorev":"..."}, ...]}`;
+      const cevap = await aiIstek(p, Math.min(6000, 800 + secilenTatil.gun * 120), cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").trim();
+      const baslangic = temiz.indexOf("{");
+      const bitis = temiz.lastIndexOf("}");
+      if (baslangic === -1 || bitis === -1) throw new Error("Program olusturulamadi, tekrar dene");
+      const veri = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setTatilProgramiMesaj(veri.mesaj || "");
+      if (Array.isArray(veri.program) && veri.program.length > 0) {
+        setTatilProgramiListesi(veri.program);
+        // Gunluk gorevler tablosuna, bugunden baslayarak gercek tarihlerle kaydediyoruz.
+        const bugun = new Date();
+        const gorevlerTarihli = veri.program.map((g, i) => {
+          const tarih = new Date(bugun);
+          tarih.setDate(bugun.getDate() + i);
+          return { gun: tarih.toISOString().slice(0, 10), ders: g.ders, gorev: g.gorev };
+        });
+        fetch("/api/gunluk-gorevler", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cihazId: cihazIdRef.current, haftaBaslangic: bugun.toISOString().slice(0, 10), gorevler: gorevlerTarihli }),
+        }).catch(() => {});
+      }
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Tatil programi olusturulamadi, tekrar dene."));
+    } finally {
+      setTatilProgramiYukleniyor(false);
+    }
+  }
+
   const [burslulukSoruSayisi, setBurslulukSoruSayisi] = useState(5);
   const [burslulukBasladi, setBurslulukBasladi] = useState(false);
   const [burslulukSorular, setBurslulukSorular] = useState(null); // { Turkce: [...], Matematik: [...], ... }
@@ -2288,6 +2334,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["hedefokul", "🏫 Hedef Okulum"],
                 ["paragrafstudyo", "📝 Paragraf Studyosu"],
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
+                ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3791,6 +3838,66 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 💡 Eğer kaygın günlük hayatını ciddi şekilde etkiliyorsa (uyku, iştah, sürekli endişe), bunu bir yetişkinle (ailen, okul rehberlik servisi) konuşmak en doğrusu — bu tamamen normal ve yardım istemek güçlü bir adımdır.
               </p>
             </div>
+          </div>
+        )}
+
+        {mod === "tatilprogrami" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🏖️</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Tatil Çalışma Programı</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Tatilde de ritmini kaybetme — ama dinlenmek de plana dahil.</p>
+            </div>
+
+            {!tatilProgramiListesi && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>TATİL TÜRÜ</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                  {TATIL_TURLERI.map((t) => {
+                    const secili = tatilTuru === t.key;
+                    return (
+                      <button key={t.key} onClick={() => setTatilTuru(t.key)} className="kx-btn" style={{
+                        display: "flex", flexDirection: "column", alignItems: "flex-start", padding: "12px 14px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                        border: `1.5px solid ${secili ? COLORS.coral : COLORS.line}`, background: secili ? "#FFF1EF" : "#FAF6EE",
+                      }}>
+                        <span style={{ fontSize: 13, fontWeight: 700 }}>{t.ad} <span style={{ fontWeight: 500, color: COLORS.muted, fontSize: 11 }}>({t.gun} gün)</span></span>
+                        <span style={{ fontSize: 11, color: COLORS.muted, marginTop: 2 }}>{t.aciklama}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <button className="kx-btn" onClick={tatilProgramiOlustur} disabled={!tatilTuru || tatilProgramiYukleniyor}
+                  style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: tatilTuru ? COLORS.coral : COLORS.line, color: "#fff", fontWeight: 700, fontSize: 13, cursor: tatilTuru ? "pointer" : "default" }}>
+                  {tatilProgramiYukleniyor ? "Hazırlanıyor..." : "🏖️ Programı Oluştur"}
+                </button>
+              </div>
+            )}
+
+            {tatilProgramiMesaj && (
+              <div className="kx-fadein" style={{ display: "flex", gap: 10, marginTop: 14, marginBottom: 14 }}>
+                <div style={{ width: 32, height: 32, borderRadius: 999, background: COLORS.gradient, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>🎯</div>
+                <div style={{ flex: 1, background: COLORS.page, borderRadius: "4px 14px 14px 14px", padding: "12px 14px", border: `1px solid ${COLORS.line}`, fontSize: 12.5, lineHeight: 1.7 }}>{tatilProgramiMesaj}</div>
+              </div>
+            )}
+
+            {tatilProgramiListesi && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 12 }}>{tatilProgramiListesi.length} GÜNLÜK PROGRAM</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 400, overflowY: "auto" }}>
+                  {tatilProgramiListesi.map((g, i) => (
+                    <div key={i} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: i < tatilProgramiListesi.length - 1 ? `1px solid ${COLORS.line}` : "none" }}>
+                      <span style={{ width: 26, height: 26, borderRadius: 999, background: g.ders === "Dinlenme" ? "#EDE8DC" : "#FFF1EF", color: g.ders === "Dinlenme" ? COLORS.muted : COLORS.coral, fontSize: 10.5, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{g.gunNo}</span>
+                      <div>
+                        <p style={{ fontSize: 11.5, fontWeight: 700, color: g.ders === "Dinlenme" ? COLORS.muted : COLORS.ink, marginBottom: 2 }}>{g.ders}</p>
+                        <p style={{ fontSize: 11.5, color: "#3A4550", lineHeight: 1.5 }}>{g.gorev}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 12, textAlign: "center" }}>✓ Bu program Profilindeki "Günlük Görevler"e de kaydedildi.</p>
+                <button className="kx-btn" onClick={() => { setTatilProgramiListesi(null); setTatilProgramiMesaj(""); setTatilTuru(null); }} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12.5, cursor: "pointer", marginTop: 12 }}>Yeni Program Oluştur</button>
+              </div>
+            )}
           </div>
         )}
 
