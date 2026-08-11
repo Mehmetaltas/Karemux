@@ -1142,6 +1142,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   // Hesap
   const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
+  // KRITIK: hesabin gercek sinifi (kayitta/profilde secilen) buraya kadar hic
+  // yansitilmiyordu - "sinif" state'i hep varsayilan 8'de kaliyordu. Hesap
+  // yuklendiginde veya sinifi degistiginde, uygulama genelinde kullanilan
+  // "sinif" state'ini gercek degerle senkronize ediyoruz.
+  useEffect(() => {
+    if (hesap && hesap.sinif) setSinif(Number(hesap.sinif));
+  }, [hesap?.sinif]);
   const [profilGunlukGorevler, setProfilGunlukGorevler] = useState(null);
   const [karneAcik, setKarneAcik] = useState(false);
   const [dersSecimModu, setDersSecimModu] = useState("koc"); // "koc" | "manuel"
@@ -2184,7 +2191,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {secilenDers && !kocPaneliDers && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
-            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{secilenDers}</p>
+            <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 2, textAlign: "center" }}>{secilenDers}</p>
+            <p style={{ fontSize: 11, color: COLORS.muted, textAlign: "center", marginBottom: 14, fontWeight: 600 }}>
+              {sinif}. Sinif
+              {(dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers)) && ` · ${dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers)}`}
+              {dersSecimModu === "manuel" && manuelAltBaslik.length > 0 && ` · ${manuelAltBaslik.join(", ")}`}
+            </p>
 
             {dersTekrarKontrolYukleniyor && (
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Kontrol ediliyor...</p>
@@ -2541,6 +2553,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>1</div>
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
+                <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 700, color: COLORS.muted, background: "#F0EBDC", padding: "3px 9px", borderRadius: 999 }}>{sinif}. Sinif</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
                 {gorunurDersler(sinif).map((d) => (
@@ -2674,6 +2687,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
                 <div style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.mustard, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, flexShrink: 0 }}>1</div>
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
+                <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 700, color: COLORS.muted, background: "#F0EBDC", padding: "3px 9px", borderRadius: 999 }}>{sinif}. Sinif</span>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
                 {gorunurDersler(sinif).map((d) => (
