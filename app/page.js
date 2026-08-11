@@ -110,6 +110,9 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // liste 8. sinifta oldugu gibi standart konu basliklarindan derlenmistir - Matematik/Fen
   // kadar net resmi kaynaktan dogrulanmadi, ORTA guven seviyesi.
   "5::Turkce": ["Sozcukte ve Cumlede Anlam", "Paragrafta Anlam", "Yazim Kurallari", "Noktalama Isaretleri", "Yazma ve Anlatim"],
+  "5::Din Kulturu": ["Allah Inanci", "Namaz", "Kur'an-i Kerim", "Peygamber Kissalari", "Mimarimizde Dini Motifler"],
+  "5::Ingilizce": ["Hello!", "My Town", "Games and Hobbies", "My Daily Routine", "Health", "Movies", "Party Time", "Fitness", "The Animal Shelter", "Festivals"],
+  "5::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
   "6::Turkce": ["Sozcukte Anlam", "Isim Tamlamasi", "Sifat Tamlamasi", "Zamirler", "Edat Baglac Unlem", "Cumlede Anlam", "Paragrafta Anlam", "Yazim Kurallari", "Noktalama Isaretleri"],
   "7::Turkce": ["Fiilimsiler", "Cumlenin Ogeleri", "Fiilde Cati", "Anlatim Bozukluklari", "Cumle Turleri", "Paragrafta Anlam", "Soz Sanatlari", "Yazim Kurallari", "Noktalama Isaretleri"],
   // Din Kulturu 6. sinif: sadece 3 unite dogrulanabildi, listenin eksik olma ihtimali var.
@@ -241,6 +244,33 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Sosyal Bilgiler::Uretim Dagitim ve Tuketim::7": ["Girisimcilik", "Kuresel Ticaret"],
   "Sosyal Bilgiler::Etkin Vatandaslik::7": ["Yerel Yonetimler", "Vatandaslik Haklari"],
   "Sosyal Bilgiler::Kuresel Baglantilar::7": ["Uluslararasi Kuruluslar", "Kuresellesmenin Etkileri"],
+
+  // ==== 5. SINIF DIN KULTURU (yeni mufredat - resmi MEB 5 ana unite) ====
+  "Din Kulturu::Allah Inanci::5": ["Allah'in Varligi ve Birligi", "Allah'in Sifatlari"],
+  "Din Kulturu::Namaz::5": ["Namazin Onemi", "Namazin Kilinisi"],
+  "Din Kulturu::Kur'an-i Kerim::5": ["Kur'an'i Tanima", "Kur'an Okuma Kurallarinin Temelleri"],
+  "Din Kulturu::Peygamber Kissalari::5": ["Peygamber Kissalarindan Ornekler", "Kissalardan Alinacak Dersler"],
+  "Din Kulturu::Mimarimizde Dini Motifler::5": ["Cami Mimarisi", "Dini Motiflerin Sanattaki Yansimalari"],
+
+  // ==== 5. SINIF INGILIZCE (yeni mufredat - resmi MEB 10 unite) ====
+  "Ingilizce::Hello!::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::My Town::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Games and Hobbies::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::My Daily Routine::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Health::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Movies::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Party Time::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Fitness::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::The Animal Shelter::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Festivals::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+
+  // ==== 5. SINIF SOSYAL BILGILER (yeni mufredat - 6/7'den FARKLI ogrenme alani isimleri) ====
+  "Sosyal Bilgiler::Birlikte Yasamak::5": ["Aile ve Yakin Cevre", "Roller Haklar ve Sorumluluklar"],
+  "Sosyal Bilgiler::Evimiz Dunya::5": ["Ilin Konum Ozellikleri", "Dogal ve Beseri Cevre Degisimleri", "Turkiye'nin Kara Sinir Komsulari"],
+  "Sosyal Bilgiler::Ortak Mirasimiz::5": ["Ortak Miras Ogeleri", "Anadolu'nun Ilk Yerlesimleri", "Mezopotamya ve Anadolu Medeniyetleri"],
+  "Sosyal Bilgiler::Yasayan Demokrasimiz::5": ["Demokrasi ve Cumhuriyet Iliskisi", "Etkin Vatandaslik", "Temel Hak ve Sorumluluklar"],
+  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::5": ["Kaynaklar ve Ihtiyaclar", "Uretim ve Tuketim Iliskisi"],
+  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::5": ["Teknolojik Gelismeler", "Sosyal Bilimlerin Onemi"],
   "Matematik::Carpanlar ve Katlar": ["Asal Carpanlara Ayirma", "EBOB Hesaplama", "EKOK Hesaplama", "Aralarinda Asal Sayilar"],
   "Matematik::Uslu Ifadeler": ["Tam Sayi Kuvvetleri", "Uslu Ifadelerde Temel Kurallar", "Bilimsel Gosterim"],
   "Matematik::Karekoklu Ifadeler": ["Tam Kare Olmayan Sayinin Karekoku", "Kareklu Ifadeleri Sadelestirme", "Kareklu Ifadelerde Carpma-Bolme", "Kareklu Ifadelerde Toplama-Cikarma", "Rasyonel ve Irrasyonel Sayilar"],
