@@ -102,14 +102,6 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "6::Matematik": ["Dogal Sayilarla Islemler", "Carpanlar ve Katlar", "Kumeler", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
   "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Birinci Dereceden Denklemler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
 
-  // ==== 5. SINIF MATEMATIK (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
-  "Matematik::Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)::5": ["Temel Geometrik Cizimler ve Insalar", "Aci Olcme", "Cokgenler", "Cember"],
-  "Matematik::Sayilar ve Nicelikler - Cok Basamakli Sayilar::5": ["Cok Basamakli Sayilari Okuma ve Yazma", "Sayilarla Problem Cozme"],
-  "Matematik::Geometrik Nicelikler (Cevre ve Alan)::5": ["Dikdortgenin Cevre Uzunlugu", "Dikdortgenin Alani"],
-  "Matematik::Kesirler Ondalik Gosterim ve Yuzdeler::5": ["Kesirler", "Ondalik Gosterim", "Yuzdeler"],
-  "Matematik::Istatistiksel Arastirma Sureci::5": ["Veri Toplama", "Kategorik Veri Dagilimlari"],
-  "Matematik::Islemlerle Cebirsel Dusunme::5": ["Esitligin Korunumu", "Degisme Birlesme Dagilma Ozelligi", "Islem Onceligi", "Oruntuler", "Temel Aritmetik Islemler ve Algoritma"],
-  "Matematik::Veriden Olasiliga::5": ["Olasilik Spektrumu", "Kesin Olay", "Imkansiz Olay"],
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
   "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Vucudumuzdaki Sistemler", "Kuvvet ve Hareket", "Madde ve Isi", "Ses ve Ozellikleri", "Vucudumuzdaki Sistemler ve Sagligi", "Elektrigin Iletimi", "Uygulamali Bilim"],
   "7::Fen Bilimleri": ["Gunes Sistemi ve Otesi", "Hucre ve Bolunmeler", "Kuvvet ve Enerji", "Saf Madde ve Karisimlar", "Isigin Madde ile Etkilesimi", "Canlilarda Ureme Buyume ve Gelisme", "Elektrik Devreleri", "Uygulamali Bilim"],
@@ -140,6 +132,14 @@ function dersinUniteleri(dersAdi, sinifNo) {
 // arastirilip alinmistir, AI tarafindan uydurulmamistir. Sadece dogrulanan uniteler
 // burada var; digerleri icin sistem AI'a alt konu onerdirir (ayri, acik etiketle).
 const DOGRULANMIS_ALT_KONULAR = {
+  // ==== 5. SINIF MATEMATIK (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
+  "Matematik::Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)::5": ["Temel Geometrik Cizimler ve Insalar", "Aci Olcme", "Cokgenler", "Cember"],
+  "Matematik::Sayilar ve Nicelikler - Cok Basamakli Sayilar::5": ["Cok Basamakli Sayilari Okuma ve Yazma", "Sayilarla Problem Cozme"],
+  "Matematik::Geometrik Nicelikler (Cevre ve Alan)::5": ["Dikdortgenin Cevre Uzunlugu", "Dikdortgenin Alani"],
+  "Matematik::Kesirler Ondalik Gosterim ve Yuzdeler::5": ["Kesirler", "Ondalik Gosterim", "Yuzdeler"],
+  "Matematik::Istatistiksel Arastirma Sureci::5": ["Veri Toplama", "Kategorik Veri Dagilimlari"],
+  "Matematik::Islemlerle Cebirsel Dusunme::5": ["Esitligin Korunumu", "Degisme Birlesme Dagilma Ozelligi", "Islem Onceligi", "Oruntuler", "Temel Aritmetik Islemler ve Algoritma"],
+  "Matematik::Veriden Olasiliga::5": ["Olasilik Spektrumu", "Kesin Olay", "Imkansiz Olay"],
   "Matematik::Carpanlar ve Katlar": ["Asal Carpanlara Ayirma", "EBOB Hesaplama", "EKOK Hesaplama", "Aralarinda Asal Sayilar"],
   "Matematik::Uslu Ifadeler": ["Tam Sayi Kuvvetleri", "Uslu Ifadelerde Temel Kurallar", "Bilimsel Gosterim"],
   "Matematik::Karekoklu Ifadeler": ["Tam Kare Olmayan Sayinin Karekoku", "Kareklu Ifadeleri Sadelestirme", "Kareklu Ifadelerde Carpma-Bolme", "Kareklu Ifadelerde Toplama-Cikarma", "Rasyonel ve Irrasyonel Sayilar"],
