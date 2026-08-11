@@ -1351,6 +1351,36 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  const BURSLULUK_DERSLER = ["Turkce", "Matematik", "Fen Bilimleri", "Sosyal Bilgiler"];
+  const [burslulukSoruSayisi, setBurslulukSoruSayisi] = useState(5);
+  const [burslulukBasladi, setBurslulukBasladi] = useState(false);
+  const [burslulukSorular, setBurslulukSorular] = useState(null); // { Turkce: [...], Matematik: [...], ... }
+  const [burslulukYukleniyor, setBurslulukYukleniyor] = useState(false);
+  const [burslulukAsama, setBurslulukAsama] = useState("");
+  const [burslulukCevaplar, setBurslulukCevaplar] = useState({}); // "Turkce::0" -> secenekIndex
+  const [burslulukGonderildi, setBurslulukGonderildi] = useState(false);
+
+  async function burslulukSinaviUret() {
+    setBurslulukYukleniyor(true); setHata(""); setBurslulukSorular(null); setBurslulukCevaplar({}); setBurslulukGonderildi(false); setBurslulukBasladi(true);
+    const sonuc = {};
+    try {
+      for (const dersAdi of BURSLULUK_DERSLER) {
+        setBurslulukAsama(dersAdi);
+        const uniteler = dersinUniteleri(dersAdi, sinif).join(", ");
+        const p = `Sen bursluluk sinavi (IOKBS) hazirlik uzmanisin. "${dersAdi}" dersinden, ${sinif}. sinif mufredatinin TAMAMINI (uniteler: ${uniteler}) kapsayacak sekilde, dengeli dagilmis ${burslulukSoruSayisi} coktan secmeli soru hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} Sorular gercek IOKBS sinavi zorlugunda ve tarzinda olsun. Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
+        const cevap = await aiIstek(p, Math.min(6000, 500 + burslulukSoruSayisi * 450), cihazIdRef.current, true);
+        const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
+        sonuc[dersAdi] = soruJsonAyikla(temiz);
+        setBurslulukSorular({ ...sonuc });
+      }
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Bursluluk denemesi olusturulamadi, tekrar dene."));
+    } finally {
+      setBurslulukYukleniyor(false); setBurslulukAsama("");
+    }
+  }
+
   const PARAGRAF_TURLERI = [
     { ad: "Ana Fikir Bulma", aciklama: "Paragrafın temel mesajını yakala" },
     { ad: "Yardımcı Fikir Bulma", aciklama: "Ana fikri destekleyen düşünceler" },
@@ -2256,6 +2286,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["sinavkaygisi", "🧘 Sinav Kaygisi Destegi"],
                 ["hedefokul", "🏫 Hedef Okulum"],
                 ["paragrafstudyo", "📝 Paragraf Studyosu"],
+                ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3761,6 +3792,109 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
           </div>
         )}
+
+        {mod === "burslulukdeneme" && (() => {
+          const tumSorularHazir = burslulukSorular && BURSLULUK_DERSLER.every((d) => burslulukSorular[d]);
+          const toplamSoru = burslulukSorular ? BURSLULUK_DERSLER.reduce((t, d) => t + (burslulukSorular[d]?.length || 0), 0) : 0;
+          const cevaplananSayi = Object.keys(burslulukCevaplar).length;
+
+          let dogruSayisi = 0, yanlisSayisi = 0, bosSayisi = 0;
+          if (tumSorularHazir) {
+            BURSLULUK_DERSLER.forEach((ders) => {
+              (burslulukSorular[ders] || []).forEach((s, i) => {
+                const anahtar = `${ders}::${i}`;
+                if (!(anahtar in burslulukCevaplar)) bosSayisi++;
+                else if (burslulukCevaplar[anahtar] === s.dogruIndex) dogruSayisi++;
+                else yanlisSayisi++;
+              });
+            });
+          }
+          const genelNet = Math.max(0, dogruSayisi - yanlisSayisi / 3);
+
+          return (
+            <div>
+              <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+                <p style={{ fontSize: 22, marginBottom: 4 }}>🎓</p>
+                <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Bursluluk Sınavı (İOKBS) Denemesi</p>
+                <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Gerçek sınav: 4 ders × 20 soru, 100 dakika, 3 yanlış 1 doğruyu götürür.</p>
+              </div>
+
+              {!burslulukBasladi && (
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                  <p style={{ fontSize: 12.5, lineHeight: 1.7, color: "#3A4550", marginBottom: 14 }}>
+                    İOKBS (Bursluluk Sınavı), devlet okulunda okuyan öğrencilere aylık burs kazandıran resmi bir MEB sınavıdır. Türkçe, Matematik, Fen Bilimleri ve Sosyal Bilgiler'den eşit sayıda soru sorulur.
+                  </p>
+                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>DERS BAŞINA SORU SAYISI</label>
+                  <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
+                    {[5, 10, 20].map((n) => (
+                      <button key={n} onClick={() => setBurslulukSoruSayisi(n)} style={{ flex: 1, padding: "9px 0", borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${burslulukSoruSayisi === n ? COLORS.coral : COLORS.line}`, background: burslulukSoruSayisi === n ? "#FFF1EF" : "#fff" }}>
+                        {n} {n === 20 ? "(Gerçek Sınav)" : ""}
+                      </button>
+                    ))}
+                  </div>
+                  <button className="kx-btn" onClick={burslulukSinaviUret} style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                    🎓 Denemeyi Başlat (Toplam {burslulukSoruSayisi * 4} Soru)
+                  </button>
+                </div>
+              )}
+
+              {burslulukYukleniyor && (
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                  <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 6 }}>Hazırlanıyor: <strong>{burslulukAsama}</strong></p>
+                  <p style={{ fontSize: 11, color: COLORS.muted }}>{BURSLULUK_DERSLER.filter((d) => burslulukSorular?.[d]).length} / 4 ders tamamlandı</p>
+                </div>
+              )}
+
+              {burslulukSorular && BURSLULUK_DERSLER.map((ders) => burslulukSorular[ders] && (
+                <div key={ders} style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginTop: 12 }}>
+                  <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 12, color: COLORS.coral }}>{ders}</p>
+                  {burslulukSorular[ders].map((s, i) => {
+                    const anahtar = `${ders}::${i}`;
+                    return (
+                      <div key={i} style={{ marginBottom: 16 }}>
+                        <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 6 }}>{i + 1}. {s.soru}</p>
+                        {(s.secenekler || []).map((sec, j) => {
+                          const secili = burslulukCevaplar[anahtar] === j, dogru = burslulukGonderildi && j === s.dogruIndex, yanlis = burslulukGonderildi && secili && j !== s.dogruIndex;
+                          return (
+                            <button key={j} onClick={() => !burslulukGonderildi && setBurslulukCevaplar((eski) => ({ ...eski, [anahtar]: j }))} style={{
+                              display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5,
+                              cursor: burslulukGonderildi ? "default" : "pointer",
+                              border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? COLORS.mustard : COLORS.line}`,
+                              background: dogru ? RENK_BASARI_ACIK : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff",
+                            }}>{sec}</button>
+                          );
+                        })}
+                        {burslulukGonderildi && burslulukCevaplar[anahtar] !== s.dogruIndex && s.aciklama && (
+                          <p style={{ fontSize: 11.5, color: "#1B2430", background: "#FFF8E8", borderRadius: 6, padding: 7, marginTop: 4, lineHeight: 1.5 }}>💡 {s.aciklama}</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+
+              {tumSorularHazir && !burslulukGonderildi && (
+                <button className="kx-btn" onClick={() => setBurslulukGonderildi(true)} disabled={cevaplananSayi < toplamSoru}
+                  style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", marginTop: 12 }}>
+                  Sınavı Bitir ({cevaplananSayi}/{toplamSoru} cevaplandı)
+                </button>
+              )}
+
+              {burslulukGonderildi && (
+                <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 16, padding: 24, textAlign: "center", marginTop: 14 }}>
+                  <p style={{ color: COLORS.mustard, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, marginBottom: 8 }}>BURSLULUK DENEMESİ SONUCU</p>
+                  <p style={{ color: "#fff", fontSize: 40, fontWeight: 900, marginBottom: 4 }}>{genelNet.toFixed(2)}</p>
+                  <p style={{ color: "#8A968E", fontSize: 11, marginBottom: 16 }}>NET (Doğru − Yanlış/3)</p>
+                  <div style={{ display: "flex", justifyContent: "center", gap: 20 }}>
+                    <div><p style={{ color: RENK_BASARI, fontSize: 18, fontWeight: 800 }}>{dogruSayisi}</p><p style={{ color: "#8A968E", fontSize: 10 }}>DOĞRU</p></div>
+                    <div><p style={{ color: "#FF6B5E", fontSize: 18, fontWeight: 800 }}>{yanlisSayisi}</p><p style={{ color: "#8A968E", fontSize: 10 }}>YANLIŞ</p></div>
+                    <div><p style={{ color: "#8A968E", fontSize: 18, fontWeight: 800 }}>{bosSayisi}</p><p style={{ color: "#8A968E", fontSize: 10 }}>BOŞ</p></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {mod === "paragrafstudyo" && (
           <div>
