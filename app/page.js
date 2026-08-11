@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 
 const DUYURULAR = [
   { ikon: "🧭", baslik: "Seviye Tespiti ile basla", metin: "6 dersten 12 soru — nerede guclu, nerede zayif oldugunu 5 dakikada ogren." },
@@ -1259,6 +1260,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [odemeHata, setOdemeHata] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
   const [profilOkul, setProfilOkul] = useState("");
+  const [okulOnerileri, setOkulOnerileri] = useState([]);
+  const [okulOnerileriAcik, setOkulOnerileriAcik] = useState(false);
+  useEffect(() => {
+    if (!profilOkul || profilOkul.trim().length < 2) { setOkulOnerileri([]); return; }
+    const zamanlayici = setTimeout(() => {
+      fetch(`/api/okul-ara?q=${encodeURIComponent(profilOkul.trim())}`)
+        .then((r) => r.json()).then((d) => setOkulOnerileri(d.sonuclar || []))
+        .catch(() => setOkulOnerileri([]));
+    }, 300); // yazarken her tusa basista sorgu atmasin diye kisa bir bekleme
+    return () => clearTimeout(zamanlayici);
+  }, [profilOkul]);
   const [profilTelefon, setProfilTelefon] = useState("");
   const [profilSinifSec, setProfilSinifSec] = useState("");
   const [profilKaydediliyor, setProfilKaydediliyor] = useState(false);
@@ -1307,6 +1319,55 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [formulKartUnite, setFormulKartUnite] = useState(null);
   const [formulKartCache, setFormulKartCache] = useState({}); // anahtar: ders::unite::sinif -> metin
   const [formulKartYukleniyor, setFormulKartYukleniyor] = useState(false);
+  const [zayifHaritaVeri, setZayifHaritaVeri] = useState(null);
+  const [zayifHaritaYukleniyor, setZayifHaritaYukleniyor] = useState(false);
+  const [hedefIl, setHedefIl] = useState("");
+  const [hedefIlce, setHedefIlce] = useState("");
+  const [hedefOkulAdi, setHedefOkulAdi] = useState("");
+  const [hedefPuanDeger, setHedefPuanDeger] = useState("");
+  const [hedefKaydediliyor, setHedefKaydediliyor] = useState(false);
+  const [hedefKaydedildi, setHedefKaydedildi] = useState(false);
+
+  useEffect(() => {
+    if (mod !== "hedefokul" || !hesap) return;
+    fetch(`/api/hedef-okul?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => {
+      if (d.hedef) {
+        setHedefIl(d.hedef.hedef_il || ""); setHedefIlce(d.hedef.hedef_ilce || "");
+        setHedefOkulAdi(d.hedef.hedef_okul || ""); setHedefPuanDeger(d.hedef.hedef_puan || "");
+      }
+    }).catch(() => {});
+  }, [mod, hesap?.eposta]);
+
+  async function hedefOkuluKaydet() {
+    setHedefKaydediliyor(true); setHedefKaydedildi(false);
+    try {
+      await fetch("/api/hedef-okul", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, hedefIl, hedefIlce, hedefOkul: hedefOkulAdi, hedefPuan: hedefPuanDeger ? Number(hedefPuanDeger) : null }),
+      });
+      setHedefKaydedildi(true);
+    } finally {
+      setHedefKaydediliyor(false);
+    }
+  }
+
+
+  async function zayifHaritayiGetir() {
+    setZayifHaritaYukleniyor(true);
+    try {
+      const res = await fetch(`/api/hata-kitapcigi?cihazId=${cihazIdRef.current}&istatistik=true`);
+      const data = await res.json();
+      setZayifHaritaVeri(data.istatistik || []);
+    } catch (e) {
+      setZayifHaritaVeri([]);
+    } finally {
+      setZayifHaritaYukleniyor(false);
+    }
+  }
+  useEffect(() => {
+    if (mod === "zayifharita") zayifHaritayiGetir();
+  }, [mod]);
+
 
   async function formulKartiGetir(dersAdi, uniteAdi) {
     const anahtar = `${dersAdi}::${uniteAdi}::${sinif}`;
@@ -2101,6 +2162,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               {[
                 ["formulkart", "📐 Formul ve Kural Kartlari"],
                 ["sinavstratejisi", "🎯 Sinav Stratejisi Rehberi"],
+                ["zayifharita", "🗺️ Zayif Konu Haritasi"],
+                ["sinavkaygisi", "🧘 Sinav Kaygisi Destegi"],
+                ["hedefokul", "🏫 Hedef Okulum"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3189,7 +3253,26 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <option value="7">7. Sinif</option>
                         <option value="8">8. Sinif</option>
                       </select>
-                      <input value={profilOkul} onChange={(e) => setProfilOkul(e.target.value)} placeholder="Okulun" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                      <div style={{ position: "relative", marginBottom: 8 }}>
+                        <input value={profilOkul}
+                          onChange={(e) => { setProfilOkul(e.target.value); setOkulOnerileriAcik(true); }}
+                          onFocus={() => setOkulOnerileriAcik(true)}
+                          onBlur={() => setTimeout(() => setOkulOnerileriAcik(false), 150)}
+                          placeholder="Okulun (yazmaya başla, öneriler çıksın)"
+                          style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+                        {okulOnerileriAcik && okulOnerileri.length > 0 && (
+                          <div style={{ position: "absolute", top: "100%", left: 0, right: 0, background: "#fff", border: `1.5px solid ${COLORS.line}`, borderRadius: 8, marginTop: 4, maxHeight: 220, overflowY: "auto", zIndex: 20, boxShadow: "0 4px 14px rgba(0,0,0,0.12)" }}>
+                            {okulOnerileri.map((o) => (
+                              <button key={o.id} onClick={() => { setProfilOkul(o.okul_adi); setOkulOnerileriAcik(false); }}
+                                style={{ display: "block", width: "100%", textAlign: "left", padding: "9px 10px", border: "none", borderBottom: `1px solid ${COLORS.line}`, background: "transparent", cursor: "pointer", fontSize: 12.5 }}>
+                                <div style={{ fontWeight: 600 }}>{o.okul_adi}</div>
+                                <div style={{ fontSize: 10.5, color: COLORS.muted }}>{o.il} / {o.ilce}</div>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 4 }}>Listede bulamazsan endişelenme, olduğu gibi yazabilirsin.</p>
+                      </div>
                       <input value={profilTelefon} onChange={(e) => setProfilTelefon(e.target.value)} placeholder="Telefon" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                       <button onClick={profilKaydet} disabled={profilKaydediliyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                         {profilKaydediliyor ? "Kaydediliyor..." : "Kaydet"}
@@ -3458,6 +3541,125 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <div style={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.7 }}>{soruCozumu}</div>
               </div>
             )}
+          </div>
+        )}
+
+        {mod === "zayifharita" && (() => {
+          const gruplu = {};
+          (zayifHaritaVeri || []).forEach((r) => {
+            if (!gruplu[r.ders]) gruplu[r.ders] = [];
+            gruplu[r.ders].push(r);
+          });
+          const maxSayi = Math.max(1, ...(zayifHaritaVeri || []).map((r) => Number(r.hata_sayisi)));
+          return (
+            <div>
+              <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+                <p style={{ fontSize: 22, marginBottom: 4 }}>🗺️</p>
+                <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Zayıf Konu Haritası</p>
+                <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Hata Kitapçığı verine göre — koyu renk, daha çok tekrar hata demektir.</p>
+              </div>
+              {zayifHaritaYukleniyor ? (
+                <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Hazırlanıyor...</p>
+              ) : Object.keys(gruplu).length === 0 ? (
+                <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 16, textAlign: "center" }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>🎉 Henüz hiç hata kaydın yok, harika gidiyorsun!</p>
+                </div>
+              ) : (
+                Object.keys(gruplu).map((ders) => (
+                  <div key={ders} style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+                    <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 10 }}>{ders}</p>
+                    {gruplu[ders].sort((a, b) => b.hata_sayisi - a.hata_sayisi).map((r) => {
+                      const oran = Number(r.hata_sayisi) / maxSayi;
+                      const renk = oran > 0.66 ? "#E8503F" : oran > 0.33 ? COLORS.mustard : "#3DA35D";
+                      return (
+                        <div key={r.alt_konu} style={{ marginBottom: 8 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 3 }}>
+                            <span>{r.alt_konu}</span>
+                            <span style={{ fontWeight: 700, color: renk }}>{r.hata_sayisi} hata</span>
+                          </div>
+                          <div style={{ height: 8, borderRadius: 999, background: "#EDE8DC", overflow: "hidden" }}>
+                            <div style={{ height: "100%", width: `${Math.max(8, oran * 100)}%`, borderRadius: 999, background: renk }} />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))
+              )}
+            </div>
+          );
+        })()}
+
+        {mod === "sinavkaygisi" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🧘</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Sınav Kaygısı Desteği</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Heyecanlanmak normal — onu yönetmeyi öğrenebilirsin.</p>
+            </div>
+            {[
+              { baslik: "🌬️ 4-7-8 Nefes Tekniği", metin: "4 saniye burundan nefes al, 7 saniye tut, 8 saniyede ağızdan yavaşça ver. 3-4 kez tekrarla. Sınav öncesi veya bir soruda panikleyince kullanabilirsin — sinir sistemini sakinleştirir." },
+              { baslik: "🎯 Kontrol Edebildiğine Odaklan", metin: "Sınavın zorluğunu ya da diğer öğrencileri kontrol edemezsin. Ama ne kadar çalıştığını, o an önündeki soruya nasıl yaklaştığını kontrol edebilirsin. Zihnini bu ikisine odakla." },
+              { baslik: "💬 Kendine Söylediklerine Dikkat Et", metin: "'Yapamayacağım' yerine 'Bu soru zor ama bir sonrakine geçip geri dönebilirim' de. İç sesin, performansını gerçekten etkiler." },
+              { baslik: "😴 Uyku ve Beslenme", metin: "Sınavdan önceki hafta düzenli uyu (7-9 saat). Kafein ve şekerli atıştırmalıkları abartma — ani enerji düşüşüne sebep olabilir." },
+              { baslik: "🏃 Hareket Et", metin: "Çalışma aralarında 5-10 dakika yürüyüş ya da esneme, biriken gerginliği azaltır ve odaklanmayı artırır." },
+            ].map((k) => (
+              <div key={k.baslik} style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+                <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>{k.baslik}</p>
+                <p style={{ fontSize: 12.5, lineHeight: 1.7, color: "#3A4550" }}>{k.metin}</p>
+              </div>
+            ))}
+            <div style={{ background: "#FEF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 10, padding: 14, marginTop: 4 }}>
+              <p style={{ fontSize: 11.5, color: "#6B5A1E", lineHeight: 1.6 }}>
+                💡 Eğer kaygın günlük hayatını ciddi şekilde etkiliyorsa (uyku, iştah, sürekli endişe), bunu bir yetişkinle (ailen, okul rehberlik servisi) konuşmak en doğrusu — bu tamamen normal ve yardım istemek güçlü bir adımdır.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {mod === "hedefokul" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🏫</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Hedef Okulum</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Hedefini belirle, ona göre çalış.</p>
+            </div>
+
+            <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+              <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İL</label>
+              <select value={hedefIl} onChange={(e) => { setHedefIl(e.target.value); setHedefIlce(""); }}
+                style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }}>
+                <option value="">İl seç...</option>
+                {TURKIYE_IL_ILCE.map((i) => <option key={i.plaka} value={i.il}>{i.il}</option>)}
+              </select>
+
+              {hedefIl && (
+                <>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İLÇE</label>
+                  <select value={hedefIlce} onChange={(e) => setHedefIlce(e.target.value)}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }}>
+                    <option value="">İlçe seç...</option>
+                    {(TURKIYE_IL_ILCE.find((i) => i.il === hedefIl)?.ilceler || []).map((ilce) => <option key={ilce} value={ilce}>{ilce}</option>)}
+                  </select>
+                </>
+              )}
+
+              <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF OKUL ADI</label>
+              <input value={hedefOkulAdi} onChange={(e) => setHedefOkulAdi(e.target.value)} placeholder="Örn: XYZ Fen Lisesi"
+                style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }} />
+
+              <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF PUAN (100-500 arası, kendi araştırdığın)</label>
+              <input type="number" min="100" max="500" value={hedefPuanDeger} onChange={(e) => setHedefPuanDeger(e.target.value)} placeholder="Örn: 470"
+                style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 16, background: "#FAF6EE" }} />
+
+              <button className="kx-btn" onClick={hedefOkuluKaydet} disabled={hedefKaydediliyor} style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                {hedefKaydediliyor ? "Kaydediliyor..." : hedefKaydedildi ? "✓ Kaydedildi" : "Kaydet"}
+              </button>
+
+              <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 10, lineHeight: 1.6, textAlign: "center" }}>
+                ℹ️ Okul taban puanları her yıl değişir ve resmi olarak yayınlanmaz — hedef puanını güncel kaynaklardan kendin araştırıp gir.
+              </p>
+            </div>
           </div>
         )}
 
