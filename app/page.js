@@ -1387,6 +1387,67 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     ]).then(([b, s]) => setBasariVeri({ ...b, enUzunSeri: s.enUzunSeri || 0 })).catch(() => {});
   }, [mod, hesap?.eposta]);
 
+  const [kurumOlusturAdi, setKurumOlusturAdi] = useState("");
+  const [kurumOlusturSonuc, setKurumOlusturSonuc] = useState(null); // {kurumKodu, ad}
+  const [kurumOlusturYukleniyor, setKurumOlusturYukleniyor] = useState(false);
+  const [kurumRaporKodu, setKurumRaporKodu] = useState("");
+  const [kurumRaporu, setKurumRaporu] = useState(null);
+  const [kurumRaporYukleniyor, setKurumRaporYukleniyor] = useState(false);
+  const [kurumBaglanKodu, setKurumBaglanKodu] = useState("");
+  const [kurumBaglaniyor, setKurumBaglaniyor] = useState(false);
+  const [kurumBaglandi, setKurumBaglandi] = useState(false);
+
+  async function kurumOlustur() {
+    if (!kurumOlusturAdi.trim()) return;
+    setKurumOlusturYukleniyor(true); setHata("");
+    try {
+      const res = await fetch("/api/kurum/olustur", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad: kurumOlusturAdi.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setKurumOlusturSonuc(data);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Kurum olusturulamadi, tekrar dene."));
+    } finally {
+      setKurumOlusturYukleniyor(false);
+    }
+  }
+
+  async function kurumRaporuGetir() {
+    if (!kurumRaporKodu.trim()) return;
+    setKurumRaporYukleniyor(true); setHata(""); setKurumRaporu(null);
+    try {
+      const res = await fetch(`/api/kurum/rapor?kod=${encodeURIComponent(kurumRaporKodu.trim())}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setKurumRaporu(data);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Rapor alinamadi, kodu kontrol et."));
+    } finally {
+      setKurumRaporYukleniyor(false);
+    }
+  }
+
+  async function kurumaOgrenciOlarakBaglan() {
+    if (!kurumBaglanKodu.trim()) return;
+    setKurumBaglaniyor(true); setHata("");
+    try {
+      const res = await fetch("/api/kurum/baglan", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kurumKodu: kurumBaglanKodu.trim(), cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setKurumBaglandi(true);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Baglanamadi, kodu kontrol et."));
+    } finally {
+      setKurumBaglaniyor(false);
+    }
+  }
+
   const TATIL_TURLERI = [
     { key: "ara", ad: "Ara Tatil", gun: 7, aciklama: "Kısa toparlanma, eksik konuları kapatma" },
     { key: "yariyil", ad: "Yarıyıl Tatili", gun: 14, aciklama: "2 haftalık dengeli tekrar programı" },
@@ -2372,6 +2433,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
                 ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
                 ["basarilarim", "🏅 Basarilarim"],
+                ["kurumpaneli", "🏢 Kurum Paneli"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3432,6 +3494,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </div>
                 )}
 
+                {hesap.rol === "ogrenci" && !kurumBaglandi && (
+                  <div style={{ background: "#F4F0E4", borderRadius: 8, padding: 12, margin: "10px 0" }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>🏢 Okulunun/Dershanenin Kurum Kodu Var mı?</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input value={kurumBaglanKodu} onChange={(e) => setKurumBaglanKodu(e.target.value.toUpperCase())} placeholder="Kurum kodu"
+                        style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5, letterSpacing: 1 }} />
+                      <button className="kx-btn" onClick={kurumaOgrenciOlarakBaglan} disabled={kurumBaglaniyor || !kurumBaglanKodu.trim()}
+                        style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+                        {kurumBaglaniyor ? "..." : "Bağlan"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {kurumBaglandi && (
+                  <div style={{ background: RENK_BASARI_ACIK, borderRadius: 8, padding: 10, margin: "10px 0", textAlign: "center" }}>
+                    <p style={{ fontSize: 12, color: "#2E7D4F", fontWeight: 600 }}>✓ Kuruma bağlandın</p>
+                  </div>
+                )}
+
                 <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <p style={{ fontSize: 13, fontWeight: 700 }}>Profil Bilgilerin</p>
@@ -3875,6 +3956,103 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 💡 Eğer kaygın günlük hayatını ciddi şekilde etkiliyorsa (uyku, iştah, sürekli endişe), bunu bir yetişkinle (ailen, okul rehberlik servisi) konuşmak en doğrusu — bu tamamen normal ve yardım istemek güçlü bir adımdır.
               </p>
             </div>
+          </div>
+        )}
+
+        {mod === "kurumpaneli" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🏢</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Kurum Paneli</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Okul/dershane yöneticileri için toplu, anonim öğrenci raporu.</p>
+            </div>
+
+            {!kurumRaporu && (
+              <>
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>1) Yeni Kurum Oluştur</p>
+                  {!kurumOlusturSonuc ? (
+                    <>
+                      <input value={kurumOlusturAdi} onChange={(e) => setKurumOlusturAdi(e.target.value)} placeholder="Okul / Dershane Adı"
+                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
+                      <button className="kx-btn" onClick={kurumOlustur} disabled={kurumOlusturYukleniyor || !kurumOlusturAdi.trim()}
+                        style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
+                        {kurumOlusturYukleniyor ? "Oluşturuluyor..." : "Kurum Oluştur"}
+                      </button>
+                    </>
+                  ) : (
+                    <div style={{ background: RENK_BASARI_ACIK, borderRadius: 10, padding: 14, textAlign: "center" }}>
+                      <p style={{ fontSize: 12, color: "#2E7D4F", marginBottom: 6 }}>"{kurumOlusturSonuc.ad}" oluşturuldu!</p>
+                      <p style={{ fontSize: 22, fontWeight: 900, letterSpacing: 2, color: "#1B2430" }}>{kurumOlusturSonuc.kurumKodu}</p>
+                      <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Bu kodu öğrencilerine ver — Profil sayfasından bu koda bağlanabilirler. Kodu ayrıca aşağıya girip raporu görebilirsin.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>2) Kurum Raporunu Görüntüle</p>
+                  <input value={kurumRaporKodu} onChange={(e) => setKurumRaporKodu(e.target.value.toUpperCase())} placeholder="Kurum Kodu (örn: A7K2M9XP)"
+                    style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10, letterSpacing: 1 }} />
+                  <button className="kx-btn" onClick={kurumRaporuGetir} disabled={kurumRaporYukleniyor || !kurumRaporKodu.trim()}
+                    style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
+                    {kurumRaporYukleniyor ? "Getiriliyor..." : "Raporu Getir"}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {kurumRaporu && (
+              <div className="kx-fadein">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <p style={{ fontWeight: 700, fontSize: 15 }}>{kurumRaporu.kurumAdi}</p>
+                  <button onClick={() => { setKurumRaporu(null); setKurumRaporKodu(""); }} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Geri</button>
+                </div>
+
+                <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: 16, textAlign: "center" }}>
+                    <p style={{ color: COLORS.mustard, fontSize: 28, fontWeight: 900 }}>{kurumRaporu.ogrenciSayisi}</p>
+                    <p style={{ color: "#8A968E", fontSize: 10.5 }}>TOPLAM ÖĞRENCİ</p>
+                  </div>
+                </div>
+
+                {kurumRaporu.sinifDagilimi?.length > 0 && (
+                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>SINIF DAĞILIMI</p>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {kurumRaporu.sinifDagilimi.map((s) => (
+                        <div key={s.sinif} style={{ background: "#FAF6EE", borderRadius: 8, padding: "6px 12px", fontSize: 12 }}>
+                          <strong>{s.sinif}. Sınıf:</strong> {s.sayi} öğrenci
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {kurumRaporu.dersBazindaNet?.length > 0 && (
+                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>DERS BAZINDA ORTALAMA NET (düşükten yükseğe)</p>
+                    {kurumRaporu.dersBazindaNet.map((d) => (
+                      <div key={d.ders} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12.5 }}>
+                        <span>{d.ders}</span>
+                        <span style={{ fontWeight: 700 }}>{d.ortalama_net} <span style={{ color: COLORS.muted, fontWeight: 400 }}>({d.test_sayisi} test)</span></span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {kurumRaporu.zayifKonular?.length > 0 && (
+                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>KURUM GENELİ EN ÇOK HATA YAPILAN KONULAR</p>
+                    {kurumRaporu.zayifKonular.map((z, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 12 }}>
+                        <span>{z.ders} — {z.alt_konu}</span>
+                        <span style={{ fontWeight: 700, color: COLORS.coral }}>{z.hata_sayisi}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
