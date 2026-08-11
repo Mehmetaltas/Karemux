@@ -114,7 +114,10 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Birinci Dereceden Denklemler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
 
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
-  "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Vucudumuzdaki Sistemler", "Kuvvet ve Hareket", "Madde ve Isi", "Ses ve Ozellikleri", "Vucudumuzdaki Sistemler ve Sagligi", "Elektrigin Iletimi", "Uygulamali Bilim"],
+  // 6. sinif Fen Bilimleri - Maarif Modeli'ne gore GUNCELLENDI (Agustos 2026, coklu
+  // kaynaktan dogrulandi: 7 unite, Vucudumuzdaki Sistemler/Uygulamali Bilim ayrimi
+  // kaldirildi, Isik ve Madde ayri unite oldu).
+  "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Kuvvetin Etkisinde Hareket", "Canlilarda Sistemler", "Isik (Aynalar ve Isigin Sogurulmasi)", "Maddenin Ayirt Edici Ozellikleri", "Elektrik", "Surdurulebilir Yasam"],
   "7::Fen Bilimleri": ["Gunes Sistemi ve Otesi", "Hucre ve Bolunmeler", "Kuvvet ve Enerji", "Saf Madde ve Karisimlar", "Isigin Madde ile Etkilesimi", "Canlilarda Ureme Buyume ve Gelisme", "Elektrik Devreleri", "Uygulamali Bilim"],
   // Turkce 6/7 - Matematik/Fen'in aksine Turkce kazanimlari numarali "unite" degil
   // beceri alani (Dinleme/Konusma/Okuma/Yazma) bazinda yapilandirilmis, bu yuzden asagidaki
