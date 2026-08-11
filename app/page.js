@@ -1588,6 +1588,31 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   // Soru Coz (fotografla)
   const [soruGorseli, setSoruGorseli] = useState(null);
   const [soruCozumu, setSoruCozumu] = useState("");
+  const [soruSohbetGecmisi, setSoruSohbetGecmisi] = useState([]);
+  const [soruSohbetMetni, setSoruSohbetMetni] = useState("");
+  const [soruSohbetYukleniyor, setSoruSohbetYukleniyor] = useState(false);
+
+  async function soruSohbetGonder() {
+    const mesaj = soruSohbetMetni.trim();
+    if (!mesaj || soruSohbetYukleniyor) return;
+    setSoruSohbetMetni("");
+    setSoruSohbetGecmisi((eski) => [...eski, { rol: "ogrenci", metin: mesaj }]);
+    setSoruSohbetYukleniyor(true);
+    try {
+      const res = await fetch("/api/soru-coz-devam", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orijinalCozum: soruCozumu, sohbetGecmisi: soruSohbetGecmisi, yeniMesaj: mesaj, ders, sinif, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSoruSohbetGecmisi((eski) => [...eski, { rol: "asistan", metin: data.cevap }]);
+    } catch (e) {
+      setSoruSohbetGecmisi((eski) => [...eski, { rol: "asistan", metin: "Bir sorun oldu, tekrar sorar mısın?" }]);
+    } finally {
+      setSoruSohbetYukleniyor(false);
+    }
+  }
+
 
   useEffect(() => {
     cihazIdRef.current = cihazIdAl();
@@ -1695,7 +1720,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function soruGorseliCoz(dosya) {
-    setYukleniyor("soru"); setHata(""); setSoruCozumu("");
+    setYukleniyor("soru"); setHata(""); setSoruCozumu(""); setSoruSohbetGecmisi([]);
     try {
       const base64 = await new Promise((resolve, reject) => {
         const r = new FileReader();
@@ -1706,7 +1731,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const res = await fetch("/api/soru-coz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: base64, mediaType: dosya.type, ders, cihazId: cihazIdRef.current }),
+        body: JSON.stringify({ imageBase64: base64, mediaType: dosya.type, ders, sinif, cihazId: cihazIdRef.current }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -3631,6 +3656,36 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
               );
             })()}
+
+            {soruCozumu && (
+              <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, border: `1px solid ${COLORS.line}`, padding: 16, marginTop: 12 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 10 }}>💬 ANLAMADIĞIN BİR YER Mİ VAR?</p>
+                {soruSohbetGecmisi.length > 0 && (
+                  <div style={{ marginBottom: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                    {soruSohbetGecmisi.map((m, i) => (
+                      <div key={i} style={{ alignSelf: m.rol === "ogrenci" ? "flex-end" : "flex-start", maxWidth: "85%" }}>
+                        <div style={{
+                          padding: "8px 12px", borderRadius: m.rol === "ogrenci" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
+                          background: m.rol === "ogrenci" ? COLORS.coral : "#FAF6EE", color: m.rol === "ogrenci" ? "#fff" : "#1B2430",
+                          fontSize: 12.5, lineHeight: 1.6, border: m.rol === "ogrenci" ? "none" : `1px solid ${COLORS.line}`,
+                        }}>{m.metin}</div>
+                      </div>
+                    ))}
+                    {soruSohbetYukleniyor && (
+                      <div style={{ alignSelf: "flex-start", fontSize: 11.5, color: COLORS.muted, fontStyle: "italic" }}>Karemux yazıyor...</div>
+                    )}
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: 8 }}>
+                  <input value={soruSohbetMetni} onChange={(e) => setSoruSohbetMetni(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") soruSohbetGonder(); }}
+                    placeholder="Örn: 3. adımı anlamadım, tekrar açıklar mısın?"
+                    style={{ flex: 1, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
+                  <button className="kx-btn" onClick={soruSohbetGonder} disabled={soruSohbetYukleniyor || !soruSohbetMetni.trim()}
+                    style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Sor</button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
