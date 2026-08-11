@@ -641,7 +641,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     // Kalicilik icin veritabanina da yaz - sadece localStorage'a guvenmek
     // (gizli sekme/farkli cihaz durumlarinda) veri kaybina yol acabiliyordu.
     const yanlis = toplam - dogru;
-    const net = Math.max(0, dogru - yanlis / 4);
+    const net = Math.max(0, dogru - yanlis / 3);
     fetch("/api/sinav-sonuc", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -900,7 +900,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const rapor = { dogru, toplam: gecenYilSorulari.length, seviye: oran >= 0.7 ? "Saglam" : oran >= 0.4 ? "Orta" : "Zayif" };
     setGecenYilRaporu(rapor);
     setGecenYilTamamlandiMi(true);
-    const net = Math.max(0, dogru - yanlis / 4);
+    const net = Math.max(0, dogru - yanlis / 3);
     fetch("/api/sinav-sonuc", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -1086,7 +1086,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     Object.keys(rapor).forEach((u) => {
       const r = rapor[u];
       const yanlis = r.toplam - r.dogru;
-      const net = Math.max(0, r.dogru - yanlis / 4);
+      const net = Math.max(0, r.dogru - yanlis / 3);
       fetch("/api/sinav-sonuc", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1294,6 +1294,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [dersSecimModu, setDersSecimModu] = useState("koc"); // "koc" | "manuel"
   const [manuelUnite, setManuelUnite] = useState(null);
   const [manuelAltBaslik, setManuelAltBaslik] = useState([]);
+  const [puanGirdi, setPuanGirdi] = useState({
+    Turkce: { d: "", y: "" }, Matematik: { d: "", y: "" }, "Fen Bilimleri": { d: "", y: "" },
+    "T.C. Inkilap Tarihi": { d: "", y: "" }, "Din Kulturu": { d: "", y: "" }, Ingilizce: { d: "", y: "" },
+  });
   useEffect(() => {
     setAciklama(""); setQuiz(null); setGonderildi(false); setCevaplar({});
   }, [manuelUnite, manuelAltBaslik, dersSecimModu]);
@@ -1759,7 +1763,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const dogru = denemeSorulari.filter((s, i) => denemeCevaplar[i] === s.dogruIndex).length;
     const bos = denemeSorulari.filter((s, i) => denemeCevaplar[i] === undefined).length;
     const yanlis = denemeSorulari.length - dogru - bos;
-    const net = Math.max(0, dogru - yanlis / 4);
+    const net = Math.max(0, dogru - yanlis / 3);
 
     const zorlukKirilim = { kolay: { dogru: 0, toplam: 0 }, orta: { dogru: 0, toplam: 0 }, zor: { dogru: 0, toplam: 0 } };
     const altKonuKirilim = {};
@@ -1945,6 +1949,29 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
         )}
 
+        {mod === "bos" && !secilenDers && (() => {
+          // LGS 2027 tarihi MEB tarafindan henuz resmi olarak aciklanmadi (Agustos 2026
+          // itibariyle) - geçmis yillarin duzenine gore (Haziran ayinin 2. hafta sonu)
+          // TAHMINI bir tarih kullaniyoruz, kesin degil, acikca "tahmini" etiketliyoruz.
+          const tahminiLgsTarihi = new Date("2027-06-13T09:30:00");
+          const simdi = new Date();
+          const kalanMs = tahminiLgsTarihi - simdi;
+          const kalanGun = Math.max(0, Math.ceil(kalanMs / (1000 * 60 * 60 * 24)));
+          if (sinif < 5 || sinif > 8 || kalanGun <= 0) return null;
+          return (
+            <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 14, padding: "16px 18px", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ color: "#8A968E", fontSize: 10, fontWeight: 700, letterSpacing: 0.5, marginBottom: 3 }}>LGS 2027'YE (TAHMİNİ)</p>
+                <p style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>Kesin tarih MEB tarafından henüz açıklanmadı</p>
+              </div>
+              <div style={{ textAlign: "center", flexShrink: 0, marginLeft: 12 }}>
+                <p style={{ color: COLORS.mustard, fontSize: 30, fontWeight: 900, lineHeight: 1 }}>{kalanGun}</p>
+                <p style={{ color: "#8A968E", fontSize: 10, fontWeight: 700 }}>GÜN</p>
+              </div>
+            </div>
+          );
+        })()}
+
         {mod === "bos" && !secilenDers && (
           <div className="kx-fadein" style={{ marginBottom: 16 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>DERSINI SEC</p>
@@ -2036,6 +2063,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               {[
                 ["sorucoz", "📷 Soru Coz (Fotograf)"],
                 ["kocluk", "📅 Haftalik Calisma Plani"],
+                ["puanhesap", "🧮 LGS Puan Hesaplayici"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -2987,7 +3015,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <div><div style={{ fontSize: 19, fontWeight: 700, color: COLORS.muted }}>{denemeBelgesi.bos}</div><div style={{ fontSize: 9.5, color: COLORS.muted, fontWeight: 600 }}>BOŞ</div></div>
                     </div>
                     <p style={{ fontSize: 10.5, color: COLORS.muted, textAlign: "center", marginBottom: 16, fontStyle: "italic" }}>
-                      Net = Doğru − Yanlış/4 (gerçek sınav hesaplama yöntemi)
+                      Net = Doğru − Yanlış/3 (LGS resmi hesaplama yöntemi - 3 yanlış 1 doğruyu götürür)
                     </p>
 
                     {denemeBelgesi.oncekiNet != null && (
@@ -3381,6 +3409,67 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             )}
           </div>
         )}
+
+        {mod === "puanhesap" && (() => {
+          const KATSAYILAR = { Turkce: 4, Matematik: 4, "Fen Bilimleri": 4, "T.C. Inkilap Tarihi": 1, "Din Kulturu": 1, Ingilizce: 1 };
+          const MAX_SORU = { Turkce: 20, Matematik: 20, "Fen Bilimleri": 20, "T.C. Inkilap Tarihi": 10, "Din Kulturu": 10, Ingilizce: 10 };
+          let toplamAgirlikliNet = 0;
+          let herhangiGirdiVar = false;
+          const netler = {};
+          Object.keys(KATSAYILAR).forEach((ders) => {
+            const d = Number(puanGirdi[ders]?.d) || 0;
+            const y = Number(puanGirdi[ders]?.y) || 0;
+            if (puanGirdi[ders]?.d !== "" || puanGirdi[ders]?.y !== "") herhangiGirdiVar = true;
+            const net = Math.max(0, d - y / 3);
+            netler[ders] = net;
+            toplamAgirlikliNet += net * KATSAYILAR[ders];
+          });
+          const MAX_AGIRLIKLI_NET = 20 * 4 + 20 * 4 + 20 * 4 + 10 * 1 + 10 * 1 + 10 * 1; // 270
+          const tahminiPuan = herhangiGirdiVar ? Math.round(100 + (toplamAgirlikliNet / MAX_AGIRLIKLI_NET) * 400) : null;
+
+          return (
+            <div>
+              <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+                <p style={{ fontSize: 22, marginBottom: 4 }}>🧮</p>
+                <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>LGS Puan Hesaplayıcı</p>
+                <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Her dersten doğru/yanlış sayını gir, tahmini puanını gör.</p>
+              </div>
+
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                {Object.keys(KATSAYILAR).map((ders) => (
+                  <div key={ders} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${COLORS.line}` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 700 }}>{ders}</span>
+                      <span style={{ fontSize: 10.5, color: COLORS.muted }}>{MAX_SORU[ders]} soru · Katsayı ×{KATSAYILAR[ders]}</span>
+                    </div>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <input type="number" min="0" max={MAX_SORU[ders]} value={puanGirdi[ders].d} placeholder="Doğru"
+                        onChange={(e) => setPuanGirdi((eski) => ({ ...eski, [ders]: { ...eski[ders], d: e.target.value } }))}
+                        style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
+                      <input type="number" min="0" max={MAX_SORU[ders]} value={puanGirdi[ders].y} placeholder="Yanlış"
+                        onChange={(e) => setPuanGirdi((eski) => ({ ...eski, [ders]: { ...eski[ders], y: e.target.value } }))}
+                        style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
+                      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, color: COLORS.coral }}>
+                        Net: {netler[ders].toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {herhangiGirdiVar && (
+                <div className="kx-pop" style={{ background: "#1B2430", borderRadius: 14, padding: 20, textAlign: "center" }}>
+                  <p style={{ color: "#8A968E", fontSize: 10.5, fontWeight: 700, letterSpacing: 0.5, marginBottom: 6 }}>TAHMİNİ PUAN (100-500 arası)</p>
+                  <p style={{ color: COLORS.mustard, fontSize: 44, fontWeight: 900, lineHeight: 1, marginBottom: 6 }}>{tahminiPuan}</p>
+                  <p style={{ color: "#C9D4C7", fontSize: 11.5, marginBottom: 10 }}>Ağırlıklı Net Toplamı: {toplamAgirlikliNet.toFixed(2)} / {MAX_AGIRLIKLI_NET}</p>
+                  <p style={{ color: "#6B7566", fontSize: 10, lineHeight: 1.6, borderTop: "1px solid #2A3540", paddingTop: 10 }}>
+                    ⚠️ Bu, basitleştirilmiş bir TAHMİNDİR. Gerçek LGS puanı, ülke geneli ortalama ve standart sapmaya göre hesaplanır (MEB her yıl açıklar) — bu yüzden gerçek sonuçtan farklı çıkabilir. Sadece fikir vermesi içindir.
+                  </p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
         {mod === "kocluk" && (
           <div>
