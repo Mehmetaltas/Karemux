@@ -140,6 +140,33 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Istatistiksel Arastirma Sureci::5": ["Veri Toplama", "Kategorik Veri Dagilimlari"],
   "Matematik::Islemlerle Cebirsel Dusunme::5": ["Esitligin Korunumu", "Degisme Birlesme Dagilma Ozelligi", "Islem Onceligi", "Oruntuler", "Temel Aritmetik Islemler ve Algoritma"],
   "Matematik::Veriden Olasiliga::5": ["Olasilik Spektrumu", "Kesin Olay", "Imkansiz Olay"],
+
+  // ==== 6. SINIF FEN BILIMLERI (resmi MEB kazanimlarindan - F.6.x) ====
+  "Fen Bilimleri::Gunes Sistemi ve Tutulmalar::6": ["Gunes Sistemindeki Gok Cisimleri", "Ay'in Evreleri", "Gunes ve Ay Tutulmasi"],
+  "Fen Bilimleri::Vucudumuzdaki Sistemler::6": ["Destek ve Hareket Sistemi", "Sindirim Sistemi", "Dolasim Sistemi", "Solunum Sistemi", "Bosaltim Sistemi"],
+  "Fen Bilimleri::Kuvvet ve Hareket::6": ["Kuvvetin Olculmesi", "Surtunme Kuvveti", "Kuvvetin Cisimlere Etkisi"],
+  "Fen Bilimleri::Madde ve Isi::6": ["Maddenin Tanecikli Yapisi", "Isi ve Sicaklik Farki", "Genlesme"],
+  "Fen Bilimleri::Ses ve Ozellikleri::6": ["Sesin Yayilmasi", "Sesin Farkli Ortamlarda Yayilmasi", "Sesin Siddeti ve Yuksekligi"],
+  "Fen Bilimleri::Vucudumuzdaki Sistemler ve Sagligi::6": ["Sagligli Beslenme", "Sistem Sagligini Etkileyen Faktorler", "Zararli Aliskanliklar"],
+  "Fen Bilimleri::Elektrigin Iletimi::6": ["Iletken ve Yalitkan Maddeler", "Elektrik Carpilmasi ve Guvenlik Onlemleri"],
+
+  // ==== 7. SINIF FEN BILIMLERI (resmi MEB kazanimlarindan - F.7.x) ====
+  "Fen Bilimleri::Gunes Sistemi ve Otesi::7": ["Uzay Teknolojileri", "Uzay Kirliligi"],
+  "Fen Bilimleri::Hucre ve Bolunmeler::7": ["Hucre Yapisi (Bitki ve Hayvan Hucresi)", "Mitoz Bolunme", "Mayoz Bolunme"],
+  "Fen Bilimleri::Kuvvet ve Enerji::7": ["Yer Cekimi ve Kutle Cekimi", "Is Kavrami", "Kinetik ve Potansiyel Enerji", "Surtunme Kuvveti ve Enerji Iliskisi"],
+  "Fen Bilimleri::Saf Madde ve Karisimlar::7": ["Atom ve Molekul", "Element ve Bilesik Siniflandirmasi"],
+  "Fen Bilimleri::Isigin Madde ile Etkilesimi::7": ["Isigin Sogurulmasi", "Beyaz Isigin Bilesimi", "Cisimlerin Renkli Gorunmesi", "Gunes Enerjisi Uygulamalari"],
+  "Fen Bilimleri::Canlilarda Ureme Buyume ve Gelisme::7": ["Bitki ve Hayvanlarda Ureme Cesitleri", "Buyume ve Gelismeyi Etkileyen Faktorler"],
+  "Fen Bilimleri::Elektrik Devreleri::7": ["Seri ve Paralel Baglanti", "Elektriksel Direnc"],
+
+  // ==== 5. SINIF FEN BILIMLERI (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
+  "Fen Bilimleri::Gokyuzundeki Komsularimiz ve Biz::5": ["Gunes'in Yapisi ve Donme Hareketi", "Ay'in Ozellikleri Donme ve Dolanma Hareketleri"],
+  "Fen Bilimleri::Kuvveti Taniyalim::5": ["Kuvvetin Buyuklugu ve Dinamometre", "Agirlik ve Yer Cekimi", "Surtunme Kuvveti"],
+  "Fen Bilimleri::Canlilarin Yapisina Yolculuk::5": ["Hucre ve Organelleri", "Destek ve Hareket Sistemi"],
+  "Fen Bilimleri::Isigin Dunyasi::5": ["Isigin Yayilmasi", "Madde ve Isik (Saydam-Yari Saydam-Opak)", "Golge Olusumu"],
+  "Fen Bilimleri::Maddenin Dogasi::5": ["Maddenin Tanecikli Yapisi", "Isi ve Sicaklik", "Isi Iletimi (Iletken-Yalitkan)"],
+  "Fen Bilimleri::Yasamimizdaki Elektrik::5": ["Devre Elemanlari ve Sembolleri", "Devre Semalari"],
+  "Fen Bilimleri::Surdurulebilir Yasam ve Geri Donusum::5": ["Geri Donusum ve Cevre Bilinci", "Dogal Kaynaklarin Korunumu"],
   "Matematik::Carpanlar ve Katlar": ["Asal Carpanlara Ayirma", "EBOB Hesaplama", "EKOK Hesaplama", "Aralarinda Asal Sayilar"],
   "Matematik::Uslu Ifadeler": ["Tam Sayi Kuvvetleri", "Uslu Ifadelerde Temel Kurallar", "Bilimsel Gosterim"],
   "Matematik::Karekoklu Ifadeler": ["Tam Kare Olmayan Sayinin Karekoku", "Kareklu Ifadeleri Sadelestirme", "Kareklu Ifadelerde Carpma-Bolme", "Kareklu Ifadelerde Toplama-Cikarma", "Rasyonel ve Irrasyonel Sayilar"],
