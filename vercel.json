@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/yenileme-uyarisi",
       "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/veli-ozet",
+      "schedule": "0 17 * * 0"
     }
   ]
 }

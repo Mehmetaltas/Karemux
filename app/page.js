@@ -82,15 +82,19 @@ const MUFREDAT = {
 // 5/6/7. sinif icin ayri unite listeleri - MUFREDAT (yukarida) 8. sinif icindir (LGS
 // sinifi - MEB henuz eski mufredati degistirmedi, o veri saglam/guncel).
 //
-// ONEMLI - MUFREDAT GECIS BELIRSIZLIGI (arastirilip dogrulandi, Agustos 2026):
+// ONEMLI - MUFREDAT GECIS BELIRSIZLIGI (arastirilip GUNCELLENDI, Agustos 2026):
 // MEB "Turkiye Yuzyili Maarif Modeli" adiyla YENI bir mufredati KADEMELI olarak
 // devreye sokuyor: 2024-25'te 5. sinif, 2025-26'da 6. sinif, 2026-27'de (yani TAM
 // SU AN) 7. sinifin gecmesi bekleniyor. Yani:
-//  - 6. sinif ARTIK YENI mufredatta olmali - ama asagidaki veri ESKI (2018, M.6.x)
-//    mufredata dayanmaktadir - konu isimleri/sirasi GUNCEL OLMAYABILIR.
-//  - 7. sinifin yeni mufredati bu yazi itibariyle HENUZ RESMEN NETLESMEMISTIR
-//    (kaynaklar "kesin ayrintilar icin MEB duyurulari takip edilmeli" diyor) -
-//    bu yuzden bilinen en guvenilir veri olarak eski (2018) mufredat kullanildi.
+//  - 6. sinif ARTIK YENI mufredatta - Matematik unite isimleri/yapisi buna gore
+//    GUNCELLENDI (geometri/cebir uniteleri birlestirildi). Diger 5 ders (Fen, Turkce,
+//    Sosyal, Din, Ingilizce) HENUZ guncellenmedi, eski (2018) veriyle calisiyor -
+//    bilinen bir eksik, ileride tamamlanmali.
+//  - 7. sinif icin: kaynaklar "temel konular (Tam Sayilar, Rasyonel Sayilar, Cebirsel
+//    Ifadeler, Oran-Oranti, Yuzdeler) KORUNUYOR, degisen daha cok YAKLASIM (ezber
+//    yerine muhakeme)" diyor - yani mevcut 7. sinif unite listemiz icerik olarak byk
+//    olcude hala gecerli, "baglam temelli soru" standardimiz zaten bu yeni yaklasima
+//    denk dusuyor. Kesin ayrintilar icin MEB duyurulari takip edilmeli.
 // Eski mufredat verisi, sinif seviyesine 8. sinif icerigi gostermekten kesinlikle
 // daha dogrudur (konular hala pedagojik olarak gecerli, sadece YENIDEN
 // gruplanmis/yer degistirmis olabilir) - ama YENI mufredat resmen yayinlanip
@@ -100,7 +104,13 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // Kaynak: MEB resmi PDF + Ocak 2026 tarihli guncel haber kaynagi - nispeten
   // oturmus (2. yilina girdi) ama yine de en dikkatli ele alinmasi gereken sinif.
   "5::Matematik": ["Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)", "Sayilar ve Nicelikler - Cok Basamakli Sayilar", "Geometrik Nicelikler (Cevre ve Alan)", "Kesirler Ondalik Gosterim ve Yuzdeler", "Istatistiksel Arastirma Sureci", "Islemlerle Cebirsel Dusunme", "Veriden Olasiliga"],
-  "6::Matematik": ["Dogal Sayilarla Islemler", "Carpanlar ve Katlar", "Kumeler", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
+  // 6. sinif Matematik - Turkiye Yuzyili Maarif Modeli'ne (2025-26'da 6. sinifa gecti)
+  // gore GUNCELLENDI. Sayilar alani (Carpanlar/EBOB-EKOK/Ondalik) buyuk olcude ayni
+  // kaldi, ama geometri ve cebir uniteleri YENIDEN ADLANDIRILIP BIRLESTIRILDI (kaynak:
+  // resmi MEB yillik plani + birden fazla egitim sitesi, Agustos 2026). Tam kazanim
+  // derinligi (alt basliklar) bu yeniden yapilanmaya gore HENUZ guncellenmedi - AI
+  // onerisine dusuyor, ileride ayrica derinlestirilmeli.
+  "6::Matematik": ["Dogal Sayilarla Islemler", "Carpanlar ve Katlar", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Geometrik Sekiller (Acilar Ucgen Dortgen)", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Nicelikler (Alan ve Cember)", "Veri Toplama ve Degerlendirme"],
   "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Birinci Dereceden Denklemler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
 
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
@@ -292,14 +302,10 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Tam Sayilar::6": ["Tam Sayilari Tanima ve Sayi Dogrusu", "Tam Sayilari Karsilastirma ve Siralama", "Mutlak Deger"],
   "Matematik::Kesirlerle Islemler::6": ["Kesirleri Karsilastirma ve Siralama", "Kesirlerde Toplama ve Cikarma", "Kesirlerde Carpma", "Kesirlerde Bolme"],
   "Matematik::Ondalik Gosterim::6": ["Bolme Islemi ile Kesir Iliskisi", "Ondalik Gosterimi Cozumleme", "Ondalik Gosterimlerde Islemler"],
-  "Matematik::Oran::6": ["Oran Kavrami", "Oranti", "Orantiyla Ilgili Problemler"],
-  "Matematik::Cebirsel Ifadeler::6": ["Degisken Kavrami", "Cebirsel Ifade Olusturma", "Cebirsel Ifadelerde Islemler"],
+  "Matematik::Geometrik Sekiller (Acilar Ucgen Dortgen)::6": ["Paralel Dogru ve Kesenle Olusan Acilar", "Ucgenin Acilari", "Dortgenlerin Ozellikleri"],
+  "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::6": ["Bilinmeyen Nicelikler", "Oruntuler", "Algoritma"],
+  "Matematik::Geometrik Nicelikler (Alan ve Cember)::6": ["Alan Olcme Birimleri", "Paralelkenar ve Ucgenin Alani", "Cemberin Cap-Uzunluk Iliskisi", "Cemberde Merkez Aci"],
   "Matematik::Veri Toplama ve Degerlendirme::6": ["Veri Toplama Yontemleri", "Siklik Tablosu", "Sutun Grafigi"],
-  "Matematik::Merkezi Egilim ve Yayilim Olculeri::6": ["Aritmetik Ortalama", "Ortanca (Medyan)", "Tepe Deger (Mod)"],
-  "Matematik::Acilar::6": ["Aci Cesitleri", "Tumler ve Butunler Acilar", "Aci Olcme"],
-  "Matematik::Cember::6": ["Cember ve Daire Kavrami", "Cemberde Cap ve Yaricap", "Cember Uzunlugu"],
-  "Matematik::Alan Olcme::6": ["Dikdortgenin Alani", "Paralelkenarin Alani", "Ucgenin Alani"],
-  "Matematik::Geometrik Cisimler ve Sivi Olcme::6": ["Dikdortgenler Prizmasi", "Prizmanin Yuzey Alani", "Sivi Olcme Birimleri"],
 
   // ==== 7. SINIF MATEMATIK (resmi MEB kazanimlarindan - M.7.x.x) ====
   "Matematik::Tam Sayilarla Islemler::7": ["Toplama ve Cikarma", "Carpma ve Bolme", "Uslu Nicelik Olarak Ifade Etme"],
