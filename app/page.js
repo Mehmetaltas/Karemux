@@ -1303,6 +1303,27 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     Turkce: { d: "", y: "" }, Matematik: { d: "", y: "" }, "Fen Bilimleri": { d: "", y: "" },
     "T.C. Inkilap Tarihi": { d: "", y: "" }, "Din Kulturu": { d: "", y: "" }, Ingilizce: { d: "", y: "" },
   });
+  const [formulKartDers, setFormulKartDers] = useState(null);
+  const [formulKartUnite, setFormulKartUnite] = useState(null);
+  const [formulKartCache, setFormulKartCache] = useState({}); // anahtar: ders::unite::sinif -> metin
+  const [formulKartYukleniyor, setFormulKartYukleniyor] = useState(false);
+
+  async function formulKartiGetir(dersAdi, uniteAdi) {
+    const anahtar = `${dersAdi}::${uniteAdi}::${sinif}`;
+    if (formulKartCache[anahtar]) return;
+    setFormulKartYukleniyor(true);
+    try {
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. "${uniteAdi}" unitesinin TUM onemli formullerini, kurallarini ve "sinavda dikkat" noktalarini, ${sinif}. sinif seviyesinde, KISA VE YOGUN bir "hizli bakis karti" formatinda listele. Her madde tek satir, mumkun oldugunca kisa olsun (formul + 3-6 kelimelik aciklama). Uzun cumle kurma, sadece ozet madde madde yaz. 8-12 madde olsun. SADECE Turkce yaz, markdown kullanma (yildiz vb.), her maddeyi yeni satirda '•' ile basla.`;
+      const cevap = await aiIstek(p, 1200, cihazIdRef.current);
+      const temiz = cevap.replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+      setFormulKartCache((eski) => ({ ...eski, [anahtar]: temiz }));
+    } catch (e) {
+      setFormulKartCache((eski) => ({ ...eski, [anahtar]: "Kart hazırlanamadı, tekrar dene." }));
+    } finally {
+      setFormulKartYukleniyor(false);
+    }
+  }
+
   useEffect(() => {
     setAciklama(""); setQuiz(null); setGonderildi(false); setCevaplar({});
   }, [manuelUnite, manuelAltBaslik, dersSecimModu]);
@@ -2067,6 +2088,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               {[
                 ["yazili", "✏️ Yazili Hazirligi"],
                 ["deneme", "📝 Deneme Sinavi"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+                }}>{etiket}</button>
+              ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Rehberlik</p>
+              {[
+                ["formulkart", "📐 Formul ve Kural Kartlari"],
+                ["sinavstratejisi", "🎯 Sinav Stratejisi Rehberi"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3424,6 +3458,103 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <div style={{ whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.7 }}>{soruCozumu}</div>
               </div>
             )}
+          </div>
+        )}
+
+        {mod === "formulkart" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>📐</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Formül ve Kural Kartları</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Sınav öncesi hızlı tekrar için — ders ve ünite seç.</p>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 14 }}>
+              {gorunurDersler(sinif).map((d) => (
+                <button key={d.ad} onClick={() => { setFormulKartDers(d.ad); setFormulKartUnite(null); }} className="kx-btn" style={{
+                  padding: "12px 6px", borderRadius: 12, cursor: "pointer", textAlign: "center",
+                  border: `1.5px solid ${formulKartDers === d.ad ? COLORS.coral : COLORS.line}`, background: formulKartDers === d.ad ? "#FFF1EF" : COLORS.page,
+                }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{d.emoji}</div>
+                  <div style={{ fontSize: 10.5, fontWeight: 700 }}>{d.ad}</div>
+                </button>
+              ))}
+            </div>
+
+            {formulKartDers && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {dersinUniteleri(formulKartDers, sinif).map((u, idx) => {
+                    const secili = formulKartUnite === u;
+                    return (
+                      <button key={u} onClick={() => { setFormulKartUnite(u); formulKartiGetir(formulKartDers, u); }} className="kx-btn" style={{
+                        display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                        border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`, background: secili ? "#FEF8E8" : "#FAF6EE",
+                      }}>
+                        <span style={{ width: 20, height: 20, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, background: secili ? COLORS.mustard : "#fff", color: secili ? "#fff" : COLORS.muted, border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}` }}>{secili ? "✓" : idx + 1}</span>
+                        <span style={{ fontSize: 12, fontWeight: secili ? 700 : 500 }}>{u}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {formulKartUnite && (
+              <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 14, padding: 20 }}>
+                <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 13, marginBottom: 12 }}>⚡ {formulKartUnite} — Hızlı Bakış</p>
+                {formulKartYukleniyor && !formulKartCache[`${formulKartDers}::${formulKartUnite}::${sinif}`] ? (
+                  <p style={{ color: "#8A968E", fontSize: 12.5, textAlign: "center" }}>Hazırlanıyor...</p>
+                ) : (
+                  <div style={{ color: "#fff", fontSize: 13, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>
+                    {formulKartCache[`${formulKartDers}::${formulKartUnite}::${sinif}`]}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {mod === "sinavstratejisi" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🎯</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Sınav Stratejisi Rehberi</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Bilgi kadar, sınavı iyi yönetmek de önemli.</p>
+            </div>
+
+            {[
+              { baslik: "⏱️ Zaman Yönetimi", maddeler: [
+                "LGS'de sözel oturum 75 dakika (50 soru), sayısal oturum 80 dakika (40 soru) — soru başına ortalama 1.5-2 dakikan var.",
+                "Bir soruda 2 dakikadan fazla takılıyorsan işaretle, geç — sona dönersin.",
+                "Sınavın son 10 dakikasını, işaretlediğin ama boş bıraktığın sorulara ayır.",
+              ]},
+              { baslik: "❌ Hangi Soruyu Atlamalı", maddeler: [
+                "Hiç fikrin olmayan bir soruda zaman kaybetme, işaretle geç.",
+                "İki seçeneğe indirip emin olamadığın sorularda mantıklı tahmin yap (LGS'de boş ile yanlış net kaybı benzer olabilir, ama kör tahmin yerine eleme yap).",
+                "Uzun paragraflı sorularda önce SORUYU oku, sonra paragrafa o gözle bak — zaman kazandırır.",
+              ]},
+              { baslik: "✅ Eleme Stratejisi", maddeler: [
+                "Kesin yanlış olduğunu bildiğin şıkları hemen çiz, kalan 2 şık arasında karar ver.",
+                "Çeldiricilere dikkat et — 'her zaman', 'asla' gibi kesin ifadeler genelde yanlış şıklarda olur.",
+                "Matematikte işlem yapmadan önce şıklara bak — bazen tahminle eleme yapılabilir.",
+              ]},
+              { baslik: "🧠 Sınav Günü", maddeler: [
+                "Sınavdan önceki gece yeni konu çalışma, sadece hafif tekrar yap ve erken uyu.",
+                "Sınav sabahı ağır/yağlı kahvaltıdan kaçın, kan şekerini dengede tutacak hafif bir kahvaltı yap.",
+                "İlk soruda zorlanırsan panikleme — kolay sorulardan başlayıp geri dönebilirsin, sıralamayı takip etmek zorunda değilsin.",
+              ]},
+            ].map((bolum) => (
+              <div key={bolum.baslik} style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+                <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>{bolum.baslik}</p>
+                {bolum.maddeler.map((m, i) => (
+                  <p key={i} style={{ fontSize: 12.5, lineHeight: 1.7, color: "#3A4550", marginBottom: 8, paddingLeft: 14, position: "relative" }}>
+                    <span style={{ position: "absolute", left: 0, color: COLORS.coral, fontWeight: 900 }}>•</span>{m}
+                  </p>
+                ))}
+              </div>
+            ))}
           </div>
         )}
 
