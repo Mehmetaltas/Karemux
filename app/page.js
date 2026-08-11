@@ -1397,6 +1397,73 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [kurumBaglaniyor, setKurumBaglaniyor] = useState(false);
   const [kurumBaglandi, setKurumBaglandi] = useState(false);
 
+  const [ulusalAktif, setUlusalAktif] = useState(null);
+  const [ulusalGelecek, setUlusalGelecek] = useState(null);
+  const [ulusalSorular, setUlusalSorular] = useState(null);
+  const [ulusalCevaplar, setUlusalCevaplar] = useState({});
+  const [ulusalSonuc, setUlusalSonuc] = useState(null);
+  const [ulusalZatenCozmus, setUlusalZatenCozmus] = useState(false);
+  const [ulusalGonderiliyor, setUlusalGonderiliyor] = useState(false);
+  const [ulusalYukleniyor, setUlusalYukleniyor] = useState(false);
+  // Yonetici (Mehmet) icin gizli tetikleme paneli
+  const [ulusalYoneticiAcik, setUlusalYoneticiAcik] = useState(false);
+  const [ulusalYoneticiSifre, setUlusalYoneticiSifre] = useState("");
+  const [ulusalYoneticiAd, setUlusalYoneticiAd] = useState("");
+  const [ulusalYoneticiSinif, setUlusalYoneticiSinif] = useState(8);
+  const [ulusalYoneticiDers, setUlusalYoneticiDers] = useState("Matematik");
+  const [ulusalYoneticiSaat, setUlusalYoneticiSaat] = useState(24);
+  const [ulusalYoneticiOlusturuluyor, setUlusalYoneticiOlusturuluyor] = useState(false);
+
+  async function ulusalDenemeyiGetir() {
+    setUlusalYukleniyor(true);
+    try {
+      const res = await fetch(`/api/ulusal-deneme/aktif?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      setUlusalAktif(data.aktifDeneme || null);
+      setUlusalGelecek(data.gelecekDeneme || null);
+      setUlusalSorular(data.sorular || null);
+      setUlusalZatenCozmus(data.zatenCozmus || false);
+    } catch (e) { /* sessiz gec */ }
+    finally { setUlusalYukleniyor(false); }
+  }
+  useEffect(() => { if (mod === "ulusaldeneme") ulusalDenemeyiGetir(); }, [mod]);
+
+  async function ulusalCevaplariGonder() {
+    if (!ulusalAktif) return;
+    setUlusalGonderiliyor(true); setHata("");
+    try {
+      const res = await fetch("/api/ulusal-deneme/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ulusalDenemeId: ulusalAktif.id, cevaplar: ulusalCevaplar, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setUlusalSonuc(data);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Gonderilemedi, tekrar dene."));
+    } finally {
+      setUlusalGonderiliyor(false);
+    }
+  }
+
+  async function ulusalDenemeOlustur() {
+    setUlusalYoneticiOlusturuluyor(true); setHata("");
+    try {
+      const res = await fetch("/api/ulusal-deneme/olustur", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad: ulusalYoneticiAd, sinif: ulusalYoneticiSinif, ders: ulusalYoneticiDers, soruSayisi: 20, acikKalmaSaati: ulusalYoneticiSaat, yoneticiSifre: ulusalYoneticiSifre }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setUlusalYoneticiAcik(false); setUlusalYoneticiSifre(""); setUlusalYoneticiAd("");
+      ulusalDenemeyiGetir();
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Olusturulamadi."));
+    } finally {
+      setUlusalYoneticiOlusturuluyor(false);
+    }
+  }
+
   async function kurumOlustur() {
     if (!kurumOlusturAdi.trim()) return;
     setKurumOlusturYukleniyor(true); setHata("");
@@ -2434,6 +2501,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
                 ["basarilarim", "🏅 Basarilarim"],
                 ["kurumpaneli", "🏢 Kurum Paneli"],
+                ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3959,7 +4027,129 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
         )}
 
-        {mod === "kurumpaneli" && (
+        {mod === "ulusaldeneme" && !hesap && (
+          <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 16, lineHeight: 1.6 }}>Türkiye geneli sıralamada yer alman için gerçek bir hesapla giriş yapman lazım — misafir kullanımla bu özelliğe erişilemez.</p>
+            <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Giriş Yap / Kayıt Ol</button>
+          </div>
+        )}
+        {mod === "ulusaldeneme" && hesap && (
+          <div>
+            <div className="kx-fadein" style={{ background: "linear-gradient(135deg,#B23A2E,#1F3D2E)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🇹🇷</p>
+              <p style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>Türkiye Geneli Deneme</p>
+              <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, marginTop: 4 }}>Herkes aynı soruları çözüyor — gerçek sıralamanı gör.</p>
+            </div>
+
+            {ulusalYukleniyor && <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>}
+
+            {!ulusalYukleniyor && !ulusalAktif && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                {ulusalGelecek ? (
+                  <>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Sıradaki Deneme: {ulusalGelecek.ad}</p>
+                    <p style={{ fontSize: 12, color: COLORS.muted }}>{ulusalGelecek.sinif}. Sınıf · {ulusalGelecek.ders}</p>
+                    <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 6 }}>Açılış: {new Date(ulusalGelecek.acilis).toLocaleString("tr-TR")}</p>
+                  </>
+                ) : (
+                  <p style={{ fontSize: 13, color: COLORS.muted }}>Şu an açık bir Türkiye geneli deneme yok. Yeni bir tane planlandığında burada göreceksin.</p>
+                )}
+              </div>
+            )}
+
+            {ulusalAktif && ulusalZatenCozmus && !ulusalSonuc && (
+              <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 20, textAlign: "center" }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>✓ Bu denemeyi zaten tamamladın</p>
+                <p style={{ fontSize: 11.5, color: COLORS.muted, marginTop: 4 }}>Sonuçlar deneme kapandığında burada güncellenmeye devam eder.</p>
+              </div>
+            )}
+
+            {ulusalAktif && ulusalSorular && !ulusalSonuc && (
+              <div>
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 12, textAlign: "center" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700 }}>{ulusalAktif.ad}</p>
+                  <p style={{ fontSize: 11, color: COLORS.muted }}>{ulusalAktif.sinif}. Sınıf · {ulusalAktif.ders} · {ulusalAktif.soruSayisi} soru</p>
+                  <p style={{ fontSize: 10.5, color: COLORS.coral, marginTop: 4, fontWeight: 600 }}>Kapanış: {new Date(ulusalAktif.kapanis).toLocaleString("tr-TR")}</p>
+                </div>
+                {ulusalSorular.map((s, i) => (
+                  <div key={i} style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 8 }}>{i + 1}. {s.soru}</p>
+                    {s.secenekler.map((sec, j) => (
+                      <button key={j} onClick={() => setUlusalCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
+                        display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5, cursor: "pointer",
+                        border: `1.5px solid ${ulusalCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: ulusalCevaplar[i] === j ? "#FFF1EF" : "#fff",
+                      }}>{sec}</button>
+                    ))}
+                  </div>
+                ))}
+                <button className="kx-btn" onClick={ulusalCevaplariGonder} disabled={ulusalGonderiliyor || Object.keys(ulusalCevaplar).length === 0}
+                  style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                  {ulusalGonderiliyor ? "Gönderiliyor..." : `Gönder (${Object.keys(ulusalCevaplar).length}/${ulusalSorular.length})`}
+                </button>
+              </div>
+            )}
+
+            {ulusalSonuc && (
+              <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 16, padding: 24, textAlign: "center" }}>
+                <p style={{ color: COLORS.mustard, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, marginBottom: 8 }}>SONUCUN</p>
+                <p style={{ color: "#fff", fontSize: 40, fontWeight: 900, marginBottom: 4 }}>{ulusalSonuc.net.toFixed(2)}</p>
+                <p style={{ color: "#8A968E", fontSize: 11, marginBottom: 16 }}>NET</p>
+                <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 18 }}>
+                  <div><p style={{ color: RENK_BASARI, fontSize: 16, fontWeight: 800 }}>{ulusalSonuc.dogru}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>DOĞRU</p></div>
+                  <div><p style={{ color: "#FF6B5E", fontSize: 16, fontWeight: 800 }}>{ulusalSonuc.yanlis}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>YANLIŞ</p></div>
+                  <div><p style={{ color: "#8A968E", fontSize: 16, fontWeight: 800 }}>{ulusalSonuc.bos}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>BOŞ</p></div>
+                </div>
+                {ulusalSonuc.yuzdelikDilim !== null && (
+                  <div style={{ background: "rgba(232,179,57,0.15)", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 12 }}>
+                    <p style={{ color: COLORS.mustard, fontSize: 15, fontWeight: 800 }}>Türkiye'de %{ulusalSonuc.yuzdelikDilim}'lik dilimdesin</p>
+                    <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>{ulusalSonuc.toplamKatilimci} katılımcı arasında {ulusalSonuc.siram}. sıradasın</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div style={{ marginTop: 20, borderTop: `1px solid ${COLORS.line}`, paddingTop: 12 }}>
+              <button onClick={() => setUlusalYoneticiAcik(!ulusalYoneticiAcik)} style={{ border: "none", background: "none", color: COLORS.muted, fontSize: 10.5, cursor: "pointer" }}>⚙️ Yönetici Paneli</button>
+              {ulusalYoneticiAcik && (
+                <div style={{ background: "#F4F0E4", borderRadius: 10, padding: 14, marginTop: 8 }}>
+                  <input type="password" value={ulusalYoneticiSifre} onChange={(e) => setUlusalYoneticiSifre(e.target.value)} placeholder="Yönetici şifresi"
+                    style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5, marginBottom: 8 }} />
+                  <input value={ulusalYoneticiAd} onChange={(e) => setUlusalYoneticiAd(e.target.value)} placeholder="Deneme adı (örn: 15. Hafta Türkiye Denemesi)"
+                    style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5, marginBottom: 8 }} />
+                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                    <select value={ulusalYoneticiSinif} onChange={(e) => setUlusalYoneticiSinif(Number(e.target.value))} style={{ flex: 1, padding: 8, borderRadius: 8, border: `1.5px solid ${COLORS.line}` }}>
+                      {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
+                    </select>
+                    <select value={ulusalYoneticiDers} onChange={(e) => setUlusalYoneticiDers(e.target.value)} style={{ flex: 1, padding: 8, borderRadius: 8, border: `1.5px solid ${COLORS.line}` }}>
+                      {["Matematik", "Fen Bilimleri", "Turkce"].map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+                    <span style={{ fontSize: 11.5 }}>Açık kalma süresi:</span>
+                    <input type="number" value={ulusalYoneticiSaat} onChange={(e) => setUlusalYoneticiSaat(Number(e.target.value))} style={{ width: 60, padding: 6, borderRadius: 6, border: `1.5px solid ${COLORS.line}` }} />
+                    <span style={{ fontSize: 11.5 }}>saat</span>
+                  </div>
+                  <button className="kx-btn" onClick={ulusalDenemeOlustur} disabled={ulusalYoneticiOlusturuluyor || !ulusalYoneticiSifre || !ulusalYoneticiAd}
+                    style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+                    {ulusalYoneticiOlusturuluyor ? "Oluşturuluyor..." : "Şimdi Başlat"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {mod === "kurumpaneli" && !hesap && (
+          <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 16, lineHeight: 1.6 }}>Kurum Paneli'ni kullanmak için gerçek bir hesapla giriş yapman lazım.</p>
+            <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Giriş Yap / Kayıt Ol</button>
+          </div>
+        )}
+        {mod === "kurumpaneli" && hesap && (
           <div>
             <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
               <p style={{ fontSize: 22, marginBottom: 4 }}>🏢</p>
@@ -4057,6 +4247,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         )}
 
         {mod === "basarilarim" && (() => {
+          if (!hesap) {
+            return (
+              <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+                <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+                <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 16, lineHeight: 1.6 }}>Rozetlerini ve seviyeni kaydedebilmemiz için gerçek bir hesapla giriş yapman lazım.</p>
+                <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Giriş Yap / Kayıt Ol</button>
+              </div>
+            );
+          }
           if (!basariVeri) {
             return (
               <div style={{ textAlign: "center", padding: 30 }}>
