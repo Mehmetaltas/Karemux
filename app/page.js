@@ -3306,8 +3306,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                             {okulOnerileri.map((o) => (
                               <button key={o.id} onClick={() => { setProfilOkul(o.okul_adi); setOkulOnerileriAcik(false); }}
                                 style={{ display: "block", width: "100%", textAlign: "left", padding: "9px 10px", border: "none", borderBottom: `1px solid ${COLORS.line}`, background: "transparent", cursor: "pointer", fontSize: 12.5 }}>
-                                <div style={{ fontWeight: 600 }}>{o.okul_adi}</div>
-                                <div style={{ fontSize: 10.5, color: COLORS.muted }}>{o.il} / {o.ilce}</div>
+                                <div style={{ fontWeight: 600 }}>{o.okul_adi} {!o.onaylandi && <span style={{ fontSize: 9.5, color: COLORS.mustard, fontWeight: 700 }}>🆕 yeni eklendi</span>}</div>
+                                <div style={{ fontSize: 10.5, color: COLORS.muted }}>{o.il || "İl bilinmiyor"} {o.ilce ? `/ ${o.ilce}` : ""}</div>
                               </button>
                             ))}
                           </div>

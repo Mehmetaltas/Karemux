@@ -12,15 +12,15 @@ export async function GET(req) {
 
     const sonuc = il
       ? await sql`
-          SELECT id, il, ilce, okul_adi FROM mevcut_okullar
+          SELECT id, il, ilce, okul_adi, onaylandi FROM mevcut_okullar
           WHERE il = ${il} AND okul_adi ILIKE ${"%" + q + "%"}
-          ORDER BY okul_adi
+          ORDER BY onaylandi DESC, okul_adi
           LIMIT 15
         `
       : await sql`
-          SELECT id, il, ilce, okul_adi FROM mevcut_okullar
+          SELECT id, il, ilce, okul_adi, onaylandi FROM mevcut_okullar
           WHERE okul_adi ILIKE ${"%" + q + "%"}
-          ORDER BY okul_adi
+          ORDER BY onaylandi DESC, okul_adi
           LIMIT 15
         `;
     return Response.json({ sonuclar: sonuc });
