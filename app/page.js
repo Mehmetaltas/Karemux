@@ -863,8 +863,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const temelUyarisi = gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"
         ? ` ONEMLI: Bu ogrencinin bir onceki sinif temeli zayif olcyuldu, bu yuzden konuya girmeden once cok kisa (1-2 cumle) bir "on bilgi hatirlatmasi" ekle, temel kavramlari atlamadan anlat.`
         : "";
-      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik)
-        ? ` SADECE "${manuelAltBaslik}" alt basligina odaklan, unitenin diger alt basliklarina girme.`
+      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik.length > 0)
+        ? ` SADECE su alt basliklara odaklan: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarina girme.`
         : "";
       const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi}${kapsamSiniri} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
@@ -885,8 +885,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik)
-        ? ` SADECE "${manuelAltBaslik}" alt basligindan sorular hazirla, unitenin diger alt basliklarindan soru sorma.`
+      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik.length > 0)
+        ? ` SADECE su alt basliklardan sorular hazirla: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarindan soru sorma.`
         : "";
       const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla.${kapsamSiniri} Mantik yurutme gerektirsin, ezber bilgi sorma. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
@@ -1137,7 +1137,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [karneAcik, setKarneAcik] = useState(false);
   const [dersSecimModu, setDersSecimModu] = useState("koc"); // "koc" | "manuel"
   const [manuelUnite, setManuelUnite] = useState(null);
-  const [manuelAltBaslik, setManuelAltBaslik] = useState(null);
+  const [manuelAltBaslik, setManuelAltBaslik] = useState([]);
+  useEffect(() => {
+    setAciklama(""); setQuiz(null); setGonderildi(false); setCevaplar({});
+  }, [manuelUnite, manuelAltBaslik, dersSecimModu]);
   useEffect(() => {
     if (manuelUnite && secilenDers) { altKonulariGetir(secilenDers, manuelUnite); setManuelAltBaslik(null); }
   }, [manuelUnite, secilenDers]);
@@ -2221,9 +2224,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                             <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ALT BAŞLIK SEÇ (isteğe bağlı)</label>
                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                               {altBasliklar.map((ab) => {
-                                const secili = manuelAltBaslik === ab;
+                                const secili = manuelAltBaslik.includes(ab);
                                 return (
-                                  <button key={ab} onClick={() => setManuelAltBaslik(secili ? null : ab)} className="kx-btn" style={{
+                                  <button key={ab} onClick={() => setManuelAltBaslik((eski) => secili ? eski.filter((x) => x !== ab) : [...eski, ab])} className="kx-btn" style={{
                                     display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
                                     border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`, background: secili ? "#FEF8E8" : "#FAF6EE",
                                   }}>
@@ -2243,7 +2246,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ background: COLORS.gradient, borderRadius: 12, padding: 16, marginBottom: 14, textAlign: "center" }}>
                     <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 4 }}>{dersSecimModu === "koc" ? "🎯 KOC ONERISI" : "✋ SECIMIN"}</p>
                     <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>
-                      {dersSecimModu === "koc" ? `Simdi buna odaklan: ${onerilenUnite}` : `${manuelUnite}${manuelAltBaslik ? " — " + manuelAltBaslik : ""}`}
+                      {dersSecimModu === "koc" ? `Simdi buna odaklan: ${onerilenUnite}` : `${manuelUnite}${manuelAltBaslik.length > 0 ? " — " + manuelAltBaslik.join(", ") : ""}`}
                     </p>
                     <div className="kx-pop" style={{ display: "flex", gap: 8 }}>
                       <button className="kx-btn" onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
