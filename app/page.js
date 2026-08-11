@@ -1351,6 +1351,42 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  const SEVIYELER = [
+    { ad: "Çaylak", esik: 0, ikon: "🌱" },
+    { ad: "Azimli", esik: 100, ikon: "🔰" },
+    { ad: "Gayretli", esik: 300, ikon: "⚡" },
+    { ad: "Uzman", esik: 700, ikon: "🎯" },
+    { ad: "Usta", esik: 1500, ikon: "🏆" },
+    { ad: "Efsane", esik: 3000, ikon: "👑" },
+  ];
+  const GENEL_ROZETLER = [
+    { key: "ilkAdim", ikon: "🎯", ad: "İlk Adım", aciklama: "İlk sorunu çözdün", kosul: (v) => v.toplamSoru >= 1 },
+    { key: "seri3", ikon: "🔥", ad: "Ateşli Başlangıç", aciklama: "3 gün üst üste çalıştın", kosul: (v) => v.enUzunSeri >= 3 },
+    { key: "seri7", ikon: "🔥🔥", ad: "Kararlı", aciklama: "7 gün üst üste çalıştın", kosul: (v) => v.enUzunSeri >= 7 },
+    { key: "seri30", ikon: "🔥🔥🔥", ad: "Demir İrade", aciklama: "30 gün üst üste çalıştın", kosul: (v) => v.enUzunSeri >= 30 },
+    { key: "mukemmel", ikon: "💯", ad: "Mükemmeliyetçi", aciklama: "Bir testte hiç hata yapmadın", kosul: (v) => v.enYuksekYuzde >= 1 },
+    { key: "soru50", ikon: "📚", ad: "Kitap Kurdu", aciklama: "50 soru çözdün", kosul: (v) => v.toplamSoru >= 50 },
+    { key: "soru200", ikon: "🌟", ad: "Yıldız Öğrenci", aciklama: "200 soru çözdün", kosul: (v) => v.toplamSoru >= 200 },
+    { key: "soru500", ikon: "💎", ad: "Elmas Öğrenci", aciklama: "500 soru çözdün", kosul: (v) => v.toplamSoru >= 500 },
+    { key: "sinav5", ikon: "📝", ad: "Sınav Deneyimli", aciklama: "5 sınav tamamladın", kosul: (v) => v.tamamlananSinavSayisi >= 5 },
+    { key: "sinav20", ikon: "🎓", ad: "Sınav Savaşçısı", aciklama: "20 sınav tamamladın", kosul: (v) => v.tamamlananSinavSayisi >= 20 },
+  ];
+  function seviyeHesapla(xp) {
+    let mevcut = SEVIYELER[0], sonraki = SEVIYELER[1];
+    for (let i = 0; i < SEVIYELER.length; i++) {
+      if (xp >= SEVIYELER[i].esik) { mevcut = SEVIYELER[i]; sonraki = SEVIYELER[i + 1] || null; }
+    }
+    return { mevcut, sonraki };
+  }
+  const [basariVeri, setBasariVeri] = useState(null);
+  useEffect(() => {
+    if (mod !== "basarilarim" || !hesap) return;
+    Promise.all([
+      fetch(`/api/basarilar?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
+      fetch(`/api/streak?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
+    ]).then(([b, s]) => setBasariVeri({ ...b, enUzunSeri: s.enUzunSeri || 0 })).catch(() => {});
+  }, [mod, hesap?.eposta]);
+
   const TATIL_TURLERI = [
     { key: "ara", ad: "Ara Tatil", gun: 7, aciklama: "Kısa toparlanma, eksik konuları kapatma" },
     { key: "yariyil", ad: "Yarıyıl Tatili", gun: 14, aciklama: "2 haftalık dengeli tekrar programı" },
@@ -2335,6 +2371,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["paragrafstudyo", "📝 Paragraf Studyosu"],
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
                 ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
+                ["basarilarim", "🏅 Basarilarim"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3840,6 +3877,68 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
           </div>
         )}
+
+        {mod === "basarilarim" && (() => {
+          if (!basariVeri) {
+            return (
+              <div style={{ textAlign: "center", padding: 30 }}>
+                <p style={{ fontSize: 13, color: COLORS.muted }}>Başarıların yükleniyor...</p>
+              </div>
+            );
+          }
+          const xp = Math.round((basariVeri.toplamSoru || 0) * 5 + Object.values(basariVeri.dersBazinda || {}).reduce((t, n) => t + n, 0) * 50 + (basariVeri.tamamlananSinavSayisi || 0) * 20);
+          const { mevcut, sonraki } = seviyeHesapla(xp);
+          const ilerlemeYuzdesi = sonraki ? Math.min(100, Math.round(((xp - mevcut.esik) / (sonraki.esik - mevcut.esik)) * 100)) : 100;
+          const kazanilanRozetler = GENEL_ROZETLER.filter((r) => r.kosul(basariVeri));
+
+          return (
+            <div>
+              <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 16, padding: 22, marginBottom: 16, textAlign: "center" }}>
+                <p className="kx-float" style={{ fontSize: 34, marginBottom: 6 }}>{mevcut.ikon}</p>
+                <p style={{ color: "#fff", fontWeight: 800, fontSize: 18, marginBottom: 2 }}>{mevcut.ad}</p>
+                <p style={{ color: "#8A968E", fontSize: 11, marginBottom: 14 }}>{xp} XP {sonraki ? `· ${sonraki.esik - xp} XP kaldı: ${sonraki.ad}` : "· En yüksek seviyedesin!"}</p>
+                {sonraki && (
+                  <div style={{ height: 8, borderRadius: 999, background: "#2A3540", overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${ilerlemeYuzdesi}%`, borderRadius: 999, background: `linear-gradient(90deg, ${COLORS.coral}, ${COLORS.mustard})` }} />
+                  </div>
+                )}
+              </div>
+
+              <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 13, fontWeight: 700, color: COLORS.ink, marginBottom: 10 }}>Genel Rozetler ({kazanilanRozetler.length}/{GENEL_ROZETLER.length})</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 18 }}>
+                {GENEL_ROZETLER.map((r) => {
+                  const kazanildi = r.kosul(basariVeri);
+                  return (
+                    <div key={r.key} style={{ background: kazanildi ? "#FEF8E8" : "#F4F0E4", border: `1.5px solid ${kazanildi ? COLORS.mustard : COLORS.line}`, borderRadius: 12, padding: "12px 10px", textAlign: "center", opacity: kazanildi ? 1 : 0.45 }}>
+                      <p style={{ fontSize: 22, marginBottom: 4 }}>{kazanildi ? r.ikon : "🔒"}</p>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.ink, marginBottom: 2 }}>{r.ad}</p>
+                      <p style={{ fontSize: 9.5, color: COLORS.muted, lineHeight: 1.4 }}>{r.aciklama}</p>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 13, fontWeight: 700, color: COLORS.ink, marginBottom: 10 }}>Ders Rozetleri</p>
+              {gorunurDersler(sinif).map((d) => {
+                const tamamlanan = basariVeri.dersBazinda?.[d.ad] || 0;
+                const toplam = dersinUniteleri(d.ad, sinif).length || 1;
+                const oran = tamamlanan / toplam;
+                const kademe = oran >= 0.99 ? "altin" : oran >= 0.5 ? "gumus" : oran >= 0.25 ? "bronz" : null;
+                const kademeRenk = { altin: "#E8B339", gumus: "#B0B8BE", bronz: "#B5651D" }[kademe] || COLORS.line;
+                const kademeAd = { altin: "Altın", gumus: "Gümüş", bronz: "Bronz" }[kademe] || "Henüz Yok";
+                return (
+                  <div key={d.ad} style={{ display: "flex", alignItems: "center", gap: 12, background: COLORS.page, borderRadius: 10, padding: "10px 14px", border: `1px solid ${COLORS.line}`, marginBottom: 6 }}>
+                    <span style={{ width: 34, height: 34, borderRadius: 999, background: kademe ? kademeRenk : "#F0EBDC", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{d.emoji}</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 12, fontWeight: 700 }}>{d.ad}</p>
+                      <p style={{ fontSize: 10.5, color: COLORS.muted }}>{tamamlanan}/{toplam} ünite · <span style={{ color: kademe ? kademeRenk : COLORS.muted, fontWeight: 700 }}>{kademeAd}</span></p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {mod === "tatilprogrami" && (
           <div>
