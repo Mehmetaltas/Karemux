@@ -378,6 +378,9 @@ export default function Ana() {
   useEffect(() => {
     if (kapsamUnite && denemeDers) { altKonulariGetir(denemeDers, kapsamUnite); setKapsamAltBasliklar([]); }
   }, [kapsamUnite, denemeDers]);
+  useEffect(() => {
+    if (manuelUnite && secilenDers) { altKonulariGetir(secilenDers, manuelUnite); setManuelAltBaslik(null); }
+  }, [manuelUnite, secilenDers]);
   const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
   const [kocPaneliDers, setKocPaneliDers] = useState(null);
 
@@ -859,7 +862,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function oneriliUniteAnlat() {
     const dersAtCagri = secilenDers;
-    const unite = oneriliUniteHesapla(secilenDers);
+    const unite = dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers);
     if (!unite) return;
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
@@ -868,7 +871,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const temelUyarisi = gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"
         ? ` ONEMLI: Bu ogrencinin bir onceki sinif temeli zayif olcyuldu, bu yuzden konuya girmeden once cok kisa (1-2 cumle) bir "on bilgi hatirlatmasi" ekle, temel kavramlari atlamadan anlat.`
         : "";
-      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik)
+        ? ` SADECE "${manuelAltBaslik}" alt basligina odaklan, unitenin diger alt basliklarina girme.`
+        : "";
+      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi}${kapsamSiniri} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = cevap
@@ -882,12 +888,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function oneriliUniteSoruCoz() {
     const dersAtCagri = secilenDers;
-    const unite = oneriliUniteHesapla(secilenDers);
+    const unite = dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers);
     if (!unite) return;
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. Mantik yurutme gerektirsin, ezber bilgi sorma. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik)
+        ? ` SADECE "${manuelAltBaslik}" alt basligindan sorular hazirla, unitenin diger alt basliklarindan soru sorma.`
+        : "";
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla.${kapsamSiniri} Mantik yurutme gerektirsin, ezber bilgi sorma. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
@@ -1129,6 +1138,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
   const [profilGunlukGorevler, setProfilGunlukGorevler] = useState(null);
   const [karneAcik, setKarneAcik] = useState(false);
+  const [dersSecimModu, setDersSecimModu] = useState("koc"); // "koc" | "manuel"
+  const [manuelUnite, setManuelUnite] = useState(null);
+  const [manuelAltBaslik, setManuelAltBaslik] = useState(null);
   const [karneOzet, setKarneOzet] = useState(null);
   const [karneYorum, setKarneYorum] = useState("");
   const [karneYukleniyor, setKarneYukleniyor] = useState(false);
@@ -2177,9 +2189,62 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               }
               return (
                 <div>
+                  <div style={{ display: "flex", gap: 6, marginBottom: 12, background: "#FAF6EE", padding: 4, borderRadius: 10 }}>
+                    {[["koc", "🎯 Koc Onerisi"], ["manuel", "✋ Kendim Seceyim"]].map(([k, etiket]) => (
+                      <button key={k} onClick={() => setDersSecimModu(k)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", border: "none", background: dersSecimModu === k ? COLORS.ink : "transparent", color: dersSecimModu === k ? "#fff" : COLORS.muted, transition: "all 0.15s" }}>{etiket}</button>
+                    ))}
+                  </div>
+
+                  {dersSecimModu === "manuel" && (
+                    <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                      <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: manuelUnite ? 14 : 0 }}>
+                        {dersinUniteleri(secilenDers, sinif).map((u, idx) => {
+                          const secili = manuelUnite === u;
+                          return (
+                            <button key={u} onClick={() => setManuelUnite(secili ? null : u)} className="kx-btn" style={{
+                              display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                              border: `1.5px solid ${secili ? COLORS.coral : COLORS.line}`, background: secili ? "#FFF1EF" : "#FAF6EE",
+                            }}>
+                              <span style={{ width: 20, height: 20, borderRadius: 999, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, fontWeight: 700, background: secili ? COLORS.coral : "#fff", color: secili ? "#fff" : COLORS.muted, border: `1.5px solid ${secili ? COLORS.coral : COLORS.line}` }}>{secili ? "✓" : idx + 1}</span>
+                              <span style={{ fontSize: 12, fontWeight: secili ? 700 : 500, color: COLORS.ink }}>{u}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {manuelUnite && (() => {
+                        const altBasliklar = altKonuCache[altKonuAnahtari(secilenDers, manuelUnite)] || [];
+                        if (altBasliklar.length === 0) return null;
+                        return (
+                          <div>
+                            <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ALT BAŞLIK SEÇ (isteğe bağlı)</label>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {altBasliklar.map((ab) => {
+                                const secili = manuelAltBaslik === ab;
+                                return (
+                                  <button key={ab} onClick={() => setManuelAltBaslik(secili ? null : ab)} className="kx-btn" style={{
+                                    display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                                    border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`, background: secili ? "#FEF8E8" : "#FAF6EE",
+                                  }}>
+                                    <span style={{ width: 18, height: 18, borderRadius: 5, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, background: secili ? COLORS.mustard : "#fff", color: secili ? "#fff" : "transparent", border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}` }}>✓</span>
+                                    <span style={{ fontSize: 12, fontWeight: secili ? 700 : 500, color: COLORS.ink }}>{ab}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+
+                  {(dersSecimModu === "koc" || manuelUnite) && (
                   <div style={{ background: COLORS.gradient, borderRadius: 12, padding: 16, marginBottom: 14, textAlign: "center" }}>
-                    <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 4 }}>🎯 KOC ONERISI</p>
-                    <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>Simdi buna odaklan: {onerilenUnite}</p>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 4 }}>{dersSecimModu === "koc" ? "🎯 KOC ONERISI" : "✋ SECIMIN"}</p>
+                    <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>
+                      {dersSecimModu === "koc" ? `Simdi buna odaklan: ${onerilenUnite}` : `${manuelUnite}${manuelAltBaslik ? " — " + manuelAltBaslik : ""}`}
+                    </p>
                     <div className="kx-pop" style={{ display: "flex", gap: 8 }}>
                       <button className="kx-btn" onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
                         {yukleniyor === "aciklama" ? "Hazirlaniyor..." : "📘 Konuyu Anlat"}
@@ -2189,6 +2254,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       </button>
                     </div>
                   </div>
+                  )}
 
                   {aciklama && (() => {
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
