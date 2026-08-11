@@ -2068,7 +2068,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
             <img src="/icons/icon-192.png" alt="Karemux" className="kx-logo-acilis" style={{ width: 32, height: 32, borderRadius: 9, marginBottom: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.22)" }} />
-            <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 17, marginBottom: 8 }}>Hos geldiniz</p>
+            <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: COLORS.page, fontWeight: 700, fontSize: 19, marginBottom: 8 }}>Hoş geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
               Baslamak icin bir ders sec.
@@ -2112,22 +2112,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         )}
 
         {mod === "bos" && !secilenDers && (
-          <div className="kx-fadein" style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>SENİN İÇİN HAZIRLADIKLARIMIZ</p>
-            <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+          <div className="kx-fadein" style={{ marginBottom: 18 }}>
+            <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 13, fontWeight: 700, color: COLORS.ink, marginBottom: 10, paddingLeft: 2 }}>Senin için hazırladıklarımız</p>
+            <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8, paddingTop: 2, paddingLeft: 2, scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
               {[
-                { mod: "paragrafstudyo", ikon: "📝", baslik: "Paragraf Stüdyosu", alt: "LGS'nin en çok soru çıkan alanı", bg: "linear-gradient(135deg,#8B5A2B,#C9A227)", cta: "8 türde pratik →" },
-                { mod: "puanhesap", ikon: "🧮", baslik: "Puan Hesaplayıcı", alt: "Kaç net yapman gerekiyor, hemen gör", bg: "linear-gradient(135deg,#0B3D5C,#144E75)", cta: "Hesapla →" },
-                { mod: "hedefokul", ikon: "🏫", baslik: "Hedef Okulum", alt: "Hayalindeki okulu belirle, ona çalış", bg: "linear-gradient(135deg,#1F3D2E,#2E5940)", cta: "Hedef koy →" },
-                { mod: "zayifharita", ikon: "🗺️", baslik: "Zayıf Konu Haritası", alt: "Nerede eksiğin var, tek bakışta gör", bg: "linear-gradient(135deg,#7A2E2E,#B23A2E)", cta: "Haritanı gör →" },
-                { mod: "formulkart", ikon: "📐", baslik: "Formül Kartları", alt: "Sınav öncesi son dakika tekrarı", bg: "linear-gradient(135deg,#3D2B6B,#5B3F94)", cta: "Karta bak →" },
+                { mod: "paragrafstudyo", ikon: "📝", baslik: "Paragraf Stüdyosu", alt: "LGS'nin en çok soru çıkan alanı", taban: "#F4ECD8", serit: "#8B5A2B", yazi: "#3D2B1F", cta: "8 türde pratik" },
+                { mod: "puanhesap", ikon: "🧮", baslik: "Puan Hesaplayıcı", alt: "Kaç net yapman gerekiyor, hemen gör", taban: "#E4EEF2", serit: "#0B3D5C", yazi: "#0B2B3D", cta: "Hesapla" },
+                { mod: "hedefokul", ikon: "🏫", baslik: "Hedef Okulum", alt: "Hayalindeki okulu belirle, ona çalış", taban: "#E7EFE7", serit: "#1F3D2E", yazi: "#1A2E22", cta: "Hedef koy" },
+                { mod: "zayifharita", ikon: "🗺️", baslik: "Zayıf Konu Haritası", alt: "Nerede eksiğin var, tek bakışta gör", taban: "#F3E3E0", serit: "#B23A2E", yazi: "#5C231D", cta: "Haritanı gör" },
+                { mod: "formulkart", ikon: "📐", baslik: "Formül Kartları", alt: "Sınav öncesi son dakika tekrarı", taban: "#EAE4F2", serit: "#5B3F94", yazi: "#2E2249", cta: "Karta bak" },
               ].map((k) => (
                 <button key={k.mod} onClick={() => { setSecilenDers(null); setMod(k.mod); }} className="kx-btn"
-                  style={{ flex: "0 0 auto", width: 168, scrollSnapAlign: "start", background: k.bg, borderRadius: 16, padding: "16px 14px", textAlign: "left", border: "none", cursor: "pointer", boxShadow: "0 4px 14px rgba(0,0,0,0.18)" }}>
-                  <div className="kx-float" style={{ fontSize: 26, marginBottom: 8 }}>{k.ikon}</div>
-                  <p style={{ color: "#fff", fontWeight: 800, fontSize: 13, marginBottom: 4, lineHeight: 1.25 }}>{k.baslik}</p>
-                  <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 10.5, lineHeight: 1.4, marginBottom: 10, minHeight: 28 }}>{k.alt}</p>
-                  <p style={{ color: "#fff", fontWeight: 700, fontSize: 11 }}>{k.cta}</p>
+                  style={{ flex: "0 0 auto", width: 172, scrollSnapAlign: "start", position: "relative", background: k.taban, borderRadius: "4px 14px 14px 4px", padding: "18px 16px 16px 18px", textAlign: "left", border: "none", cursor: "pointer", boxShadow: "0 3px 10px rgba(0,0,0,0.1)", overflow: "hidden" }}>
+                  <div style={{ position: "absolute", top: 0, left: 0, bottom: 0, width: 5, background: k.serit }} />
+                  <div style={{ width: 38, height: 38, borderRadius: 10, background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, marginBottom: 10, boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}>{k.ikon}</div>
+                  <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: k.yazi, fontWeight: 700, fontSize: 14, marginBottom: 5, lineHeight: 1.25 }}>{k.baslik}</p>
+                  <p style={{ color: k.yazi, opacity: 0.7, fontSize: 10.5, lineHeight: 1.45, marginBottom: 12, minHeight: 30 }}>{k.alt}</p>
+                  <p style={{ color: k.serit, fontWeight: 800, fontSize: 10.5, letterSpacing: 0.3, display: "flex", alignItems: "center", gap: 4 }}>{k.cta} <span style={{ fontSize: 12 }}>→</span></p>
                 </button>
               ))}
             </div>
@@ -2136,16 +2137,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {mod === "bos" && !secilenDers && (
           <div className="kx-fadein" style={{ marginBottom: 16 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 8 }}>DERSINI SEC</p>
-            <div className="kx-pop" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 13, fontWeight: 700, color: COLORS.ink, marginBottom: 10, paddingLeft: 2 }}>Dersini seç</p>
+            <div className="kx-pop" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 9 }}>
               {gorunurDersler(sinif).map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); }} className="kx-card kx-btn" style={{
-                  padding: "16px 6px", borderRadius: 14, cursor: "pointer", textAlign: "center",
-                  border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                  position: "relative", padding: "18px 8px 14px", borderRadius: "4px 12px 12px 4px", cursor: "pointer", textAlign: "center",
+                  border: "none", background: COLORS.page, overflow: "hidden",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
                 }}>
-                  <div style={{ fontSize: 24, marginBottom: 6 }}>{d.emoji}</div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.ink, lineHeight: 1.25 }}>{d.ad}</div>
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 3, background: COLORS.gradient }} />
+                  <div style={{ fontSize: 22, marginBottom: 7 }}>{d.emoji}</div>
+                  <div style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.ink, lineHeight: 1.25 }}>{d.ad}</div>
                 </button>
               ))}
             </div>
