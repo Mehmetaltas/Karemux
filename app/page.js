@@ -1282,6 +1282,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   // Hesap
   const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
+  const [seriVeri, setSeriVeri] = useState(null); // {guncelSeri, enUzunSeri, toplamAktifGun}
+  useEffect(() => {
+    if (!hesap) return;
+    fetch(`/api/streak?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setSeriVeri).catch(() => {});
+  }, [hesap?.eposta]);
   // KRITIK: hesabin gercek sinifi (kayitta/profilde secilen) buraya kadar hic
   // yansitilmiyordu - "sinif" state'i hep varsayilan 8'de kaliyordu. Hesap
   // yuklendiginde veya sinifi degistiginde, uygulama genelinde kullanilan
@@ -1971,6 +1976,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
           );
         })()}
+
+        {mod === "bos" && !secilenDers && hesap && seriVeri && seriVeri.guncelSeri > 0 && (
+          <div className="kx-fadein kx-pop" style={{ background: "#FEF8E8", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 14, padding: "14px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 28 }}>🔥</span>
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 800, color: "#1B2430" }}>{seriVeri.guncelSeri} gün üst üste çalıştın!</p>
+              <p style={{ fontSize: 11, color: COLORS.muted }}>
+                {seriVeri.enUzunSeri > seriVeri.guncelSeri ? `En uzun serin: ${seriVeri.enUzunSeri} gün — geç onu!` : "Bu senin en uzun serin, devam et!"}
+              </p>
+            </div>
+          </div>
+        )}
 
         {mod === "bos" && !secilenDers && (
           <div className="kx-fadein" style={{ marginBottom: 16 }}>
