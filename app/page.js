@@ -100,7 +100,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // oturmus (2. yilina girdi) ama yine de en dikkatli ele alinmasi gereken sinif.
   "5::Matematik": ["Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)", "Sayilar ve Nicelikler - Cok Basamakli Sayilar", "Geometrik Nicelikler (Cevre ve Alan)", "Kesirler Ondalik Gosterim ve Yuzdeler", "Istatistiksel Arastirma Sureci", "Islemlerle Cebirsel Dusunme", "Veriden Olasiliga"],
   "6::Matematik": ["Dogal Sayilarla Islemler", "Carpanlar ve Katlar", "Kumeler", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Oran", "Cebirsel Ifadeler", "Veri Toplama ve Degerlendirme", "Merkezi Egilim ve Yayilim Olculeri", "Acilar", "Cember", "Alan Olcme", "Geometrik Cisimler ve Sivi Olcme"],
-  "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
+  "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Birinci Dereceden Denklemler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
   "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Vucudumuzdaki Sistemler", "Kuvvet ve Hareket", "Madde ve Isi", "Ses ve Ozellikleri", "Vucudumuzdaki Sistemler ve Sagligi", "Elektrigin Iletimi", "Uygulamali Bilim"],
   "7::Fen Bilimleri": ["Gunes Sistemi ve Otesi", "Hucre ve Bolunmeler", "Kuvvet ve Enerji", "Saf Madde ve Karisimlar", "Isigin Madde ile Etkilesimi", "Canlilarda Ureme Buyume ve Gelisme", "Elektrik Devreleri", "Uygulamali Bilim"],
@@ -159,6 +159,18 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Cember::6": ["Cember ve Daire Kavrami", "Cemberde Cap ve Yaricap", "Cember Uzunlugu"],
   "Matematik::Alan Olcme::6": ["Dikdortgenin Alani", "Paralelkenarin Alani", "Ucgenin Alani"],
   "Matematik::Geometrik Cisimler ve Sivi Olcme::6": ["Dikdortgenler Prizmasi", "Prizmanin Yuzey Alani", "Sivi Olcme Birimleri"],
+
+  // ==== 7. SINIF MATEMATIK (resmi MEB kazanimlarindan - M.7.x.x) ====
+  "Matematik::Tam Sayilarla Islemler::7": ["Toplama ve Cikarma", "Carpma ve Bolme", "Uslu Nicelik Olarak Ifade Etme"],
+  "Matematik::Rasyonel Sayilar::7": ["Tanima ve Sayi Dogrusunda Gosterme", "Ondalik Gosterimle Ifade Etme", "Devirli Ondalik Gosterimler", "Siralama ve Karsilastirma", "Rasyonel Sayilarla Islemler", "Kare ve Kup Hesaplama"],
+  "Matematik::Cebirsel Ifadeler::7": ["Toplama ve Cikarma Islemleri", "Dogal Sayiyla Carpma", "Sayi Oruntulerinin Kurali"],
+  "Matematik::Birinci Dereceden Denklemler::7": ["Esitligin Korunumu Ilkesi", "Denklem Kurma", "Denklem Cozme", "Denklem Problemleri"],
+  "Matematik::Oran ve Oranti::7": ["Oran Kavrami", "Dogru Oranti", "Orantili Olup Olmama"],
+  "Matematik::Yuzdeler::7": ["Yuzde Hesaplama", "Bir Cokluk Digerinin Yuzdesi Olarak", "Yuzdeyle Artis-Azalis", "Yuzde Problemleri"],
+  "Matematik::Dogrular ve Acilar::7": ["Acortay", "Yondas Ters ve Ic Ters Acilar", "Paralel Dogrularda Aci Iliskileri"],
+  "Matematik::Cokgenler::7": ["Duzgun Cokgenlerin Ozellikleri", "Kosegen Ic ve Dis Acilar", "Dortgen Turleri", "Alan Bagintilari"],
+  "Matematik::Cember ve Daire::7": ["Cember ve Daire Parcalari", "Dairenin Alani", "Cember Uzunlugu Uygulamalari"],
+  "Matematik::Veri Analizi::7": ["Grafik Turleri", "Grafikler Arasi Donusum", "Veri Yorumlama"],
   // Fen Bilimleri (8. sinif) - MEB resmi ogretim programi kazanimlarindan (F.8.1 - F.8.7)
   "Fen Bilimleri::Mevsimler ve Iklim": ["Mevsimlerin Olusumu", "Iklim ve Hava Hareketleri"],
   "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon"],
