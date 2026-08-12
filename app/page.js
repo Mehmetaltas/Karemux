@@ -1188,6 +1188,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     });
   }
   const [zorlukSec, setZorlukSec] = useState("orta"); // "basit" | "orta" | "zor"
+  const [zorlukOtomatikMi, setZorlukOtomatikMi] = useState(true); // false olunca kullanicinin elle sectigi kalici olur (o ders icin)
+  useEffect(() => {
+    if (!secilenDers || !zorlukOtomatikMi) return;
+    fetch(`/api/ilerleme?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => {
+      const buDersSatirlari = (d.gecmis || []).filter((s) => s.ders === secilenDers);
+      const toplamDogru = buDersSatirlari.reduce((t, s) => t + Number(s.dogru), 0);
+      const toplamSoru = buDersSatirlari.reduce((t, s) => t + Number(s.toplam), 0);
+      if (toplamSoru < 5) { setZorlukSec("orta"); return; } // yeterli veri yok, guvenli varsayilan
+      const basariOrani = toplamDogru / toplamSoru;
+      setZorlukSec(basariOrani >= 0.8 ? "zor" : basariOrani >= 0.5 ? "orta" : "basit");
+    }).catch(() => {});
+  }, [secilenDers, zorlukOtomatikMi]);
+
 
   // Sinav (Yazili/Deneme ortak) - Kapsam: konu | unite | donem
   const [denemeDers, setDenemeDers] = useState(null);
@@ -2958,11 +2971,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         {secilenDers && !kocPaneliDers && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 2, textAlign: "center" }}>{secilenDers}</p>
-            <p style={{ fontSize: 11, color: COLORS.muted, textAlign: "center", marginBottom: 14, fontWeight: 600 }}>
+            <p style={{ fontSize: 11, color: COLORS.muted, textAlign: "center", marginBottom: 10, fontWeight: 600 }}>
               {sinif}. Sinif
               {(dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers)) && ` · ${dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers)}`}
               {dersSecimModu === "manuel" && manuelAltBaslik.length > 0 && ` · ${manuelAltBaslik.join(", ")}`}
             </p>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 14 }}>
+              <span style={{ fontSize: 10, color: COLORS.muted }}>{zorlukOtomatikMi ? "🤖 Zorluk (adaptif):" : "Zorluk:"}</span>
+              {["basit", "orta", "zor"].map((k) => (
+                <button key={k} onClick={() => { setZorlukSec(k); setZorlukOtomatikMi(false); }} style={{
+                  padding: "3px 10px", borderRadius: 999, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                  border: `1.5px solid ${zorlukSec === k ? COLORS.coral : COLORS.line}`, background: zorlukSec === k ? "#FFF1EF" : "#fff", color: COLORS.ink,
+                }}>{{ basit: "Basit", orta: "Orta", zor: "Zor" }[k]}</button>
+              ))}
+              {!zorlukOtomatikMi && (
+                <button onClick={() => setZorlukOtomatikMi(true)} title="Adaptife geri don" style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 10, fontWeight: 700, cursor: "pointer" }}>↺</button>
+              )}
+            </div>
 
             {dersTekrarKontrolYukleniyor && (
               <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Kontrol ediliyor...</p>
