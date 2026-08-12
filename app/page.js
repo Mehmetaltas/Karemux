@@ -1508,6 +1508,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [kurumBaglanKodu, setKurumBaglanKodu] = useState("");
   const [kurumBaglaniyor, setKurumBaglaniyor] = useState(false);
   const [kurumBaglandi, setKurumBaglandi] = useState(false);
+  const [liderlikVeri, setLiderlikVeri] = useState(null);
+  useEffect(() => {
+    if (mod !== "kurumpaneli" || !hesap || hesap.rol !== "ogrenci") return;
+    fetch(`/api/kurum/liderlik?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setLiderlikVeri).catch(() => {});
+  }, [mod, hesap?.eposta]);
 
   const [ulusalAktif, setUlusalAktif] = useState(null);
   const [ulusalGelecek, setUlusalGelecek] = useState(null);
@@ -4476,6 +4481,27 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Kurum Paneli</p>
               <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Okul/dershane yöneticileri için toplu, anonim öğrenci raporu.</p>
             </div>
+
+            {hesap.rol === "ogrenci" && liderlikVeri && !liderlikVeri.kurumaBagliDegil && liderlikVeri.siralama?.length > 0 && (
+              <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 14, padding: 18, marginBottom: 16 }}>
+                <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🏆 Sınıf Sıralaman</p>
+                <p style={{ color: "#8A968E", fontSize: 10.5, marginBottom: 12 }}>Aynı kuruma bağlı, en az 2 test çözmüş sınıf arkadaşların arasında — isimler kısmi gizlenmiştir.</p>
+                {liderlikVeri.kendiSiran && (
+                  <p style={{ color: "#fff", fontSize: 12.5, fontWeight: 700, marginBottom: 10, textAlign: "center", background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: 8 }}>
+                    Sen {liderlikVeri.kendiSiran}. sıradasın ({liderlikVeri.siralama.length} kişi arasında)
+                  </p>
+                )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                  {liderlikVeri.siralama.slice(0, 10).map((s) => (
+                    <div key={s.sira} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 10px", borderRadius: 8, background: s.benMi ? "rgba(232,179,57,0.18)" : "transparent", border: s.benMi ? `1px solid ${COLORS.mustard}` : "none" }}>
+                      <span style={{ width: 22, fontSize: 12, fontWeight: 800, color: s.sira <= 3 ? COLORS.mustard : "#8A968E" }}>{s.sira <= 3 ? ["🥇", "🥈", "🥉"][s.sira - 1] : s.sira}</span>
+                      <span style={{ flex: 1, fontSize: 12, color: "#fff", fontWeight: s.benMi ? 700 : 500 }}>{s.isim}{s.benMi ? " (sen)" : ""}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: RENK_BASARI }}>{s.ortalamaNet}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {!kurumRaporu && (
               <>
