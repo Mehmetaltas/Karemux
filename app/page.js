@@ -447,7 +447,7 @@ function temizHataMesaji(e, varsayilan) {
 // rastgele degil, spesifik kavram yanilgilarini hedeflemesini saglar. Puanlama zaten
 // objektif (dogru/yanlis, net hesabi) oldugundan bu yontemle tam uyumludur, ayrica
 // bir puanlama degisikligi gerektirmez.
-const BAGLAM_TEMELLI_SORU_TALIMATI = `Sorulari "Baglam Temelli Soru" yaklasimiyla yaz: her soru gercekci bir senaryo, veri veya durum (gunluk hayat, bilimsel veri, tarihsel belge, etik ikilem vb.) icinde kurulsun - soyut "bir sayi" veya "bir sekil" gibi baglamsiz sorulardan kacin. ONEMLI: Baglam SUS DEGIL, cozum icin ZORUNLU olmali - baglamdaki veri kullanilmadan, sadece genel bilgiyle cozulebilen bir soru gecersizdir. Her soru sadece bilgiyi degil, o bilgiyle NE YAPILABILDIGINI (problem cozme, sorgulama, ust duzey dusunme) olcsun. Celdiriciler (yanlis siklar) rastgele olmamali, ogrencinin gercekten yapabilecegi SPESIFIK bir kavram yanilgisini yansitmali.`;
+const BAGLAM_TEMELLI_SORU_TALIMATI = `Sorulari "Baglam Temelli Soru" yaklasimiyla yaz: her soru gercekci bir senaryo, veri veya durum (gunluk hayat, bilimsel veri, tarihsel belge, etik ikilem vb.) icinde kurulsun - soyut "bir sayi" veya "bir sekil" gibi baglamsiz sorulardan kacin. ONEMLI: Baglam SUS DEGIL, cozum icin ZORUNLU olmali - baglamdaki veri kullanilmadan, sadece genel bilgiyle cozulebilen bir soru gecersizdir. Her soru sadece bilgiyi degil, o bilgiyle NE YAPILABILDIGINI (problem cozme, sorgulama, ust duzey dusunme) olcsun. Celdiriciler (yanlis siklar) rastgele olmamali, ogrencinin gercekten yapabilecegi SPESIFIK bir kavram yanilgisini yansitmali. YAZIM: Turkce'ye ozgu karakterleri (i, g, u, s, o, c, I harflerinin noktali/simgeli hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye indirgenmis (sadeleştirilmemiş, noktasiz) yazma - orn. "ogrenci" degil "öğrenci", "icin" degil "için" yaz.`;
 
 // AI'dan gelen soru listesi JSON'unu ayiklar. Bazen cevap token limitine takilip
 // yarida kesilebiliyor (ozellikle uzun/karmasik konularda) - bu durumda son
@@ -550,7 +550,7 @@ Soru: ${soru}
 Secenekler: ${secenekler.join(" | ")}
 Ogrencinin verdigi cevap: ${secenekler[secilenIndex] || "bos birakildi"}
 Dogru cevap: ${secenekler[dogruIndex]}
-Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDEN yanlis oldugunu, kisa (60-90 kelime), net ve ogretici bir dille acikla. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Markdown kullanma, sadece duz metin.`;
+Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDEN yanlis oldugunu, kisa (60-90 kelime), net ve ogretici bir dille acikla. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma. Markdown kullanma, sadece duz metin.`;
       const cevap = await aiIstek(p, 500, cihazIdRef.current);
       const temiz = cevap.replace(/\*\*/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setSoruAciklamalari((eski) => ({ ...eski, [index]: temiz }));
@@ -715,8 +715,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
       const p = durum.tur >= 2
-        ? `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrenciye ${oncekiSinif}. sinif "${dersAdi}" temel konularini DAHA ONCE bir kez anlattin ama ogrenci testte basarili olamadi - yani ilk anlatim yeterli gelmedi. Bu sefer FARKLI BIR YAKLASIMLA anlat: farkli, gunluk hayattan daha somut ornekler kullan, kavramlari daha yavas ve adim adim ac, olasi kafa karistirici noktalari ONCEDEN tahmin edip aciklayarak onle. Her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut ornek coz. Bu, DAHA DETAYLI ve DAHA DERINLEMESINE bir anlatim olmali. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 550-650 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`
-        : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra "Ornek:" diye etiketlenmis somut ornek, gerekirse formul/kural. Konu basliklarina ayirarak yaz. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 350-450 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+        ? `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrenciye ${oncekiSinif}. sinif "${dersAdi}" temel konularini DAHA ONCE bir kez anlattin ama ogrenci testte basarili olamadi - yani ilk anlatim yeterli gelmedi. Bu sefer FARKLI BIR YAKLASIMLA anlat: farkli, gunluk hayattan daha somut ornekler kullan, kavramlari daha yavas ve adim adim ac, olasi kafa karistirici noktalari ONCEDEN tahmin edip aciklayarak onle. Her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut ornek coz. Bu, DAHA DETAYLI ve DAHA DERINLEMESINE bir anlatim olmali. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 550-650 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`
+        : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra "Ornek:" diye etiketlenmis somut ornek, gerekirse formul/kural. Konu basliklarina ayirarak yaz. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 350-450 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
       const cevap = await aiIstek(p, durum.tur >= 2 ? 4200 : 3000, cihazIdRef.current);
       if (secilenDersRef.current !== dersAdi) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = cevap
@@ -735,7 +735,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const soruSayisi = durum.soruSayisi || 5;
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan ${soruSayisi} coktan secmeli soru hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} ONEMLI: Her soruyu yazdiktan sonra HESABI KENDIN ADIM ADIM COZ ve dogruIndex'in GERCEKTEN dogru oldugundan emin ol - matematiksel hata yapma, cevaplar arasinda celiski olmasin. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, DOGRU VE TUTARLI bir sekilde anlat (ogrenci yanlis yaparsa bunu okuyup ogrensin). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan ${soruSayisi} coktan secmeli soru hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} ONEMLI: Her soruyu yazdiktan sonra HESABI KENDIN ADIM ADIM COZ ve dogruIndex'in GERCEKTEN dogru oldugundan emin ol - matematiksel hata yapma, cevaplar arasinda celiski olmasin. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, DOGRU VE TUTARLI bir sekilde anlat (ogrenci yanlis yaparsa bunu okuyup ogrensin). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
       const cevap = await aiIstek(p, Math.min(8000, 600 + soruSayisi * 500), cihazIdRef.current, true);
       if (secilenDersRef.current !== dersAdi) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
@@ -891,7 +891,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const oncekiSinif = Math.max(1, sinif - 1);
     setGecenYilYukleniyor(true); setHata(""); setGecenYilCevaplar({}); setGecenYilGonderildi(false); setGecenYilSorulari(null);
     try {
-      const p = `Sen "${dersAdi}" dersi olcme-degerlendirme uzmanisin. Ogrenci simdi ${sinif}. sinifa gecti, once ${oncekiSinif}. sinifi gercekten ogrenmis mi olcmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin GENEL VE TEMEL konularini kapsayan 10 soruluk bir GENEL DEGERLENDIRME sinavi hazirla, farkli konu basliklarina yayilsin. Sorular temel kavram anlayisini olcsun, kolaydan zora dogru sirali olsun. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme:
+      const p = `Sen "${dersAdi}" dersi ölçme-değerlendirme uzmanısın. Öğrenci şimdi ${sinif}. sınıfa geçti, önce ${oncekiSinif}. sınıfı gerçekten öğrenmiş mi ölçmemiz gerekiyor. ${oncekiSinif}. sınıf "${dersAdi}" müfredatının GENEL VE TEMEL konularını kapsayan 10 soruluk bir GENEL DEĞERLENDİRME sınavı hazırla, farklı konu başlıklarına yayılsın. Sorular temel kavram anlayışını ölçsün, kolaydan zora doğru sıralı olsun. ÖNEMLİ: Tüm metinler SADECE Türkçe olmalı, Türkçe'ye özgü karakterleri (ı, ğ, ü, ş, ö, ç, İ) DOĞRU ve EKSİKSİZ kullan - ASCII'ye indirgenmiş (Turkce, sinif gibi) yazma. SADECE JSON döndür, başka hiçbir açıklama ekleme:
 [{"konu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
       const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
@@ -996,7 +996,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const oncekiSinif = Math.max(1, sinif - 1);
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
-      const p = `Sen deneyimli, alaninda uzman bir "${kocPaneliDers}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${kocPaneliDers}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille OZETLE - once tanim, sonra somut ornek. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const p = `Sen deneyimli, alaninda uzman bir "${kocPaneliDers}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${kocPaneliDers}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille OZETLE - once tanim, sonra somut ornek. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
@@ -1025,7 +1025,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik.length > 0)
         ? ` SADECE su alt basliklara odaklan: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarina girme.`
         : "";
-      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi}${kapsamSiniri} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma.`;
+      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat.${temelUyarisi}${kapsamSiniri} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 400-500 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = cevap
@@ -1821,7 +1821,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
       const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const veriMetni = ozet.map((o) => `${o.ders}: ${o.testSayisi} test, ortalama net ${o.ortalamaNet}, en son net ${o.sonNet}`).join("; ");
-      const p = `Sen bir egitim kocususun. ${ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}.` : ""} Su gercek sinav verilerine dayanarak DERIN, KISISEL bir karne/durum degerlendirmesi yaz: ${veriMetni}. Su noktalara deg: (1) En guclu oldugu 1-2 dersi somut sayilarla ovun, (2) En cok destege ihtiyaci olan 1-2 dersi nazik ama net sekilde belirt, (3) Son sinav ile ortalamasini kiyaslayip bir trend yorumu yap (yukseliyor mu, sabit mi, dususte mi), (4) Somut, uygulanabilir 2-3 tavsiye ver. Sicak, samimi, gercekci bir mentor tonu kullan - ne asiri ovucu ne cesaret kirici ol. 250-320 kelime, SADECE Turkce duz metin, markdown kullanma.`;
+      const p = `Sen bir egitim kocususun. ${ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}.` : ""} Su gercek sinav verilerine dayanarak DERIN, KISISEL bir karne/durum degerlendirmesi yaz: ${veriMetni}. Su noktalara deg: (1) En guclu oldugu 1-2 dersi somut sayilarla ovun, (2) En cok destege ihtiyaci olan 1-2 dersi nazik ama net sekilde belirt, (3) Son sinav ile ortalamasini kiyaslayip bir trend yorumu yap (yukseliyor mu, sabit mi, dususte mi), (4) Somut, uygulanabilir 2-3 tavsiye ver. Sicak, samimi, gercekci bir mentor tonu kullan - ne asiri ovucu ne cesaret kirici ol. 250-320 kelime, SADECE Turkce duz metin, markdown kullanma. Turkce'ye ozgu noktali/simgeli karakterleri DOGRU ve EKSIKSIZ kullan.`;
       const yorum = await aiIstek(p, 1600, cihazIdRef.current);
       setKarneYorum(yorum);
     } catch (e) {
@@ -2613,7 +2613,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>🏠 Ana Sayfa</button>
 
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 2 }}>📚 Ders Calisma Odasi</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 2 }}>📚 Ders Çalışma Odası</p>
               <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 10 }}>Konu anlat, test coz - asil calisma burada</p>
               {gorunurDersler(sinif).map((d) => (
                 <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
@@ -2748,18 +2748,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 14, textAlign: "center" }}>{kocPaneliDers}</p>
 
             {gecenYilGecmisYukleniyor && (
-              <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
+              <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Geçmiş kontrol ediliyor...</p>
             )}
 
             {gecenYilTamamlandiMi === false && !gecenYilGecmisYukleniyor && !gecenYilSorulari && !gecenYilRaporu && (
               <div style={{ background: "#FFF8E8", borderRadius: 12, padding: 18, textAlign: "center", border: `1.5px solid ${COLORS.mustard}` }}>
-                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>📊 Once Genel Degerlendirme</p>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>📊 Önce Genel Değerlendirme</p>
                 <p style={{ fontSize: 13, color: "#6B7566", marginBottom: 14 }}>
-                  {kocPaneliDers} icin ilk kez buradasin. {Math.max(1, sinif - 1)}. siniftan gercek temelinin ne kadar saglam oldugunu olcelim,
-                  sonra {sinif}. sinif takibine geceriz. (Bu, AI tarafindan olusturulan genel bir degerlendirmedir, resmi MEB sinavi degildir.)
+                  {kocPaneliDers} için ilk kez buradasın. {Math.max(1, sinif - 1)}. sınıftan gerçek temelinin ne kadar sağlam olduğunu ölçelim,
+                  sonra {sinif}. sınıf takibine geçeriz. (Bu, AI tarafından oluşturulan genel bir değerlendirmedir, resmi MEB sınavı değildir.)
                 </p>
                 <button onClick={() => gecenYilDegerlendirmesiYap(kocPaneliDers)} disabled={gecenYilYukleniyor} style={{ padding: "11px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>
-                  {gecenYilYukleniyor ? "Hazirlaniyor..." : "Genel Degerlendirmeyi Baslat"}
+                  {gecenYilYukleniyor ? "Hazırlanıyor..." : "Genel Değerlendirmeyi Başlat"}
                 </button>
               </div>
             )}
@@ -2787,8 +2787,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {gecenYilRaporu && gecenYilGonderildi && (
               <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 16, textAlign: "center", marginBottom: 16 }}>
-                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>Genel Degerlendirme Sonucu</p>
-                <p style={{ fontSize: 13 }}>Onceki sinif temelin: <strong>{gecenYilRaporu.seviye}</strong> ({gecenYilRaporu.dogru}/{gecenYilRaporu.toplam})</p>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>Genel Değerlendirme Sonucu</p>
+                <p style={{ fontSize: 13 }}>Önceki sınıf temelin: <strong>{gecenYilRaporu.seviye}</strong> ({gecenYilRaporu.dogru}/{gecenYilRaporu.toplam})</p>
                 <p style={{ fontSize: 12, color: "#6B7566", marginTop: 8 }}>Simdi {sinif}. sinif takibine geciyoruz.</p>
               </div>
             )}
@@ -2805,7 +2805,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 )}
 
             {dersSeviyeGecmisYukleniyor && (
-              <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Gecmis kontrol ediliyor...</p>
+              <p style={{ fontSize: 13, color: COLORS.muted, textAlign: "center" }}>Geçmiş kontrol ediliyor...</p>
             )}
 
             {!dersSeviyeGecmisYukleniyor && !dersSeviyeSorulari && !dersSeviyeRaporu && (
@@ -2892,7 +2892,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               return (
                 <div style={{ background: COLORS.gradient, borderRadius: 10, padding: 16, marginTop: 16, textAlign: "center" }}>
                   <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 1, marginBottom: 4 }}>🎯 KOC ONERISI</p>
-                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 8 }}>Simdi buna odaklan: {onerilenUnite}</p>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 8 }}>Şimdi buna odaklan: {onerilenUnite}</p>
                   {gecenYilRaporu && gecenYilRaporu.seviye === "Zayif" && (
                     <p style={{ fontSize: 11.5, color: "#FFD5D0", marginBottom: 10 }}>
                       ⚠ Onceki sinif temelin zayif gorunuyor, konu anlatimi bunu dikkate alacak.
@@ -3059,7 +3059,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ background: COLORS.gradient, borderRadius: 12, padding: 16, marginBottom: 14, textAlign: "center" }}>
                     <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.mustard, letterSpacing: 0.5, marginBottom: 4 }}>{dersSecimModu === "koc" ? "🎯 KOC ONERISI" : "✋ SECIMIN"}</p>
                     <p style={{ fontSize: 15, fontWeight: 700, color: COLORS.page, marginBottom: 12 }}>
-                      {dersSecimModu === "koc" ? `Simdi buna odaklan: ${onerilenUnite}` : `${manuelUnite}${manuelAltBaslik.length > 0 ? " — " + manuelAltBaslik.join(", ") : ""}`}
+                      {dersSecimModu === "koc" ? `Şimdi buna odaklan: ${onerilenUnite}` : `${manuelUnite}${manuelAltBaslik.length > 0 ? " — " + manuelAltBaslik.join(", ") : ""}`}
                     </p>
                     <div className="kx-pop" style={{ display: "flex", gap: 8 }}>
                       <button className="kx-btn" onClick={oneriliUniteAnlat} disabled={yukleniyor} style={{ flex: 1, padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
@@ -3142,7 +3142,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               if (durum.durum === "tamamlandi") {
                 return (
                   <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 16, textAlign: "center" }}>
-                    <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>✅ Gecmis Yil Tekrari Tamamlandi</p>
+                    <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>✅ Geçmiş Yıl Tekrarı Tamamlandı</p>
                     <p style={{ fontSize: 12.5, color: "#6B7566" }}>
                       {durum.tur}. tur testlerini gectin. Artik normal takip icin Koc Panel'den {secilenDers}'i sec.
                     </p>
@@ -3153,7 +3153,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               if (durum.durum === "gorusme_talebi") {
                 return (
                   <div style={{ background: "#FFF1EF", borderRadius: 10, padding: 16, textAlign: "center", border: `1.5px solid ${COLORS.coral}` }}>
-                    <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: COLORS.coral }}>🙋 Rehber Ogretmen / Koc Gorusmesi Onerilir</p>
+                    <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6, color: COLORS.coral }}>🙋 Rehber Öğretmen / Koç Görüşmesi Önerilir</p>
                     <p style={{ fontSize: 12.5, color: "#6B7566", marginBottom: 14 }}>
                       Uc tur tekrar denemesine ragmen zorlaniyorsun - bu normal, bazen birebir destek gerekir.
                     </p>
@@ -3808,11 +3808,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   ) : (
                     <div>
                       <select value={profilSinifSec} onChange={(e) => setProfilSinifSec(e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }}>
-                        <option value="">Sinif sec</option>
-                        <option value="5">5. Sinif</option>
-                        <option value="6">6. Sinif</option>
-                        <option value="7">7. Sinif</option>
-                        <option value="8">8. Sinif</option>
+                        <option value="">Sınıf seç</option>
+                        <option value="5">5. Sınıf</option>
+                        <option value="6">6. Sınıf</option>
+                        <option value="7">7. Sınıf</option>
+                        <option value="8">8. Sınıf</option>
                       </select>
                       <div style={{ position: "relative", marginBottom: 8 }}>
                         <input value={profilOkul}
@@ -3845,7 +3845,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 {hesap.rol === "ogrenci" && (
                   <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Bekleyen Odevlerin (Koc onerileri)</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Bekleyen Ödevlerin (Koç önerileri)</p>
                     {gorunurDersler(sinif).map((d) => {
                       const onerilen = oneriliUniteHesapla(d.ad);
                       if (!onerilen) return null;
@@ -3862,7 +3862,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                     {profilGunlukGorevler && profilGunlukGorevler.length > 0 && (
                       <>
-                        <p style={{ fontSize: 12, fontWeight: 700, marginTop: 14, marginBottom: 6, color: COLORS.muted }}>📅 Haftalik Programindan Gunluk Gorevler</p>
+                        <p style={{ fontSize: 12, fontWeight: 700, marginTop: 14, marginBottom: 6, color: COLORS.muted }}>📅 Haftalık Programından Günlük Görevler</p>
                         {profilGunlukGorevler.map((g) => (
                           <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", fontSize: 12.5, borderBottom: `1px solid ${COLORS.line}` }}>
                             <button onClick={() => gorevTamamlandiIsaretle(g.id)} style={{ width: 18, height: 18, borderRadius: 5, border: `1.5px solid ${COLORS.line}`, background: "#fff", cursor: "pointer", flexShrink: 0, padding: 0 }} title="Tamamlandi olarak isaretle" />
@@ -3877,7 +3877,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 {hesap.rol === "ogrenci" && (
                   <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Ders Durumlarin</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Ders Durumların</p>
                     {gorunurDersler(sinif).map((d) => {
                       const tumUnite = dersinUniteleri(d.ad, sinif).length;
                       const tamamlanan = (tamamlananUniteler[d.ad] || []).length;
@@ -3936,7 +3936,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     {karneAcik && (
                       <div id="karne-yazdirilacak">
                         {karneYukleniyor ? (
-                          <p style={{ fontSize: 12.5, color: COLORS.muted, textAlign: "center" }}>Sinav gecmisin analiz ediliyor...</p>
+                          <p style={{ fontSize: 12.5, color: COLORS.muted, textAlign: "center" }}>Sınav geçmişin analiz ediliyor...</p>
                         ) : (
                           <>
                             {karneOzet && karneOzet.length > 0 && (
@@ -3995,19 +3995,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </div>
                 )}
 
-                <button onClick={cikisYap} style={{ padding: "8px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>Cikis Yap</button>
+                <button onClick={cikisYap} style={{ padding: "8px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>Çıkış Yap</button>
               </div>
             ) : (
               <div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                  <button onClick={() => setHesapModu("giris")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "giris" ? COLORS.coral : "#fff", color: hesapModu === "giris" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Giris Yap</button>
-                  <button onClick={() => setHesapModu("kayit")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "kayit" ? COLORS.coral : "#fff", color: hesapModu === "kayit" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Kayit Ol</button>
+                  <button onClick={() => setHesapModu("giris")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "giris" ? COLORS.coral : "#fff", color: hesapModu === "giris" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Giriş Yap</button>
+                  <button onClick={() => setHesapModu("kayit")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "kayit" ? COLORS.coral : "#fff", color: hesapModu === "kayit" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Kayıt Ol</button>
                 </div>
                 {hesapModu === "kayit" && (
                   <>
                     <input value={adGir} onChange={(e) => setAdGir(e.target.value)} placeholder="Adin" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                     <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                      <button onClick={() => setRolSec("ogrenci")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "ogrenci" ? COLORS.coral : COLORS.line}`, background: rolSec === "ogrenci" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎓 Ogrenciyim</button>
+                      <button onClick={() => setRolSec("ogrenci")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "ogrenci" ? COLORS.coral : COLORS.line}`, background: rolSec === "ogrenci" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎓 Öğrenciyim</button>
                       <button onClick={() => setRolSec("veli")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "veli" ? COLORS.coral : COLORS.line}`, background: rolSec === "veli" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>👪 Veliyim</button>
                     </div>
                   </>
@@ -4027,7 +4027,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 {sifreUnutAcik && (
                   <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${COLORS.line}` }}>
-                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Sifre Sifirlama</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Şifre Sıfırlama</p>
                     {sifreUnutAsama === "eposta" ? (
                       <>
                         <input value={sifreUnutEposta} onChange={(e) => setSifreUnutEposta(e.target.value)} placeholder="Kayitli e-postan" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
@@ -5337,7 +5337,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                           </div>
                         </div>
                       ))}
-                      <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 10, fontStyle: "italic" }}>Bu gorevler Profilinde "Bekleyen Odevlerin" altinda da gorunecek.</p>
+                      <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 10, fontStyle: "italic" }}>Bu görevler Profilinde "Bekleyen Ödevlerin" altında da görünecek.</p>
                     </div>
                   )}
                 </div>
