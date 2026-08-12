@@ -4492,12 +4492,40 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <button onClick={() => { setKurumRaporu(null); setKurumRaporKodu(""); }} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Geri</button>
                 </div>
 
-                <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
-                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: 16, textAlign: "center" }}>
-                    <p style={{ color: COLORS.mustard, fontSize: 28, fontWeight: 900 }}>{kurumRaporu.ogrenciSayisi}</p>
-                    <p style={{ color: "#8A968E", fontSize: 10.5 }}>TOPLAM ÖĞRENCİ</p>
+                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
+                    <p style={{ color: COLORS.mustard, fontSize: 22, fontWeight: 900 }}>{kurumRaporu.ogrenciSayisi}</p>
+                    <p style={{ color: "#8A968E", fontSize: 9 }}>TOPLAM ÖĞRENCİ</p>
+                  </div>
+                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
+                    <p style={{ color: RENK_BASARI, fontSize: 22, fontWeight: 900 }}>{kurumRaporu.buHaftaAktifOgrenci}</p>
+                    <p style={{ color: "#8A968E", fontSize: 9 }}>BU HAFTA AKTİF</p>
+                  </div>
+                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
+                    <p style={{ color: COLORS.coral, fontSize: 22, fontWeight: 900 }}>{kurumRaporu.genelOrtalamaNet ?? "—"}</p>
+                    <p style={{ color: "#8A968E", fontSize: 9 }}>GENEL ORT. NET</p>
                   </div>
                 </div>
+
+                {kurumRaporu.gunlukTrend?.length >= 2 && (() => {
+                  const genislik = 280, yukseklik = 80, kenar = 10;
+                  const maxDeger = Math.max(...kurumRaporu.gunlukTrend.map((v) => Number(v.aktif_ogrenci)), 1);
+                  const adim = (genislik - kenar * 2) / (kurumRaporu.gunlukTrend.length - 1);
+                  const noktalar = kurumRaporu.gunlukTrend.map((v, i) => ({
+                    x: kenar + i * adim,
+                    y: yukseklik - kenar - (Number(v.aktif_ogrenci) / maxDeger) * (yukseklik - kenar * 2),
+                  }));
+                  const yol = noktalar.map((n, i) => `${i === 0 ? "M" : "L"}${n.x.toFixed(1)},${n.y.toFixed(1)}`).join(" ");
+                  return (
+                    <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>SON 7 GÜN — GÜNLÜK AKTİF ÖĞRENCİ</p>
+                      <svg viewBox={`0 0 ${genislik} ${yukseklik}`} style={{ width: "100%", height: 90 }}>
+                        <path d={yol} fill="none" stroke={RENK_BASARI} strokeWidth="2.5" />
+                        {noktalar.map((n, i) => <circle key={i} cx={n.x} cy={n.y} r="3.5" fill={RENK_BASARI} />)}
+                      </svg>
+                    </div>
+                  );
+                })()}
 
                 {kurumRaporu.sinifDagilimi?.length > 0 && (
                   <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
@@ -4512,17 +4540,29 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </div>
                 )}
 
-                {kurumRaporu.dersBazindaNet?.length > 0 && (
-                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>DERS BAZINDA ORTALAMA NET (düşükten yükseğe)</p>
-                    {kurumRaporu.dersBazindaNet.map((d) => (
-                      <div key={d.ders} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12.5 }}>
-                        <span>{d.ders}</span>
-                        <span style={{ fontWeight: 700 }}>{d.ortalama_net} <span style={{ color: COLORS.muted, fontWeight: 400 }}>({d.test_sayisi} test)</span></span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {kurumRaporu.dersBazindaNet?.length > 0 && (() => {
+                  const maxNet = Math.max(...kurumRaporu.dersBazindaNet.map((d) => Number(d.ortalama_net)), 1);
+                  return (
+                    <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
+                      <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>DERS BAZINDA ORTALAMA NET (düşükten yükseğe)</p>
+                      {kurumRaporu.dersBazindaNet.map((d) => {
+                        const oran = Number(d.ortalama_net) / maxNet;
+                        const renk = oran > 0.66 ? "#3DA35D" : oran > 0.33 ? COLORS.mustard : "#E8503F";
+                        return (
+                          <div key={d.ders} style={{ marginBottom: 8 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 3 }}>
+                              <span>{d.ders}</span>
+                              <span style={{ fontWeight: 700 }}>{d.ortalama_net} <span style={{ color: COLORS.muted, fontWeight: 400 }}>({d.test_sayisi} test)</span></span>
+                            </div>
+                            <div style={{ height: 7, borderRadius: 999, background: "#EDE8DC", overflow: "hidden" }}>
+                              <div style={{ height: "100%", width: `${Math.max(6, oran * 100)}%`, borderRadius: 999, background: renk }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
 
                 {kurumRaporu.zayifKonular?.length > 0 && (
                   <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>

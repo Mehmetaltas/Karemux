@@ -15,6 +15,29 @@ export async function GET(req) {
 
     const ogrenciSayisi = await sql`SELECT COUNT(*) as sayi FROM kullanicilar WHERE kurum_id = ${kurumId}`;
 
+    // Bu hafta en az 1 gun aktif olan benzersiz ogrenci sayisi
+    const buHaftaAktif = await sql`
+      SELECT COUNT(DISTINCT g.kullanici_id) as sayi FROM gunluk_kullanim g
+      JOIN kullanicilar k ON k.id = g.kullanici_id
+      WHERE k.kurum_id = ${kurumId} AND g.tarih >= (CURRENT_DATE - interval '7 days') AND g.ai_istek_sayisi > 0
+    `;
+
+    // Kurum genelinde tum derslerin ortalama neti (tek buyuk sayi icin)
+    const genelOrtalamaNet = await sql`
+      SELECT ROUND(AVG(s.net)::numeric, 2) as ortalama FROM sinav_sonuclari s
+      JOIN kullanicilar k ON k.id = s.kullanici_id
+      WHERE k.kurum_id = ${kurumId}
+    `;
+
+    // Son 7 gunun gunluk aktif ogrenci sayisi trendi (dashboard grafigi icin)
+    const gunlukTrend = await sql`
+      SELECT g.tarih, COUNT(DISTINCT g.kullanici_id) as aktif_ogrenci
+      FROM gunluk_kullanim g
+      JOIN kullanicilar k ON k.id = g.kullanici_id
+      WHERE k.kurum_id = ${kurumId} AND g.tarih >= (CURRENT_DATE - interval '7 days') AND g.ai_istek_sayisi > 0
+      GROUP BY g.tarih ORDER BY g.tarih ASC
+    `;
+
     const sinifDagilimi = await sql`
       SELECT sinif, COUNT(*) as sayi FROM kullanicilar
       WHERE kurum_id = ${kurumId} AND sinif IS NOT NULL
@@ -42,6 +65,9 @@ export async function GET(req) {
     return Response.json({
       kurumAdi: kurum[0].ad,
       ogrenciSayisi: Number(ogrenciSayisi[0].sayi),
+      buHaftaAktifOgrenci: Number(buHaftaAktif[0]?.sayi || 0),
+      genelOrtalamaNet: genelOrtalamaNet[0]?.ortalama ? Number(genelOrtalamaNet[0].ortalama) : null,
+      gunlukTrend,
       sinifDagilimi,
       dersBazindaNet,
       zayifKonular,
