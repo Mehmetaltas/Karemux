@@ -1492,7 +1492,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
   const [basariVeri, setBasariVeri] = useState(null);
   useEffect(() => {
-    if (mod !== "basarilarim" || !hesap) return;
+    if ((mod !== "basarilarim" && mod !== "hesap") || !hesap) return;
     Promise.all([
       fetch(`/api/basarilar?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
       fetch(`/api/streak?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
@@ -3716,6 +3716,32 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
             {hesap ? (
               <div>
+                {hesap.rol === "ogrenci" && basariVeri && (() => {
+                  const xp = Math.round((basariVeri.toplamSoru || 0) * 5 + Object.values(basariVeri.dersBazinda || {}).reduce((t, n) => t + n, 0) * 50 + (basariVeri.tamamlananSinavSayisi || 0) * 20);
+                  const { mevcut } = seviyeHesapla(xp);
+                  return (
+                    <div className="kx-fadein" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                      <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "12px 6px", textAlign: "center" }}>
+                        <p style={{ fontSize: 20 }}>{mevcut.ikon}</p>
+                        <p style={{ color: COLORS.mustard, fontSize: 12, fontWeight: 800 }}>{mevcut.ad}</p>
+                        <p style={{ color: "#8A968E", fontSize: 8.5 }}>SEVİYEN</p>
+                      </div>
+                      <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "12px 6px", textAlign: "center" }}>
+                        <p style={{ color: "#FF6B5E", fontSize: 20, fontWeight: 900 }}>{seriVeri?.guncelSeri ?? 0}🔥</p>
+                        <p style={{ color: "#8A968E", fontSize: 8.5, marginTop: 2 }}>GÜNLÜK SERİ</p>
+                      </div>
+                      <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "12px 6px", textAlign: "center" }}>
+                        <p style={{ color: RENK_BASARI, fontSize: 20, fontWeight: 900 }}>{basariVeri.toplamSoru || 0}</p>
+                        <p style={{ color: "#8A968E", fontSize: 8.5, marginTop: 2 }}>ÇÖZÜLEN SORU</p>
+                      </div>
+                      <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "12px 6px", textAlign: "center" }}>
+                        <p style={{ color: "#fff", fontSize: 20, fontWeight: 900 }}>{tekrarSayisi}</p>
+                        <p style={{ color: "#8A968E", fontSize: 8.5, marginTop: 2 }}>BEKLEYEN TEKRAR</p>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 <p style={{ fontSize: 14, marginBottom: 4 }}>
                   Giris yapildi: <strong>{hesap.ad}</strong> <span style={{ color: COLORS.muted, fontSize: 12 }}>({hesap.rol === "veli" ? "veli hesabi" : "ogrenci hesabi"})</span>
                 </p>
