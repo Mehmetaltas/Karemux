@@ -1317,6 +1317,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }, [hesap?.sinif]);
   const [profilGunlukGorevler, setProfilGunlukGorevler] = useState(null);
   const [karneAcik, setKarneAcik] = useState(false);
+  const [netTrendVeri, setNetTrendVeri] = useState(null);
+  const [netTrendYukleniyor, setNetTrendYukleniyor] = useState(false);
+
+  async function netTrendiGetir() {
+    setNetTrendYukleniyor(true);
+    try {
+      const res = await fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      const sonuclar = (data.sonuclar || []).filter((s) => s.tur === "deneme" || s.tur === "yazili");
+      // Tarihe gore eskiden yeniye sirala, son 12 sonucu al (cok kalabalik olmasin)
+      const sirali = [...sonuclar].sort((a, b) => new Date(a.olusturulma) - new Date(b.olusturulma)).slice(-12);
+      setNetTrendVeri(sirali.map((s) => ({ tarih: s.olusturulma, net: Number(s.net), ders: s.ders.split("::")[0] })));
+    } catch (e) {
+      setNetTrendVeri([]);
+    } finally {
+      setNetTrendYukleniyor(false);
+    }
+  }
+  useEffect(() => {
+    if (mod === "hesap" && hesap) netTrendiGetir();
+  }, [mod, hesap?.eposta]);
+
   const [dersSecimModu, setDersSecimModu] = useState("koc"); // "koc" | "manuel"
   const [manuelUnite, setManuelUnite] = useState(null);
   const [manuelAltBaslik, setManuelAltBaslik] = useState([]);
@@ -1598,6 +1620,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       setHata(temizHataMesaji(e, "Bursluluk denemesi olusturulamadi, tekrar dene."));
     } finally {
       setBurslulukYukleniyor(false); setBurslulukAsama("");
+      // Gercek IOKBS: 80 soru (4 ders x 20) icin 100 dakika - orani koruyarak hesapliyoruz.
+      const toplamSoruSayisi = burslulukSoruSayisi * BURSLULUK_DERSLER.length;
+      kronometreyiBaslat(Math.round((toplamSoruSayisi / 80) * 100));
     }
   }
 
@@ -2154,14 +2179,45 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uretilenSinavSorulari = soruJsonAyikla(temiz);
       setDenemeSorulari(uretilenSinavSorulari);
       sorulariBankayaKaydet(denemeDers, sinif, kapsamUnite, uretilenSinavSorulari, sinavTuru);
+      // Deneme gercek sinav kosullarini simule etsin diye kronometre baslatilir
+      // (Yazili'da bu kadar kati bir zaman baskisi olmadigi icin baslatilmaz).
+      if (sinavTuru === "deneme") kronometreyiBaslat(Math.round(sinavSoruSayisi * 1.5));
     } catch (e) { setHata(temizHataMesaji(e, "Sinav olusturulamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
 
   const [denemeBelgesi, setDenemeBelgesi] = useState(null);
+  // Gercek geri sayim kronometresi - Deneme/Bursluluk sinavlari basladiginda
+  // baslar, gonderilince ya da sure dolunca durur.
+  const [kronometreSaniye, setKronometreSaniye] = useState(null); // null = aktif degil
+  const kronometreRef = useRef(null);
+  function kronometreyiBaslat(dakika) {
+    setKronometreSaniye(dakika * 60);
+  }
+  function kronometreyiDurdur() {
+    setKronometreSaniye(null);
+  }
+  useEffect(() => {
+    if (kronometreSaniye === null) { if (kronometreRef.current) clearInterval(kronometreRef.current); return; }
+    kronometreRef.current = setInterval(() => {
+      setKronometreSaniye((eski) => (eski !== null && eski > 0 ? eski - 1 : eski));
+    }, 1000);
+    return () => clearInterval(kronometreRef.current);
+  }, [kronometreSaniye === null]);
+  function sureFormatla(saniye) {
+    const dk = Math.floor(saniye / 60);
+    const sn = saniye % 60;
+    return `${String(dk).padStart(2, "0")}:${String(sn).padStart(2, "0")}`;
+  }
+  useEffect(() => {
+    if (kronometreSaniye !== 0) return;
+    if (denemeSorulari && !denemeGonderildi) denemeGonder();
+    if (burslulukSorular && !burslulukGonderildi) setBurslulukGonderildi(true);
+  }, [kronometreSaniye]);
 
   async function denemeGonder() {
     setDenemeGonderildi(true);
+    kronometreyiDurdur();
     const dogru = denemeSorulari.filter((s, i) => denemeCevaplar[i] === s.dogruIndex).length;
     const bos = denemeSorulari.filter((s, i) => denemeCevaplar[i] === undefined).length;
     const yanlis = denemeSorulari.length - dogru - bos;
@@ -3414,6 +3470,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {optikHata && <p style={{ fontSize: 11.5, color: COLORS.coral, marginTop: 6, fontWeight: 600 }}>{optikHata}</p>}
               </div>
             )}
+            {kronometreSaniye !== null && !denemeGonderildi && (
+              <div style={{ position: "sticky", top: 8, zIndex: 15, display: "flex", justifyContent: "center", marginBottom: 14 }}>
+                <div style={{ background: kronometreSaniye < 60 ? "#E8503F" : "#1B2430", color: "#fff", padding: "8px 20px", borderRadius: 999, fontWeight: 800, fontSize: 15, boxShadow: "0 3px 10px rgba(0,0,0,0.2)", display: "flex", alignItems: "center", gap: 8 }}>
+                  ⏱️ {sureFormatla(kronometreSaniye)}
+                </div>
+              </div>
+            )}
             {denemeSorulari.map((s, i) => (
               <div key={i} style={{ marginBottom: 16 }}>
                 <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
@@ -3696,6 +3759,35 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     })}
                   </div>
                 )}
+
+                {hesap.rol === "ogrenci" && netTrendVeri && netTrendVeri.length >= 2 && (() => {
+                  const genislik = 280, yukseklik = 90, kenar = 10;
+                  const maxNet = Math.max(...netTrendVeri.map((v) => v.net), 1);
+                  const adimGenislik = (genislik - kenar * 2) / (netTrendVeri.length - 1);
+                  const noktalar = netTrendVeri.map((v, i) => {
+                    const x = kenar + i * adimGenislik;
+                    const y = yukseklik - kenar - (v.net / maxNet) * (yukseklik - kenar * 2);
+                    return { x, y, net: v.net };
+                  });
+                  const yol = noktalar.map((n, i) => `${i === 0 ? "M" : "L"}${n.x.toFixed(1)},${n.y.toFixed(1)}`).join(" ");
+                  return (
+                    <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>📈 Net Trendin (Son {netTrendVeri.length} Sınav)</p>
+                      <svg viewBox={`0 0 ${genislik} ${yukseklik}`} style={{ width: "100%", height: 100 }}>
+                        <path d={yol} fill="none" stroke={COLORS.coral} strokeWidth="2.5" />
+                        {noktalar.map((n, i) => (
+                          <circle key={i} cx={n.x} cy={n.y} r="3.5" fill={COLORS.coral} />
+                        ))}
+                      </svg>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: COLORS.muted, marginTop: 4 }}>
+                        <span>İlk: {netTrendVeri[0].net.toFixed(1)} net</span>
+                        <span style={{ fontWeight: 700, color: netTrendVeri[netTrendVeri.length - 1].net >= netTrendVeri[0].net ? "#2E7D4F" : COLORS.coral }}>
+                          Son: {netTrendVeri[netTrendVeri.length - 1].net.toFixed(1)} net {netTrendVeri[netTrendVeri.length - 1].net >= netTrendVeri[0].net ? "↑" : "↓"}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })()}
 
                 {hesap.rol === "ogrenci" && (
                   <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
@@ -4439,6 +4531,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
               )}
 
+              {kronometreSaniye !== null && !burslulukGonderildi && (
+                <div style={{ position: "sticky", top: 8, zIndex: 15, display: "flex", justifyContent: "center", marginTop: 12, marginBottom: -4 }}>
+                  <div style={{ background: kronometreSaniye < 60 ? "#E8503F" : "#1B2430", color: "#fff", padding: "8px 20px", borderRadius: 999, fontWeight: 800, fontSize: 15, boxShadow: "0 3px 10px rgba(0,0,0,0.2)" }}>
+                    ⏱️ {sureFormatla(kronometreSaniye)}
+                  </div>
+                </div>
+              )}
               {burslulukSorular && BURSLULUK_DERSLER.map((ders) => burslulukSorular[ders] && (
                 <div key={ders} style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginTop: 12 }}>
                   <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 12, color: COLORS.coral }}>{ders}</p>
@@ -4468,7 +4567,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               {tumSorularHazir && !burslulukGonderildi && (
-                <button className="kx-btn" onClick={() => setBurslulukGonderildi(true)} disabled={cevaplananSayi < toplamSoru}
+                <button className="kx-btn" onClick={() => { setBurslulukGonderildi(true); kronometreyiDurdur(); }} disabled={cevaplananSayi < toplamSoru}
                   style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", marginTop: 12 }}>
                   Sınavı Bitir ({cevaplananSayi}/{toplamSoru} cevaplandı)
                 </button>
