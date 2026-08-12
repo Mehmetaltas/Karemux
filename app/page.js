@@ -1563,6 +1563,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [giderKategori, setGiderKategori] = useState("muhasebe");
   const [giderTutar, setGiderTutar] = useState("");
   const [giderAciklama, setGiderAciklama] = useState("");
+  const [giderTekrarlayan, setGiderTekrarlayan] = useState(false);
   const [giderEkleniyor, setGiderEkleniyor] = useState(false);
   const [taksitTutar, setTaksitTutar] = useState("");
   const [taksitSayisi, setTaksitSayisi] = useState(1);
@@ -1609,11 +1610,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     try {
       const res = await fetch("/api/admin/muhasebe", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sifre: ulusalYoneticiSifre, kategori: giderKategori, tutarTl: Number(giderTutar), aciklama: giderAciklama }),
+        body: JSON.stringify({ sifre: ulusalYoneticiSifre, kategori: giderKategori, tutarTl: Number(giderTutar), aciklama: giderAciklama, tekrarlayan: giderTekrarlayan }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setGiderTutar(""); setGiderAciklama("");
+      setGiderTutar(""); setGiderAciklama(""); setGiderTekrarlayan(false);
       muhasebeVerisiniGetir();
     } catch (e) {
       setHata(temizHataMesaji(e, "Gider eklenemedi."));
@@ -4664,6 +4665,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                           <p style={{ color: "#8A968E", fontSize: 8.5 }}>{muhasebeVeri.buAy.kar >= 0 ? "KÂR" : "ZARAR"}</p>
                         </div>
                       </div>
+                      <p style={{ fontSize: 10, color: "#8A968E", marginBottom: 12, textAlign: "center" }}>🤖 Tahmini AI maliyeti (bu ay): ~{muhasebeVeri.buAy.tahminiAiMaliyetTl} TL — gerçek fatura için AI sağlayıcı panelini kontrol et</p>
 
                       <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 12 }}>
                         <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>GENEL TOPLAM (kuruluştan beri)</p>
@@ -4682,8 +4684,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 8 }}>
                         <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>GİDER EKLE (muhasebe, bağkur, vergi, hosting vb.)</p>
                         <select value={giderKategori} onChange={(e) => setGiderKategori(e.target.value)} style={{ width: "100%", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }}>
-                          {["muhasebe", "bagkur", "vergi", "hosting", "pazarlama", "diger"].map((k) => <option key={k} value={k}>{k}</option>)}
+                          {["muhasebe", "bagkur", "vergi", "ai_maliyeti", "domain", "sunucu", "hosting", "odeme_komisyonu", "pazarlama", "diger"].map((k) => <option key={k} value={k}>{k}</option>)}
                         </select>
+                        <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, fontSize: 11 }}>
+                          <input type="checkbox" checked={giderTekrarlayan} onChange={(e) => setGiderTekrarlayan(e.target.checked)} />
+                          Her ay otomatik tekrarla (muhasebe, bağkur gibi sabit giderler için)
+                        </label>
                         <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
                           <input type="number" value={giderTutar} onChange={(e) => setGiderTutar(e.target.value)} placeholder="Tutar (TL)" style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11.5 }} />
                           <input value={giderAciklama} onChange={(e) => setGiderAciklama(e.target.value)} placeholder="Açıklama (ops.)" style={{ flex: 2, padding: 7, borderRadius: 6, fontSize: 11.5 }} />

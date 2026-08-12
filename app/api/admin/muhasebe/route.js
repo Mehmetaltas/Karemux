@@ -32,6 +32,15 @@ export async function GET(req) {
     `;
     const genelGider = await sql`SELECT COALESCE(SUM(tutar_tl),0)::numeric as toplam FROM giderler`;
 
+    // Tahmini AI maliyeti - gercek fatura degil, istek hacminden kaba bir tahmin
+    // (ortalama istek basi ~0.01 TL varsayimiyla; gercek $ maliyeti icin AI
+    // saglayicilarinin kendi konsoluna bakilmali - bu sadece goz atma amacli).
+    const buAyIstekSayisi = await sql`
+      SELECT COALESCE(SUM(ai_istek_sayisi),0)::int as toplam FROM gunluk_kullanim
+      WHERE tarih >= date_trunc('month', CURRENT_DATE)
+    `;
+    const tahminiAiMaliyetTl = Number(buAyIstekSayisi[0].toplam) * 0.01;
+
     const giderKategoriler = await sql`
       SELECT kategori, SUM(tutar_tl)::numeric as toplam FROM giderler
       WHERE tarih >= date_trunc('month', CURRENT_DATE)
@@ -52,6 +61,7 @@ export async function GET(req) {
         gelir: Number(buAyGelir[0].toplam), satisAdedi: buAyGelir[0].adet,
         gider: Number(buAyGider[0].toplam),
         kar: Number(buAyGelir[0].toplam) - Number(buAyGider[0].toplam),
+        tahminiAiMaliyetTl: Math.round(tahminiAiMaliyetTl * 100) / 100,
       },
       genel: {
         gelir: Number(genelGelir[0].toplam), satisAdedi: genelGelir[0].adet,
