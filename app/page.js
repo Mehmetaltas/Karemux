@@ -1359,6 +1359,35 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setTekrarIndex((i) => i + 1); setTekrarCevap(null); setTekrarGosterildi(false); setTekrarSonMesaj("");
   }
 
+  const [kelimeKartiDers, setKelimeKartiDers] = useState(null); // "Ingilizce" | "Turkce"
+  const [kelimeKartiUnite, setKelimeKartiUnite] = useState(null);
+  const [kelimeKartlari, setKelimeKartlari] = useState(null);
+  const [kelimeKartiIndex, setKelimeKartiIndex] = useState(0);
+  const [kelimeKartiCevrildi, setKelimeKartiCevrildi] = useState(false);
+  const [kelimeKartiYukleniyor, setKelimeKartiYukleniyor] = useState(false);
+
+  async function kelimeKartlariUret() {
+    setKelimeKartiYukleniyor(true); setHata(""); setKelimeKartlari(null); setKelimeKartiIndex(0); setKelimeKartiCevrildi(false);
+    try {
+      const p = kelimeKartiDers === "Ingilizce"
+        ? `Sen Ingilizce ogretmenisin. "${kelimeKartiUnite}" konusuyla ilgili, ${sinif}. sinif seviyesine uygun 10 Ingilizce kelime karti hazirla. Her kart icin: Ingilizce kelime, Turkce anlami, ve o kelimeyi kullanan BASIT bir Ingilizce ornek cumle (parantez icinde Turkce cevirisiyle). SADECE JSON dondur, markdown kullanma:
+[{"kelime":"...","anlam":"...","ornekCumle":"... (Turkce ceviri)"}]`
+        : `Sen Turkce ogretmenisin. ${sinif}. sinif seviyesine uygun, ogrencilerin kelime hazinesini zenginlestirecek 10 Turkce kelime (az bilinen ama seviyeye uygun, edebi metinlerde/LGS'de karsilarina cikabilecek kelimeler) hazirla. Her kart icin: kelime, kisa ve net anlami, ve o kelimeyi kullanan bir ornek cumle. SADECE JSON dondur, markdown kullanma:
+[{"kelime":"...","anlam":"...","ornekCumle":"..."}]`;
+      const cevap = await aiIstek(p, 1800, cihazIdRef.current, true);
+      const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
+      const baslangic = temiz.indexOf("[");
+      const bitis = temiz.lastIndexOf("]");
+      if (baslangic === -1 || bitis === -1) throw new Error("Kartlar olusturulamadi");
+      const kartlar = JSON.parse(temiz.slice(baslangic, bitis + 1));
+      setKelimeKartlari(kartlar);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Kelime kartlari olusturulamadi, tekrar dene."));
+    } finally {
+      setKelimeKartiYukleniyor(false);
+    }
+  }
+
   async function netTrendiGetir() {
     setNetTrendYukleniyor(true);
     try {
@@ -2615,6 +2644,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
                 ["basarilarim", "🏅 Basarilarim"],
                 ["tekrarzamani", "🔁 Bugun Tekrar Zamani"],
+                ["kelimekartlari", "🗂️ Kelime Kartlari"],
                 ["kurumpaneli", "🏢 Kurum Paneli"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
               ].map(([k, etiket]) => (
@@ -4392,6 +4422,85 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {mod === "kelimekartlari" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🗂️</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Kelime Kartları</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Karta dokun, çevir, öğren.</p>
+            </div>
+
+            {!kelimeKartlari && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>DERS</label>
+                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                  {[["Ingilizce", "🇬🇧 İngilizce"], ["Turkce", "📖 Türkçe Sözcük Hazinesi"]].map(([k, etiket]) => (
+                    <button key={k} onClick={() => { setKelimeKartiDers(k); setKelimeKartiUnite(null); }} style={{ flex: 1, padding: "10px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${kelimeKartiDers === k ? COLORS.coral : COLORS.line}`, background: kelimeKartiDers === k ? "#FFF1EF" : "#fff" }}>{etiket}</button>
+                  ))}
+                </div>
+
+                {kelimeKartiDers === "Ingilizce" && (
+                  <>
+                    <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ÜNİTE / KONU</label>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14, maxHeight: 240, overflowY: "auto" }}>
+                      {dersinUniteleri("Ingilizce", sinif).map((u) => (
+                        <button key={u} onClick={() => setKelimeKartiUnite(u)} style={{ padding: "9px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left", border: `1.5px solid ${kelimeKartiUnite === u ? COLORS.mustard : COLORS.line}`, background: kelimeKartiUnite === u ? "#FEF8E8" : "#FAF6EE" }}>{u}</button>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                <button className="kx-btn" onClick={kelimeKartlariUret} disabled={!kelimeKartiDers || (kelimeKartiDers === "Ingilizce" && !kelimeKartiUnite) || kelimeKartiYukleniyor}
+                  style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: kelimeKartiDers ? COLORS.coral : COLORS.line, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                  {kelimeKartiYukleniyor ? "Hazırlanıyor..." : "🗂️ Kartları Oluştur"}
+                </button>
+              </div>
+            )}
+
+            {kelimeKartlari && kelimeKartiIndex < kelimeKartlari.length && (() => {
+              const kart = kelimeKartlari[kelimeKartiIndex];
+              return (
+                <div className="kx-fadein">
+                  <p style={{ textAlign: "center", fontSize: 11.5, color: COLORS.muted, marginBottom: 12 }}>{kelimeKartiIndex + 1} / {kelimeKartlari.length}</p>
+                  <div onClick={() => setKelimeKartiCevrildi(!kelimeKartiCevrildi)} style={{
+                    background: kelimeKartiCevrildi ? "#1B2430" : "#FDFBF6", borderRadius: 20, padding: "50px 24px", minHeight: 200,
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center",
+                    cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", border: `1px solid ${COLORS.line}`,
+                  }}>
+                    {!kelimeKartiCevrildi ? (
+                      <>
+                        <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 28, fontWeight: 700, color: "#1B2430" }}>{kart.kelime}</p>
+                        <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 16 }}>Anlamını görmek için dokun</p>
+                      </>
+                    ) : (
+                      <>
+                        <p style={{ fontSize: 18, fontWeight: 700, color: "#fff", marginBottom: 10 }}>{kart.anlam}</p>
+                        <p style={{ fontSize: 12.5, color: "#B7C4BC", fontStyle: "italic", lineHeight: 1.6 }}>{kart.ornekCumle}</p>
+                      </>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                    <button onClick={() => { setKelimeKartiIndex((i) => Math.max(0, i - 1)); setKelimeKartiCevrildi(false); }} disabled={kelimeKartiIndex === 0}
+                      style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "#fff", fontWeight: 600, cursor: "pointer" }}>← Önceki</button>
+                    <button onClick={() => { setKelimeKartiIndex((i) => i + 1); setKelimeKartiCevrildi(false); }}
+                      style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+                      {kelimeKartiIndex + 1 < kelimeKartlari.length ? "Sonraki →" : "Bitir"}
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {kelimeKartlari && kelimeKartiIndex >= kelimeKartlari.length && (
+              <div style={{ background: "#EAF7EE", borderRadius: 14, padding: 24, textAlign: "center" }}>
+                <p style={{ fontSize: 28, marginBottom: 8 }}>🎉</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F", marginBottom: 12 }}>{kelimeKartlari.length} kelimeyi tamamladın!</p>
+                <button className="kx-btn" onClick={() => { setKelimeKartlari(null); setKelimeKartiDers(null); setKelimeKartiUnite(null); }} style={{ padding: "9px 20px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Yeni Kart Seti</button>
               </div>
             )}
           </div>
