@@ -2647,6 +2647,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["kelimekartlari", "🗂️ Kelime Kartlari"],
                 ["kurumpaneli", "🏢 Kurum Paneli"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
+                ["velipaneli", "👪 Veli Paneli"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -4207,6 +4208,92 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
           </div>
         )}
+
+        {mod === "velipaneli" && (() => {
+          if (!hesap || hesap.rol !== "veli") {
+            return (
+              <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 10 }}>👪</p>
+                <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu panel veli hesaplarına özel</p>
+                <p style={{ fontSize: 12, color: COLORS.muted, lineHeight: 1.6 }}>Veli hesabıyla giriş yapıp öğrenci bağlanma koduyla çocuğunu eklersen, ilerlemesini burada detaylı görebilirsin.</p>
+              </div>
+            );
+          }
+          return (
+            <div>
+              <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+                <p style={{ fontSize: 22, marginBottom: 4 }}>👪</p>
+                <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Veli Paneli</p>
+                <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Çocuğunun ilerlemesini takip et.</p>
+              </div>
+
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>YENİ ÖĞRENCİ BAĞLA</label>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Öğrencinin bağlantı kodu"
+                    style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
+                  <button onClick={veliBaglan} style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Bağla</button>
+                </div>
+                {veliMesaj && <p style={{ fontSize: 11.5, marginTop: 8, color: COLORS.coral }}>{veliMesaj}</p>}
+              </div>
+
+              {veliOgrenciler.length === 0 ? (
+                <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 12.5 }}>Henüz bağlı bir öğrenci yok. Yukarıdan bağlantı kodunu gir.</p>
+              ) : (
+                veliOgrenciler.map((o, i) => (
+                  <div key={i} className="kx-fadein" style={{ background: "#FDFBF6", borderRadius: 14, border: `1px solid ${COLORS.line}`, padding: 18, marginBottom: 14, boxShadow: "0 2px 10px rgba(0,0,0,0.05)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                      <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontWeight: 700, fontSize: 16 }}>{o.ogrenci.ad}</p>
+                      {o.ogrenci.sinif && <span style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, background: "#F0EBDC", padding: "3px 9px", borderRadius: 999 }}>{o.ogrenci.sinif}. Sınıf</span>}
+                    </div>
+
+                    <div style={{ display: "flex", gap: 10, marginBottom: 14 }}>
+                      <div style={{ flex: 1, background: "#1B2430", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+                        <p style={{ color: COLORS.mustard, fontSize: 20, fontWeight: 900 }}>{o.buHaftaAktifGun || 0}</p>
+                        <p style={{ color: "#8A968E", fontSize: 9 }}>BU HAFTA AKTİF GÜN</p>
+                      </div>
+                      <div style={{ flex: 1, background: "#1B2430", borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
+                        <p style={{ color: RENK_BASARI, fontSize: 20, fontWeight: 900 }}>{o.zayifDersler.length}</p>
+                        <p style={{ color: "#8A968E", fontSize: 9 }}>DİKKAT GEREKTİREN DERS</p>
+                      </div>
+                    </div>
+
+                    {o.netOzet?.length > 0 && (
+                      <div style={{ marginBottom: 12 }}>
+                        <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>SON 30 GÜN — DERS BAZINDA ORTALAMA NET</p>
+                        {o.netOzet.map((n) => (
+                          <div key={n.ders} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
+                            <span>{n.ders}</span>
+                            <span style={{ fontWeight: 700 }}>{n.ortalama_net} <span style={{ color: COLORS.muted, fontWeight: 400 }}>({n.test_sayisi} test)</span></span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {o.zayifDersler.length > 0 && (
+                      <div style={{ background: "#FFF1EF", borderRadius: 8, padding: 10, marginBottom: 10 }}>
+                        <p style={{ fontSize: 11.5, color: "#B23A2E", fontWeight: 600 }}>⚠️ Zayıf dersler: {o.zayifDersler.join(", ")}</p>
+                      </div>
+                    )}
+
+                    {o.gecmis.length === 0 ? (
+                      <p style={{ fontSize: 11.5, color: COLORS.muted }}>Henüz konu çalışması yapmamış.</p>
+                    ) : (
+                      <details>
+                        <summary style={{ fontSize: 11, color: COLORS.coral, fontWeight: 700, cursor: "pointer" }}>Tüm konu geçmişini gör ({o.gecmis.length})</summary>
+                        <div style={{ marginTop: 8 }}>
+                          {o.gecmis.slice(0, 15).map((g, j) => (
+                            <p key={j} style={{ fontSize: 11, margin: "3px 0", color: "#3A4550" }}>{g.ders} · {g.konu}: {g.dogru}/{g.toplam} doğru</p>
+                          ))}
+                        </div>
+                      </details>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          );
+        })()}
 
         {mod === "ulusaldeneme" && !hesap && (
           <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
