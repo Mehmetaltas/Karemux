@@ -1320,6 +1320,45 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [netTrendVeri, setNetTrendVeri] = useState(null);
   const [netTrendYukleniyor, setNetTrendYukleniyor] = useState(false);
 
+  const [tekrarSorulari, setTekrarSorulari] = useState(null);
+  const [tekrarIndex, setTekrarIndex] = useState(0);
+  const [tekrarCevap, setTekrarCevap] = useState(null);
+  const [tekrarGosterildi, setTekrarGosterildi] = useState(false);
+  const [tekrarSonMesaj, setTekrarSonMesaj] = useState("");
+  const [tekrarSayisi, setTekrarSayisi] = useState(0); // ana sayfa rozeti icin - bugun kac tane bekliyor
+
+  async function tekrarSorulariniGetir() {
+    try {
+      const res = await fetch(`/api/aralikli-tekrar?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      setTekrarSorulari(data.kayitlar || []);
+      setTekrarSayisi((data.kayitlar || []).length);
+      setTekrarIndex(0); setTekrarCevap(null); setTekrarGosterildi(false); setTekrarSonMesaj("");
+    } catch (e) {
+      setTekrarSorulari([]);
+    }
+  }
+  useEffect(() => { if (mod === "tekrarzamani") tekrarSorulariniGetir(); }, [mod]);
+  useEffect(() => { if (hesap) fetch(`/api/aralikli-tekrar?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setTekrarSayisi((d.kayitlar || []).length)).catch(() => {}); }, [hesap?.eposta]);
+
+  async function tekrarCevapVer(secilenIndex) {
+    if (tekrarGosterildi) return;
+    setTekrarCevap(secilenIndex); setTekrarGosterildi(true);
+    const soru = tekrarSorulari[tekrarIndex];
+    const dogruMu = secilenIndex === soru.dogru_index;
+    try {
+      const res = await fetch("/api/aralikli-tekrar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: soru.id, dogruMu, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      setTekrarSonMesaj(data.ustesindenGelindi ? "🎉 Bu konunun üstesinden geldin!" : `${data.sonrakiTekrarGun} gün sonra tekrar karşına çıkacak.`);
+    } catch (e) { /* sessiz gec */ }
+  }
+  function tekrarSonrakiSoru() {
+    setTekrarIndex((i) => i + 1); setTekrarCevap(null); setTekrarGosterildi(false); setTekrarSonMesaj("");
+  }
+
   async function netTrendiGetir() {
     setNetTrendYukleniyor(true);
     try {
@@ -2442,6 +2481,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
         )}
 
+        {mod === "bos" && !secilenDers && hesap && tekrarSayisi > 0 && (
+          <button onClick={() => { setSecilenDers(null); setMod("tekrarzamani"); }} className="kx-fadein kx-btn" style={{ width: "100%", textAlign: "left", background: "#1B2430", border: "none", borderRadius: 14, padding: "14px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+            <span style={{ fontSize: 26 }}>🔁</span>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>Bugün {tekrarSayisi} tekrar seni bekliyor</p>
+              <p style={{ fontSize: 11, color: "#8A968E" }}>Unutmadan pekiştirmek için hemen bak →</p>
+            </div>
+          </button>
+        )}
+
         {mod === "bos" && !secilenDers && (
           <div className="kx-fadein" style={{ marginBottom: 18 }}>
             <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 13, fontWeight: 700, color: COLORS.ink, marginBottom: 10, paddingLeft: 2 }}>Senin için hazırladıklarımız</p>
@@ -2565,6 +2614,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
                 ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
                 ["basarilarim", "🏅 Basarilarim"],
+                ["tekrarzamani", "🔁 Bugun Tekrar Zamani"],
                 ["kurumpaneli", "🏢 Kurum Paneli"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
               ].map(([k, etiket]) => (
@@ -4346,6 +4396,69 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             )}
           </div>
         )}
+
+        {mod === "tekrarzamani" && (() => {
+          if (!hesap) {
+            return (
+              <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+                <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+                <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", marginTop: 6 }}>Giriş Yap / Kayıt Ol</button>
+              </div>
+            );
+          }
+          if (tekrarSorulari === null) return <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>;
+          if (tekrarSorulari.length === 0) {
+            return (
+              <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 24, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 8 }}>🎉</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>Bugün tekrarı gelen bir şey yok!</p>
+                <p style={{ fontSize: 11.5, color: COLORS.muted, marginTop: 4 }}>Yanlış yaptığın sorular, unutmadan tekrar önüne gelecek şekilde burada birikir.</p>
+              </div>
+            );
+          }
+          if (tekrarIndex >= tekrarSorulari.length) {
+            return (
+              <div style={{ background: "#1B2430", borderRadius: 16, padding: 26, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 8 }}>🏁</p>
+                <p style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>Bugünkü tekrarları bitirdin!</p>
+                <p style={{ color: "#8A968E", fontSize: 12, marginTop: 4 }}>{tekrarSorulari.length} soru tekrar ettin.</p>
+              </div>
+            );
+          }
+          const soru = tekrarSorulari[tekrarIndex];
+          return (
+            <div>
+              <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "16px 18px", marginBottom: 14, textAlign: "center" }}>
+                <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 15 }}>🔁 Bugün Tekrar Zamanı</p>
+                <p style={{ color: "#B7C4BC", fontSize: 11.5, marginTop: 3 }}>{tekrarIndex + 1} / {tekrarSorulari.length} · {soru.ders}{soru.alt_konu ? ` — ${soru.alt_konu}` : ""}</p>
+              </div>
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 12 }}>{soru.soru}</p>
+                {soru.secenekler.map((sec, j) => {
+                  const secili = tekrarCevap === j, dogru = tekrarGosterildi && j === soru.dogru_index, yanlis = tekrarGosterildi && secili && j !== soru.dogru_index;
+                  return (
+                    <button key={j} onClick={() => tekrarCevapVer(j)} style={{
+                      display: "block", width: "100%", textAlign: "left", padding: "9px 12px", marginBottom: 6, borderRadius: 8, fontSize: 12.5,
+                      cursor: tekrarGosterildi ? "default" : "pointer",
+                      border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : COLORS.line}`,
+                      background: dogru ? RENK_BASARI_ACIK : yanlis ? "#FFF1EF" : "#fff",
+                    }}>{sec}</button>
+                  );
+                })}
+                {tekrarGosterildi && (
+                  <div style={{ marginTop: 10 }}>
+                    {soru.aciklama && <p style={{ fontSize: 11.5, color: "#1B2430", background: "#FFF8E8", borderRadius: 6, padding: 8, marginBottom: 8, lineHeight: 1.5 }}>💡 {soru.aciklama}</p>}
+                    <p style={{ fontSize: 11.5, color: COLORS.coral, fontWeight: 700, marginBottom: 8 }}>{tekrarSonMesaj}</p>
+                    <button className="kx-btn" onClick={tekrarSonrakiSoru} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
+                      {tekrarIndex + 1 < tekrarSorulari.length ? "Sonraki Soru →" : "Bitir"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {mod === "basarilarim" && (() => {
           if (!hesap) {
