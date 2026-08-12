@@ -103,15 +103,20 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // 5. sinif: YENI mufredat (Turkiye Yuzyili Maarif Modeli, 2024-25'ten beri).
   // Kaynak: MEB resmi PDF + Ocak 2026 tarihli guncel haber kaynagi - nispeten
   // oturmus (2. yilina girdi) ama yine de en dikkatli ele alinmasi gereken sinif.
-  "5::Matematik": ["Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)", "Sayilar ve Nicelikler - Cok Basamakli Sayilar", "Geometrik Nicelikler (Cevre ve Alan)", "Kesirler Ondalik Gosterim ve Yuzdeler", "Istatistiksel Arastirma Sureci", "Islemlerle Cebirsel Dusunme", "Veriden Olasiliga"],
+  // 5/6/7. sinif Matematik - resmi MEB PDF'inden (2024programmat5678Onayli.pdf,
+  // kullanici tarafindan yuklendi, Agustos 2026) TAM DOGRULANDI. Onceki kucuk-unite
+  // yapisi (Carpanlar ve Katlar, Kesirlerle Islemler gibi ayri ayri) YANLISTI - resmi
+  // program her sinifta sadece 6-7 GENIS "TEMA" kullaniyor, kucuk konular bu temalarin
+  // ICINDE isleniyor. 8. sinif hala eski (2018) mufredatta oldugu icin degistirilmedi.
+  "5::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
   // 6. sinif Matematik - Turkiye Yuzyili Maarif Modeli'ne (2025-26'da 6. sinifa gecti)
   // gore GUNCELLENDI. Sayilar alani (Carpanlar/EBOB-EKOK/Ondalik) buyuk olcude ayni
   // kaldi, ama geometri ve cebir uniteleri YENIDEN ADLANDIRILIP BIRLESTIRILDI (kaynak:
   // resmi MEB yillik plani + birden fazla egitim sitesi, Agustos 2026). Tam kazanim
   // derinligi (alt basliklar) bu yeniden yapilanmaya gore HENUZ guncellenmedi - AI
   // onerisine dusuyor, ileride ayrica derinlestirilmeli.
-  "6::Matematik": ["Dogal Sayilarla Islemler", "Carpanlar ve Katlar", "Tam Sayilar", "Kesirlerle Islemler", "Ondalik Gosterim", "Geometrik Sekiller (Acilar Ucgen Dortgen)", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Nicelikler (Alan ve Cember)", "Veri Toplama ve Degerlendirme"],
-  "7::Matematik": ["Tam Sayilarla Islemler", "Rasyonel Sayilar", "Cebirsel Ifadeler", "Birinci Dereceden Denklemler", "Oran ve Oranti", "Yuzdeler", "Dogrular ve Acilar", "Cokgenler", "Cember ve Daire", "Veri Analizi"],
+  "6::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
+  "7::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
 
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
   // 6. sinif Fen Bilimleri - Maarif Modeli'ne gore GUNCELLENDI (Agustos 2026, coklu
@@ -154,13 +159,12 @@ function dersinUniteleri(dersAdi, sinifNo) {
 // burada var; digerleri icin sistem AI'a alt konu onerdirir (ayri, acik etiketle).
 const DOGRULANMIS_ALT_KONULAR = {
   // ==== 5. SINIF MATEMATIK (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
-  "Matematik::Geometrik Sekiller (Cizim, Aci, Cokgen, Cember)::5": ["Temel Geometrik Cizimler ve Insalar", "Aci Olcme", "Cokgenler", "Cember"],
-  "Matematik::Sayilar ve Nicelikler - Cok Basamakli Sayilar::5": ["Cok Basamakli Sayilari Okuma ve Yazma", "Sayilarla Problem Cozme"],
-  "Matematik::Geometrik Nicelikler (Cevre ve Alan)::5": ["Dikdortgenin Cevre Uzunlugu", "Dikdortgenin Alani"],
-  "Matematik::Kesirler Ondalik Gosterim ve Yuzdeler::5": ["Kesirler", "Ondalik Gosterim", "Yuzdeler"],
-  "Matematik::Istatistiksel Arastirma Sureci::5": ["Veri Toplama", "Kategorik Veri Dagilimlari"],
-  "Matematik::Islemlerle Cebirsel Dusunme::5": ["Esitligin Korunumu", "Degisme Birlesme Dagilma Ozelligi", "Islem Onceligi", "Oruntuler", "Temel Aritmetik Islemler ve Algoritma"],
-  "Matematik::Veriden Olasiliga::5": ["Olasilik Spektrumu", "Kesin Olay", "Imkansiz Olay"],
+  "Matematik::Sayilar ve Nicelikler::5": ["Cok Basamakli Dogal Sayilar", "Dogal Sayilarla Dort Islem", "Kesirlerin Farkli Temsilleri"],
+  "Matematik::Islemlerle Cebirsel Dusunme::5": ["Esitligin Korunumu", "Islem Onceligi", "Oruntuler"],
+  "Matematik::Geometrik Sekiller::5": ["Temel Geometrik Cizimler", "Aci Olcme ve Cokgenler", "Cemberde Kesisim"],
+  "Matematik::Geometrik Nicelikler::5": ["Dikdortgenin Cevre Uzunlugu", "Dikdortgenin Alani"],
+  "Matematik::Istatistiksel Arastirma Sureci::5": ["Kategorik Veri ile Calisma", "Grafik Yorumlama"],
+  "Matematik::Veriden Olasiliga::5": ["Olaylarin Oznel Olasiligi"],
 
   // ==== 6. SINIF FEN BILIMLERI (resmi MEB kazanimlarindan - F.6.x) ====
   "Fen Bilimleri::Gunes Sistemi ve Tutulmalar::6": ["Gunes Sistemindeki Gok Cisimleri", "Ay'in Evreleri", "Gunes ve Ay Tutulmasi"],
@@ -304,29 +308,21 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Donusum Geometrisi": ["Oteleme", "Yansima", "Cokgenlerin Oteleme ve Yansima Goruntusu"],
   "Matematik::Geometrik Cisimler": ["Dik Prizmalar", "Dik Dairesel Silindir", "Silindirin Yuzey Alani ve Hacmi", "Dik Piramit", "Dik Koni"],
 
-  // ==== 6. SINIF MATEMATIK (resmi MEB kazanimlarindan - M.6.x.x) ====
-  "Matematik::Dogal Sayilarla Islemler::6": ["Uslu Ifade Olarak Yazma", "Islem Onceligi", "Ortak Carpan Parantezine Alma", "Dagilma Ozelligi"],
-  "Matematik::Carpanlar ve Katlar::6": ["Dogal Sayilarin Carpanlari ve Katlari", "Bolunebilme Kurallari (2 3 4 5 6 9 10)", "Asal Sayilar", "Asal Carpanlara Ayirma", "Ortak Bolen ve Ortak Kat (EBOB-EKOK)"],
-  "Matematik::Kumeler::6": ["Kume Kavrami", "Kumelerin Gosterimi", "Eleman Sayisi"],
-  "Matematik::Tam Sayilar::6": ["Tam Sayilari Tanima ve Sayi Dogrusu", "Tam Sayilari Karsilastirma ve Siralama", "Mutlak Deger"],
-  "Matematik::Kesirlerle Islemler::6": ["Kesirleri Karsilastirma ve Siralama", "Kesirlerde Toplama ve Cikarma", "Kesirlerde Carpma", "Kesirlerde Bolme"],
-  "Matematik::Ondalik Gosterim::6": ["Bolme Islemi ile Kesir Iliskisi", "Ondalik Gosterimi Cozumleme", "Ondalik Gosterimlerde Islemler"],
-  "Matematik::Geometrik Sekiller (Acilar Ucgen Dortgen)::6": ["Paralel Dogru ve Kesenle Olusan Acilar", "Ucgenin Acilari", "Dortgenlerin Ozellikleri"],
-  "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::6": ["Bilinmeyen Nicelikler", "Oruntuler", "Algoritma"],
-  "Matematik::Geometrik Nicelikler (Alan ve Cember)::6": ["Alan Olcme Birimleri", "Paralelkenar ve Ucgenin Alani", "Cemberin Cap-Uzunluk Iliskisi", "Cemberde Merkez Aci"],
-  "Matematik::Veri Toplama ve Degerlendirme::6": ["Veri Toplama Yontemleri", "Siklik Tablosu", "Sutun Grafigi"],
+  // ==== 6/7. SINIF MATEMATIK - resmi MEB PDF'inden (2024programmat5678Onayli.pdf,
+  // kullanici tarafindan yuklendi, Agustos 2026) TAM DOGRULANDI ====
+  "Matematik::Sayilar ve Nicelikler::6": ["Carpan ve Kat Iliskisi", "Bolunebilme Kurallari", "Asal Carpanlara Ayirma", "Ondalik Gosterimin Basamak Degeri"],
+  "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::6": ["Bilinmeyen Niceliklerin Temsili", "Cebirsel Ifadelerin Anlami", "Oruntuler"],
+  "Matematik::Geometrik Sekiller::6": ["Paralel Dogru ve Kesenle Olusan Acilar", "Ucgenin Acilari", "Dortgenlerin Ozellikleri"],
+  "Matematik::Geometrik Nicelikler::6": ["Uzunluk-Alan Olcme Birimleri", "Paralelkenar ve Ucgenin Alani", "Cemberin Cap-Uzunluk Iliskisi"],
+  "Matematik::Istatistiksel Arastirma Sureci::6": ["Kategorik/Nicel Veri ile Calisma", "Istatistiksel Sonuc Yorumlama"],
+  "Matematik::Veriden Olasiliga::6": ["Olaylarin Deneysel Olasiligi"],
 
-  // ==== 7. SINIF MATEMATIK (resmi MEB kazanimlarindan - M.7.x.x) ====
-  "Matematik::Tam Sayilarla Islemler::7": ["Toplama ve Cikarma", "Carpma ve Bolme", "Uslu Nicelik Olarak Ifade Etme"],
-  "Matematik::Rasyonel Sayilar::7": ["Tanima ve Sayi Dogrusunda Gosterme", "Ondalik Gosterimle Ifade Etme", "Devirli Ondalik Gosterimler", "Siralama ve Karsilastirma", "Rasyonel Sayilarla Islemler", "Kare ve Kup Hesaplama"],
-  "Matematik::Cebirsel Ifadeler::7": ["Toplama ve Cikarma Islemleri", "Dogal Sayiyla Carpma", "Sayi Oruntulerinin Kurali"],
-  "Matematik::Birinci Dereceden Denklemler::7": ["Esitligin Korunumu Ilkesi", "Denklem Kurma", "Denklem Cozme", "Denklem Problemleri"],
-  "Matematik::Oran ve Oranti::7": ["Oran Kavrami", "Dogru Oranti", "Orantili Olup Olmama"],
-  "Matematik::Yuzdeler::7": ["Yuzde Hesaplama", "Bir Cokluk Digerinin Yuzdesi Olarak", "Yuzdeyle Artis-Azalis", "Yuzde Problemleri"],
-  "Matematik::Dogrular ve Acilar::7": ["Acortay", "Yondas Ters ve Ic Ters Acilar", "Paralel Dogrularda Aci Iliskileri"],
-  "Matematik::Cokgenler::7": ["Duzgun Cokgenlerin Ozellikleri", "Kosegen Ic ve Dis Acilar", "Dortgen Turleri", "Alan Bagintilari"],
-  "Matematik::Cember ve Daire::7": ["Cember ve Daire Parcalari", "Dairenin Alani", "Cember Uzunlugu Uygulamalari"],
-  "Matematik::Veri Analizi::7": ["Grafik Turleri", "Grafikler Arasi Donusum", "Veri Yorumlama"],
+  "Matematik::Sayilar ve Nicelikler::7": ["Dogal-Tam-Rasyonel Sayi Iliskisi", "Oran Iliskileri Uzerinden Muhakeme"],
+  "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::7": ["Cebirsel Ifadelerle Islemler", "Denklem ve Esitsizliklerle Problem Cozme"],
+  "Matematik::Geometrik Sekiller::7": ["Yansima Donusumu", "Orta Dikme ve Acortay Insasi", "Ucgende Kenarortay"],
+  "Matematik::Geometrik Nicelikler::7": ["Es Kuplerle Olusturulan Yapilar", "Yamuk-Eskenar Dortgen-Daire Alani"],
+  "Matematik::Istatistiksel Arastirma Sureci::7": ["Nicel (Surekli) Veri ile Calisma", "Istatistiksel Arastirma Yurutme"],
+  "Matematik::Veriden Olasiliga::7": ["Ayrik ve Esit Olasilikli Olaylar", "Tumleyen Olay Kavrami"],
   // Fen Bilimleri (8. sinif) - MEB resmi ogretim programi kazanimlarindan (F.8.1 - F.8.7)
   "Fen Bilimleri::Mevsimler ve Iklim": ["Mevsimlerin Olusumu", "Iklim ve Hava Hareketleri"],
   "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon"],
