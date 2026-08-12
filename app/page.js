@@ -134,8 +134,12 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "7::Din Kulturu": ["Melek ve Ahiret Inanci", "Hac ve Kurban", "Ahlaki Davranislar", "Allah'in Kulu ve Elcisi: Hz. Muhammed", "Islam Dusuncesinde Yorumlar"],
   "6::Ingilizce": ["Life", "Yummy Breakfast", "Downtown", "Weather and Emotions", "At the Fair", "Occupations", "Holidays", "Bookworms", "Saving the Planet", "Democracy"],
   "7::Ingilizce": ["Appearance and Personality", "Sports", "Biographies", "Wild Animals", "Television", "Celebrations", "Dreams", "Public Buildings", "Environment", "Planets"],
-  "6::Sosyal Bilgiler": ["Birey ve Toplum", "Kultur ve Miras", "Insanlar Yerler ve Cevreler", "Bilim Teknoloji ve Toplum", "Uretim Dagitim ve Tuketim", "Etkin Vatandaslik", "Kuresel Baglantilar"],
-  "7::Sosyal Bilgiler": ["Birey ve Toplum", "Kultur ve Miras", "Insanlar Yerler ve Cevreler", "Bilim Teknoloji ve Toplum", "Uretim Dagitim ve Tuketim", "Etkin Vatandaslik", "Kuresel Baglantilar"],
+  // 6. sinif Sosyal Bilgiler - resmi MEB PDF'inden (2024programsos4567Onayli.pdf)
+  // DOGRULANDI (Agustos 2026): eski 7-alanli yapi (Birey ve Toplum vb.) YANLIS,
+  // yeni mufredatta 4/5/6/7. siniflarin HEPSI AYNI 6 ogrenme alanini kullaniyor.
+  "6::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
+  // 7. sinif Sosyal Bilgiler - ayni resmi PDF'den DOGRULANDI, 6. sinifla AYNI 6 alan.
+  "7::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
 };
 
 // Dersin (ve sinifin) unite listesini dondurur. O sinif icin ozel veri varsa onu,
@@ -244,20 +248,21 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Ingilizce::Planets::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
 
   // ==== 6/7. SINIF SOSYAL BILGILER (7 ortak ogrenme alani, standart alt basliklar) ====
-  "Sosyal Bilgiler::Birey ve Toplum::6": ["Iletisim ve Empati", "Haklar ve Sorumluluklar"],
-  "Sosyal Bilgiler::Kultur ve Miras::6": ["Milli Kulturumuz", "Tarihi Miras Ogeleri"],
-  "Sosyal Bilgiler::Insanlar Yerler ve Cevreler::6": ["Harita Bilgisi", "Iklim ve Yasam Iliskisi"],
-  "Sosyal Bilgiler::Bilim Teknoloji ve Toplum::6": ["Teknolojik Gelismeler", "Bilim Insanlari ve Bulusları"],
-  "Sosyal Bilgiler::Uretim Dagitim ve Tuketim::6": ["Ekonomik Faaliyetler", "Bilincli Tuketici Olma"],
-  "Sosyal Bilgiler::Etkin Vatandaslik::6": ["Demokrasi ve Katilim", "Sivil Toplum Kuruluslari"],
-  "Sosyal Bilgiler::Kuresel Baglantilar::6": ["Uluslararasi Iliskiler", "Kuresel Sorunlar"],
-  "Sosyal Bilgiler::Birey ve Toplum::7": ["Sosyallesme Sureci", "Toplumsal Roller"],
-  "Sosyal Bilgiler::Kultur ve Miras::7": ["Osmanli Kulturu", "Kulturel Ogelerin Korunmasi"],
-  "Sosyal Bilgiler::Insanlar Yerler ve Cevreler::7": ["Bolgesel Ozellikler", "Dogal Afetler ve Etkileri"],
-  "Sosyal Bilgiler::Bilim Teknoloji ve Toplum::7": ["Sanayi Devrimi", "Iletisim Teknolojilerinin Gelisimi"],
-  "Sosyal Bilgiler::Uretim Dagitim ve Tuketim::7": ["Girisimcilik", "Kuresel Ticaret"],
-  "Sosyal Bilgiler::Etkin Vatandaslik::7": ["Yerel Yonetimler", "Vatandaslik Haklari"],
-  "Sosyal Bilgiler::Kuresel Baglantilar::7": ["Uluslararasi Kuruluslar", "Kuresellesmenin Etkileri"],
+  // Asagidaki 6./7. sinif Sosyal Bilgiler alt konulari, resmi MEB PDF'inden
+  // (2024programsos4567Onayli.pdf, kullanici tarafindan yuklendi, Agustos 2026)
+  // GERCEK kazanim metinlerinden cikarilmistir - tahmin degil.
+  "Sosyal Bilgiler::Birlikte Yasamak::6": ["Gruplar ve Degisen Roller", "Kulturel Baglar ve Milli Degerler", "Toplumsal Sorunlara Cozum Onerileri"],
+  "Sosyal Bilgiler::Evimiz Dunya::6": ["Ulkemizin Kitalar ve Okyanuslara Gore Konumu", "Dogal ve Beseri Cevre Iliskisi", "Turk Dunyasiyla Kulturel Is Birlikleri"],
+  "Sosyal Bilgiler::Ortak Mirasimiz::6": ["Turkistan'daki Ilk Turk Devletleri", "Islam Medeniyetinin Katkilari (VII-XIII. yy)", "Islamiyet'in Kabulu ve Sosyal-Kulturel Hayat", "XI-XIII. Yuzyil Siyasi ve Askeri Faaliyetler"],
+  "Sosyal Bilgiler::Yasayan Demokrasimiz::6": ["Yonetimde Karar Alma Sureci", "Temel Hak ve Sorumluluklar", "Dijitallesme ve Vatandaslik Haklari"],
+  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::6": ["Kaynaklar ve Ekonomik Faaliyetler", "Ekonomik Faaliyetler ve Meslekler", "Yatirim ve Pazarlama Projesi"],
+  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::6": ["Ulasim-Iletisim Teknolojileri ve Kulturel Etkilesim", "Telif ve Patent Surecleri"],
+  "Sosyal Bilgiler::Birlikte Yasamak::7": ["Ozel Gereksinimli Bireyler icin Firsat Esitligi", "Milli Meselelere Karsi Tutum ve Davranislar"],
+  "Sosyal Bilgiler::Evimiz Dunya::7": ["Kureselleşmenin Insan ve Toplum Hayatina Etkisi", "Bolgesel-Kuresel Sorunlarda Ulkemizin Rolu"],
+  "Sosyal Bilgiler::Ortak Mirasimiz::7": ["Osmanli'nin Cihan Devleti Olmasi", "Osmanli'nin Uyguladigi Yenilikler", "Osmanli Kultur ve Medeniyeti"],
+  "Sosyal Bilgiler::Yasayan Demokrasimiz::7": ["Cumhuriyet'in Temel Nitelikleri", "Turkiye'nin Yonetim Yapisi", "Demokrasinin Gelisimi", "Demokraside Karsilasilan Sorunlar"],
+  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::7": ["Milli Kalkinma Hamleleri", "Ekonomik Gelismislik ve Uretim-Dagitim-Tuketim"],
+  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::7": ["Bilimsel-Teknolojik Gelismelerin Gelecege Etkisi", "Sosyal Bilimlerin Calisma Alanlari", "Bilimsel Sorgulama"],
 
   // ==== 5. SINIF DIN KULTURU (yeni mufredat - resmi MEB 5 ana unite) ====
   "Din Kulturu::Allah Inanci::5": ["Allah'in Varligi ve Birligi", "Allah'in Sifatlari"],
@@ -279,12 +284,13 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Ingilizce::Festivals::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
 
   // ==== 5. SINIF SOSYAL BILGILER (yeni mufredat - 6/7'den FARKLI ogrenme alani isimleri) ====
-  "Sosyal Bilgiler::Birlikte Yasamak::5": ["Aile ve Yakin Cevre", "Roller Haklar ve Sorumluluklar"],
-  "Sosyal Bilgiler::Evimiz Dunya::5": ["Ilin Konum Ozellikleri", "Dogal ve Beseri Cevre Degisimleri", "Turkiye'nin Kara Sinir Komsulari"],
-  "Sosyal Bilgiler::Ortak Mirasimiz::5": ["Ortak Miras Ogeleri", "Anadolu'nun Ilk Yerlesimleri", "Mezopotamya ve Anadolu Medeniyetleri"],
-  "Sosyal Bilgiler::Yasayan Demokrasimiz::5": ["Demokrasi ve Cumhuriyet Iliskisi", "Etkin Vatandaslik", "Temel Hak ve Sorumluluklar"],
-  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::5": ["Kaynaklar ve Ihtiyaclar", "Uretim ve Tuketim Iliskisi"],
-  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::5": ["Teknolojik Gelismeler", "Sosyal Bilimlerin Onemi"],
+  // 5. sinif - PDF'den DOGRULANMIS/hassaslastirilmis (Agustos 2026)
+  "Sosyal Bilgiler::Birlikte Yasamak::5": ["Gruplar ve Gruplardaki Roller", "Kulturel Ozelliklere Saygi", "Yardimlasma ve Dayanisma"],
+  "Sosyal Bilgiler::Evimiz Dunya::5": ["Ilin Goreceli Konumu", "Dogal ve Beseri Cevre Degisimi", "Afetlere Karsi Farkindalik", "Komsu Devletler"],
+  "Sosyal Bilgiler::Ortak Mirasimiz::5": ["Ildeki Ortak Miras Ogeleri", "Anadolu'daki Ilk Yerlesimler", "Mezopotamya ve Anadolu Medeniyetleri"],
+  "Sosyal Bilgiler::Yasayan Demokrasimiz::5": ["Demokrasi-Cumhuriyet Iliskisi", "Etkin Vatandaslik", "Temel Hak ve Sorumluluklar", "Basvuru Yapilabilecek Kurumlar"],
+  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::5": ["Kaynaklari Verimli Kullanma", "Butce Planlama", "Ildeki Ekonomik Faaliyetler"],
+  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::5": ["Teknolojik Urunlerin Bilincli Kullanimi", "Sosyal Bilimlerin Calisma Alanlari"],
   "Matematik::Carpanlar ve Katlar": ["Asal Carpanlara Ayirma", "EBOB Hesaplama", "EKOK Hesaplama", "Aralarinda Asal Sayilar"],
   "Matematik::Uslu Ifadeler": ["Tam Sayi Kuvvetleri", "Uslu Ifadelerde Temel Kurallar", "Bilimsel Gosterim"],
   "Matematik::Karekoklu Ifadeler": ["Tam Kare Olmayan Sayinin Karekoku", "Kareklu Ifadeleri Sadelestirme", "Kareklu Ifadelerde Carpma-Bolme", "Kareklu Ifadelerde Toplama-Cikarma", "Rasyonel ve Irrasyonel Sayilar"],
@@ -1530,6 +1536,21 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [ulusalYoneticiDers, setUlusalYoneticiDers] = useState("Matematik");
   const [ulusalYoneticiSaat, setUlusalYoneticiSaat] = useState(24);
   const [ulusalYoneticiOlusturuluyor, setUlusalYoneticiOlusturuluyor] = useState(false);
+  const [maliyetRaporu, setMaliyetRaporu] = useState(null);
+  const [maliyetRaporuYukleniyor, setMaliyetRaporuYukleniyor] = useState(false);
+  async function maliyetRaporunuGetir() {
+    setMaliyetRaporuYukleniyor(true); setHata("");
+    try {
+      const res = await fetch(`/api/admin/maliyet-raporu?sifre=${encodeURIComponent(ulusalYoneticiSifre)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setMaliyetRaporu(data);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Rapor alinamadi."));
+    } finally {
+      setMaliyetRaporuYukleniyor(false);
+    }
+  }
 
   async function ulusalDenemeyiGetir() {
     setUlusalYukleniyor(true);
@@ -4460,6 +4481,44 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
                     {ulusalYoneticiOlusturuluyor ? "Oluşturuluyor..." : "Şimdi Başlat"}
                   </button>
+
+                  <button onClick={maliyetRaporunuGetir} disabled={maliyetRaporuYukleniyor || !ulusalYoneticiSifre}
+                    style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 700, fontSize: 12, cursor: "pointer", marginTop: 8 }}>
+                    {maliyetRaporuYukleniyor ? "Getiriliyor..." : "📊 Kullanım/Maliyet Raporu Göster"}
+                  </button>
+
+                  {maliyetRaporu && (
+                    <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
+                      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                          <p style={{ color: COLORS.mustard, fontSize: 18, fontWeight: 900 }}>{maliyetRaporu.toplamKullanici}</p>
+                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>KAYITLI KULLANICI</p>
+                        </div>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                          <p style={{ color: RENK_BASARI, fontSize: 18, fontWeight: 900 }}>{maliyetRaporu.premiumSayisi}</p>
+                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>PREMIUM</p>
+                        </div>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                          <p style={{ color: "#fff", fontSize: 18, fontWeight: 900 }}>{maliyetRaporu.anonimKullanici}</p>
+                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>MİSAFİR (CİHAZ)</p>
+                        </div>
+                      </div>
+                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, fontSize: 11.5, color: "#fff" }}>
+                        <p>Bugün: <strong>{maliyetRaporu.istekSayilari.bugun}</strong> istek</p>
+                        <p>Bu hafta: <strong>{maliyetRaporu.istekSayilari.buHafta}</strong> istek</p>
+                        <p>Bu ay: <strong>{maliyetRaporu.istekSayilari.buAy}</strong> istek</p>
+                      </div>
+                      {maliyetRaporu.enAktifKullanicilar?.length > 0 && (
+                        <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginTop: 10 }}>
+                          <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>BU HAFTA EN AKTİF 5 KULLANICI</p>
+                          {maliyetRaporu.enAktifKullanicilar.map((k, i) => (
+                            <p key={i} style={{ fontSize: 11, color: "#fff", margin: "3px 0" }}>{k.ad}: {k.istek_sayisi} istek</p>
+                          ))}
+                        </div>
+                      )}
+                      <p style={{ fontSize: 9.5, color: "#5A6A72", marginTop: 10, lineHeight: 1.5 }}>{maliyetRaporu.not}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
