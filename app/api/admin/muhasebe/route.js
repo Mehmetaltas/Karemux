@@ -69,6 +69,24 @@ export async function GET(req) {
   }
 }
 
+// PATCH: Paket fiyatini guncelleme (yonetici kendi fiyatlarini belirleyebilsin diye)
+export async function PATCH(req) {
+  try {
+    const { sifre, paketId, yeniFiyat } = await req.json();
+    const yetki = await yetkiKontrol(req, sifre);
+    if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
+
+    if (!paketId || yeniFiyat == null || yeniFiyat < 0) {
+      return Response.json({ error: "Gecerli bir paket ID ve fiyat gerekli" }, { status: 400 });
+    }
+    await sql`UPDATE paketler SET fiyat_tl = ${yeniFiyat} WHERE id = ${paketId}`;
+    return Response.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    return Response.json({ error: e.message }, { status: 500 });
+  }
+}
+
 // POST: Manuel gider ekleme (muhasebe, bagkur, vergi vb.)
 export async function POST(req) {
   try {

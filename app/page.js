@@ -1566,6 +1566,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [giderEkleniyor, setGiderEkleniyor] = useState(false);
   const [taksitTutar, setTaksitTutar] = useState("");
   const [taksitSayisi, setTaksitSayisi] = useState(1);
+  const [duzenlenenFiyatlar, setDuzenlenenFiyatlar] = useState({}); // {paketId: yeniFiyat}
+  const [fiyatKaydediliyor, setFiyatKaydediliyor] = useState(null); // hangi paketId kaydediliyor
+
+  async function paketFiyatiniKaydet(paketId) {
+    const yeniFiyat = duzenlenenFiyatlar[paketId];
+    if (yeniFiyat == null || yeniFiyat === "") return;
+    setFiyatKaydediliyor(paketId); setHata("");
+    try {
+      const res = await fetch("/api/admin/muhasebe", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre: ulusalYoneticiSifre, paketId, yeniFiyat: Number(yeniFiyat) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      muhasebeVerisiniGetir();
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Fiyat guncellenemedi."));
+    } finally {
+      setFiyatKaydediliyor(null);
+    }
+  }
+
 
   async function muhasebeVerisiniGetir() {
     setMuhasebeYukleniyor(true); setHata("");
@@ -4602,6 +4624,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 700, fontSize: 12, cursor: "pointer", marginTop: 8 }}>
                     {muhasebeYukleniyor ? "Getiriliyor..." : "💼 Muhasebe Paneli Göster"}
                   </button>
+
+                  {muhasebeVeri && (
+                    <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
+                      <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>💰 Paket Fiyatları (Düzenlenebilir)</p>
+                      {muhasebeVeri.paketler?.map((p) => (
+                        <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "8px 10px" }}>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 11.5, color: "#fff", fontWeight: 600 }}>{p.ad}</p>
+                            <p style={{ fontSize: 9.5, color: "#8A968E" }}>{p.sure_gun ? `${p.sure_gun} gün` : `${p.kredi_miktari} kredi`}</p>
+                          </div>
+                          <input type="number" defaultValue={p.fiyat_tl}
+                            onChange={(e) => setDuzenlenenFiyatlar((eski) => ({ ...eski, [p.id]: e.target.value }))}
+                            style={{ width: 80, padding: 6, borderRadius: 6, fontSize: 12, textAlign: "right" }} />
+                          <span style={{ color: "#8A968E", fontSize: 10.5 }}>TL</span>
+                          <button onClick={() => paketFiyatiniKaydet(p.id)} disabled={fiyatKaydediliyor === p.id || duzenlenenFiyatlar[p.id] == null}
+                            style={{ padding: "6px 10px", borderRadius: 6, border: "none", background: duzenlenenFiyatlar[p.id] != null ? RENK_BASARI : "#3A4550", color: "#fff", fontWeight: 700, fontSize: 10.5, cursor: "pointer" }}>
+                            {fiyatKaydediliyor === p.id ? "..." : "Kaydet"}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   {muhasebeVeri && (
                     <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
