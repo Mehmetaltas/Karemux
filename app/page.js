@@ -118,22 +118,30 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "6::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
   "7::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
 
-  "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum", "Uygulamali Bilim"],
+  "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum"],
   // 6. sinif Fen Bilimleri - Maarif Modeli'ne gore GUNCELLENDI (Agustos 2026, coklu
   // kaynaktan dogrulandi: 7 unite, Vucudumuzdaki Sistemler/Uygulamali Bilim ayrimi
   // kaldirildi, Isik ve Madde ayri unite oldu).
-  "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Kuvvetin Etkisinde Hareket", "Canlilarda Sistemler", "Isik (Aynalar ve Isigin Sogurulmasi)", "Maddenin Ayirt Edici Ozellikleri", "Elektrik", "Surdurulebilir Yasam"],
-  "7::Fen Bilimleri": ["Gunes Sistemi ve Otesi", "Hucre ve Bolunmeler", "Kuvvet ve Enerji", "Saf Madde ve Karisimlar", "Isigin Madde ile Etkilesimi", "Canlilarda Ureme Buyume ve Gelisme", "Elektrik Devreleri", "Uygulamali Bilim"],
+  // 6/7. sinif Fen Bilimleri - resmi PDF'ten (2024programfen345678Onayli.pdf,
+  // Agustos 2026) TAM DOGRULANDI. 7. sinif tamamen degisti (eski mufredat cikarildi).
+  "6::Fen Bilimleri": ["Gunes Sistemi ve Tutulmalar", "Kuvvetin Etkisinde Hareket", "Canlilarda Sistemler", "Isigin Yansimasi ve Renkler", "Maddenin Ayirt Edici Ozellikleri", "Elektrigin Iletimi ve Direnc", "Surdurulebilir Yasam ve Etkilesim"],
+  "7::Fen Bilimleri": ["Uzay Cagi", "Kuvvet ve Enerjiyi Kesfedelim", "Vucudumuzdaki Sistemler", "Isigin Kirilmasi ve Mercekler", "Maddenin Dogasina Yolculuk", "Elektriklenme", "Surdurulebilir Yasam ve Enerji"],
   // Turkce 6/7 - Matematik/Fen'in aksine Turkce kazanimlari numarali "unite" degil
   // beceri alani (Dinleme/Konusma/Okuma/Yazma) bazinda yapilandirilmis, bu yuzden asagidaki
   // liste 8. sinifta oldugu gibi standart konu basliklarindan derlenmistir - Matematik/Fen
   // kadar net resmi kaynaktan dogrulanmadi, ORTA guven seviyesi.
-  "5::Turkce": ["Sozcukte ve Cumlede Anlam", "Paragrafta Anlam", "Yazim Kurallari", "Noktalama Isaretleri", "Yazma ve Anlatim"],
+  // 5/6/7. sinif Turkce - resmi PDF'ten (2024programtur5678Onayli.pdf, Agustos 2026)
+  // TAM DOGRULANDI. BUYUK FARK: yeni mufredat dilbilgisi konusu bazinda degil, YASAM
+  // TEMASI bazinda ilerliyor (Oyun Dunyasi, Ataturk'u Tanimak gibi) - dilbilgisi
+  // konulari (isim tamlamasi, fiilimsi vb.) bu temalarin ICINDE isleniyor. Biz de
+  // gercek ders sirasina uygun sekilde, her temaya bir dilbilgisi/metin becerisi
+  // alt basligi esliyoruz - LGS'nin dilbilgisi agirligi kaybolmasin diye.
+  "5::Turkce": ["Oyun Dunyasi", "Ataturk'u Tanimak", "Duygularimi Taniyorum", "Geleneklerimiz", "Iletisim ve Sosyal Iliskiler", "Saglikli Yasiyorum"],
   "5::Din Kulturu": ["Allah Inanci", "Namaz", "Kur'an-i Kerim", "Peygamber Kissalari", "Mimarimizde Dini Motifler"],
   "5::Ingilizce": ["Hello!", "My Town", "Games and Hobbies", "My Daily Routine", "Health", "Movies", "Party Time", "Fitness", "The Animal Shelter", "Festivals"],
   "5::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
-  "6::Turkce": ["Sozcukte Anlam", "Isim Tamlamasi", "Sifat Tamlamasi", "Zamirler", "Edat Baglac Unlem", "Cumlede Anlam", "Paragrafta Anlam", "Yazim Kurallari", "Noktalama Isaretleri"],
-  "7::Turkce": ["Fiilimsiler", "Cumlenin Ogeleri", "Fiilde Cati", "Anlatim Bozukluklari", "Cumle Turleri", "Paragrafta Anlam", "Soz Sanatlari", "Yazim Kurallari", "Noktalama Isaretleri"],
+  "6::Turkce": ["Dilimizin Zenginligi", "Bagimsizlik Yolu", "Farkli Dunyalar", "Iletisim ve Sosyal Iliskiler", "Bilim ve Teknoloji", "Lider Ruhlar"],
+  "7::Turkce": ["Hayat Boyu Gelisim", "Bir Hilal Ugruna", "Iletisim ve Sosyal Iliskiler", "Turk Sanati", "Okuma Kulturu", "Hak ve Sorumluluklar"],
   // Din Kulturu 6. sinif: sadece 3 unite dogrulanabildi, listenin eksik olma ihtimali var.
   "6::Din Kulturu": ["Peygamber ve Ilahi Kitap Inanci", "Ramazan ve Oruc", "Ahlaki Davranislar"],
   "7::Din Kulturu": ["Melek ve Ahiret Inanci", "Hac ve Kurban", "Ahlaki Davranislar", "Allah'in Kulu ve Elcisi: Hz. Muhammed", "Islam Dusuncesinde Yorumlar"],
@@ -167,22 +175,23 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Veriden Olasiliga::5": ["Olaylarin Oznel Olasiligi"],
 
   // ==== 6. SINIF FEN BILIMLERI (resmi MEB kazanimlarindan - F.6.x) ====
-  "Fen Bilimleri::Gunes Sistemi ve Tutulmalar::6": ["Gunes Sistemindeki Gok Cisimleri", "Ay'in Evreleri", "Gunes ve Ay Tutulmasi"],
-  "Fen Bilimleri::Vucudumuzdaki Sistemler::6": ["Destek ve Hareket Sistemi", "Sindirim Sistemi", "Dolasim Sistemi", "Solunum Sistemi", "Bosaltim Sistemi"],
-  "Fen Bilimleri::Kuvvet ve Hareket::6": ["Kuvvetin Olculmesi", "Surtunme Kuvveti", "Kuvvetin Cisimlere Etkisi"],
-  "Fen Bilimleri::Madde ve Isi::6": ["Maddenin Tanecikli Yapisi", "Isi ve Sicaklik Farki", "Genlesme"],
-  "Fen Bilimleri::Ses ve Ozellikleri::6": ["Sesin Yayilmasi", "Sesin Farkli Ortamlarda Yayilmasi", "Sesin Siddeti ve Yuksekligi"],
-  "Fen Bilimleri::Vucudumuzdaki Sistemler ve Sagligi::6": ["Sagligli Beslenme", "Sistem Sagligini Etkileyen Faktorler", "Zararli Aliskanliklar"],
-  "Fen Bilimleri::Elektrigin Iletimi::6": ["Iletken ve Yalitkan Maddeler", "Elektrik Carpilmasi ve Guvenlik Onlemleri"],
+  // 6/7. sinif Fen Bilimleri alt konulari - resmi PDF'ten (2024programfen345678Onayli.pdf,
+  // Agustos 2026) dogrulanmistir.
+  "Fen Bilimleri::Gunes Sistemi ve Tutulmalar::6": ["Gezegenlerin Siniflandirilmasi", "Gunes Sistemi Modeli", "Gunes ve Ay Tutulmalari"],
+  "Fen Bilimleri::Kuvvetin Etkisinde Hareket::6": ["Kuvvetin Olculmesi", "Surtunme Kuvveti", "Kuvvetin Cisimlere Etkisi"],
+  "Fen Bilimleri::Canlilarda Sistemler::6": ["Destek ve Hareket Sistemi", "Sindirim Sistemi", "Dolasim Sistemi", "Solunum ve Bosaltim Sistemi"],
+  "Fen Bilimleri::Isigin Yansimasi ve Renkler::6": ["Isigin Yansima Kanunlari", "Duzlem Aynada Goruntu", "Renklerin Olusumu"],
+  "Fen Bilimleri::Maddenin Ayirt Edici Ozellikleri::6": ["Genlesme ve Buzulme", "Erime-Donma-Kaynama Noktasi", "Yogunluk Hesaplama"],
+  "Fen Bilimleri::Elektrigin Iletimi ve Direnc::6": ["Iletken ve Yalitkan Maddeler", "Ampul Parlakligini Etkileyen Degiskenler", "Elektriksel Direnc"],
+  "Fen Bilimleri::Surdurulebilir Yasam ve Etkilesim::6": ["Biyocesitlilik ve Tehditler", "Yakit Kullaniminin Cevresel Etkileri"],
 
-  // ==== 7. SINIF FEN BILIMLERI (resmi MEB kazanimlarindan - F.7.x) ====
-  "Fen Bilimleri::Gunes Sistemi ve Otesi::7": ["Uzay Teknolojileri", "Uzay Kirliligi"],
-  "Fen Bilimleri::Hucre ve Bolunmeler::7": ["Hucre Yapisi (Bitki ve Hayvan Hucresi)", "Mitoz Bolunme", "Mayoz Bolunme"],
-  "Fen Bilimleri::Kuvvet ve Enerji::7": ["Yer Cekimi ve Kutle Cekimi", "Is Kavrami", "Kinetik ve Potansiyel Enerji", "Surtunme Kuvveti ve Enerji Iliskisi"],
-  "Fen Bilimleri::Saf Madde ve Karisimlar::7": ["Atom ve Molekul", "Element ve Bilesik Siniflandirmasi"],
-  "Fen Bilimleri::Isigin Madde ile Etkilesimi::7": ["Isigin Sogurulmasi", "Beyaz Isigin Bilesimi", "Cisimlerin Renkli Gorunmesi", "Gunes Enerjisi Uygulamalari"],
-  "Fen Bilimleri::Canlilarda Ureme Buyume ve Gelisme::7": ["Bitki ve Hayvanlarda Ureme Cesitleri", "Buyume ve Gelismeyi Etkileyen Faktorler"],
-  "Fen Bilimleri::Elektrik Devreleri::7": ["Seri ve Paralel Baglanti", "Elektriksel Direnc"],
+  "Fen Bilimleri::Uzay Cagi::7": ["Uzay Arastirma Teknolojileri", "Uzay Gozlem Modeli", "Uzay Calismalarinin Sorunlari"],
+  "Fen Bilimleri::Kuvvet ve Enerjiyi Kesfedelim::7": ["Fiziksel Anlamda Is Kavrami", "Is-Enerji Iliskisi"],
+  "Fen Bilimleri::Vucudumuzdaki Sistemler::7": ["Sindirim-Dolasim-Solunum-Bosaltim Sistemleri", "Sistem Sagligi"],
+  "Fen Bilimleri::Isigin Kirilmasi ve Mercekler::7": ["Kirilma Olayi", "Ince ve Kalin Kenarli Mercekler", "Merceklerin Kullanim Alanlari"],
+  "Fen Bilimleri::Maddenin Dogasina Yolculuk::7": ["Atom Yapisi (Proton-Notron-Elektron)", "Element-Bilesik-Karisim Siniflandirmasi", "Sembol ve Formuller"],
+  "Fen Bilimleri::Elektriklenme::7": ["Elektrik Yukleri", "Itme-Cekme Kuvvetleri", "Elektriklenme Cesitleri"],
+  "Fen Bilimleri::Surdurulebilir Yasam ve Enerji::7": ["Besin Zinciri ve Enerji Iliskisi", "Su Tasarrufu ve Su Ayak Izi"],
 
   // ==== 5. SINIF FEN BILIMLERI (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
   "Fen Bilimleri::Gokyuzundeki Komsularimiz ve Biz::5": ["Gunes'in Yapisi ve Donme Hareketi", "Ay'in Ozellikleri Donme ve Dolanma Hareketleri"],
@@ -195,29 +204,29 @@ const DOGRULANMIS_ALT_KONULAR = {
 
   // ==== 5/6/7. SINIF TURKCE (standart pedagojik siniflandirma - Matematik/Fen kadar
   // resmi kaynaktan tek tek dogrulanmadi, ORTA guven seviyesi) ====
-  "Turkce::Sozcukte ve Cumlede Anlam::5": ["Gercek ve Mecaz Anlam", "Es ve Zit Anlamli Kelimeler", "Deyimler ve Atasozleri"],
-  "Turkce::Paragrafta Anlam::5": ["Ana Fikir Bulma", "Yardimci Fikir Bulma", "Baslik Bulma"],
-  "Turkce::Yazim Kurallari::5": ["Buyuk Harflerin Kullanimi", "Sayilarin Yazimi", "Birlesik Kelimelerin Yazimi"],
-  "Turkce::Noktalama Isaretleri::5": ["Nokta ve Virgul", "Soru ve Unlem Isareti"],
-  "Turkce::Yazma ve Anlatim::5": ["Hikaye Unsurlari", "Mektup Yazma", "Bilgilendirici Metin Yazma"],
-  "Turkce::Sozcukte Anlam::6": ["Gercek Mecaz ve Terim Anlam", "Es ve Zit Anlamli Kelimeler", "Deyim ve Atasozleri"],
-  "Turkce::Isim Tamlamasi::6": ["Belirtili Isim Tamlamasi", "Belirtisiz Isim Tamlamasi", "Zincirleme Isim Tamlamasi"],
-  "Turkce::Sifat Tamlamasi::6": ["Niteleme Sifatlari", "Belirtme Sifatlari"],
-  "Turkce::Zamirler::6": ["Kisi Zamirleri", "Isaret Zamirleri", "Belgisiz Zamirler", "Soru Zamirleri"],
-  "Turkce::Edat Baglac Unlem::6": ["Edatlar", "Baglaclar", "Unlemler"],
-  "Turkce::Cumlede Anlam::6": ["Neden-Sonuc Cumleleri", "Amac-Sonuc Cumleleri", "Kosul Cumleleri"],
-  "Turkce::Paragrafta Anlam::6": ["Ana Fikir Bulma", "Yardimci Fikir Bulma", "Baslik Bulma"],
-  "Turkce::Yazim Kurallari::6": ["Buyuk Harflerin Kullanimi", "Sayilarin Yazimi", "Birlesik Kelimelerin Yazimi"],
-  "Turkce::Noktalama Isaretleri::6": ["Nokta ve Virgul", "Soru ve Unlem Isareti", "Tirnak ve Kesme Isareti"],
-  "Turkce::Fiilimsiler::7": ["Isim-Fiil", "Sifat-Fiil", "Zarf-Fiil"],
-  "Turkce::Cumlenin Ogeleri::7": ["Ozne ve Yuklem", "Nesne", "Dolayli Tumlec ve Zarf Tumleci"],
-  "Turkce::Fiilde Cati::7": ["Ozne-Yuklem Iliskisine Gore Fiil Catisi", "Nesne-Yuklem Iliskisine Gore Fiil Catisi"],
-  "Turkce::Anlatim Bozukluklari::7": ["Anlam Bakimindan Anlatim Bozuklugu", "Yapi Bakimindan Anlatim Bozuklugu"],
-  "Turkce::Cumle Turleri::7": ["Yapisina Gore Cumleler", "Anlamina Gore Cumleler", "Yuklemin Turune Gore Cumleler"],
-  "Turkce::Paragrafta Anlam::7": ["Ana Dusunceyi Bulma", "Paragraf Tamamlama", "Paragrafi Bolme"],
-  "Turkce::Soz Sanatlari::7": ["Benzetme", "Kisilestirme", "Abartma", "Konusturma"],
-  "Turkce::Yazim Kurallari::7": ["Buyuk Harflerin Kullanimi", "Birlesik Kelimelerin Yazimi", "Kisaltmalarin Yazimi"],
-  "Turkce::Noktalama Isaretleri::7": ["Nokta ve Virgul", "Tirnak ve Kesme Isareti"],
+  // 5/6/7. sinif Turkce - unite (tema) isimleri resmi PDF'ten dogrulanmis. Alt basliklar,
+  // her temanin ders akisinda islenen gercek dilbilgisi/metin becerisi konularidir
+  // (LGS'nin agirlikli sordugu dilbilgisi konularinin kaybolmamasi icin).
+  "Turkce::Oyun Dunyasi::5": ["Gercek ve Mecaz Anlam", "Es ve Zit Anlamli Kelimeler", "Oyun Temali Metin Okuma"],
+  "Turkce::Ataturk'u Tanimak::5": ["Ana Fikir Bulma", "Bilgilendirici Metin Okuma"],
+  "Turkce::Duygularimi Taniyorum::5": ["Cumlede Anlam", "Duygu Bildiren Sozcukler"],
+  "Turkce::Geleneklerimiz::5": ["Buyuk Harflerin Kullanimi", "Kulturel Metin Okuma", "Deyim ve Atasozleri"],
+  "Turkce::Iletisim ve Sosyal Iliskiler::5": ["Nokta ve Virgul", "Soru ve Unlem Isareti", "Diyalog Metinleri"],
+  "Turkce::Saglikli Yasiyorum::5": ["Hikaye Unsurlari", "Bilgilendirici Metin Yazma"],
+
+  "Turkce::Dilimizin Zenginligi::6": ["Gercek Mecaz ve Terim Anlam", "Isim Tamlamasi", "Sifat Tamlamasi"],
+  "Turkce::Bagimsizlik Yolu::6": ["Ana Fikir Bulma", "Tarihi Metin Okuma"],
+  "Turkce::Farkli Dunyalar::6": ["Zamirler", "Betimleyici Metin"],
+  "Turkce::Iletisim ve Sosyal Iliskiler::6": ["Edat Baglac Unlem", "Diyalog Kurma"],
+  "Turkce::Bilim ve Teknoloji::6": ["Neden-Sonuc ve Kosul Cumleleri", "Bilgilendirici Metin"],
+  "Turkce::Lider Ruhlar::6": ["Yazim Kurallari", "Noktalama Isaretleri", "Biyografik Metin"],
+
+  "Turkce::Hayat Boyu Gelisim::7": ["Fiilimsiler (Isim-Sifat-Zarf Fiil)", "Kisisel Gelisim Metni"],
+  "Turkce::Bir Hilal Ugruna::7": ["Cumlenin Ogeleri", "Milli Mucadele Temali Metin"],
+  "Turkce::Iletisim ve Sosyal Iliskiler::7": ["Fiilde Cati", "Diyalog Metinleri"],
+  "Turkce::Turk Sanati::7": ["Anlatim Bozukluklari", "Sanat Temali Metin Okuma"],
+  "Turkce::Okuma Kulturu::7": ["Cumle Turleri", "Paragrafta Ana Dusunce"],
+  "Turkce::Hak ve Sorumluluklar::7": ["Soz Sanatlari (Benzetme Kisilestirme)", "Hak-Sorumluluk Temali Metin"],
 
   // ==== 6/7. SINIF DIN KULTURU ====
   "Din Kulturu::Peygamber ve Ilahi Kitap Inanci::6": ["Peygamberlik Kavrami", "Ilahi Kitaplar"],
