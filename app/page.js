@@ -1054,6 +1054,21 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
+      // ONCE soru bankasina bak - eger ayni ders+sinif+unite icin yeterince
+      // birikmis soru varsa, AI'a HIC gitmeden oradan kullan. Bu, sistemin
+      // zamanla dis AI'a olan bagimliligini organik olarak azaltmasini saglar.
+      // Manuel alt baslik sinirlamasi varsa (ozel sorgu), banka atlanir - cunku
+      // bankadaki sorular alt baslik bazinda etiketlenmemis olabilir.
+      if (!(dersSecimModu === "manuel" && manuelAltBaslik.length > 0)) {
+        const bankaRes = await fetch(`/api/soru-bankasi/getir?ders=${encodeURIComponent(secilenDers)}&sinif=${sinif}&unite=${encodeURIComponent(unite)}&adet=5`);
+        const bankaData = await bankaRes.json();
+        if (bankaData.yeterliMi && bankaData.sorular.length > 0) {
+          if (secilenDersRef.current !== dersAtCagri) return;
+          setQuiz(bankaData.sorular);
+          return; // AI cagrisi hic yapilmadi
+        }
+      }
+
       const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik.length > 0)
         ? ` SADECE su alt basliklardan sorular hazirla: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarindan soru sorma.`
         : "";
@@ -4511,6 +4526,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <p>Bugün: <strong>{maliyetRaporu.istekSayilari.bugun}</strong> istek</p>
                         <p>Bu hafta: <strong>{maliyetRaporu.istekSayilari.buHafta}</strong> istek</p>
                         <p>Bu ay: <strong>{maliyetRaporu.istekSayilari.buAy}</strong> istek</p>
+                      </div>
+                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginTop: 10, textAlign: "center" }}>
+                        <p style={{ color: RENK_BASARI, fontSize: 22, fontWeight: 900 }}>{maliyetRaporu.soruBankasiToplam ?? 0}</p>
+                        <p style={{ color: "#8A968E", fontSize: 9 }}>🏦 SORU BANKASINDA BİRİKEN (AI'SIZ TEKRAR KULLANILABİLİR)</p>
                       </div>
                       {maliyetRaporu.enAktifKullanicilar?.length > 0 && (
                         <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginTop: 10 }}>

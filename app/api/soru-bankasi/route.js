@@ -17,8 +17,8 @@ export async function POST(req) {
       if (!s.soru || !Array.isArray(s.secenekler) || s.dogruIndex == null) continue;
       try {
         await sql`
-          INSERT INTO soru_bankasi (ders, sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index, kaynak_turu)
-          VALUES (${ders}, ${sinif || null}, ${unite || null}, ${s.altKonu || null}, ${s.zorluk || null}, ${s.soru}, ${JSON.stringify(s.secenekler)}, ${s.dogruIndex}, ${kaynakTuru || null})
+          INSERT INTO soru_bankasi (ders, sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index, kaynak_turu, aciklama)
+          VALUES (${ders}, ${sinif || null}, ${unite || null}, ${s.altKonu || null}, ${s.zorluk || null}, ${s.soru}, ${JSON.stringify(s.secenekler)}, ${s.dogruIndex}, ${kaynakTuru || null}, ${s.aciklama || null})
         `;
         kaydedilen++;
       } catch (e) {
