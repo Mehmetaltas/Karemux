@@ -1557,6 +1557,61 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [ulusalYoneticiOlusturuluyor, setUlusalYoneticiOlusturuluyor] = useState(false);
   const [maliyetRaporu, setMaliyetRaporu] = useState(null);
   const [maliyetRaporuYukleniyor, setMaliyetRaporuYukleniyor] = useState(false);
+
+  const [muhasebeVeri, setMuhasebeVeri] = useState(null);
+  const [muhasebeYukleniyor, setMuhasebeYukleniyor] = useState(false);
+  const [giderKategori, setGiderKategori] = useState("muhasebe");
+  const [giderTutar, setGiderTutar] = useState("");
+  const [giderAciklama, setGiderAciklama] = useState("");
+  const [giderEkleniyor, setGiderEkleniyor] = useState(false);
+  const [taksitTutar, setTaksitTutar] = useState("");
+  const [taksitSayisi, setTaksitSayisi] = useState(1);
+
+  async function muhasebeVerisiniGetir() {
+    setMuhasebeYukleniyor(true); setHata("");
+    try {
+      const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(ulusalYoneticiSifre)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setMuhasebeVeri(data);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Muhasebe verisi alinamadi."));
+    } finally {
+      setMuhasebeYukleniyor(false);
+    }
+  }
+
+  async function giderEkle() {
+    if (!giderTutar) return;
+    setGiderEkleniyor(true); setHata("");
+    try {
+      const res = await fetch("/api/admin/muhasebe", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre: ulusalYoneticiSifre, kategori: giderKategori, tutarTl: Number(giderTutar), aciklama: giderAciklama }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setGiderTutar(""); setGiderAciklama("");
+      muhasebeVerisiniGetir();
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Gider eklenemedi."));
+    } finally {
+      setGiderEkleniyor(false);
+    }
+  }
+
+  // Taksit komisyon hesaplayici - gercek iyzico 2026 oranlarina yakin tahmini
+  // degerler kullanir (tek cekim ~%2.9, taksit sayisi arttikca artar, 12
+  // taksitte ~%4.5'e ulasir). Kesin oran iyzico paneline baglaninca netlesir.
+  function taksitKomisyonuHesapla(tutar, taksit) {
+    if (!tutar || taksit < 1) return null;
+    const oranlar = { 1: 0.029, 2: 0.032, 3: 0.035, 6: 0.039, 9: 0.042, 12: 0.045 };
+    const enYakinTaksit = Object.keys(oranlar).map(Number).reduce((en, k) => (Math.abs(k - taksit) < Math.abs(en - taksit) ? k : en));
+    const oran = oranlar[enYakinTaksit];
+    const komisyon = tutar * oran + 0.25;
+    return { komisyon: komisyon.toFixed(2), net: (tutar - komisyon).toFixed(2), oran: (oran * 100).toFixed(2) };
+  }
+
   async function maliyetRaporunuGetir() {
     setMaliyetRaporuYukleniyor(true); setHata("");
     try {
@@ -4540,6 +4595,75 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         </div>
                       )}
                       <p style={{ fontSize: 9.5, color: "#5A6A72", marginTop: 10, lineHeight: 1.5 }}>{maliyetRaporu.not}</p>
+                    </div>
+                  )}
+
+                  <button onClick={muhasebeVerisiniGetir} disabled={muhasebeYukleniyor || !ulusalYoneticiSifre}
+                    style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 700, fontSize: 12, cursor: "pointer", marginTop: 8 }}>
+                    {muhasebeYukleniyor ? "Getiriliyor..." : "💼 Muhasebe Paneli Göster"}
+                  </button>
+
+                  {muhasebeVeri && (
+                    <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
+                      <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>💼 Bu Ay — Gelir / Gider / Kâr</p>
+                      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                          <p style={{ color: RENK_BASARI, fontSize: 16, fontWeight: 900 }}>{muhasebeVeri.buAy.gelir.toFixed(0)} TL</p>
+                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>GELİR ({muhasebeVeri.buAy.satisAdedi} satış)</p>
+                        </div>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                          <p style={{ color: "#FF6B5E", fontSize: 16, fontWeight: 900 }}>{muhasebeVeri.buAy.gider.toFixed(0)} TL</p>
+                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>GİDER</p>
+                        </div>
+                        <div style={{ flex: 1, textAlign: "center" }}>
+                          <p style={{ color: muhasebeVeri.buAy.kar >= 0 ? RENK_BASARI : "#FF6B5E", fontSize: 16, fontWeight: 900 }}>{muhasebeVeri.buAy.kar.toFixed(0)} TL</p>
+                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>{muhasebeVeri.buAy.kar >= 0 ? "KÂR" : "ZARAR"}</p>
+                        </div>
+                      </div>
+
+                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 12 }}>
+                        <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>GENEL TOPLAM (kuruluştan beri)</p>
+                        <p style={{ fontSize: 11, color: "#fff" }}>Gelir: <strong>{muhasebeVeri.genel.gelir.toFixed(0)} TL</strong> · Gider: <strong>{muhasebeVeri.genel.gider.toFixed(0)} TL</strong> · <span style={{ color: muhasebeVeri.genel.kar >= 0 ? RENK_BASARI : "#FF6B5E", fontWeight: 700 }}>{muhasebeVeri.genel.kar >= 0 ? "Kâr" : "Zarar"}: {muhasebeVeri.genel.kar.toFixed(0)} TL</span></p>
+                      </div>
+
+                      {muhasebeVeri.paketBazindaSatis?.some((p) => p.adet > 0) && (
+                        <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 12 }}>
+                          <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>PAKET BAZINDA SATIŞ (bu ay)</p>
+                          {muhasebeVeri.paketBazindaSatis.filter((p) => p.adet > 0).map((p, i) => (
+                            <p key={i} style={{ fontSize: 11, color: "#fff", margin: "3px 0" }}>{p.ad}: {p.adet} adet · {Number(p.toplam).toFixed(0)} TL</p>
+                          ))}
+                        </div>
+                      )}
+
+                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 8 }}>
+                        <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>GİDER EKLE (muhasebe, bağkur, vergi, hosting vb.)</p>
+                        <select value={giderKategori} onChange={(e) => setGiderKategori(e.target.value)} style={{ width: "100%", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }}>
+                          {["muhasebe", "bagkur", "vergi", "hosting", "pazarlama", "diger"].map((k) => <option key={k} value={k}>{k}</option>)}
+                        </select>
+                        <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                          <input type="number" value={giderTutar} onChange={(e) => setGiderTutar(e.target.value)} placeholder="Tutar (TL)" style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11.5 }} />
+                          <input value={giderAciklama} onChange={(e) => setGiderAciklama(e.target.value)} placeholder="Açıklama (ops.)" style={{ flex: 2, padding: 7, borderRadius: 6, fontSize: 11.5 }} />
+                        </div>
+                        <button onClick={giderEkle} disabled={giderEkleniyor || !giderTutar} style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                          {giderEkleniyor ? "Ekleniyor..." : "Gider Ekle"}
+                        </button>
+                      </div>
+
+                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10 }}>
+                        <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>📐 TAKSİT KOMİSYON HESAPLAYICI (tahmini, gerçek oran iyzico'da netleşir)</p>
+                        <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                          <input type="number" value={taksitTutar} onChange={(e) => setTaksitTutar(e.target.value)} placeholder="Satış tutarı (TL)" style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11.5 }} />
+                          <select value={taksitSayisi} onChange={(e) => setTaksitSayisi(Number(e.target.value))} style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11.5 }}>
+                            {[1, 2, 3, 6, 9, 12].map((t) => <option key={t} value={t}>{t} Taksit</option>)}
+                          </select>
+                        </div>
+                        {taksitTutar && (() => {
+                          const sonuc = taksitKomisyonuHesapla(Number(taksitTutar), taksitSayisi);
+                          return sonuc ? (
+                            <p style={{ fontSize: 11, color: "#fff" }}>Komisyon (~%{sonuc.oran}): <strong style={{ color: "#FF6B5E" }}>{sonuc.komisyon} TL</strong> · Net gelir: <strong style={{ color: RENK_BASARI }}>{sonuc.net} TL</strong></p>
+                          ) : null;
+                        })()}
+                      </div>
                     </div>
                   )}
                 </div>
