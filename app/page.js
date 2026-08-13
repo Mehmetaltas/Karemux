@@ -4721,7 +4721,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {ulusalSorular.map((s, i) => (
                   <div key={i} style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
                     <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 8 }}>{i + 1}. {s.soru}</p>
-                    {s.secenekler.map((sec, j) => (
+                    {(s.secenekler || []).map((sec, j) => (
                       <button key={j} onClick={() => setUlusalCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
                         display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5, cursor: "pointer",
                         border: `1.5px solid ${ulusalCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: ulusalCevaplar[i] === j ? "#FFF1EF" : "#fff",

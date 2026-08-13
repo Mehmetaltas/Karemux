@@ -28,8 +28,18 @@ export async function POST(req) {
     const baslangic = temiz.indexOf("[");
     const bitis = temiz.lastIndexOf("]");
     if (baslangic === -1 || bitis === -1) throw new Error("Sorular uretilemedi");
-    const sorular = JSON.parse(temiz.slice(baslangic, bitis + 1));
-    if (!Array.isArray(sorular) || sorular.length === 0) throw new Error("Gecerli soru uretilemedi");
+    const sorularHam = JSON.parse(temiz.slice(baslangic, bitis + 1));
+    if (!Array.isArray(sorularHam) || sorularHam.length === 0) throw new Error("Gecerli soru uretilemedi");
+
+    // AI bazen bozuk/eksik soru uretebilir (orn. token limiti yuzunden yarida
+    // kesilmis) - bunlari veritabanina kaydetmeden ELIYORUZ, yoksa sonradan
+    // istemci tarafinda cokme (crash) sebebi olurlar.
+    const sorular = sorularHam.filter((s) =>
+      s && typeof s.soru === "string" && s.soru.trim() &&
+      Array.isArray(s.secenekler) && s.secenekler.length >= 2 &&
+      Number.isInteger(s.dogruIndex) && s.dogruIndex >= 0 && s.dogruIndex < s.secenekler.length
+    );
+    if (sorular.length === 0) throw new Error("Uretilen sorularin hicbiri gecerli formatta degil, tekrar dene");
 
     const simdi = new Date();
     const acilis = simdi;
