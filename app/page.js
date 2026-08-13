@@ -2851,16 +2851,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Karne, rapor, gecmis - sadece bakilir</p>
-              <button onClick={() => { setSecilenDers(null); setMod("kocpanel"); setMenuAcik(false); }} style={{
-                display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
-                border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "kocpanel" ? 700 : 500,
-                background: mod === "kocpanel" ? COLORS.page : "transparent", color: mod === "kocpanel" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
-              }}>🎯 Koc Paneli (Rapor)</button>
-
-              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>📊 Karne ve Degerlendirme</p>
               {[
+                ["kocpanel", "🎯 Koc Paneli (Rapor)"],
                 ["zayifharita", "🗺️ Zayif Konu Haritasi"],
                 ["basarilarim", "🏅 Basarilarim"],
               ].map(([k, etiket]) => (
@@ -2951,21 +2944,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "hesap" ? 700 : 500,
                 background: mod === "hesap" ? COLORS.page : "transparent", color: mod === "hesap" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>{hesap ? `👤 ${hesap.ad} (${hesap.rol === "veli" ? "Veli" : "Ogrenci"})` : "👤 Giris / Kayit"}</button>
-
-              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 10 }}>Tema</p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-                {Object.keys(TEMALAR).map((t) => (
-                  <button key={t} onClick={() => temaDegistir(t)} style={{
-                    padding: "10px 6px", borderRadius: 10, cursor: "pointer", textAlign: "center",
-                    border: `2px solid ${tema === t ? TEMALAR[t].mustard : "transparent"}`,
-                    background: TEMALAR[t].gradient, color: TEMALAR[t].page, fontSize: 11, fontWeight: 700,
-                  }}>
-                    <div style={{ fontSize: 18, marginBottom: 3 }}>{TEMALAR[t].ikon}</div>
-                    {TEMALAR[t].isim}
-                  </button>
-                ))}
-              </div>
+              <button onClick={() => { setSecilenDers(null); setMod("ayarlar"); setMenuAcik(false); }} style={{
+                display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginTop: 4, borderRadius: 8,
+                border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "ayarlar" ? 700 : 500,
+                background: mod === "ayarlar" ? COLORS.page : "transparent", color: mod === "ayarlar" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+              }}>⚙️ Ayarlar (Tema ve Kisisellestirme)</button>
             </div>
           </>
         )}
@@ -4328,6 +4311,35 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
         )}
 
+        {mod === "ayarlar" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>⚙️</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Ayarlar</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Uygulamayı kendine göre kişiselleştir.</p>
+            </div>
+
+            <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+              <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 3 }}>🎨 Tema</p>
+              <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 14 }}>Uygulamanın görünümünü değiştir.</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                {Object.keys(TEMALAR).map((t) => (
+                  <button key={t} onClick={() => temaDegistir(t)} style={{
+                    padding: "16px 10px", borderRadius: 12, cursor: "pointer", textAlign: "center",
+                    border: `2.5px solid ${tema === t ? TEMALAR[t].mustard : "transparent"}`,
+                    background: TEMALAR[t].gradient, color: TEMALAR[t].page, fontSize: 12.5, fontWeight: 700,
+                    boxShadow: tema === t ? `0 0 0 3px ${TEMALAR[t].mustard}33` : "none",
+                  }}>
+                    <div style={{ fontSize: 24, marginBottom: 5 }}>{TEMALAR[t].ikon}</div>
+                    {TEMALAR[t].isim}
+                    {tema === t && <div style={{ fontSize: 10, marginTop: 3, opacity: 0.85 }}>✓ Aktif</div>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {mod === "premium" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
             {aktifAbonelik ? (
@@ -4801,219 +4813,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
 
-            <div style={{ marginTop: 20, borderTop: `1px solid ${COLORS.line}`, paddingTop: 12 }}>
-              <button onClick={() => setUlusalYoneticiAcik(!ulusalYoneticiAcik)} style={{ border: "none", background: "none", color: COLORS.muted, fontSize: 10.5, cursor: "pointer" }}>⚙️ Yönetici Paneli</button>
-              {ulusalYoneticiAcik && (
-                <div style={{ background: "#F4F0E4", borderRadius: 10, padding: 14, marginTop: 8 }}>
-                  <input type="password" value={ulusalYoneticiSifre} onChange={(e) => setUlusalYoneticiSifre(e.target.value)} placeholder="Yönetici şifresi"
-                    style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5, marginBottom: 8 }} />
-                  <input value={ulusalYoneticiAd} onChange={(e) => setUlusalYoneticiAd(e.target.value)} placeholder="Deneme adı (örn: 15. Hafta Türkiye Denemesi)"
-                    style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5, marginBottom: 8 }} />
-                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                    <select value={ulusalYoneticiSinif} onChange={(e) => setUlusalYoneticiSinif(Number(e.target.value))} style={{ flex: 1, padding: 8, borderRadius: 8, border: `1.5px solid ${COLORS.line}` }}>
-                      {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
-                    </select>
-                    <select value={ulusalYoneticiDers} onChange={(e) => setUlusalYoneticiDers(e.target.value)} style={{ flex: 1, padding: 8, borderRadius: 8, border: `1.5px solid ${COLORS.line}` }}>
-                      {["Matematik", "Fen Bilimleri", "Turkce"].map((d) => <option key={d} value={d}>{d}</option>)}
-                    </select>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                    <span style={{ fontSize: 11.5 }}>Açık kalma süresi:</span>
-                    <input type="number" value={ulusalYoneticiSaat} onChange={(e) => setUlusalYoneticiSaat(Number(e.target.value))} style={{ width: 60, padding: 6, borderRadius: 6, border: `1.5px solid ${COLORS.line}` }} />
-                    <span style={{ fontSize: 11.5 }}>saat</span>
-                  </div>
-                  <button className="kx-btn" onClick={ulusalDenemeOlustur} disabled={ulusalYoneticiOlusturuluyor || !ulusalYoneticiSifre || !ulusalYoneticiAd}
-                    style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
-                    {ulusalYoneticiOlusturuluyor ? "Oluşturuluyor..." : "Şimdi Başlat"}
-                  </button>
-
-                  <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
-                    <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>🎓 Yeni Öğretmen Ekle (Görüntülü Görüşme)</p>
-                    <input value={yeniOgretmenAd} onChange={(e) => setYeniOgretmenAd(e.target.value)} placeholder="Öğretmen adı"
-                      style={{ width: "100%", boxSizing: "border-box", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }} />
-                    <select value={yeniOgretmenBrans} onChange={(e) => setYeniOgretmenBrans(e.target.value)} style={{ width: "100%", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }}>
-                      {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce", "Rehberlik"].map((d) => <option key={d} value={d}>{d === "Rehberlik" ? "🧭 Rehberlik Danismanligi" : d}</option>)}
-                    </select>
-                    <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 4 }}>Haftalık müsaitlik (tek aralık, sonra genişletilebilir):</p>
-                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      <select value={yeniOgretmenGun} onChange={(e) => setYeniOgretmenGun(Number(e.target.value))} style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 11 }}>
-                        {["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"].map((g, i) => <option key={i} value={i}>{g}</option>)}
-                      </select>
-                      <input type="time" value={yeniOgretmenBaslangic} onChange={(e) => setYeniOgretmenBaslangic(e.target.value)} style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 11 }} />
-                      <input type="time" value={yeniOgretmenBitis} onChange={(e) => setYeniOgretmenBitis(e.target.value)} style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 11 }} />
-                    </div>
-                    <button onClick={ogretmenEkle} disabled={ogretmenEkleniyor || !yeniOgretmenAd || !ulusalYoneticiSifre}
-                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: (!yeniOgretmenAd || !ulusalYoneticiSifre) ? "#3A4550" : COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: (!yeniOgretmenAd || !ulusalYoneticiSifre) ? "default" : "pointer" }}>
-                      {ogretmenEkleniyor ? "Ekleniyor..." : !ulusalYoneticiSifre ? "Önce yönetici şifresini gir ↑" : "Öğretmen Ekle"}
-                    </button>
-                    {ogretmenEklendiMesaj && <p style={{ fontSize: 11, color: RENK_BASARI, marginTop: 6 }}>{ogretmenEklendiMesaj}</p>}
-                  </div>
-
-                  <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
-                    <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>📢 Hedefli Duyuru Gönder (Telegram)</p>
-                    <textarea value={duyuruMesaji} onChange={(e) => setDuyuruMesaji(e.target.value)} placeholder="Duyuru metni..."
-                      style={{ width: "100%", boxSizing: "border-box", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5, minHeight: 60, fontFamily: "inherit" }} />
-                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      <select value={duyuruIl} onChange={(e) => setDuyuruIl(e.target.value)} style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11 }}>
-                        <option value="">Tüm İller</option>
-                        {TURKIYE_IL_ILCE.map((i) => <option key={i.plaka} value={i.il}>{i.il}</option>)}
-                      </select>
-                      <select value={duyuruSinif} onChange={(e) => setDuyuruSinif(e.target.value)} style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11 }}>
-                        <option value="">Tüm Sınıflar</option>
-                        {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
-                      </select>
-                    </div>
-                    <button onClick={duyuruGonder} disabled={duyuruGonderiliyor || !duyuruMesaji || !ulusalYoneticiSifre}
-                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: (!duyuruMesaji || !ulusalYoneticiSifre) ? "#3A4550" : COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: (!duyuruMesaji || !ulusalYoneticiSifre) ? "default" : "pointer" }}>
-                      {duyuruGonderiliyor ? "Gönderiliyor..." : !ulusalYoneticiSifre ? "Önce yönetici şifresini gir ↑" : "Duyuruyu Gönder"}
-                    </button>
-                    {duyuruSonuc && (
-                      <p style={{ fontSize: 11, color: RENK_BASARI, marginTop: 6 }}>
-                        ✓ {duyuruSonuc.basarili}/{duyuruSonuc.hedeflenen} kişiye ulaştırıldı.
-                      </p>
-                    )}
-                  </div>
-
-                  <button onClick={maliyetRaporunuGetir} disabled={maliyetRaporuYukleniyor || !ulusalYoneticiSifre}
-                    style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 700, fontSize: 12, cursor: "pointer", marginTop: 8 }}>
-                    {maliyetRaporuYukleniyor ? "Getiriliyor..." : "📊 Kullanım/Maliyet Raporu Göster"}
-                  </button>
-
-                  {maliyetRaporu && (
-                    <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
-                      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                          <p style={{ color: COLORS.mustard, fontSize: 18, fontWeight: 900 }}>{maliyetRaporu.toplamKullanici}</p>
-                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>KAYITLI KULLANICI</p>
-                        </div>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                          <p style={{ color: RENK_BASARI, fontSize: 18, fontWeight: 900 }}>{maliyetRaporu.premiumSayisi}</p>
-                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>PREMIUM</p>
-                        </div>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                          <p style={{ color: "#fff", fontSize: 18, fontWeight: 900 }}>{maliyetRaporu.anonimKullanici}</p>
-                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>MİSAFİR (CİHAZ)</p>
-                        </div>
-                      </div>
-                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, fontSize: 11.5, color: "#fff" }}>
-                        <p>Bugün: <strong>{maliyetRaporu.istekSayilari.bugun}</strong> istek</p>
-                        <p>Bu hafta: <strong>{maliyetRaporu.istekSayilari.buHafta}</strong> istek</p>
-                        <p>Bu ay: <strong>{maliyetRaporu.istekSayilari.buAy}</strong> istek</p>
-                      </div>
-                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginTop: 10, textAlign: "center" }}>
-                        <p style={{ color: RENK_BASARI, fontSize: 22, fontWeight: 900 }}>{maliyetRaporu.soruBankasiToplam ?? 0}</p>
-                        <p style={{ color: "#8A968E", fontSize: 9 }}>🏦 SORU BANKASINDA BİRİKEN (AI'SIZ TEKRAR KULLANILABİLİR)</p>
-                      </div>
-                      {maliyetRaporu.enAktifKullanicilar?.length > 0 && (
-                        <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginTop: 10 }}>
-                          <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>BU HAFTA EN AKTİF 5 KULLANICI</p>
-                          {maliyetRaporu.enAktifKullanicilar.map((k, i) => (
-                            <p key={i} style={{ fontSize: 11, color: "#fff", margin: "3px 0" }}>{k.ad}: {k.istek_sayisi} istek</p>
-                          ))}
-                        </div>
-                      )}
-                      <p style={{ fontSize: 9.5, color: "#5A6A72", marginTop: 10, lineHeight: 1.5 }}>{maliyetRaporu.not}</p>
-                    </div>
-                  )}
-
-                  <button onClick={muhasebeVerisiniGetir} disabled={muhasebeYukleniyor || !ulusalYoneticiSifre}
-                    style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 700, fontSize: 12, cursor: "pointer", marginTop: 8 }}>
-                    {muhasebeYukleniyor ? "Getiriliyor..." : "💼 Muhasebe Paneli Göster"}
-                  </button>
-
-                  {muhasebeVeri && (
-                    <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
-                      <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>💰 Paket Fiyatları (Düzenlenebilir)</p>
-                      {muhasebeVeri.paketler?.map((p) => (
-                        <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, background: "rgba(255,255,255,0.04)", borderRadius: 8, padding: "8px 10px" }}>
-                          <div style={{ flex: 1 }}>
-                            <p style={{ fontSize: 11.5, color: "#fff", fontWeight: 600 }}>{p.ad}</p>
-                            <p style={{ fontSize: 9.5, color: "#8A968E" }}>{p.sure_gun ? `${p.sure_gun} gün` : `${p.kredi_miktari} kredi`}</p>
-                          </div>
-                          <input type="number" defaultValue={p.fiyat_tl}
-                            onChange={(e) => setDuzenlenenFiyatlar((eski) => ({ ...eski, [p.id]: e.target.value }))}
-                            style={{ width: 80, padding: 6, borderRadius: 6, fontSize: 12, textAlign: "right" }} />
-                          <span style={{ color: "#8A968E", fontSize: 10.5 }}>TL</span>
-                          <button onClick={() => paketFiyatiniKaydet(p.id)} disabled={fiyatKaydediliyor === p.id || duzenlenenFiyatlar[p.id] == null}
-                            style={{ padding: "6px 10px", borderRadius: 6, border: "none", background: duzenlenenFiyatlar[p.id] != null ? RENK_BASARI : "#3A4550", color: "#fff", fontWeight: 700, fontSize: 10.5, cursor: "pointer" }}>
-                            {fiyatKaydediliyor === p.id ? "..." : "Kaydet"}
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {muhasebeVeri && (
-                    <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
-                      <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>💼 Bu Ay — Gelir / Gider / Kâr</p>
-                      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                          <p style={{ color: RENK_BASARI, fontSize: 16, fontWeight: 900 }}>{muhasebeVeri.buAy.gelir.toFixed(0)} TL</p>
-                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>GELİR ({muhasebeVeri.buAy.satisAdedi} satış)</p>
-                        </div>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                          <p style={{ color: "#FF6B5E", fontSize: 16, fontWeight: 900 }}>{muhasebeVeri.buAy.gider.toFixed(0)} TL</p>
-                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>GİDER</p>
-                        </div>
-                        <div style={{ flex: 1, textAlign: "center" }}>
-                          <p style={{ color: muhasebeVeri.buAy.kar >= 0 ? RENK_BASARI : "#FF6B5E", fontSize: 16, fontWeight: 900 }}>{muhasebeVeri.buAy.kar.toFixed(0)} TL</p>
-                          <p style={{ color: "#8A968E", fontSize: 8.5 }}>{muhasebeVeri.buAy.kar >= 0 ? "KÂR" : "ZARAR"}</p>
-                        </div>
-                      </div>
-                      <p style={{ fontSize: 10, color: "#8A968E", marginBottom: 12, textAlign: "center" }}>🤖 Tahmini AI maliyeti (bu ay): ~{muhasebeVeri.buAy.tahminiAiMaliyetTl} TL — gerçek fatura için AI sağlayıcı panelini kontrol et</p>
-
-                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 12 }}>
-                        <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>GENEL TOPLAM (kuruluştan beri)</p>
-                        <p style={{ fontSize: 11, color: "#fff" }}>Gelir: <strong>{muhasebeVeri.genel.gelir.toFixed(0)} TL</strong> · Gider: <strong>{muhasebeVeri.genel.gider.toFixed(0)} TL</strong> · <span style={{ color: muhasebeVeri.genel.kar >= 0 ? RENK_BASARI : "#FF6B5E", fontWeight: 700 }}>{muhasebeVeri.genel.kar >= 0 ? "Kâr" : "Zarar"}: {muhasebeVeri.genel.kar.toFixed(0)} TL</span></p>
-                      </div>
-
-                      {muhasebeVeri.paketBazindaSatis?.some((p) => p.adet > 0) && (
-                        <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 12 }}>
-                          <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>PAKET BAZINDA SATIŞ (bu ay)</p>
-                          {muhasebeVeri.paketBazindaSatis.filter((p) => p.adet > 0).map((p, i) => (
-                            <p key={i} style={{ fontSize: 11, color: "#fff", margin: "3px 0" }}>{p.ad}: {p.adet} adet · {Number(p.toplam).toFixed(0)} TL</p>
-                          ))}
-                        </div>
-                      )}
-
-                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10, marginBottom: 8 }}>
-                        <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>GİDER EKLE (muhasebe, bağkur, vergi, hosting vb.)</p>
-                        <select value={giderKategori} onChange={(e) => setGiderKategori(e.target.value)} style={{ width: "100%", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }}>
-                          {["muhasebe", "bagkur", "vergi", "ai_maliyeti", "domain", "sunucu", "hosting", "odeme_komisyonu", "pazarlama", "diger"].map((k) => <option key={k} value={k}>{k}</option>)}
-                        </select>
-                        <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6, fontSize: 11 }}>
-                          <input type="checkbox" checked={giderTekrarlayan} onChange={(e) => setGiderTekrarlayan(e.target.checked)} />
-                          Her ay otomatik tekrarla (muhasebe, bağkur gibi sabit giderler için)
-                        </label>
-                        <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
-                          <input type="number" value={giderTutar} onChange={(e) => setGiderTutar(e.target.value)} placeholder="Tutar (TL)" style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11.5 }} />
-                          <input value={giderAciklama} onChange={(e) => setGiderAciklama(e.target.value)} placeholder="Açıklama (ops.)" style={{ flex: 2, padding: 7, borderRadius: 6, fontSize: 11.5 }} />
-                        </div>
-                        <button onClick={giderEkle} disabled={giderEkleniyor || !giderTutar} style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
-                          {giderEkleniyor ? "Ekleniyor..." : "Gider Ekle"}
-                        </button>
-                      </div>
-
-                      <div style={{ borderTop: "1px solid #2A3540", paddingTop: 10 }}>
-                        <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 6 }}>📐 TAKSİT KOMİSYON HESAPLAYICI (tahmini, gerçek oran iyzico'da netleşir)</p>
-                        <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
-                          <input type="number" value={taksitTutar} onChange={(e) => setTaksitTutar(e.target.value)} placeholder="Satış tutarı (TL)" style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11.5 }} />
-                          <select value={taksitSayisi} onChange={(e) => setTaksitSayisi(Number(e.target.value))} style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11.5 }}>
-                            {[1, 2, 3, 6, 9, 12].map((t) => <option key={t} value={t}>{t} Taksit</option>)}
-                          </select>
-                        </div>
-                        {taksitTutar && (() => {
-                          const sonuc = taksitKomisyonuHesapla(Number(taksitTutar), taksitSayisi);
-                          return sonuc ? (
-                            <p style={{ fontSize: 11, color: "#fff" }}>Komisyon (~%{sonuc.oran}): <strong style={{ color: "#FF6B5E" }}>{sonuc.komisyon} TL</strong> · Net gelir: <strong style={{ color: RENK_BASARI }}>{sonuc.net} TL</strong></p>
-                          ) : null;
-                        })()}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         )}
 
