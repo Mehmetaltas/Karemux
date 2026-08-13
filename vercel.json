@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/tekrarlayan-giderler",
       "schedule": "0 3 1 * *"
+    },
+    {
+      "path": "/api/cron/soru-bankasi-buyut",
+      "schedule": "0 0 * * *"
     }
   ]
 }
