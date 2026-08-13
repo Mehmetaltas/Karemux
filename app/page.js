@@ -4814,8 +4814,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       </select>
                     </div>
                     <button onClick={duyuruGonder} disabled={duyuruGonderiliyor || !duyuruMesaji || !ulusalYoneticiSifre}
-                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
-                      {duyuruGonderiliyor ? "Gönderiliyor..." : "Duyuruyu Gönder"}
+                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: (!duyuruMesaji || !ulusalYoneticiSifre) ? "#3A4550" : COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: (!duyuruMesaji || !ulusalYoneticiSifre) ? "default" : "pointer" }}>
+                      {duyuruGonderiliyor ? "Gönderiliyor..." : !ulusalYoneticiSifre ? "Önce yönetici şifresini gir ↑" : "Duyuruyu Gönder"}
                     </button>
                     {duyuruSonuc && (
                       <p style={{ fontSize: 11, color: RENK_BASARI, marginTop: 6 }}>
