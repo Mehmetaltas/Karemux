@@ -1649,6 +1649,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function ogretmenEkle() {
     if (!yeniOgretmenAd) return;
+    if (yeniOgretmenBitis <= yeniOgretmenBaslangic) {
+      setHata("Bitiş saati, başlangıç saatinden sonra olmalı.");
+      return;
+    }
     setOgretmenEkleniyor(true); setHata(""); setOgretmenEklendiMesaj("");
     try {
       const res = await fetch("/api/admin/ogretmen", {
