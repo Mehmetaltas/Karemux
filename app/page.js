@@ -1547,6 +1547,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [ogretmenler, setOgretmenler] = useState(null);
   const [secilenOgretmenId, setSecilenOgretmenId] = useState(null);
+  const [ogretmenKategori, setOgretmenKategori] = useState("ders"); // "ders" | "rehberlik"
   const [musaitSlotlar, setMusaitSlotlar] = useState(null);
   const [randevuAliniyor, setRandevuAliniyor] = useState(null); // hangi slot alinmaya calisiliyor
   const [randevularim, setRandevularim] = useState(null);
@@ -4529,6 +4530,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Görüntülü görüşme ile gerçek bir öğretmenle birebir ders.</p>
               </div>
 
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                <button onClick={() => { setOgretmenKategori("ders"); setSecilenOgretmenId(null); setMusaitSlotlar(null); }} style={{
+                  flex: 1, padding: "14px 8px", borderRadius: 12, cursor: "pointer", textAlign: "center",
+                  border: `2px solid ${ogretmenKategori === "ders" ? COLORS.coral : COLORS.line}`, background: ogretmenKategori === "ders" ? "#FFF1EF" : COLORS.page,
+                }}>
+                  <p style={{ fontSize: 22, marginBottom: 4 }}>📚</p>
+                  <p style={{ fontSize: 12.5, fontWeight: 700 }}>Ders Öğretmeni</p>
+                  <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>Özel ders, konu tekrarı</p>
+                </button>
+                <button onClick={() => { setOgretmenKategori("rehberlik"); setSecilenOgretmenId(null); setMusaitSlotlar(null); }} style={{
+                  flex: 1, padding: "14px 8px", borderRadius: 12, cursor: "pointer", textAlign: "center",
+                  border: `2px solid ${ogretmenKategori === "rehberlik" ? COLORS.coral : COLORS.line}`, background: ogretmenKategori === "rehberlik" ? "#FFF1EF" : COLORS.page,
+                }}>
+                  <p style={{ fontSize: 22, marginBottom: 4 }}>🧭</p>
+                  <p style={{ fontSize: 12.5, fontWeight: 700 }}>Rehber Öğretmen</p>
+                  <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>Danışmanlık, motivasyon</p>
+                </button>
+              </div>
+
               {randevularim?.length > 0 && (
                 <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 14, marginBottom: 14 }}>
                   <p style={{ fontSize: 11.5, fontWeight: 700, color: "#2E7D4F", marginBottom: 8 }}>✓ Yaklaşan Randevuların</p>
@@ -4541,20 +4561,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
               )}
 
-              {!ogretmenler ? (
+              {(() => {
+                const filtrelenmisOgretmenler = ogretmenler?.filter((o) => ogretmenKategori === "rehberlik" ? o.brans === "Rehberlik" : o.brans !== "Rehberlik");
+                return !ogretmenler ? (
                 <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>
-              ) : ogretmenler.length === 0 ? (
-                <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Şu an müsait öğretmen yok, yakında eklenecek.</p>
+              ) : filtrelenmisOgretmenler.length === 0 ? (
+                <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>{ogretmenKategori === "rehberlik" ? "Şu an müsait rehber öğretmen yok." : "Şu an müsait ders öğretmeni yok."}</p>
               ) : (
                 <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ÖĞRETMEN SEÇ</label>
+                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>{ogretmenKategori === "rehberlik" ? "REHBER ÖĞRETMEN SEÇ" : "ÖĞRETMEN SEÇ"}</label>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
-                    {ogretmenler.map((o) => (
+                    {filtrelenmisOgretmenler.map((o) => (
                       <button key={o.id} onClick={() => ogretmenSecVeSlotlariGetir(o.id)} style={{
                         padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
                         border: `1.5px solid ${secilenOgretmenId === o.id ? COLORS.coral : COLORS.line}`, background: secilenOgretmenId === o.id ? "#FFF1EF" : "#FAF6EE",
                       }}>
-                        <span style={{ fontSize: 13, fontWeight: 700 }}>{o.ad}</span> <span style={{ fontSize: 11, color: COLORS.muted }}>({o.brans})</span>
+                        <span style={{ fontSize: 13, fontWeight: 700 }}>{o.ad}</span> {o.brans !== "Rehberlik" && <span style={{ fontSize: 11, color: COLORS.muted }}>({o.brans})</span>}
                         {o.aciklama && <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 2 }}>{o.aciklama}</p>}
                       </button>
                     ))}
@@ -4581,7 +4603,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </>
                   )}
                 </div>
-              )}
+              );
+              })()}
             </div>
           );
         })()}
@@ -4786,7 +4809,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <input value={yeniOgretmenAd} onChange={(e) => setYeniOgretmenAd(e.target.value)} placeholder="Öğretmen adı"
                       style={{ width: "100%", boxSizing: "border-box", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }} />
                     <select value={yeniOgretmenBrans} onChange={(e) => setYeniOgretmenBrans(e.target.value)} style={{ width: "100%", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }}>
-                      {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce"].map((d) => <option key={d} value={d}>{d}</option>)}
+                      {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce", "Rehberlik"].map((d) => <option key={d} value={d}>{d === "Rehberlik" ? "🧭 Rehberlik Danismanligi" : d}</option>)}
                     </select>
                     <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 4 }}>Haftalık müsaitlik (tek aralık, sonra genişletilebilir):</p>
                     <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
