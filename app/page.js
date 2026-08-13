@@ -1568,6 +1568,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [kurumBaglaniyor, setKurumBaglaniyor] = useState(false);
   const [kurumBaglandi, setKurumBaglandi] = useState(false);
   const [liderlikVeri, setLiderlikVeri] = useState(null);
+  const [sistemIstatistik, setSistemIstatistik] = useState(null);
+  useEffect(() => {
+    fetch("/api/istatistik").then((r) => r.json()).then(setSistemIstatistik).catch(() => {});
+  }, []);
   useEffect(() => {
     if (mod !== "kurumpaneli" || !hesap || hesap.rol !== "ogrenci") return;
     fetch(`/api/kurum/liderlik?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setLiderlikVeri).catch(() => {});
@@ -2740,6 +2744,30 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
               Baslamak icin bir ders sec.
             </p>
+          </div>
+        )}
+
+        {mod === "bos" && !secilenDers && (
+          <div className="kx-fadein" style={{ display: "flex", justifyContent: "space-around", background: COLORS.page, border: `1px solid ${COLORS.line}`, borderRadius: 14, padding: "14px 8px", marginBottom: 16 }}>
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>163</p>
+              <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>ÜNİTE/TEMA</p>
+            </div>
+            <div style={{ width: 1, background: COLORS.line }} />
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>480+</p>
+              <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>ALT KONU</p>
+            </div>
+            <div style={{ width: 1, background: COLORS.line }} />
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>{sistemIstatistik ? sistemIstatistik.soruBankasiToplam.toLocaleString("tr-TR") : "…"}</p>
+              <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>SORU BANKASI</p>
+            </div>
+            <div style={{ width: 1, background: COLORS.line }} />
+            <div style={{ textAlign: "center" }}>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>∞</p>
+              <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>AI İLE SINIRSIZ</p>
+            </div>
           </div>
         )}
 
