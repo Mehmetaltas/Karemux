@@ -4797,8 +4797,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <input type="time" value={yeniOgretmenBitis} onChange={(e) => setYeniOgretmenBitis(e.target.value)} style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 11 }} />
                     </div>
                     <button onClick={ogretmenEkle} disabled={ogretmenEkleniyor || !yeniOgretmenAd || !ulusalYoneticiSifre}
-                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
-                      {ogretmenEkleniyor ? "Ekleniyor..." : "Öğretmen Ekle"}
+                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: (!yeniOgretmenAd || !ulusalYoneticiSifre) ? "#3A4550" : COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: (!yeniOgretmenAd || !ulusalYoneticiSifre) ? "default" : "pointer" }}>
+                      {ogretmenEkleniyor ? "Ekleniyor..." : !ulusalYoneticiSifre ? "Önce yönetici şifresini gir ↑" : "Öğretmen Ekle"}
                     </button>
                     {ogretmenEklendiMesaj && <p style={{ fontSize: 11, color: RENK_BASARI, marginTop: 6 }}>{ogretmenEklendiMesaj}</p>}
                   </div>
