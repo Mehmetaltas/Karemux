@@ -1554,8 +1554,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   useEffect(() => {
     if (mod !== "ogretmenders" || !hesap) return;
-    fetch("/api/randevu/musaitlik").then((r) => r.json()).then((d) => setOgretmenler(d.ogretmenler || []));
-    fetch(`/api/randevu/al?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setRandevularim(d.randevular || []));
+    fetch("/api/randevu/musaitlik").then((r) => r.json()).then((d) => setOgretmenler(d.ogretmenler || [])).catch(() => setOgretmenler([]));
+    fetch(`/api/randevu/al?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setRandevularim(d.randevular || [])).catch(() => setRandevularim([]));
   }, [mod, hesap?.eposta]);
 
   async function ogretmenSecVeSlotlariGetir(ogretmenId) {
@@ -2859,10 +2859,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               }}>🎯 Koc Paneli (Rapor)</button>
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Okul/LGS sinavina hazirlik testleri</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>📊 Karne ve Degerlendirme</p>
+              {[
+                ["zayifharita", "🗺️ Zayif Konu Haritasi"],
+                ["basarilarim", "🏅 Basarilarim"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+                }}>{etiket}</button>
+              ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>📝 Sinavlar</p>
               {[
                 ["yazili", "✏️ Yazili Hazirligi"],
                 ["deneme", "📝 Deneme Sinavi"],
+                ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
+                ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -2872,23 +2887,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Rehberlik</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🧠 Calisma Destek Araclari</p>
               {[
                 ["formulkart", "📐 Formul ve Kural Kartlari"],
                 ["sinavstratejisi", "🎯 Sinav Stratejisi Rehberi"],
-                ["zayifharita", "🗺️ Zayif Konu Haritasi"],
-                ["sinavkaygisi", "🧘 Sinav Kaygisi Destegi"],
-                ["hedefokul", "🏫 Hedef Okulum"],
                 ["paragrafstudyo", "📝 Paragraf Studyosu"],
-                ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
-                ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
-                ["basarilarim", "🏅 Basarilarim"],
-                ["tekrarzamani", "🔁 Bugun Tekrar Zamani"],
                 ["kelimekartlari", "🗂️ Kelime Kartlari"],
-                ["kurumpaneli", "🏢 Kurum Paneli"],
-                ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
-                ["velipaneli", "👪 Veli Paneli"],
-                ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
+                ["tekrarzamani", "🔁 Bugun Tekrar Zamani"],
+                ["sinavkaygisi", "🧘 Sinav Kaygisi Destegi"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -2898,9 +2904,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 4 }}>Ek araclar</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🎯 Planlama ve Hedefler</p>
               {[
-                ["sorucoz", "📷 Soru Coz (Fotograf)"],
+                ["hedefokul", "🏫 Hedef Okulum"],
+                ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
                 ["kocluk", "📅 Haftalik Calisma Plani"],
                 ["puanhesap", "🧮 LGS Puan Hesaplayici"],
               ].map(([k, etiket]) => (
@@ -2912,7 +2919,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>👥 Baglantilar</p>
               {[
+                ["kurumpaneli", "🏢 Kurum Paneli"],
+                ["velipaneli", "👪 Veli Paneli"],
+                ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+                }}>{etiket}</button>
+              ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🔧 Diger</p>
+              {[
+                ["sorucoz", "📷 Soru Coz (Fotograf)"],
                 ["premium", "💳 Premium"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
