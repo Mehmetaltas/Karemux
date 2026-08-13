@@ -1667,7 +1667,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       setOgretmenEklendiMesaj(`✓ "${yeniOgretmenAd}" eklendi.`);
       setYeniOgretmenAd("");
     } catch (e) {
-      setHata("TESHIS: " + (e && e.message ? e.message : String(e)));
+      setHata(temizHataMesaji(e, "Öğretmen eklenemedi."));
     } finally {
       setOgretmenEkleniyor(false);
     }
