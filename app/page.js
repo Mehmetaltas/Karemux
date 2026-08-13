@@ -1307,6 +1307,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [odemeHata, setOdemeHata] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
   const [profilOkul, setProfilOkul] = useState("");
+  const [profilIl, setProfilIl] = useState("");
+  const [telegramDurum, setTelegramDurum] = useState(null); // {baglandi, kod, botKullaniciAdi}
   const [okulOnerileri, setOkulOnerileri] = useState([]);
   const [okulOnerileriAcik, setOkulOnerileriAcik] = useState(false);
   useEffect(() => {
@@ -1329,7 +1331,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     try {
       await fetch("/api/auth/profil-guncelle", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ okul: profilOkul, telefon: profilTelefon, sinif: profilSinifSec ? Number(profilSinifSec) : null }),
+        body: JSON.stringify({ okul: profilOkul, telefon: profilTelefon, sinif: profilSinifSec ? Number(profilSinifSec) : null, il: profilIl }),
       });
       setHesap((h) => ({ ...h, okul: profilOkul, telefon: profilTelefon, sinif: profilSinifSec }));
       setProfilMesaj("Kaydedildi."); setProfilDuzenleAcik(false);
@@ -1341,6 +1343,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   // Hesap
   const [hesap, setHesap] = useState(null); // {ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu} | null
+  useEffect(() => {
+    if (mod !== "hesap" || !hesap) return;
+    fetch(`/api/telegram/kod?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setTelegramDurum).catch(() => {});
+  }, [mod, hesap?.eposta]);
   const [seriVeri, setSeriVeri] = useState(null); // {guncelSeri, enUzunSeri, toplamAktifGun}
   useEffect(() => {
     if (!hesap) return;
@@ -1615,6 +1621,31 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [yeniOgretmenBitis, setYeniOgretmenBitis] = useState("20:00");
   const [ogretmenEkleniyor, setOgretmenEkleniyor] = useState(false);
   const [ogretmenEklendiMesaj, setOgretmenEklendiMesaj] = useState("");
+
+  const [duyuruMesaji, setDuyuruMesaji] = useState("");
+  const [duyuruIl, setDuyuruIl] = useState("");
+  const [duyuruSinif, setDuyuruSinif] = useState("");
+  const [duyuruGonderiliyor, setDuyuruGonderiliyor] = useState(false);
+  const [duyuruSonuc, setDuyuruSonuc] = useState(null);
+
+  async function duyuruGonder() {
+    if (!duyuruMesaji) return;
+    setDuyuruGonderiliyor(true); setHata(""); setDuyuruSonuc(null);
+    try {
+      const res = await fetch("/api/admin/duyuru", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre: ulusalYoneticiSifre, mesaj: duyuruMesaji, il: duyuruIl || null, sinif: duyuruSinif ? Number(duyuruSinif) : null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setDuyuruSonuc(data);
+      setDuyuruMesaji("");
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Duyuru gönderilemedi."));
+    } finally {
+      setDuyuruGonderiliyor(false);
+    }
+  }
 
   async function ogretmenEkle() {
     if (!yeniOgretmenAd) return;
@@ -2038,7 +2069,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   useEffect(() => {
     if (hesap) {
-      setProfilOkul(hesap.okul || ""); setProfilTelefon(hesap.telefon || ""); setProfilSinifSec(hesap.sinif || "");
+      setProfilOkul(hesap.okul || ""); setProfilTelefon(hesap.telefon || ""); setProfilSinifSec(hesap.sinif || ""); setProfilIl(hesap.il || "");
     }
   }, [hesap]);
 
@@ -4026,10 +4057,32 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         )}
                         <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 4 }}>Listede bulamazsan endişelenme, olduğu gibi yazabilirsin.</p>
                       </div>
+                      <select value={profilIl} onChange={(e) => setProfilIl(e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8, background: "#fff" }}>
+                        <option value="">İl seç (opsiyonel)</option>
+                        {TURKIYE_IL_ILCE.map((i) => <option key={i.plaka} value={i.il}>{i.il}</option>)}
+                      </select>
                       <input value={profilTelefon} onChange={(e) => setProfilTelefon(e.target.value)} placeholder="Telefon" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                       <button onClick={profilKaydet} disabled={profilKaydediliyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                         {profilKaydediliyor ? "Kaydediliyor..." : "Kaydet"}
                       </button>
+
+                      {telegramDurum && (
+                        <div style={{ background: telegramDurum.baglandi ? "#EAF7EE" : "#F4F0E4", borderRadius: 8, padding: 12, marginTop: 10 }}>
+                          {telegramDurum.baglandi ? (
+                            <p style={{ fontSize: 12, color: "#2E7D4F", fontWeight: 600 }}>✓ Telegram bildirimlerine bağlısın</p>
+                          ) : (
+                            <>
+                              <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>📢 Önemli Duyuruları Telegram'dan Al</p>
+                              <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8 }}>
+                                {telegramDurum.botKullaniciAdi ? (
+                                  <>Telegram'da <strong>@{telegramDurum.botKullaniciAdi}</strong>'a git, aşağıdaki kodu gönder:</>
+                                ) : "Telegram botumuza aşağıdaki kodu gönder:"}
+                              </p>
+                              <p style={{ fontSize: 18, fontWeight: 900, letterSpacing: 2, textAlign: "center", background: "#fff", borderRadius: 6, padding: 8 }}>{telegramDurum.kod}</p>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                   {profilMesaj && <p style={{ fontSize: 12, color: COLORS.muted, marginTop: 6 }}>{profilMesaj}</p>}
@@ -4744,6 +4797,31 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       {ogretmenEkleniyor ? "Ekleniyor..." : "Öğretmen Ekle"}
                     </button>
                     {ogretmenEklendiMesaj && <p style={{ fontSize: 11, color: RENK_BASARI, marginTop: 6 }}>{ogretmenEklendiMesaj}</p>}
+                  </div>
+
+                  <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
+                    <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>📢 Hedefli Duyuru Gönder (Telegram)</p>
+                    <textarea value={duyuruMesaji} onChange={(e) => setDuyuruMesaji(e.target.value)} placeholder="Duyuru metni..."
+                      style={{ width: "100%", boxSizing: "border-box", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5, minHeight: 60, fontFamily: "inherit" }} />
+                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+                      <select value={duyuruIl} onChange={(e) => setDuyuruIl(e.target.value)} style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11 }}>
+                        <option value="">Tüm İller</option>
+                        {TURKIYE_IL_ILCE.map((i) => <option key={i.plaka} value={i.il}>{i.il}</option>)}
+                      </select>
+                      <select value={duyuruSinif} onChange={(e) => setDuyuruSinif(e.target.value)} style={{ flex: 1, padding: 7, borderRadius: 6, fontSize: 11 }}>
+                        <option value="">Tüm Sınıflar</option>
+                        {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
+                      </select>
+                    </div>
+                    <button onClick={duyuruGonder} disabled={duyuruGonderiliyor || !duyuruMesaji || !ulusalYoneticiSifre}
+                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                      {duyuruGonderiliyor ? "Gönderiliyor..." : "Duyuruyu Gönder"}
+                    </button>
+                    {duyuruSonuc && (
+                      <p style={{ fontSize: 11, color: RENK_BASARI, marginTop: 6 }}>
+                        ✓ {duyuruSonuc.basarili}/{duyuruSonuc.hedeflenen} kişiye ulaştırıldı.
+                      </p>
+                    )}
                   </div>
 
                   <button onClick={maliyetRaporunuGetir} disabled={maliyetRaporuYukleniyor || !ulusalYoneticiSifre}

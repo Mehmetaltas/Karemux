@@ -6,7 +6,7 @@ export async function GET(req) {
   if (!kullaniciId) return Response.json({ girisYapmis: false });
 
   const sonuc = await sql`
-    SELECT id, ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu, okul, telefon, sinif
+    SELECT id, ad, eposta, rol, eposta_dogrulandi, veli_baglanti_kodu, okul, telefon, sinif, il
     FROM kullanicilar WHERE id = ${kullaniciId}
   `;
   if (!sonuc[0]) return Response.json({ girisYapmis: false });
