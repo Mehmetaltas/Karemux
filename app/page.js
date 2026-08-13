@@ -1539,6 +1539,44 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     fetch(`/api/kurum/liderlik?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setLiderlikVeri).catch(() => {});
   }, [mod, hesap?.eposta]);
 
+  const [ogretmenler, setOgretmenler] = useState(null);
+  const [secilenOgretmenId, setSecilenOgretmenId] = useState(null);
+  const [musaitSlotlar, setMusaitSlotlar] = useState(null);
+  const [randevuAliniyor, setRandevuAliniyor] = useState(null); // hangi slot alinmaya calisiliyor
+  const [randevularim, setRandevularim] = useState(null);
+
+  useEffect(() => {
+    if (mod !== "ogretmenders" || !hesap) return;
+    fetch("/api/randevu/musaitlik").then((r) => r.json()).then((d) => setOgretmenler(d.ogretmenler || []));
+    fetch(`/api/randevu/al?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setRandevularim(d.randevular || []));
+  }, [mod, hesap?.eposta]);
+
+  async function ogretmenSecVeSlotlariGetir(ogretmenId) {
+    setSecilenOgretmenId(ogretmenId); setMusaitSlotlar(null);
+    const res = await fetch(`/api/randevu/musaitlik?ogretmenId=${ogretmenId}`);
+    const data = await res.json();
+    setMusaitSlotlar(data.slotlar || []);
+  }
+
+  async function randevuAl(slotISO) {
+    setRandevuAliniyor(slotISO); setHata("");
+    try {
+      const res = await fetch("/api/randevu/al", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ogretmenId: secilenOgretmenId, baslangicISO: slotISO, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setMusaitSlotlar((eski) => eski.filter((s) => s !== slotISO));
+      const r = await fetch(`/api/randevu/al?cihazId=${cihazIdRef.current}`).then((x) => x.json());
+      setRandevularim(r.randevular || []);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Randevu alınamadı."));
+    } finally {
+      setRandevuAliniyor(null);
+    }
+  }
+
   const [ulusalAktif, setUlusalAktif] = useState(null);
   const [ulusalGelecek, setUlusalGelecek] = useState(null);
   const [ulusalSorular, setUlusalSorular] = useState(null);
@@ -1569,6 +1607,36 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [taksitSayisi, setTaksitSayisi] = useState(1);
   const [duzenlenenFiyatlar, setDuzenlenenFiyatlar] = useState({}); // {paketId: yeniFiyat}
   const [fiyatKaydediliyor, setFiyatKaydediliyor] = useState(null); // hangi paketId kaydediliyor
+
+  const [yeniOgretmenAd, setYeniOgretmenAd] = useState("");
+  const [yeniOgretmenBrans, setYeniOgretmenBrans] = useState("Matematik");
+  const [yeniOgretmenGun, setYeniOgretmenGun] = useState(1);
+  const [yeniOgretmenBaslangic, setYeniOgretmenBaslangic] = useState("16:00");
+  const [yeniOgretmenBitis, setYeniOgretmenBitis] = useState("20:00");
+  const [ogretmenEkleniyor, setOgretmenEkleniyor] = useState(false);
+  const [ogretmenEklendiMesaj, setOgretmenEklendiMesaj] = useState("");
+
+  async function ogretmenEkle() {
+    if (!yeniOgretmenAd) return;
+    setOgretmenEkleniyor(true); setHata(""); setOgretmenEklendiMesaj("");
+    try {
+      const res = await fetch("/api/admin/ogretmen", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sifre: ulusalYoneticiSifre, ad: yeniOgretmenAd, brans: yeniOgretmenBrans,
+          musaitlik: [{ gun: yeniOgretmenGun, baslangic: yeniOgretmenBaslangic, bitis: yeniOgretmenBitis }],
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setOgretmenEklendiMesaj(`✓ "${yeniOgretmenAd}" eklendi.`);
+      setYeniOgretmenAd("");
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Öğretmen eklenemedi."));
+    } finally {
+      setOgretmenEkleniyor(false);
+    }
+  }
 
   async function paketFiyatiniKaydet(paketId) {
     const yeniFiyat = duzenlenenFiyatlar[paketId];
@@ -2784,6 +2852,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["kurumpaneli", "🏢 Kurum Paneli"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
                 ["velipaneli", "👪 Veli Paneli"],
+                ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -4384,6 +4453,82 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
         )}
 
+        {mod === "ogretmenders" && (() => {
+          if (!hesap) {
+            return (
+              <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+                <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+                <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", marginTop: 6 }}>Giriş Yap / Kayıt Ol</button>
+              </div>
+            );
+          }
+          const secilenOgretmen = ogretmenler?.find((o) => o.id === secilenOgretmenId);
+          return (
+            <div>
+              <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+                <p style={{ fontSize: 22, marginBottom: 4 }}>🎓</p>
+                <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Öğretmenle Canlı Ders</p>
+                <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Görüntülü görüşme ile gerçek bir öğretmenle birebir ders.</p>
+              </div>
+
+              {randevularim?.length > 0 && (
+                <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 14, marginBottom: 14 }}>
+                  <p style={{ fontSize: 11.5, fontWeight: 700, color: "#2E7D4F", marginBottom: 8 }}>✓ Yaklaşan Randevuların</p>
+                  {randevularim.map((r) => (
+                    <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 12 }}>
+                      <span>{r.ogretmen_adi} ({r.brans}) — {new Date(r.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}</span>
+                      <a href={r.zoom_link} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.coral, fontWeight: 700, fontSize: 11.5 }}>Katıl →</a>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {!ogretmenler ? (
+                <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>
+              ) : ogretmenler.length === 0 ? (
+                <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Şu an müsait öğretmen yok, yakında eklenecek.</p>
+              ) : (
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ÖĞRETMEN SEÇ</label>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+                    {ogretmenler.map((o) => (
+                      <button key={o.id} onClick={() => ogretmenSecVeSlotlariGetir(o.id)} style={{
+                        padding: "10px 12px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                        border: `1.5px solid ${secilenOgretmenId === o.id ? COLORS.coral : COLORS.line}`, background: secilenOgretmenId === o.id ? "#FFF1EF" : "#FAF6EE",
+                      }}>
+                        <span style={{ fontSize: 13, fontWeight: 700 }}>{o.ad}</span> <span style={{ fontSize: 11, color: COLORS.muted }}>({o.brans})</span>
+                        {o.aciklama && <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 2 }}>{o.aciklama}</p>}
+                      </button>
+                    ))}
+                  </div>
+
+                  {secilenOgretmen && (
+                    <>
+                      <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>MÜSAİT SAATLER (önümüzdeki 7 gün)</label>
+                      {musaitSlotlar === null ? (
+                        <p style={{ fontSize: 12, color: COLORS.muted }}>Yükleniyor...</p>
+                      ) : musaitSlotlar.length === 0 ? (
+                        <p style={{ fontSize: 12, color: COLORS.muted }}>Bu öğretmenin önümüzdeki 7 günde müsait saati yok.</p>
+                      ) : (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {musaitSlotlar.map((slot) => (
+                            <button key={slot} onClick={() => randevuAl(slot)} disabled={randevuAliniyor === slot} style={{
+                              padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "#fff", fontSize: 11, cursor: "pointer", fontWeight: 600,
+                            }}>
+                              {randevuAliniyor === slot ? "..." : new Date(slot).toLocaleString("tr-TR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {mod === "velipaneli" && (() => {
           if (!hesap || hesap.rol !== "veli") {
             return (
@@ -4578,6 +4723,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
                     {ulusalYoneticiOlusturuluyor ? "Oluşturuluyor..." : "Şimdi Başlat"}
                   </button>
+
+                  <div style={{ background: "#1B2430", borderRadius: 10, padding: 14, marginTop: 10 }}>
+                    <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 10 }}>🎓 Yeni Öğretmen Ekle (Görüntülü Görüşme)</p>
+                    <input value={yeniOgretmenAd} onChange={(e) => setYeniOgretmenAd(e.target.value)} placeholder="Öğretmen adı"
+                      style={{ width: "100%", boxSizing: "border-box", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }} />
+                    <select value={yeniOgretmenBrans} onChange={(e) => setYeniOgretmenBrans(e.target.value)} style={{ width: "100%", padding: 7, borderRadius: 6, marginBottom: 6, fontSize: 11.5 }}>
+                      {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce"].map((d) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                    <p style={{ color: "#8A968E", fontSize: 9.5, marginBottom: 4 }}>Haftalık müsaitlik (tek aralık, sonra genişletilebilir):</p>
+                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+                      <select value={yeniOgretmenGun} onChange={(e) => setYeniOgretmenGun(Number(e.target.value))} style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 11 }}>
+                        {["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"].map((g, i) => <option key={i} value={i}>{g}</option>)}
+                      </select>
+                      <input type="time" value={yeniOgretmenBaslangic} onChange={(e) => setYeniOgretmenBaslangic(e.target.value)} style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 11 }} />
+                      <input type="time" value={yeniOgretmenBitis} onChange={(e) => setYeniOgretmenBitis(e.target.value)} style={{ flex: 1, padding: 6, borderRadius: 6, fontSize: 11 }} />
+                    </div>
+                    <button onClick={ogretmenEkle} disabled={ogretmenEkleniyor || !yeniOgretmenAd || !ulusalYoneticiSifre}
+                      style={{ width: "100%", padding: "8px 0", borderRadius: 6, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                      {ogretmenEkleniyor ? "Ekleniyor..." : "Öğretmen Ekle"}
+                    </button>
+                    {ogretmenEklendiMesaj && <p style={{ fontSize: 11, color: RENK_BASARI, marginTop: 6 }}>{ogretmenEklendiMesaj}</p>}
+                  </div>
 
                   <button onClick={maliyetRaporunuGetir} disabled={maliyetRaporuYukleniyor || !ulusalYoneticiSifre}
                     style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 700, fontSize: 12, cursor: "pointer", marginTop: 8 }}>
