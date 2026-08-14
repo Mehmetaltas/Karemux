@@ -110,6 +110,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // yapisi (Carpanlar ve Katlar, Kesirlerle Islemler gibi ayri ayri) YANLISTI - resmi
   // program her sinifta sadece 6-7 GENIS "TEMA" kullaniyor, kucuk konular bu temalarin
   // ICINDE isleniyor. 8. sinif hala eski (2018) mufredatta oldugu icin degistirilmedi.
+  "4::Matematik": ["Sayilar ve Nicelikler", "Islemlerden Cebirsel Dusunmeye", "Nesnelerin Geometrisi", "Olaylarin Olasiligi ve Veriye Dayali Arastirma"],
   "5::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
   // 6. sinif Matematik - Turkiye Yuzyili Maarif Modeli'ne (2025-26'da 6. sinifa gecti)
   // gore GUNCELLENDI. Sayilar alani (Carpanlar/EBOB-EKOK/Ondalik) buyuk olcude ayni
@@ -120,6 +121,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "6::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
   "7::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
 
+  "4::Fen Bilimleri": ["Bilime Yolculuk", "Saglikli Besleniyorum", "Dunyamizi Kesfedelim", "Maddenin Degisimi", "Miknatisi Kesfediyorum", "Enerji Dedektifleri", "Isigin Pesinde", "Surdurulebilir Sehirler ve Topluluklar"],
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum"],
   // 6. sinif Fen Bilimleri - Maarif Modeli'ne gore GUNCELLENDI (Agustos 2026, coklu
   // kaynaktan dogrulandi: 7 unite, Vucudumuzdaki Sistemler/Uygulamali Bilim ayrimi
@@ -138,10 +140,14 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // konulari (isim tamlamasi, fiilimsi vb.) bu temalarin ICINDE isleniyor. Biz de
   // gercek ders sirasina uygun sekilde, her temaya bir dilbilgisi/metin becerisi
   // alt basligi esliyoruz - LGS'nin dilbilgisi agirligi kaybolmasin diye.
+  "4::Turkce": ["Dinleme ve Izleme", "Konusma", "Okuma", "Yazma"],
   "5::Turkce": ["Oyun Dunyasi", "Ataturk'u Tanimak", "Duygularimi Taniyorum", "Geleneklerimiz", "Iletisim ve Sosyal Iliskiler", "Saglikli Yasiyorum"],
+  "4::Din Kulturu": ["Gunluk Hayat ve Din", "Allah Sevgisi", "Peygamberlerin Sevgisi", "Ahlaki Degerlerimiz", "Haklar ve Sorumluluklar"],
   "5::Din Kulturu": ["Allah Inanci", "Namaz", "Kur'an-i Kerim", "Peygamber Kissalari", "Mimarimizde Dini Motifler"],
   // 5/6/7. sinif Ingilizce - resmi PDF'ten (english-regular 2-8, Agustos 2026) DOGRULANDI.
+  "4::Ingilizce": ["School Life", "Classroom Life", "Personal Life", "Family Life", "Homes Houses and the Neighbourhood", "Life in the City and the World"],
   "5::Ingilizce": ["School Life", "Classroom Life", "Personal Life", "Family Life", "Life in the Neighbourhood & City", "Life in the World", "Life in Nature", "Life in the Universe & Future"],
+  "4::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
   "5::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
   "6::Turkce": ["Dilimizin Zenginligi", "Bagimsizlik Yolu", "Farkli Dunyalar", "Iletisim ve Sosyal Iliskiler", "Bilim ve Teknoloji", "Lider Ruhlar"],
   "7::Turkce": ["Hayat Boyu Gelisim", "Bir Hilal Ugruna", "Iletisim ve Sosyal Iliskiler", "Turk Sanati", "Okuma Kulturu", "Hak ve Sorumluluklar"],
@@ -172,6 +178,11 @@ function dersinUniteleri(dersAdi, sinifNo) {
 // burada var; digerleri icin sistem AI'a alt konu onerdirir (ayri, acik etiketle).
 const DOGRULANMIS_ALT_KONULAR = {
   // ==== 5. SINIF MATEMATIK (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
+  // 4. sinif - resmi PDF'ten (2024programmat1234Onayli.pdf, Agustos 2026) DOGRULANDI.
+  "Matematik::Sayilar ve Nicelikler::4": ["Cok Basamakli Sayilarin Temsili", "Sayilari Siralama", "Ritmik Sayma", "Sayi ve Sekil Oruntuleri", "Basit-Bilesik-Tam Sayili Kesirler", "Denk Kesirler", "Paydalari Esit Kesirlerle Toplama-Cikarma"],
+  "Matematik::Islemlerden Cebirsel Dusunmeye::4": ["Zihinden Toplama-Cikarma", "Dort Basamakli Sayilarla Islemler", "Carpma-Bolme Tahmini ve Kisa Yollari", "Dort Islem Gerektiren Problemler", "Esitligin Farkli Anlamlari"],
+  "Matematik::Nesnelerin Geometrisi::4": ["Geometrik Cisimlerin Acinimlari", "Kose ve Kenarlarina Gore Sekiller", "Cevre Uzunlugu Olcme", "Alan Tahmini", "Aci Kavrami ve Olcme", "Dar-Genis Aci Siniflandirma", "Simetri"],
+  "Matematik::Olaylarin Olasiligi ve Veriye Dayali Arastirma::4": ["Olasilik (Imkansiz-Olabilir-Kesin)", "Kategorik ve Nicel Veri ile Arastirma"],
   "Matematik::Sayilar ve Nicelikler::5": ["Cok Basamakli Dogal Sayilar", "Dogal Sayilarla Dort Islem", "Kesirlerin Farkli Temsilleri"],
   "Matematik::Islemlerle Cebirsel Dusunme::5": ["Esitligin Korunumu", "Islem Onceligi", "Oruntuler"],
   "Matematik::Geometrik Sekiller::5": ["Temel Geometrik Cizimler", "Aci Olcme ve Cokgenler", "Cemberde Kesisim"],
@@ -182,6 +193,17 @@ const DOGRULANMIS_ALT_KONULAR = {
   // ==== 6. SINIF FEN BILIMLERI (resmi MEB kazanimlarindan - F.6.x) ====
   // 6/7. sinif Fen Bilimleri alt konulari - resmi PDF'ten (2024programfen345678Onayli.pdf,
   // Agustos 2026) dogrulanmistir.
+  // 4. sinif - resmi PDF'ten (2024programfen345678Onayli.pdf, Agustos 2026) DOGRULANDI.
+  // Not: 2 unitenin (Bilime Yolculuk, Isigin Pesinde) aciklamasi PDF'te sayfa
+  // kesintisi yuzunden tam cikarilamadi, unite isminden makul cikarim yapildi.
+  "Fen Bilimleri::Bilime Yolculuk::4": ["Bilimin Ozellikleri", "Bilimsel Bilgi Kaynaklarinin Guvenilirligi"],
+  "Fen Bilimleri::Saglikli Besleniyorum::4": ["Besin Gruplari", "Dengeli Beslenme"],
+  "Fen Bilimleri::Dunyamizi Kesfedelim::4": ["Dunyanin Sekli", "Dunyanin Yapisi (Hava-Su-Tas-Canli Kure)", "Dunyanin Hareketleri"],
+  "Fen Bilimleri::Maddenin Degisimi::4": ["Maddelerin Hal Degisimi", "Isi Etkisiyle Degisim"],
+  "Fen Bilimleri::Miknatisi Kesfediyorum::4": ["Miknatis Kutuplari ve Etkilesimi", "Miknatisin Etki Ettigi Maddeler"],
+  "Fen Bilimleri::Enerji Dedektifleri::4": ["Basit Elektrik Devresi", "Yenilenebilir ve Yenilenemeyen Enerji Kaynaklari"],
+  "Fen Bilimleri::Isigin Pesinde::4": ["Isik Kaynaklari", "Golge Olusumu"],
+  "Fen Bilimleri::Surdurulebilir Sehirler ve Topluluklar::4": ["Surdurulebilir Yasam Alani Kurma"],
   "Fen Bilimleri::Gunes Sistemi ve Tutulmalar::6": ["Gezegenlerin Siniflandirilmasi", "Gunes Sistemi Modeli", "Gunes ve Ay Tutulmalari"],
   "Fen Bilimleri::Kuvvetin Etkisinde Hareket::6": ["Kuvvetin Olculmesi", "Surtunme Kuvveti", "Kuvvetin Cisimlere Etkisi"],
   "Fen Bilimleri::Canlilarda Sistemler::6": ["Destek ve Hareket Sistemi", "Sindirim Sistemi", "Dolasim Sistemi", "Solunum ve Bosaltim Sistemi"],
@@ -212,6 +234,13 @@ const DOGRULANMIS_ALT_KONULAR = {
   // 5/6/7. sinif Turkce - unite (tema) isimleri resmi PDF'ten dogrulanmis. Alt basliklar,
   // her temanin ders akisinda islenen gercek dilbilgisi/metin becerisi konularidir
   // (LGS'nin agirlikli sordugu dilbilgisi konularinin kaybolmamasi icin).
+  // 4. sinif - resmi PDF'ten (2024programtur1234Onayli.pdf, Agustos 2026) DOGRULANDI.
+  // Not: 1-4. sinif Turkce, 5-8'den FARKLI olarak tema degil DIL BECERISI
+  // bazinda yapilandirilmis (Dinleme/Konusma/Okuma/Yazma).
+  "Turkce::Dinleme ve Izleme::4": ["Dinleme/Izlemeyi Yonetme", "Dinlediklerinden Anlam Olusturma", "Dinlediklerini Cozumleme", "Dinleme Surecini Degerlendirme"],
+  "Turkce::Konusma::4": ["Konusmayi Yonetme", "Konusmada Icerik Olusturma", "Konusma Kurallarini Uygulama", "Konusma Surecini Degerlendirme"],
+  "Turkce::Okuma::4": ["Okuma Surecini Yonetme", "Okuduklarindan Anlam Olusturma", "Okuduklarini Cozumleme", "Okuma Surecini Degerlendirme"],
+  "Turkce::Yazma::4": ["Yazili Anlatimi Yonetme", "Yazida Icerik Olusturma", "Yazim Kurallarini Uygulama", "Yazma Surecini Degerlendirme"],
   "Turkce::Oyun Dunyasi::5": ["Gercek ve Mecaz Anlam", "Es ve Zit Anlamli Kelimeler", "Oyun Temali Metin Okuma"],
   "Turkce::Ataturk'u Tanimak::5": ["Ana Fikir Bulma", "Bilgilendirici Metin Okuma"],
   "Turkce::Duygularimi Taniyorum::5": ["Cumlede Anlam", "Duygu Bildiren Sozcukler"],
@@ -281,6 +310,12 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::7": ["Bilimsel-Teknolojik Gelismelerin Gelecege Etkisi", "Sosyal Bilimlerin Calisma Alanlari", "Bilimsel Sorgulama"],
 
   // ==== 5. SINIF DIN KULTURU (yeni mufredat - resmi MEB 5 ana unite) ====
+  // 4. sinif - resmi PDF'ten (din_kultur_4_8, Agustos 2026) DOGRULANDI.
+  "Din Kulturu::Gunluk Hayat ve Din::4": ["Gunluk Hayatta Dini Ifadeler", "Temizlik ve Saglikli Beslenme", "Sukur"],
+  "Din Kulturu::Allah Sevgisi::4": ["Allahin Birligi ve Yuceligi", "Allahin Kullarina Sevgisi", "Dua, Kelime-i Tevhit ve Sehadet"],
+  "Din Kulturu::Peygamberlerin Sevgisi::4": ["Peygamberlerin Cocuklarla Iliskisi", "Cevre ve Calismayi Sevme"],
+  "Din Kulturu::Ahlaki Degerlerimiz::4": ["Adalet", "Sabir", "Yardimseverlik"],
+  "Din Kulturu::Haklar ve Sorumluluklar::4": ["Temel Hak ve Ozgurlukler", "Mahremiyet", "Allaha ve Insanlara Karsi Sorumluluklar"],
   "Din Kulturu::Allah Inanci::5": ["Allah'in Varligi ve Birligi", "Allah'in Sifatlari"],
   "Din Kulturu::Namaz::5": ["Namazin Onemi", "Namazin Kilinisi"],
   "Din Kulturu::Kur'an-i Kerim::5": ["Kur'an'i Tanima", "Kur'an Okuma Kurallarinin Temelleri"],
@@ -288,6 +323,13 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Din Kulturu::Mimarimizde Dini Motifler::5": ["Cami Mimarisi", "Dini Motiflerin Sanattaki Yansimalari"],
 
   // ==== 5. SINIF INGILIZCE (yeni mufredat - resmi MEB 10 unite) ====
+  // 4. sinif - resmi PDF'ten (english-regular, Agustos 2026) DOGRULANDI.
+  "Ingilizce::School Life::4": ["Okulda Kisiler", "Gunluk Rutinler", "Sevilen Aktiviteler", "Sevilen Aylar", "Milli Gunler"],
+  "Ingilizce::Classroom Life::4": ["Ders Konulari", "Sinif Etkinlikleri", "Mevsimler"],
+  "Ingilizce::Personal Life::4": ["Fiziksel Gorunum ve Kisilik", "Kiyafetler", "Hobiler ve Yetenekler", "Hava Durumu", "Karsilastirmalar"],
+  "Ingilizce::Family Life::4": ["Aile Uyelerinin Meslekleri", "Aile Aliskanliklari", "Aile Islerinin Yurutulmesi"],
+  "Ingilizce::Homes Houses and the Neighbourhood::4": ["Mahalledeki Hizmet Yerleri", "Deniz Canlilari ve Yasam Alanlari", "Ev Turleri"],
+  "Ingilizce::Life in the City and the World::4": ["Saglikli-Saglisiz Yiyecekler", "Ulusal ve Uluslararasi Yemekler", "Ulkeler", "Tatiller"],
   "Ingilizce::School Life::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
   "Ingilizce::Classroom Life::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
   "Ingilizce::Personal Life::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
@@ -299,6 +341,13 @@ const DOGRULANMIS_ALT_KONULAR = {
 
   // ==== 5. SINIF SOSYAL BILGILER (yeni mufredat - 6/7'den FARKLI ogrenme alani isimleri) ====
   // 5. sinif - PDF'den DOGRULANMIS/hassaslastirilmis (Agustos 2026)
+  // 4. sinif - resmi PDF'ten (2024programsos4567Onayli.pdf, Agustos 2026) DOGRULANDI.
+  "Sosyal Bilgiler::Birlikte Yasamak::4": ["Sosyal Bilgiler Dersinin Katkilari", "Bireysel Ozelliklere Saygi", "Toplumsal Birlik"],
+  "Sosyal Bilgiler::Evimiz Dunya::4": ["Harita Kullanarak Konum ve Yon Bulma", "Doga ve Insan Iliskisi", "Afetlerin Etkilerini Azaltma"],
+  "Sosyal Bilgiler::Ortak Mirasimiz::4": ["Gecmisten Gunumuze Oyun ve Oyuncaklar", "Aile Tarihi", "Yakin Cevredeki Ortak Miras Ogeleri"],
+  "Sosyal Bilgiler::Yasayan Demokrasimiz::4": ["Cumhuriyetin Ilani ve Ataturk", "Cumhuriyetin Getirdigi Degisimler", "Okulda Demokratik Katilim"],
+  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::4": ["Dogal Kaynaklarin Tuketimi", "Istek ve Ihtiyac Arasindaki Secimler", "Uretim-Dagitim-Tuketim Sureci"],
+  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::4": ["Cevrim Ici Guvenlik Kurallari", "Bilim Insanlarinin Cocukluk Hayati"],
   "Sosyal Bilgiler::Birlikte Yasamak::5": ["Gruplar ve Gruplardaki Roller", "Kulturel Ozelliklere Saygi", "Yardimlasma ve Dayanisma"],
   "Sosyal Bilgiler::Evimiz Dunya::5": ["Ilin Goreceli Konumu", "Dogal ve Beseri Cevre Degisimi", "Afetlere Karsi Farkindalik", "Komsu Devletler"],
   "Sosyal Bilgiler::Ortak Mirasimiz::5": ["Ildeki Ortak Miras Ogeleri", "Anadolu'daki Ilk Yerlesimler", "Mezopotamya ve Anadolu Medeniyetleri"],
