@@ -62,7 +62,7 @@ export default function Tanitim() {
           Yapay zeka ile sınırsız konu anlatımı, soru çözümü ve kişisel çalışma planı — dershane fiyatının onda birinden az.
         </p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
-          <a href="/" style={{ background: C.red, color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>Hemen Ücretsiz Başla →</a>
+          <a href="https://karemux-nu.vercel.app/" style={{ background: C.red, color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>Hemen Ücretsiz Başla →</a>
         </div>
       </KareliArkaplan>
 
@@ -101,7 +101,7 @@ export default function Tanitim() {
       <div style={{ padding: "48px 20px 60px", textAlign: "center" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(22px, 6vw, 30px)", marginBottom: 14 }}>Kalemini al, başla.</h2>
         <p style={{ fontSize: 13.5, color: C.inkSoft, marginBottom: 22 }}>Kayıt ücretsiz, kredi kartı gerekmez.</p>
-        <a href="/" style={{ background: C.red, color: "#fff", padding: "14px 30px", borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Karemux'a Git →</a>
+        <a href="https://karemux-nu.vercel.app/" style={{ background: C.red, color: "#fff", padding: "14px 30px", borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Karemux'a Git →</a>
         <p style={{ marginTop: 28, fontSize: 11, color: C.inkSoft }}>Web · PC · Tablet · Mobil — tüm cihazlarda aynı hesapla çalışır.</p>
       </div>
 
