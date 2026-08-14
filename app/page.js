@@ -4439,7 +4439,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p className="kx-float" style={{ fontSize: 26, marginBottom: 4 }}>📷</p>
               <p style={{ fontWeight: 700, fontSize: 16, color: COLORS.page, marginBottom: 4 }}>Soru Çöz</p>
               <p style={{ fontSize: 12, color: "#A8C4C9", lineHeight: 1.5 }}>
-                Çözemediğin sorunun fotoğrafını yükle, yapay zekâ saniyeler içinde adım adım çözsün.
+                Çözemediğin sorunun fotoğrafını yükle, sistem saniyeler içinde adım adım çözsün.
               </p>
             </div>
 
