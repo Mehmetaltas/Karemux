@@ -59,7 +59,7 @@ export default function Tanitim() {
           Defterini aç,<br /><span style={{ color: C.red }}>Karemux</span> yanında.
         </h1>
         <p style={{ fontSize: 15.5, color: C.inkSoft, maxWidth: 380, margin: "0 auto 28px", lineHeight: 1.6 }}>
-          Yapay zeka ile sınırsız konu anlatımı, soru çözümü ve kişisel çalışma planı — dershane fiyatının onda birinden az.
+          Sınırsız konu anlatımı, soru çözümü ve kişisel çalışma planı — dershane fiyatının onda birinden az.
         </p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           <a href="https://karemux-nu.vercel.app/" style={{ background: C.red, color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>Hemen Ücretsiz Başla →</a>
@@ -74,7 +74,7 @@ export default function Tanitim() {
           <NotladirilmisSayi deger={istatistik ? `${istatistik.soruBankasiToplam}+` : "…"} etiket="Soru Bankası" />
         </div>
         <p style={{ textAlign: "center", fontSize: 11.5, color: C.inkSoft, marginTop: 20, fontStyle: "italic" }}>
-          + yapay zeka ile anlık, sınırsız soru üretimi
+          + anlık, sınırsız soru üretimi
         </p>
       </div>
 
@@ -82,7 +82,7 @@ export default function Tanitim() {
       <div style={{ padding: "20px 20px 48px", maxWidth: 480, margin: "0 auto" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 22, textAlign: "center" }}>Neden Karemux?</h2>
         {[
-          { ikon: "🤖", b: "Yapay Zeka ile Sınırsız Üretim", a: "Statik soru bankası değil — her seferinde taze, seviyene uygun içerik." },
+          { ikon: "✨", b: "Akıllı Sistemle Sınırsız Üretim", a: "Statik soru bankası değil — her seferinde taze, seviyene uygun içerik." },
           { ikon: "🗺️", b: "Zayıf Konunu Sana Gösterir", a: "Nerede eksiğin var, tek bakışta gör; sistem otomatik plan çıkarır." },
           { ikon: "🎓", b: "Gerçek Öğretmenle Görüntülü Ders", a: "İstersen özel ders, istersen rehberlik danışmanlığı — tek tıkla randevu." },
           { ikon: "💸", b: "Dershanenin Onda Biri Fiyatına", a: "29.000₺'lik paketler yerine, aylık 349₺'den başlayan erişim." },
@@ -141,7 +141,7 @@ export default function Tanitim() {
             <tbody>
               {[
                 ["Yıllık Fiyat", "2.999₺'den başlar", "30.000–180.000₺", "Genelde daha ucuz ama sınırlı"],
-                ["Soru Kaynağı", "AI ile anlık, sınırsız üretim", "Basılı kitap + kaynak", "Sabit, önceden hazırlanmış havuz"],
+                ["Soru Kaynağı", "Akıllı sistemle anlık, sınırsız üretim", "Basılı kitap + kaynak", "Sabit, önceden hazırlanmış havuz"],
                 ["Kişiselleştirme", "Her öğrenciye özel, gerçek zamanlı", "Sınıf ortalamasına göre", "Genellikle yok / sınırlı"],
                 ["Gerçek Öğretmen", "İsteğe bağlı, görüntülü randevu", "Zorunlu, sabit program", "Yok"],
                 ["Esneklik", "İstediğin an, istediğin yerden", "Sabit ders saatleri", "İstediğin an"],
