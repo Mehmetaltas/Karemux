@@ -1661,7 +1661,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       if (!res.ok) throw new Error(data.error);
       setSeviyeTestSorulari(data.sorular);
     } catch (e) {
-      setHata(temizHataMesaji(e, "Sinav olusturulamadi, tekrar dene."));
+      setHata("TESHIS: " + (e && e.message ? e.message : String(e)));
     } finally {
       setSeviyeTestYukleniyor(false);
     }
