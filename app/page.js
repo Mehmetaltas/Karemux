@@ -4,7 +4,7 @@ import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 
 const DUYURULAR = [
   { ikon: "🧭", baslik: "Seviye Tespiti ile basla", metin: "6 dersten 12 soru — nerede guclu, nerede zayif oldugunu 5 dakikada ogren." },
-  { ikon: "🤖", baslik: "Yapay zeka 7/24 hazir", metin: "Gece yarisi bile olsa, istedigin konuyu aninda anlatir, soru uretir." },
+  { ikon: "⚡", baslik: "7/24 Hazir", metin: "Gece yarisi bile olsa, istedigin konuyu aninda anlatir, soru uretir." },
   { ikon: "📸", baslik: "Fotografla soru coz", metin: "Cozemedigin sorunun fotografini cek, saniyeler icinde adim adim cozum al." },
   { ikon: "📊", baslik: "Gercek sonuc belgesi", metin: "Her denemede net hesaplamasi, zorluk kirilimi ve alt konu analizi." },
   { ikon: "🔒", baslik: "Sirali, kilitli ilerleme", metin: "Bir konu bitmeden digeri acilmaz — dagitmadan, duzenli calis." },
