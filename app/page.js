@@ -1617,6 +1617,120 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [kurumBaglaniyor, setKurumBaglaniyor] = useState(false);
   const [kurumBaglandi, setKurumBaglandi] = useState(false);
   const [liderlikVeri, setLiderlikVeri] = useState(null);
+
+  // ==== SEVIYE TESPIT SINAVI ====
+  const [seviyeTestSorulari, setSeviyeTestSorulari] = useState(null);
+  const [seviyeTestCevaplar, setSeviyeTestCevaplar] = useState({});
+  const [seviyeTestYukleniyor, setSeviyeTestYukleniyor] = useState(false);
+  const [seviyeTestGonderiliyor, setSeviyeTestGonderiliyor] = useState(false);
+  const [seviyeTestSonuc, setSeviyeTestSonuc] = useState(null);
+  const [seviyeDurum, setSeviyeDurum] = useState(null);
+  const [seviyeKademeIslemde, setSeviyeKademeIslemde] = useState(null);
+  const [seviyeOnayTest, setSeviyeOnayTest] = useState(null);
+  const [seviyeOnayCevaplar, setSeviyeOnayCevaplar] = useState({});
+  const [seviyeOnayAktifKademe, setSeviyeOnayAktifKademe] = useState(null);
+
+  useEffect(() => {
+    if ((mod === "seviyetamamlama" || mod === "bos") && hesap) {
+      fetch(`/api/seviye-tespit/durum?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setSeviyeDurum).catch(() => {});
+    }
+  }, [mod, hesap?.eposta]);
+
+  function seviyeTestKonulariniSec() {
+    const dersler = ["Matematik", "Turkce", "Fen Bilimleri", "Sosyal Bilgiler"];
+    const konular = [];
+    for (const ders of dersler) {
+      for (const kaynakSinif of [4, 5]) {
+        const uniteler = MUFREDAT_DIGER_SINIFLAR[`${kaynakSinif}::${ders}`] || [];
+        const secilenler = [...uniteler].sort(() => Math.random() - 0.5).slice(0, 2);
+        for (const u of secilenler) konular.push({ ders, unite: u, sinif: kaynakSinif });
+      }
+    }
+    return konular;
+  }
+
+  async function seviyeTestiBaslat() {
+    setSeviyeTestYukleniyor(true); setHata(""); setSeviyeTestSonuc(null); setSeviyeTestCevaplar({});
+    try {
+      const konular = seviyeTestKonulariniSec();
+      const res = await fetch("/api/seviye-tespit/olustur", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ konular }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSeviyeTestSorulari(data.sorular);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Sinav olusturulamadi, tekrar dene."));
+    } finally {
+      setSeviyeTestYukleniyor(false);
+    }
+  }
+
+  async function seviyeTestiGonder() {
+    if (!seviyeTestSorulari) return;
+    setSeviyeTestGonderiliyor(true); setHata("");
+    try {
+      const sonuclar = seviyeTestSorulari.map((s, i) => ({
+        ders: s.ders, unite: s.unite, sinif: s.sinif,
+        dogruMu: seviyeTestCevaplar[i] === s.dogruIndex,
+      }));
+      const res = await fetch("/api/seviye-tespit/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, sonuclar }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSeviyeTestSonuc(data);
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Sinav gonderilemedi."));
+    } finally {
+      setSeviyeTestGonderiliyor(false);
+    }
+  }
+
+  async function seviyeKademeIlerlet(kademeId, basariliMi) {
+    setSeviyeKademeIslemde(kademeId); setHata("");
+    try {
+      const res = await fetch("/api/seviye-tespit/kademe-ilerlet", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, kademeId, basariliMi }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      const yeni = await fetch(`/api/seviye-tespit/durum?cihazId=${cihazIdRef.current}`).then((r) => r.json());
+      setSeviyeDurum(yeni);
+      setSeviyeOnayTest(null); setSeviyeOnayAktifKademe(null); setSeviyeOnayCevaplar({});
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Islenemedi."));
+    } finally {
+      setSeviyeKademeIslemde(null);
+    }
+  }
+
+  async function seviyeOnayTestiBaslat(u) {
+    setSeviyeOnayAktifKademe(u.id); setSeviyeOnayCevaplar({}); setHata("");
+    try {
+      const res = await fetch("/api/seviye-tespit/olustur", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ konular: [{ ders: u.ders, unite: u.unite, sinif: u.kaynak_sinif }, { ders: u.ders, unite: u.unite, sinif: u.kaynak_sinif }, { ders: u.ders, unite: u.unite, sinif: u.kaynak_sinif }] }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSeviyeOnayTest({ kademeId: u.id, sorular: data.sorular });
+    } catch (e) {
+      setHata(temizHataMesaji(e, "Onay testi olusturulamadi."));
+      setSeviyeOnayAktifKademe(null);
+    }
+  }
+
+  function seviyeOnayTestiDegerlendir() {
+    if (!seviyeOnayTest) return;
+    const dogruSayisi = seviyeOnayTest.sorular.filter((s, i) => seviyeOnayCevaplar[i] === s.dogruIndex).length;
+    const basariliMi = dogruSayisi >= 2;
+    seviyeKademeIlerlet(seviyeOnayTest.kademeId, basariliMi);
+  }
+
   const [sistemIstatistik, setSistemIstatistik] = useState(null);
   useEffect(() => {
     fetch("/api/istatistik").then((r) => r.json()).then(setSistemIstatistik).catch(() => {});
@@ -2979,6 +3093,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["deneme", "📝 Deneme Sinavi"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
+                ["seviyetespit", "🎯 Seviye Tespit Sinavi"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -3022,6 +3137,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>👥 Baglantilar</p>
               {[
+                ["seviyetamamlama", "📶 Seviye Tamamlama"],
                 ["kurumpaneli", "🏢 Kurum Paneli"],
                 ["velipaneli", "👪 Veli Paneli"],
                 ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
@@ -4414,6 +4530,144 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </button>
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {mod === "seviyetespit" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🎯</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Seviye Tespit Sinavi</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>4. ve 5. sinif konularindan karisik bir sinav - eksiklerini bulup tamamlamana yardimci olur.</p>
+            </div>
+
+            {!seviyeTestSorulari && !seviyeTestSonuc && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 16, lineHeight: 1.6 }}>
+                  Matematik, Turkce, Fen Bilimleri ve Sosyal Bilgiler'den 4. ve 5. sinif konularini kapsayan bir sinav.
+                  Yanlis yaptigin konular icin otomatik bir tamamlama plani olusturulur.
+                </p>
+                <button className="kx-btn" onClick={seviyeTestiBaslat} disabled={seviyeTestYukleniyor}
+                  style={{ padding: "12px 28px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}>
+                  {seviyeTestYukleniyor ? "Sinav hazirlaniyor..." : "Sinavi Baslat"}
+                </button>
+              </div>
+            )}
+
+            {seviyeTestSorulari && !seviyeTestSonuc && (
+              <div>
+                {seviyeTestSorulari.map((s, i) => (
+                  <div key={i} style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
+                    <p style={{ fontSize: 10, color: COLORS.muted, marginBottom: 4 }}>{s.ders} · {s.unite} ({s.sinif}. sinif)</p>
+                    <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 8 }}>{i + 1}. {s.soru}</p>
+                    {(s.secenekler || []).map((sec, j) => (
+                      <button key={j} onClick={() => setSeviyeTestCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
+                        display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5, cursor: "pointer",
+                        border: `1.5px solid ${seviyeTestCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: seviyeTestCevaplar[i] === j ? "#FFF1EF" : "#fff",
+                      }}>{sec}</button>
+                    ))}
+                  </div>
+                ))}
+                <button className="kx-btn" onClick={seviyeTestiGonder} disabled={seviyeTestGonderiliyor || Object.keys(seviyeTestCevaplar).length < seviyeTestSorulari.length}
+                  style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: "pointer", marginTop: 8 }}>
+                  {seviyeTestGonderiliyor ? "Gonderiliyor..." : `Sinavi Bitir (${Object.keys(seviyeTestCevaplar).length}/${seviyeTestSorulari.length})`}
+                </button>
+              </div>
+            )}
+
+            {seviyeTestSonuc && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 8 }}>✓</p>
+                <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 6 }}>{seviyeTestSonuc.dogruSayisi}/{seviyeTestSonuc.toplam} dogru</p>
+                <p style={{ fontSize: 12.5, color: COLORS.muted, marginBottom: 16 }}>
+                  {seviyeTestSonuc.zayifUniteSayisi > 0
+                    ? `${seviyeTestSonuc.zayifUniteSayisi} konuda eksigin var - "Seviye Tamamlama" ekraninda bunlari kapatabilirsin.`
+                    : "Tebrikler, hicbir eksigin cikmadi!"}
+                </p>
+                <button className="kx-btn" onClick={() => { setSecilenDers(null); setMod("seviyetamamlama"); }} style={{ padding: "10px 22px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                  Seviye Tamamlamaya Git →
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {mod === "seviyetamamlama" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>📶</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Seviye Tamamlama</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Seviye tespit sinavinda zayif cikan konularin - 5. sinifla paralel tamamlanir.</p>
+            </div>
+
+            {!seviyeDurum ? (
+              <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yukleniyor...</p>
+            ) : !seviyeDurum.sinaviAldiMi ? (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 14 }}>Once Seviye Tespit Sinavini almalisin.</p>
+                <button className="kx-btn" onClick={() => { setSecilenDers(null); setMod("seviyetespit"); }} style={{ padding: "10px 22px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                  Sinavi Al →
+                </button>
+              </div>
+            ) : seviyeDurum.toplamZayif === 0 ? (
+              <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 20, textAlign: "center" }}>
+                <p style={{ fontSize: 30, marginBottom: 8 }}>🎉</p>
+                <p style={{ fontWeight: 700, fontSize: 14 }}>Tamamlanacak eksigin yok, harikasin!</p>
+              </div>
+            ) : (
+              <div>
+                <div style={{ background: COLORS.page, borderRadius: 10, padding: 12, marginBottom: 12, textAlign: "center" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700 }}>{seviyeDurum.tamamlanan}/{seviyeDurum.toplamZayif} konu tamamlandi</p>
+                </div>
+                {seviyeDurum.uniteler.map((u) => (
+                  <div key={u.id} style={{ background: u.tamamlandi ? "#EAF7EE" : COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 700, fontSize: 12.5 }}>{u.tamamlandi ? "✓ " : ""}{u.ders} — {u.unite} <span style={{ color: COLORS.muted, fontWeight: 500 }}>({u.kaynak_sinif}. sinif)</span></p>
+                    {!u.tamamlandi && (
+                      <>
+                        <p style={{ fontSize: 10.5, color: COLORS.muted, margin: "4px 0 10px" }}>Kademe {u.kademe}/3 — {u.kademe === 1 ? "Konu anlatimini incele" : u.kademe === 2 ? "Pratik sorular coz" : "Onay testi ver"}</p>
+                        {u.kademe === 1 && (
+                          <>
+                            <p style={{ fontSize: 10.5, color: COLORS.muted, marginBottom: 8 }}>Ders Calisma Odasi'ndan "{u.ders}" secip, {u.kaynak_sinif}. sinif konularindan "{u.unite}"yi incele.</p>
+                            <button onClick={() => seviyeKademeIlerlet(u.id)} disabled={seviyeKademeIslemde === u.id} style={{ padding: "7px 14px", borderRadius: 7, border: "none", background: COLORS.ink, color: COLORS.page, fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                              {seviyeKademeIslemde === u.id ? "..." : "Okudum, Devam Et"}
+                            </button>
+                          </>
+                        )}
+                        {u.kademe === 2 && (
+                          <button onClick={() => seviyeKademeIlerlet(u.id)} disabled={seviyeKademeIslemde === u.id} style={{ padding: "7px 14px", borderRadius: 7, border: "none", background: COLORS.ink, color: COLORS.page, fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                            {seviyeKademeIslemde === u.id ? "..." : "Pratik Yaptim, Devam Et"}
+                          </button>
+                        )}
+                        {u.kademe === 3 && seviyeOnayAktifKademe !== u.id && (
+                          <button onClick={() => seviyeOnayTestiBaslat(u)} style={{ padding: "7px 14px", borderRadius: 7, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                            Onay Testini Baslat (3 Soru)
+                          </button>
+                        )}
+                        {u.kademe === 3 && seviyeOnayAktifKademe === u.id && seviyeOnayTest && (
+                          <div style={{ marginTop: 10 }}>
+                            {seviyeOnayTest.sorular.map((s, i) => (
+                              <div key={i} style={{ marginBottom: 10 }}>
+                                <p style={{ fontSize: 11.5, fontWeight: 600, marginBottom: 5 }}>{i + 1}. {s.soru}</p>
+                                {(s.secenekler || []).map((sec, j) => (
+                                  <button key={j} onClick={() => setSeviyeOnayCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
+                                    display: "block", width: "100%", textAlign: "left", padding: "6px 9px", marginBottom: 4, borderRadius: 6, fontSize: 11, cursor: "pointer",
+                                    border: `1.5px solid ${seviyeOnayCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: seviyeOnayCevaplar[i] === j ? "#FFF1EF" : "#fff",
+                                  }}>{sec}</button>
+                                ))}
+                              </div>
+                            ))}
+                            <button onClick={seviyeOnayTestiDegerlendir} disabled={Object.keys(seviyeOnayCevaplar).length < seviyeOnayTest.sorular.length}
+                              style={{ width: "100%", padding: "8px 0", borderRadius: 7, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                              Onay Testini Bitir
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
           </div>
