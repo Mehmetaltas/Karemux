@@ -63,7 +63,6 @@ export default function Tanitim() {
         </p>
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           <a href="/" style={{ background: C.red, color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>Hemen Ücretsiz Başla →</a>
-          <a href="#fiyatlar" style={{ background: "transparent", color: C.ink, border: `1.5px solid ${C.ink}`, padding: "13px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>Paketleri Gör</a>
         </div>
       </KareliArkaplan>
 
@@ -97,38 +96,6 @@ export default function Tanitim() {
           </div>
         ))}
       </div>
-
-      {/* ==== FIYATLAR - "karne" tarzi ==== */}
-      <KareliArkaplan style={{ padding: "44px 20px 56px", borderTop: `1px solid ${C.grid}` }} >
-        <div id="fiyatlar" style={{ maxWidth: 460, margin: "0 auto" }}>
-          <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 6, textAlign: "center" }}>Paketler</h2>
-          <p style={{ textAlign: "center", fontSize: 12.5, color: C.inkSoft, marginBottom: 26 }}>Ayrı ayrı da alabilirsin, yıllık full ile hepsi bir arada.</p>
-
-          <div style={{ background: "#fff", border: `2px solid ${C.red}`, borderRadius: 16, padding: 22, marginBottom: 16, position: "relative" }}>
-            <div style={{ position: "absolute", top: -12, left: 20, background: C.red, color: "#fff", padding: "3px 12px", borderRadius: 20, fontSize: 10.5, fontWeight: 700 }}>EN AVANTAJLI</div>
-            <p style={{ fontWeight: 800, fontSize: 17, marginTop: 6 }}>Yıllık Full Paket</p>
-            <p style={{ fontFamily: C.monoFont, fontSize: 30, fontWeight: 700, margin: "8px 0 4px" }}>2.999₺ <span style={{ fontSize: 13, color: C.inkSoft, fontWeight: 400 }}>/ yıl</span></p>
-            <p style={{ fontSize: 12, color: C.green, fontWeight: 700, marginBottom: 12 }}>≈ 250₺/ay — %50 tasarruf</p>
-            <p style={{ fontSize: 12.5, color: C.inkSoft, lineHeight: 1.7 }}>Sınırsız her şey + Bursluluk + Ara/Yaz Tatil Programı + Haftalık Deneme</p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {[
-              ["Aylık Premium", "349₺/ay"],
-              ["Bursluluk Paketi", "129₺"],
-              ["Yaz Tatili", "349₺"],
-              ["Ara Tatil", "79₺"],
-              ["Özel Ders (Tek)", "249₺/ay"],
-              ["Rehberlik", "149₺/ay"],
-            ].map(([ad, fiyat], i) => (
-              <div key={i} style={{ background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: "12px 14px" }}>
-                <p style={{ fontSize: 11.5, color: C.inkSoft, fontWeight: 600 }}>{ad}</p>
-                <p style={{ fontFamily: C.monoFont, fontSize: 15, fontWeight: 700, marginTop: 3 }}>{fiyat}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </KareliArkaplan>
 
       {/* ==== KAPANIS CTA ==== */}
       <div style={{ padding: "48px 20px 60px", textAlign: "center" }}>
