@@ -97,6 +97,74 @@ export default function Tanitim() {
         ))}
       </div>
 
+      {/* ==== TAM OZELLIK LISTESI ==== */}
+      <KareliArkaplan style={{ padding: "44px 20px 52px", borderTop: `1px solid ${C.grid}` }}>
+        <div style={{ maxWidth: 520, margin: "0 auto" }}>
+          <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 6, textAlign: "center" }}>Defterde Neler Var?</h2>
+          <p style={{ textAlign: "center", fontSize: 12.5, color: C.inkSoft, marginBottom: 28 }}>Tek sistemde, 5. sınıftan LGS'ye kadar ihtiyacın olan her şey.</p>
+
+          {[
+            { baslik: "📖 Öğrenme", ogeler: ["Sınırsız Konu Anlatımı (6 ders)", "Yeni Nesil Soru Çözümü", "Paragraf Stüdyosu (8 tür pratik)", "Formül ve Kural Kartları", "Kelime Kartları (İngilizce + Türkçe)", "Fotoğrafla Soru Çözme"] },
+            { baslik: "📝 Sınav Hazırlığı", ogeler: ["Deneme Sınavı", "Yazılı Hazırlığı", "Türkiye Geneli Deneme (gerçek sıralama)", "Bursluluk Sınavı (İOKBS) Hazırlığı", "Sınav Stratejisi Rehberi", "Sınav Kaygısı Desteği"] },
+            { baslik: "🎯 Kişisel Takip", ogeler: ["Zayıf Konu Haritası", "Aralıklı Tekrar Sistemi", "Haftalık Çalışma Planı", "Hedef Okulum ve Puan Hesaplayıcı", "Karne ve İlerleme Raporu", "Ara Tatil ve Yaz Tatili Programları"] },
+            { baslik: "👥 İnsan Desteği", ogeler: ["Öğretmenle Görüntülü Özel Ders", "Rehber Öğretmenle Danışmanlık", "Veli Paneli (canlı takip)", "Kurum/Okul Paneli (toplu rapor)"] },
+          ].map((grup, gi) => (
+            <div key={gi} style={{ marginBottom: 22 }}>
+              <p style={{ fontWeight: 800, fontSize: 13.5, marginBottom: 10, color: C.red }}>{grup.baslik}</p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "7px 12px" }}>
+                {grup.ogeler.map((oge, oi) => (
+                  <div key={oi} style={{ display: "flex", alignItems: "flex-start", gap: 6, fontSize: 12, color: C.inkSoft, lineHeight: 1.4 }}>
+                    <span style={{ color: C.green, fontWeight: 800, flexShrink: 0 }}>✓</span>{oge}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </KareliArkaplan>
+
+      {/* ==== RAKIP KARSILASTIRMA ==== */}
+      <div style={{ padding: "44px 20px 52px", maxWidth: 520, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 6, textAlign: "center" }}>Neye Göre Farklı?</h2>
+        <p style={{ textAlign: "center", fontSize: 12.5, color: C.inkSoft, marginBottom: 24 }}>Piyasadaki dershane ve dijital paketlerle dürüst bir karşılaştırma.</p>
+
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", minWidth: 480, fontSize: 12.5 }}>
+            <thead>
+              <tr>
+                <td style={{ padding: "10px 8px", fontWeight: 700, fontSize: 11, color: C.inkSoft }}></td>
+                <td style={{ padding: "10px 8px", fontWeight: 800, textAlign: "center", background: C.red, color: "#fff", borderRadius: "10px 10px 0 0" }}>Karemux</td>
+                <td style={{ padding: "10px 8px", fontWeight: 700, textAlign: "center", color: C.inkSoft }}>Geleneksel Dershane</td>
+                <td style={{ padding: "10px 8px", fontWeight: 700, textAlign: "center", color: C.inkSoft }}>Statik Soru Bankası Uygulamaları</td>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ["Yıllık Fiyat", "2.999₺'den başlar", "30.000–180.000₺", "Genelde daha ucuz ama sınırlı"],
+                ["Soru Kaynağı", "AI ile anlık, sınırsız üretim", "Basılı kitap + kaynak", "Sabit, önceden hazırlanmış havuz"],
+                ["Kişiselleştirme", "Her öğrenciye özel, gerçek zamanlı", "Sınıf ortalamasına göre", "Genellikle yok / sınırlı"],
+                ["Gerçek Öğretmen", "İsteğe bağlı, görüntülü randevu", "Zorunlu, sabit program", "Yok"],
+                ["Esneklik", "İstediğin an, istediğin yerden", "Sabit ders saatleri", "İstediğin an"],
+              ].map((satir, si) => (
+                <tr key={si} style={{ borderBottom: `1px solid ${C.grid}` }}>
+                  {satir.map((h, hi) => (
+                    <td key={hi} style={{
+                      padding: "11px 8px", textAlign: hi === 0 ? "left" : "center",
+                      fontWeight: hi === 0 ? 700 : hi === 1 ? 700 : 500,
+                      color: hi === 1 ? C.ink : C.inkSoft,
+                      background: hi === 1 ? C.redSoft : "transparent",
+                    }}>{h}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p style={{ fontSize: 10, color: C.inkSoft, marginTop: 12, fontStyle: "italic", textAlign: "center" }}>
+          Rakip fiyat aralıkları, ilgili firmaların herkese açık web sitelerinden alınan güncel bilgilere dayanır.
+        </p>
+      </div>
+
       {/* ==== KAPANIS CTA ==== */}
       <div style={{ padding: "48px 20px 60px", textAlign: "center" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(22px, 6vw, 30px)", marginBottom: 14 }}>Kalemini al, başla.</h2>
