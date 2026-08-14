@@ -1731,6 +1731,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     seviyeKademeIlerlet(seviyeOnayTest.kademeId, basariliMi);
   }
 
+  const [seviyeKonuAcikId, setSeviyeKonuAcikId] = useState(null);
+  const [seviyeKonuMetni, setSeviyeKonuMetni] = useState("");
+  const [seviyeKonuYukleniyor, setSeviyeKonuYukleniyor] = useState(false);
+
+  async function seviyeKonuAnlatimiGetir(u) {
+    if (seviyeKonuAcikId === u.id) { setSeviyeKonuAcikId(null); return; } // tekrar tiklarsa kapansin
+    setSeviyeKonuAcikId(u.id); setSeviyeKonuMetni(""); setSeviyeKonuYukleniyor(true); setHata("");
+    try {
+      const p = `Sen deneyimli bir "${u.ders}" ogretmenisin. "${u.unite}" konusunu, ${u.kaynak_sinif}. sinif seviyesinde bir ogrenciye, sade ve anlasilir bir dille anlat. Once kisa bir giris, sonra ana kavramlar (her biri icin tanim ve somut ornek), sonda 2 maddelik "dikkat edilecek noktalar". Toplam 300-400 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz.`;
+      const cevap = await aiIstek(p, 2500, cihazIdRef.current);
+      setSeviyeKonuMetni(cevap);
+    } catch (e) {
+      setSeviyeKonuMetni("Konu anlatimi yuklenemedi, tekrar dene.");
+    } finally {
+      setSeviyeKonuYukleniyor(false);
+    }
+  }
+
   const [sistemIstatistik, setSistemIstatistik] = useState(null);
   useEffect(() => {
     fetch("/api/istatistik").then((r) => r.json()).then(setSistemIstatistik).catch(() => {});
@@ -2975,6 +2993,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <div>
               <p style={{ fontSize: 14, fontWeight: 800, color: COLORS.page }}>Bugün {tekrarSayisi} tekrar seni bekliyor</p>
               <p style={{ fontSize: 11, color: COLORS.page, opacity: 0.55 }}>Unutmadan pekiştirmek için hemen bak →</p>
+            </div>
+          </button>
+        )}
+
+        {mod === "bos" && !secilenDers && hesap && seviyeDurum && seviyeDurum.toplamZayif > seviyeDurum.tamamlanan && (
+          <button onClick={() => { setSecilenDers(null); setMod("seviyetamamlama"); }} className="kx-fadein kx-btn" style={{ width: "100%", textAlign: "left", background: COLORS.coral, border: "none", borderRadius: 14, padding: "14px 18px", marginBottom: 16, display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
+            <span style={{ fontSize: 26 }}>🎯</span>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>{seviyeDurum.toplamZayif - seviyeDurum.tamamlanan} konuda seviye eksigin var</p>
+              <p style={{ fontSize: 11, color: "#fff", opacity: 0.85 }}>4-5. sinif temelini saglamlastir →</p>
             </div>
           </button>
         )}
@@ -4629,7 +4657,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <p style={{ fontSize: 10.5, color: COLORS.muted, margin: "4px 0 10px" }}>Kademe {u.kademe}/3 — {u.kademe === 1 ? "Konu anlatimini incele" : u.kademe === 2 ? "Pratik sorular coz" : "Onay testi ver"}</p>
                         {u.kademe === 1 && (
                           <>
-                            <p style={{ fontSize: 10.5, color: COLORS.muted, marginBottom: 8 }}>Ders Calisma Odasi'ndan "{u.ders}" secip, {u.kaynak_sinif}. sinif konularindan "{u.unite}"yi incele.</p>
+                            <button onClick={() => seviyeKonuAnlatimiGetir(u)} style={{ padding: "7px 14px", borderRadius: 7, border: `1.5px solid ${COLORS.coral}`, background: seviyeKonuAcikId === u.id ? COLORS.coral : "transparent", color: seviyeKonuAcikId === u.id ? "#fff" : COLORS.coral, fontWeight: 700, fontSize: 11.5, cursor: "pointer", marginBottom: 8 }}>
+                              {seviyeKonuAcikId === u.id ? "Konuyu Kapat ▲" : "📖 Konuyu Simdi Oku"}
+                            </button>
+                            {seviyeKonuAcikId === u.id && (
+                              <div style={{ background: "#FAF6EE", borderRadius: 8, padding: 12, marginBottom: 8, fontSize: 11.5, lineHeight: 1.7, color: COLORS.ink, whiteSpace: "pre-wrap" }}>
+                                {seviyeKonuYukleniyor ? "Hazirlaniyor..." : seviyeKonuMetni}
+                              </div>
+                            )}
+                            <br />
                             <button onClick={() => seviyeKademeIlerlet(u.id)} disabled={seviyeKademeIslemde === u.id} style={{ padding: "7px 14px", borderRadius: 7, border: "none", background: COLORS.ink, color: COLORS.page, fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
                               {seviyeKademeIslemde === u.id ? "..." : "Okudum, Devam Et"}
                             </button>
