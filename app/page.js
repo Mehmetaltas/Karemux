@@ -5135,6 +5135,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       </div>
                     )}
 
+                    {o.oneri && (
+                      <div style={{ background: "#EAF2FF", borderRadius: 8, padding: 10, marginBottom: 10 }}>
+                        <p style={{ fontSize: 11.5, color: "#2C5AA3", fontWeight: 600 }}>{"\uD83D\uDCA1"} {o.oneri}</p>
+                      </div>
+                    )}
+
+                    {o.enZayifKonular?.length > 0 && (
+                      <div style={{ marginBottom: 12 }}>
+                        <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>EN COK DESTEK GEREKEN KONULAR</p>
+                        {o.enZayifKonular.map((k, ki) => (
+                          <div key={ki} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
+                            <span>{k.alt_konu} <span style={{ color: COLORS.muted, fontSize: 10.5 }}>({k.ders})</span></span>
+                            <span style={{ fontWeight: 700, color: "#B23A2E" }}>{k.hata_sayisi}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
                     {o.zayifDersler.length > 0 && (
                       <div style={{ background: "#FFF1EF", borderRadius: 8, padding: 10, marginBottom: 10 }}>
                         <p style={{ fontSize: 11.5, color: "#B23A2E", fontWeight: 600 }}>⚠️ Zayıf dersler: {o.zayifDersler.join(", ")}</p>
