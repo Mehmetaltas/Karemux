@@ -1382,6 +1382,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [checkoutHtml, setCheckoutHtml] = useState("");
   const [odemeHata, setOdemeHata] = useState("");
+  const [odemeAdres, setOdemeAdres] = useState("");
+  const [odemeTcKimlikNo, setOdemeTcKimlikNo] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
   const [profilOkul, setProfilOkul] = useState("");
   const [profilIl, setProfilIl] = useState("");
@@ -2842,6 +2844,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       setOdemeHata("Odeme yapabilmek icin once giris yapmalisin.");
       return;
     }
+    if (!odemeAdres.trim()) {
+      setOdemeHata("Fatura adresini girmelisin.");
+      return;
+    }
+    if (!/^[1-9][0-9]{10}$/.test(odemeTcKimlikNo)) {
+      setOdemeHata("Gecerli bir TC kimlik numarasi girmelisin (11 hane).");
+      return;
+    }
     try {
       const [ad, ...soyadParcalari] = (hesap.ad || "Kullanici").split(" ");
       const soyad = soyadParcalari.join(" ") || "-";
@@ -2850,7 +2860,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           plan,
-          kullanici: { ad, soyad, eposta: hesap.eposta || "", adres: "Belirtilmedi", sehir: "Belirtilmedi" },
+          kullanici: { ad, soyad, eposta: hesap.eposta || "", adres: odemeAdres, sehir: "Istanbul", tcKimlikNo: odemeTcKimlikNo },
         }),
       });
       const data = await res.json();
@@ -4757,6 +4767,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   Sinirsiz konu anlatimi, soru uretimi ve calisma plani icin Premium'a gec.
                   <br /><em>Istedigin an, tek tikla, hic ugrasmadan iptal edebilirsin.</em>
                 </p>
+                <div style={{ marginBottom: 12 }}>
+                  <input type="text" placeholder="Fatura adresi" value={odemeAdres} onChange={(e) => setOdemeAdres(e.target.value)}
+                    style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 6, fontSize: 13 }} />
+                  <input type="text" placeholder="TC Kimlik No (11 hane)" value={odemeTcKimlikNo}
+                    onChange={(e) => setOdemeTcKimlikNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                    style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, fontSize: 13 }} />
+                </div>
                 <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                   <button onClick={() => premiumSatinAl("premium_aylik")} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>
                     Aylik 99,90₺
