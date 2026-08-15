@@ -2620,7 +2620,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}, ona ismiyle hitap et.` : "",
         ilerlemeOzeti ? `Guncel ilerlemesi: ${ilerlemeOzeti}. Bu gercek veriyi dikkate alarak konus.` : "",
       ].filter(Boolean).join(" ");
-      const p = `Sen bir LGS calisma kocususun - samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}. Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (150-200 kelime) bir konusma metni - programi ozetle, plato/basari notunu ekle. (2) "program": Pazartesi'den Pazar'a kadar HER GUN icin bir gorev nesnesi (bos gunler icin de "Dinlenme" gibi bir ders yaz) - {"gun":"Pazartesi","ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev tanimi"}. SADECE su JSON formatinda don, baska aciklama ekleme, markdown kullanma:
+      let konuOzeti = "";
+      try {
+        const istRes = await fetch(`/api/hata-kitapcigi?cihazId=${cihazIdRef.current}&istatistik=true`);
+        const istVeri = await istRes.json();
+        const istatistik = istVeri.istatistik || [];
+        const dersBazli = {};
+        istatistik.forEach((r) => {
+          if (!dersBazli[r.ders]) dersBazli[r.ders] = [];
+          dersBazli[r.ders].push(r);
+        });
+        konuOzeti = Object.keys(dersBazli).map((d) => {
+          const enZayif = dersBazli[d].sort((a, b) => b.hata_sayisi - a.hata_sayisi).slice(0, 3).map((r) => r.alt_konu).join(", ");
+          return `${d}: ${enZayif}`;
+        }).join("; ");
+      } catch (e) { /* istatistik alinamazsa genel devam et */ }
+      const p = `Sen bir LGS calisma kocususun - samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}.${konuOzeti ? ` En cok zorlandigi ALT KONULAR (oncelik sirasiyla): ${konuOzeti}. Gorevleri mumkun oldugunca bu SPESIFIK konulara gore yaz, genel ders adiyla yetinme.` : ""} Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (150-200 kelime) bir konusma metni - programi ozetle, plato/basari notunu ekle. (2) "program": Pazartesi'den Pazar'a kadar HER GUN icin bir gorev nesnesi (bos gunler icin de "Dinlenme" gibi bir ders yaz) - {"gun":"Pazartesi","ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev tanimi"}. SADECE su JSON formatinda don, baska aciklama ekleme, markdown kullanma:
 {"mesaj":"...","program":[{"gun":"Pazartesi","ders":"...","gorev":"..."},{"gun":"Sali","ders":"...","gorev":"..."},{"gun":"Carsamba","ders":"...","gorev":"..."},{"gun":"Persembe","ders":"...","gorev":"..."},{"gun":"Cuma","ders":"...","gorev":"..."},{"gun":"Cumartesi","ders":"...","gorev":"..."},{"gun":"Pazar","ders":"...","gorev":"..."}]}`;
       const cevap = await aiIstek(p, 2200, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").trim();
