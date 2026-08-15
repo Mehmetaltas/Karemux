@@ -25,7 +25,44 @@ export async function GET(req) {
     const params = new URL(req.url).searchParams;
     const cihazId = params.get("cihazId");
     const ders = params.get("ders");
+    const istatistikMi = params.get("istatistik") === "true";
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
+
+    if (istatistikMi) {
+      if (!kullaniciId) return Response.json({ istatistik: [] });
+
+      const hataGrup = await sql`
+        SELECT ders, alt_konu, COUNT(*)::int AS hata_sayisi
+        FROM hata_kitapcigi
+        WHERE kullanici_id = ${kullaniciId} AND cozuldu = false AND alt_konu IS NOT NULL
+        GROUP BY ders, alt_konu
+      `;
+
+      const seviyeGrup = await sql`
+        SELECT ders, unite AS alt_konu, (COUNT(*)::int * 3) AS hata_sayisi
+        FROM seviye_tespit_kademe
+        WHERE kullanici_id = ${kullaniciId} AND tamamlandi = false
+        GROUP BY ders, unite
+      `;
+
+      const sinavGrup = await sql`
+        SELECT ders,
+          CASE tur
+            WHEN 'deneme' THEN 'Deneme Sinavlari'
+            WHEN 'yazili1' THEN 'Yazili 1'
+            WHEN 'yazili2' THEN 'Yazili 2'
+            WHEN 'yazili3' THEN 'Yazili 3'
+            ELSE tur
+          END AS alt_konu,
+          SUM(yanlis)::int AS hata_sayisi
+        FROM sinav_sonuclari
+        WHERE kullanici_id = ${kullaniciId} AND yanlis > 0
+        GROUP BY ders, tur
+      `;
+
+      const istatistik = [...hataGrup, ...seviyeGrup, ...sinavGrup].filter((r) => r.hata_sayisi > 0);
+      return Response.json({ istatistik });
+    }
 
     const kayitlar = kullaniciId
       ? await sql`
