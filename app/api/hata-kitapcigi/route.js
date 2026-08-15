@@ -52,15 +52,26 @@ export async function GET(req) {
             WHEN 'yazili1' THEN 'Yazili 1'
             WHEN 'yazili2' THEN 'Yazili 2'
             WHEN 'yazili3' THEN 'Yazili 3'
-            ELSE tur
           END AS alt_konu,
           SUM(yanlis)::int AS hata_sayisi
         FROM sinav_sonuclari
-        WHERE kullanici_id = ${kullaniciId} AND yanlis > 0
+        WHERE kullanici_id = ${kullaniciId} AND yanlis > 0 AND tur IN ('deneme','yazili1','yazili2','yazili3')
         GROUP BY ders, tur
       `;
 
-      const istatistik = [...hataGrup, ...seviyeGrup, ...sinavGrup].filter((r) => r.hata_sayisi > 0);
+      // "ders_seviye" turunde ders alani "GercekDers::Unite" seklinde birlesik kaydediliyor -
+      // burada ayristirip gercek konu adiyla gosteriyoruz.
+      const dersSeviyeGrup = await sql`
+        SELECT
+          split_part(ders, '::', 1) AS ders,
+          split_part(ders, '::', 2) AS alt_konu,
+          SUM(yanlis)::int AS hata_sayisi
+        FROM sinav_sonuclari
+        WHERE kullanici_id = ${kullaniciId} AND yanlis > 0 AND tur = 'ders_seviye' AND ders LIKE '%::%'
+        GROUP BY split_part(ders, '::', 1), split_part(ders, '::', 2)
+      `;
+
+      const istatistik = [...hataGrup, ...seviyeGrup, ...sinavGrup, ...dersSeviyeGrup].filter((r) => r.hata_sayisi > 0);
       return Response.json({ istatistik });
     }
 
