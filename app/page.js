@@ -1739,7 +1739,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (seviyeKonuAcikId === u.id) { setSeviyeKonuAcikId(null); return; } // tekrar tiklarsa kapansin
     setSeviyeKonuAcikId(u.id); setSeviyeKonuMetni(""); setSeviyeKonuYukleniyor(true); setHata("");
     try {
-      const p = `Sen deneyimli bir "${u.ders}" ogretmenisin. "${u.unite}" konusunu, ${u.kaynak_sinif}. sinif seviyesinde bir ogrenciye, sade ve anlasilir bir dille anlat. Once kisa bir giris, sonra ana kavramlar (her biri icin tanim ve somut ornek), sonda 2 maddelik "dikkat edilecek noktalar". Toplam 300-400 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz.`;
+      const p = `Sen deneyimli bir "${u.ders}" ogretmenisin. "${u.unite}" konusunu, ${u.kaynak_sinif}. sinif seviyesinde bir ogrenciye, MEB mufredati kazanimlarina sadik kalarak, sade ve anlasilir bir dille anlat. Once kisa bir giris, sonra ana kavramlar (her biri icin tanim, somut bir gunluk hayat ornegi ve kisa bir cozumlu ornek), sonda 3 maddelik "dikkat edilecek noktalar / sik yapilan hatalar". Toplam 450-600 kelime, konuyu yuzeysel gecme, gercek bir ders anlatimi kadar derinlikli olsun. SADECE duz metin yaz, markdown/LaTeX kullanma. Tum metin SADECE Turkce olmali, Latin alfabesi disinda (Kiril, Cince, Arapca vb.) TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Ispanyolca gibi bati dillerinden de TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, 2500, cihazIdRef.current);
       setSeviyeKonuMetni(cevap);
     } catch (e) {
