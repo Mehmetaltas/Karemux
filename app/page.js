@@ -1364,6 +1364,43 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  const [ulusalOptikYukleniyor, setUlusalOptikYukleniyor] = useState(false);
+  const [ulusalOptikHata, setUlusalOptikHata] = useState("");
+
+  async function ulusalOptikOkumaYap(dosya) {
+    if (!dosya || !ulusalSorular) return;
+    setUlusalOptikYukleniyor(true); setUlusalOptikHata("");
+    try {
+      const base64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(",")[1]);
+        r.onerror = () => rej(new Error("Dosya okunamadi"));
+        r.readAsDataURL(dosya);
+      });
+      const res = await fetch("/api/optik-okuma", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: base64, mediaType: dosya.type, soruSayisi: ulusalSorular.length, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Optik okuma basarisiz");
+
+      const harfIndex = { A: 0, B: 1, C: 2, D: 3 };
+      const yeniCevaplar = {};
+      data.cevaplar.forEach((harf, i) => {
+        if (harf && harfIndex[harf.toUpperCase()] !== undefined) yeniCevaplar[i] = harfIndex[harf.toUpperCase()];
+      });
+      setUlusalCevaplar((eski) => ({ ...eski, ...yeniCevaplar }));
+      const okunanSayi = Object.keys(yeniCevaplar).length;
+      if (okunanSayi < ulusalSorular.length) {
+        setUlusalOptikHata(`${okunanSayi}/${ulusalSorular.length} cevap okunabildi - kalanlari elle isaretleyebilirsin.`);
+      }
+    } catch (e) {
+      setUlusalOptikHata(e.message || "Optik okuma basarisiz, tekrar dene.");
+    } finally {
+      setUlusalOptikYukleniyor(false);
+    }
+  }
+
   const [denemeGonderildi, setDenemeGonderildi] = useState(false);
   const [aciklama, setAciklama] = useState("");
   const [quiz, setQuiz] = useState(null);
@@ -5223,6 +5260,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 12.5, fontWeight: 700 }}>{ulusalAktif.ad}</p>
                   <p style={{ fontSize: 11, color: COLORS.muted }}>{ulusalAktif.sinif}. Sınıf · {ulusalAktif.ders} · {ulusalAktif.soruSayisi} soru</p>
                   <p style={{ fontSize: 10.5, color: COLORS.coral, marginTop: 4, fontWeight: 600 }}>Kapanış: {new Date(ulusalAktif.kapanis).toLocaleString("tr-TR")}</p>
+                </div>
+                <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
+                  <label style={{ cursor: "pointer" }}>
+                    <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+                      onChange={(e) => { const f = e.target.files[0]; if (f) ulusalOptikOkumaYap(f); }} />
+                    <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
+                      {ulusalOptikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
+                    </span>
+                  </label>
+                  <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Kagida isaretlediğin (A/B/C/D) cevapların fotoğrafını yükle, otomatik doldursun.</p>
+                  {ulusalOptikHata && <p style={{ fontSize: 11.5, color: COLORS.coral, marginTop: 6, fontWeight: 600 }}>{ulusalOptikHata}</p>}
                 </div>
                 {ulusalSorular.map((s, i) => (
                   <div key={i} style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
