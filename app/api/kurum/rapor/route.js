@@ -62,6 +62,21 @@ export async function GET(req) {
       LIMIT 10
     `;
 
+    const ulusalKarsilastirma = await sql`
+      SELECT
+        ud.id, ud.ad, ud.ders, ud.sinif,
+        ROUND(AVG(uds.net) FILTER (WHERE uds.kurum_id = ${kurumId})::numeric, 2) AS kurum_ortalama,
+        ROUND(AVG(uds.net)::numeric, 2) AS turkiye_ortalama,
+        COUNT(*) FILTER (WHERE uds.kurum_id = ${kurumId})::int AS kurum_katilimci,
+        COUNT(*)::int AS turkiye_katilimci
+      FROM ulusal_deneme_sonuclari uds
+      JOIN ulusal_denemeler ud ON ud.id = uds.ulusal_deneme_id
+      GROUP BY ud.id, ud.ad, ud.ders, ud.sinif
+      HAVING COUNT(*) FILTER (WHERE uds.kurum_id = ${kurumId}) > 0
+      ORDER BY ud.id DESC
+      LIMIT 10
+    `;
+
     return Response.json({
       kurumAdi: kurum[0].ad,
       ogrenciSayisi: Number(ogrenciSayisi[0].sayi),
@@ -71,6 +86,7 @@ export async function GET(req) {
       sinifDagilimi,
       dersBazindaNet,
       zayifKonular,
+      ulusalKarsilastirma,
     });
   } catch (e) {
     console.error(e);
