@@ -26,6 +26,6 @@ jobs:
       - name: Basarisizlik bildirimi (Telegram)
         if: failure()
         run: |
-          curl -s "https://api.telegram.org/bot${{ secrets.ADMIN_TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          curl -s "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
             -d chat_id="${{ secrets.ADMIN_TELEGRAM_CHAT_ID }}" \
             -d text="🔴 KAREMUX Health Check BASARISIZ OLDU. Detaylar: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
