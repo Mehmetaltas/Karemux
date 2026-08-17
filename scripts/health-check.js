@@ -164,19 +164,211 @@ async function senaryoTestiCalistir() {
   return { gecen, toplam };
 }
 
+// Zincirin gercekten calistigini dener: Hata Kitapcigi -> Zayif Konu Haritasi.
+// Bir test kullanicisi olusturur, POST /api/hata-kitapcigi ile bir "yanlis cevap"
+// kaydeder, sonra GET /api/hata-kitapcigi?istatistik=true ile bu kaydin haritada
+// gercekten gorunup gorunmedigini dogrular. Sonunda hepsini temizler.
+async function entegrasyonTestiCalistir() {
+  console.log("\n=== ENTEGRASYON TESTI (Hata Kitapcigi -> Zayif Konu Haritasi) ===");
+  let gecen = 0, toplam = 0;
+  const testEposta = `healthcheck-entegrasyon-${Date.now()}@example.com`;
+  const isaretKonu = `HealthCheckKonu-${Date.now()}`;
+  let cerez = null;
+
+  toplam++;
+  try {
+    const res = await fetch(`${BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.HEALTH_CHECK_SECRET ? { "x-health-check-secret": process.env.HEALTH_CHECK_SECRET } : {}),
+      },
+      body: JSON.stringify({
+        eposta: testEposta, sifre: "TestSifre123", ad: "Health Check Entegrasyon",
+        rol: "ogrenci", veliEposta: `healthcheck-entegrasyon-veli-${Date.now()}@example.com`,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      cerez = res.headers.get("set-cookie");
+      console.log("  OK   Test hesabi olusturuldu");
+      gecen++;
+    } else {
+      console.log(`  RED  Kayit basarisiz: ${data.error || res.status}`);
+    }
+  } catch (e) {
+    console.log(`  RED  Kayit istegi basarisiz: ${e.message}`);
+  }
+
+  if (cerez) {
+    toplam++;
+    try {
+      const res = await fetch(`${BASE_URL}/api/hata-kitapcigi`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: cerez },
+        body: JSON.stringify({
+          ders: "Matematik", altKonu: isaretKonu,
+          soru: "Health check test sorusu", secenekler: ["A", "B", "C", "D"],
+          dogruIndex: 0, verilenIndex: 1,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        console.log("  OK   Hata kitapcigina kayit yazildi");
+        gecen++;
+      } else {
+        console.log(`  RED  Hata kitapcigina yazilamadi: ${JSON.stringify(data)}`);
+      }
+    } catch (e) {
+      console.log(`  RED  Hata kitapcigi istegi basarisiz: ${e.message}`);
+    }
+
+    toplam++;
+    try {
+      const res = await fetch(`${BASE_URL}/api/hata-kitapcigi?istatistik=true`, { headers: { Cookie: cerez } });
+      const data = await res.json();
+      const bulundu = (data.istatistik || []).some((r) => r.alt_konu === isaretKonu);
+      if (res.ok && bulundu) {
+        console.log("  OK   Zayif Konu Haritasi'nda goruldu (zincir calisiyor)");
+        gecen++;
+      } else {
+        console.log("  RED  Zayif Konu Haritasi'nda GORUNMEDI - zincir kopuk olabilir");
+      }
+    } catch (e) {
+      console.log(`  RED  Istatistik istegi basarisiz: ${e.message}`);
+    }
+  } else {
+    console.log("  ATLA Kayit basarisiz oldugu icin sonraki adimlar atlandi");
+  }
+
+  if (process.env.DATABASE_URL) {
+    try {
+      const sql = neon(process.env.DATABASE_URL);
+      await sql`DELETE FROM hata_kitapcigi WHERE alt_konu = ${isaretKonu}`;
+      await sql`DELETE FROM kullanicilar WHERE eposta = ${testEposta} OR eposta LIKE ${"healthcheck-entegrasyon-veli-%@example.com"}`;
+      console.log("  TEMIZ Test verisi silindi");
+    } catch (e) {
+      console.log(`  UYARI Temizlik basarisiz: ${e.message}`);
+    }
+  }
+
+  return { gecen, toplam };
+}
+
+// Yetki sizintisi olup olmadigini dener: (1) girissiz istek korumali uca erisemiyor
+// mu, (2) bir ogrenci baska bir ogrencinin verisini gorebiliyor mu.
+async function rolYetkiTestiCalistir() {
+  console.log("\n=== ROL/YETKI TESTI ===");
+  let gecen = 0, toplam = 0;
+
+  toplam++;
+  try {
+    const res = await fetch(`${BASE_URL}/api/veli/ilerleme`);
+    if (res.status === 401) {
+      console.log("  OK   Girissiz istek /api/veli/ilerleme'ye erisemiyor (401)");
+      gecen++;
+    } else {
+      console.log(`  RED  Girissiz istek beklenmedik durum kodu dondu: ${res.status}`);
+    }
+  } catch (e) {
+    console.log(`  RED  Istek basarisiz: ${e.message}`);
+  }
+
+  const zamanDamgasi = Date.now();
+  const epostaA = `healthcheck-yetki-a-${zamanDamgasi}@example.com`;
+  const epostaB = `healthcheck-yetki-b-${zamanDamgasi}@example.com`;
+  const isaretKonu = `HealthCheckYetki-${zamanDamgasi}`;
+  let cerezA = null, cerezB = null;
+
+  async function kayitOl(eposta) {
+    const res = await fetch(`${BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.HEALTH_CHECK_SECRET ? { "x-health-check-secret": process.env.HEALTH_CHECK_SECRET } : {}),
+      },
+      body: JSON.stringify({
+        eposta, sifre: "TestSifre123", ad: "Health Check Yetki",
+        rol: "ogrenci", veliEposta: `healthcheck-yetki-veli-${zamanDamgasi}-${Math.random()}@example.com`,
+      }),
+    });
+    const data = await res.json();
+    return res.ok && data.ok ? res.headers.get("set-cookie") : null;
+  }
+
+  toplam++;
+  try {
+    cerezA = await kayitOl(epostaA);
+    cerezB = await kayitOl(epostaB);
+    if (cerezA && cerezB) {
+      console.log("  OK   Iki ayri test hesabi olusturuldu");
+      gecen++;
+    } else {
+      console.log("  RED  Test hesaplari olusturulamadi");
+    }
+  } catch (e) {
+    console.log(`  RED  Kayit basarisiz: ${e.message}`);
+  }
+
+  if (cerezA && cerezB) {
+    toplam++;
+    try {
+      await fetch(`${BASE_URL}/api/hata-kitapcigi`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Cookie: cerezA },
+        body: JSON.stringify({
+          ders: "Matematik", altKonu: isaretKonu,
+          soru: "Yetki testi sorusu", secenekler: ["A", "B", "C", "D"],
+          dogruIndex: 0, verilenIndex: 1,
+        }),
+      });
+      const res = await fetch(`${BASE_URL}/api/hata-kitapcigi?istatistik=true`, { headers: { Cookie: cerezB } });
+      const data = await res.json();
+      const sizinti = (data.istatistik || []).some((r) => r.alt_konu === isaretKonu);
+      if (!sizinti) {
+        console.log("  OK   B hesabi, A'nin verisini GOREMIYOR (izolasyon saglam)");
+        gecen++;
+      } else {
+        console.log("  RED  KRITIK: B hesabi A'nin verisini GOREBILIYOR - yetki sizintisi!");
+      }
+    } catch (e) {
+      console.log(`  RED  Izolasyon testi basarisiz: ${e.message}`);
+    }
+  } else {
+    console.log("  ATLA Test hesaplari olusmadigi icin izolasyon testi atlandi");
+  }
+
+  if (process.env.DATABASE_URL) {
+    try {
+      const sql = neon(process.env.DATABASE_URL);
+      await sql`DELETE FROM hata_kitapcigi WHERE alt_konu = ${isaretKonu}`;
+      await sql`DELETE FROM kullanicilar WHERE eposta IN (${epostaA}, ${epostaB}) OR eposta LIKE ${`healthcheck-yetki-veli-${zamanDamgasi}%`}`;
+      console.log("  TEMIZ Test verisi silindi");
+    } catch (e) {
+      console.log(`  UYARI Temizlik basarisiz: ${e.message}`);
+    }
+  }
+
+  return { gecen, toplam };
+}
+
 (async () => {
   console.log(`KAREMUX HEALTH CHECK — ${new Date().toISOString()}`);
   const db = await veritabaniKontrolEt();
   const api = await apiKontrolEt();
   const senaryo = await senaryoTestiCalistir();
+  const entegrasyon = await entegrasyonTestiCalistir();
+  const rolYetki = await rolYetkiTestiCalistir();
 
-  const toplamGecen = db.gecen + api.gecen + senaryo.gecen;
-  const toplamTest = db.toplam + api.toplam + senaryo.toplam;
+  const toplamGecen = db.gecen + api.gecen + senaryo.gecen + entegrasyon.gecen + rolYetki.gecen;
+  const toplamTest = db.toplam + api.toplam + senaryo.toplam + entegrasyon.toplam + rolYetki.toplam;
   console.log("\n=== SONUC ===");
-  console.log(`Database: ${db.gecen}/${db.toplam}`);
-  console.log(`API:      ${api.gecen}/${api.toplam}`);
-  console.log(`Senaryo:  ${senaryo.gecen}/${senaryo.toplam}`);
-  console.log(`TOPLAM:   ${toplamGecen}/${toplamTest} ${toplamGecen === toplamTest ? "— HEPSI GECTI" : "— BAZI TESTLER BASARISIZ"}`);
+  console.log(`Database:    ${db.gecen}/${db.toplam}`);
+  console.log(`API:         ${api.gecen}/${api.toplam}`);
+  console.log(`Senaryo:     ${senaryo.gecen}/${senaryo.toplam}`);
+  console.log(`Entegrasyon: ${entegrasyon.gecen}/${entegrasyon.toplam}`);
+  console.log(`Rol/Yetki:   ${rolYetki.gecen}/${rolYetki.toplam}`);
+  console.log(`TOPLAM:      ${toplamGecen}/${toplamTest} ${toplamGecen === toplamTest ? "— HEPSI GECTI" : "— BAZI TESTLER BASARISIZ"}`);
 
   process.exit(toplamGecen === toplamTest ? 0 : 1);
 })();
