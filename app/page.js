@@ -2336,6 +2336,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [adGir, setAdGir] = useState("");
   const [rolSec, setRolSec] = useState("ogrenci"); // "ogrenci" | "veli"
   const [veliEpostaGir, setVeliEpostaGir] = useState("");
+  const [veliOnayMesaj, setVeliOnayMesaj] = useState("");
   const [hesapHata, setHesapHata] = useState("");
   const [sifreUnutAcik, setSifreUnutAcik] = useState(false);
   const [sifreUnutAsama, setSifreUnutAsama] = useState("eposta"); // "eposta" | "kod"
@@ -2533,6 +2534,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       setDogrulamaMesaj("Yeni kod gonderildi, gelen kutunu kontrol et.");
     } catch (e) {
       setDogrulamaMesaj(e.message || "Kod gonderilemedi");
+    }
+  }
+
+  async function veliOnayTekrarGonder() {
+    setVeliOnayMesaj("");
+    try {
+      const res = await fetch("/api/auth/veli-onay-tekrar", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setVeliOnayMesaj("Onay maili velinin e-postasina tekrar gonderildi.");
+    } catch (e) {
+      setVeliOnayMesaj(e.message || "Gonderilemedi");
     }
   }
 
@@ -4304,6 +4317,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                     <button onClick={kodTekrarGonder} style={{ marginTop: 8, padding: 0, border: "none", background: "none", color: COLORS.muted, fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>Kodu tekrar gonder</button>
                     {dogrulamaMesaj && <p style={{ fontSize: 12, marginTop: 6 }}>{dogrulamaMesaj}</p>}
+                  </div>
+                )}
+
+                {hesap.rol === "ogrenci" && !hesap.veli_onay_verildi && (
+                  <div style={{ background: "#FFF1EF", border: `1.5px solid ${COLORS.coral}`, borderRadius: 8, padding: 12, margin: "10px 0" }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>⚠ Veli onayi bekleniyor</p>
+                    <p style={{ fontSize: 12.5, color: COLORS.muted, marginBottom: 8, lineHeight: 1.5 }}>
+                      {hesap.veli_eposta || "Kayitli veli e-postan"} adresine bir onay maili gonderildi. Veli/ebeveynin
+                      linke tiklayana kadar bazi ozellikler kisitli kalabilir.
+                    </p>
+                    <button onClick={veliOnayTekrarGonder} style={{ padding: "7px 12px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                      Onay mailini tekrar gonder
+                    </button>
+                    {veliOnayMesaj && <p style={{ fontSize: 12, marginTop: 6 }}>{veliOnayMesaj}</p>}
                   </div>
                 )}
 
