@@ -464,11 +464,11 @@ function cihazIdAl() {
 
 // Tarayicidan DOGRUDAN Anthropic'e degil, kendi /api/claude route'umuza istek atiyoruz.
 // API anahtari sadece sunucuda (Vercel env) tutulur.
-async function aiIstek(prompt, maxTokens, cihazId, jsonModu) {
+async function aiIstek(prompt, maxTokens, cihazId, jsonModu, ragDersi) {
   const res = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, maxTokens, cihazId, jsonModu }),
+    body: JSON.stringify({ prompt, maxTokens, cihazId, jsonModu, ragDersi }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "AI istegi basarisiz");
@@ -1134,7 +1134,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         ? ` SADECE su alt basliklara odaklan: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarina girme.`
         : "";
       const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, piyasadaki en iyi LGS yayinlarindan daha derin ve daha kullanisli bir sekilde anlat.${temelUyarisi}${kapsamSiniri} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) "HIZLI COZUM IPUCLARI" basligiyla, sinavda zaman kazandiran 2-3 pratik kisayol/teknik (piyasa yayinlarinin en degerli ozelligi budur, mutlaka ekle). (4) Eger konu birden fazla cozum yontemine uygunsa, "FARKLI COZUM YOLLARI" basligiyla ayni ornegi EN AZ IKI farkli yontemle coz (orn. cebirsel ve gorsel/sekilsel yontem gibi) - degilse bu basligi atla. (5) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 500-650 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
-      const cevap = await aiIstek(p, 4200, cihazIdRef.current);
+      const cevap = await aiIstek(p, 4200, cihazIdRef.current, false, secilenDers);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
