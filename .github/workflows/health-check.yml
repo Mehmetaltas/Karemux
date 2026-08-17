@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'  # her 6 saatte bir otomatik calisir (kod gonderilmese bile)
 
 jobs:
   health-check:
@@ -20,3 +22,9 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXT_PUBLIC_SITE_URL: https://karemux-nu.vercel.app
         run: node scripts/health-check.js
+      - name: Basarisizlik bildirimi (Telegram)
+        if: failure()
+        run: |
+          curl -s "https://api.telegram.org/bot${{ secrets.ADMIN_TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.ADMIN_TELEGRAM_CHAT_ID }}" \
+            -d text="🔴 KAREMUX Health Check BASARISIZ OLDU. Detaylar: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

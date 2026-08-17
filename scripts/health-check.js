@@ -84,16 +84,95 @@ async function apiKontrolEt() {
   return { gecen, toplam };
 }
 
+// Gercek bir kullanicinin yasayacagi akisi uctan uca dener: kayit ol -> giris
+// yapilmis oturumu dogrula -> soru bankasindan soru cek. Test sonunda olusturdugu
+// hesabi veritabanindan TEMIZLER, kalinti birakmaz.
+async function senaryoTestiCalistir() {
+  console.log("\n=== SENARYO TESTI (E2E: kayit -> giris -> soru cekme) ===");
+  let gecen = 0, toplam = 0;
+  const testEposta = `healthcheck-${Date.now()}@example.com`;
+  let cerez = null;
+
+  toplam++;
+  try {
+    const res = await fetch(`${BASE_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        eposta: testEposta, sifre: "TestSifre123", ad: "Health Check Test",
+        rol: "ogrenci", veliEposta: `healthcheck-veli-${Date.now()}@example.com`,
+      }),
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      cerez = res.headers.get("set-cookie");
+      console.log(`  OK   Kayit olusturuldu (${testEposta})`);
+      gecen++;
+    } else {
+      console.log(`  RED  Kayit basarisiz: ${data.error || res.status}`);
+    }
+  } catch (e) {
+    console.log(`  RED  Kayit istegi basarisiz: ${e.message}`);
+  }
+
+  if (cerez) {
+    toplam++;
+    try {
+      const res = await fetch(`${BASE_URL}/api/auth/me`, { headers: { Cookie: cerez } });
+      const data = await res.json();
+      if (res.ok && data.girisYapmis && data.kullanici?.eposta === testEposta) {
+        console.log("  OK   Oturum dogrulandi (/api/auth/me)");
+        gecen++;
+      } else {
+        console.log(`  RED  Oturum dogrulanamadi: ${JSON.stringify(data)}`);
+      }
+    } catch (e) {
+      console.log(`  RED  /api/auth/me istegi basarisiz: ${e.message}`);
+    }
+
+    toplam++;
+    try {
+      const res = await fetch(`${BASE_URL}/api/soru-bankasi/getir?ders=Matematik&sinif=6&unite=Kesirler&adet=5`, { headers: { Cookie: cerez } });
+      const data = await res.json();
+      if (res.ok && typeof data.yeterliMi === "boolean") {
+        console.log(`  OK   Soru bankasi cagrisi calisti (yeterliMi: ${data.yeterliMi})`);
+        gecen++;
+      } else {
+        console.log(`  RED  Soru bankasi beklenmedik cevap: ${JSON.stringify(data)}`);
+      }
+    } catch (e) {
+      console.log(`  RED  Soru bankasi istegi basarisiz: ${e.message}`);
+    }
+  } else {
+    console.log("  ATLA Kayit basarisiz oldugu icin sonraki adimlar atlandi");
+  }
+
+  // Temizlik: test hesabini veritabanindan sil, kalinti birakma.
+  if (process.env.DATABASE_URL) {
+    try {
+      const sql = neon(process.env.DATABASE_URL);
+      await sql`DELETE FROM kullanicilar WHERE eposta = ${testEposta} OR eposta LIKE ${"healthcheck-veli-%@example.com"}`;
+      console.log("  TEMIZ Test hesabi veritabanindan silindi");
+    } catch (e) {
+      console.log(`  UYARI Test hesabi silinemedi (elle temizlik gerekebilir): ${e.message}`);
+    }
+  }
+
+  return { gecen, toplam };
+}
+
 (async () => {
   console.log(`KAREMUX HEALTH CHECK — ${new Date().toISOString()}`);
   const db = await veritabaniKontrolEt();
   const api = await apiKontrolEt();
+  const senaryo = await senaryoTestiCalistir();
 
-  const toplamGecen = db.gecen + api.gecen;
-  const toplamTest = db.toplam + api.toplam;
+  const toplamGecen = db.gecen + api.gecen + senaryo.gecen;
+  const toplamTest = db.toplam + api.toplam + senaryo.toplam;
   console.log("\n=== SONUC ===");
   console.log(`Database: ${db.gecen}/${db.toplam}`);
   console.log(`API:      ${api.gecen}/${api.toplam}`);
+  console.log(`Senaryo:  ${senaryo.gecen}/${senaryo.toplam}`);
   console.log(`TOPLAM:   ${toplamGecen}/${toplamTest} ${toplamGecen === toplamTest ? "— HEPSI GECTI" : "— BAZI TESTLER BASARISIZ"}`);
 
   process.exit(toplamGecen === toplamTest ? 0 : 1);
