@@ -1,4 +1,5 @@
 import { aiCagir } from "@/lib/ai";
+import { sorulariDenetle } from "@/lib/soruKalite";
 
 // Istemci, 4. ve 5. sinif konularindan sectigi bir listeyi ({ders, unite, sinif})
 // gonderir, biz her biri icin 1 soru uretiriz. Boylece unite listesi (page.js'te
@@ -31,7 +32,11 @@ Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli - cok kolay ya 
     );
 
     if (sorular.length === 0) throw new Error("Sorular uretilemedi, tekrar dene");
-    return Response.json({ sorular });
+
+    const { gecenler: denetlenmisSorular, elenenSayisi } = await sorulariDenetle(sorular, "Bu sorular bir SEVIYE TESPIT sinavinda kullanilacak, ogrencinin yerlestirilecegi kademeyi belirliyor, cok yuksek dogruluk gerekiyor.");
+    if (denetlenmisSorular.length === 0) throw new Error("Sorular kalite denetiminden gecemedi, tekrar dene");
+
+    return Response.json({ sorular: denetlenmisSorular, elenen: elenenSayisi });
   } catch (e) {
     console.error(e);
     return Response.json({ error: e.message }, { status: 500 });

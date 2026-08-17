@@ -1,4 +1,5 @@
 import { sql } from "@/lib/db";
+import { sorulariDenetle } from "@/lib/soruKalite";
 
 // Uretilen her soru burada birikir. Zamanla bu tablo, disaridan AI'a hic
 // ihtiyac duymadan kullanilabilecek gercek bir soru bankasina donusur.
@@ -12,8 +13,10 @@ export async function POST(req) {
       return Response.json({ error: "Eksik veri" }, { status: 400 });
     }
 
+    const { gecenler, elenenSayisi } = await sorulariDenetle(sorular, `Bu sorular "${ders}" dersi icin uretildi.`);
+
     let kaydedilen = 0;
-    for (const s of sorular) {
+    for (const s of gecenler) {
       if (!s.soru || !Array.isArray(s.secenekler) || s.dogruIndex == null) continue;
       try {
         await sql`
@@ -26,7 +29,7 @@ export async function POST(req) {
       }
     }
 
-    return Response.json({ ok: true, kaydedilen });
+    return Response.json({ ok: true, kaydedilen, elenen: elenenSayisi });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Kaydedilemedi" }, { status: 500 });

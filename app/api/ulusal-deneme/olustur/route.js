@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { aiCagir } from "@/lib/ai";
+import { sorulariDenetle } from "@/lib/soruKalite";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 
 // Yonetici (Mehmet) her hafta manuel tetikler (ileride Vercel Cron ile otomatiklestirilebilir).
@@ -54,16 +55,19 @@ export async function POST(req) {
     );
     if (sorular.length === 0) throw new Error("Uretilen sorularin hicbiri gecerli formatta degil, tekrar dene");
 
+    const { gecenler: denetlenmisSorular, elenenSayisi } = await sorulariDenetle(sorular, `Bu sorular "${ders}" dersi icin bir ULUSAL/Turkiye geneli denemede kullanilacak, cok yuksek dogruluk gerekiyor.`);
+    if (denetlenmisSorular.length === 0) throw new Error("Sorular kalite denetiminden gecemedi, tekrar dene");
+
     const simdi = new Date();
     const acilis = simdi;
     const kapanis = new Date(simdi.getTime() + (acikKalmaSaati || 24) * 60 * 60 * 1000);
 
     const sonuc = await sql`
       INSERT INTO ulusal_denemeler (ad, sinif, ders, sorular, acilis, kapanis)
-      VALUES (${ad}, ${sinif}, ${ders}, ${JSON.stringify(sorular)}, ${acilis.toISOString()}, ${kapanis.toISOString()})
+      VALUES (${ad}, ${sinif}, ${ders}, ${JSON.stringify(denetlenmisSorular)}, ${acilis.toISOString()}, ${kapanis.toISOString()})
       RETURNING id
     `;
-    return Response.json({ id: sonuc[0].id, soruSayisi: sorular.length, acilis, kapanis });
+    return Response.json({ id: sonuc[0].id, soruSayisi: denetlenmisSorular.length, elenen: elenenSayisi, acilis, kapanis });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Olusturulamadi: " + e.message }, { status: 500 });
