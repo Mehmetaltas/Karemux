@@ -1,0 +1,22 @@
+name: KAREMUX Health Check
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Bagimliliklari kur
+        run: npm ci
+      - name: Health check calistir
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXT_PUBLIC_SITE_URL: https://karemux-nu.vercel.app
+        run: node scripts/health-check.js
