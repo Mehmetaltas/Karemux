@@ -2713,7 +2713,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           return `${d}: ${enZayif}`;
         }).join("; ");
       } catch (e) { /* istatistik alinamazsa genel devam et */ }
-      const p = `Sen bir LGS calisma kocususun - samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}.${konuOzeti ? ` En cok zorlandigi ALT KONULAR (oncelik sirasiyla): ${konuOzeti}. Gorevleri mumkun oldugunca bu SPESIFIK konulara gore yaz, genel ders adiyla yetinme.` : ""} Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (150-200 kelime) bir konusma metni - programi ozetle, plato/basari notunu ekle. (2) "program": Pazartesi'den Pazar'a kadar HER GUN icin bir gorev nesnesi (bos gunler icin de "Dinlenme" gibi bir ders yaz) - {"gun":"Pazartesi","ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev tanimi"}. SADECE su JSON formatinda don, baska aciklama ekleme, markdown kullanma:
+      let saatlikNot = "";
+      try {
+        const hafizaRes = await fetch(`/api/ogrenme-hafizasi?cihazId=${cihazIdRef.current}`);
+        const hafizaVeri = await hafizaRes.json();
+        const saatler = hafizaVeri.saatlikPatern || [];
+        if (saatler.length >= 2) {
+          const enIyi = saatler[0];
+          const enKotu = saatler[saatler.length - 1];
+          if (Number(enIyi.basari_orani) > Number(enKotu.basari_orani)) {
+            saatlikNot = ` Ogrenci saat ${enIyi.saat}:00 civarinda daha basarili oluyor, saat ${enKotu.saat}:00 civarinda daha cok zorlaniyor - agir konulari ona gore onerebilirsin.`;
+          }
+        }
+      } catch (e) { /* hafiza verisi alinamazsa genel devam et */ }
+      const p = `Sen bir LGS calisma kocususun - samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}.${konuOzeti ? ` En cok zorlandigi ALT KONULAR (oncelik sirasiyla): ${konuOzeti}. Gorevleri mumkun oldugunca bu SPESIFIK konulara gore yaz, genel ders adiyla yetinme.` : ""}${saatlikNot} Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (150-200 kelime) bir konusma metni - programi ozetle, plato/basari notunu ekle. (2) "program": Pazartesi'den Pazar'a kadar HER GUN icin bir gorev nesnesi (bos gunler icin de "Dinlenme" gibi bir ders yaz) - {"gun":"Pazartesi","ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev tanimi"}. SADECE su JSON formatinda don, baska aciklama ekleme, markdown kullanma:
 {"mesaj":"...","program":[{"gun":"Pazartesi","ders":"...","gorev":"..."},{"gun":"Sali","ders":"...","gorev":"..."},{"gun":"Carsamba","ders":"...","gorev":"..."},{"gun":"Persembe","ders":"...","gorev":"..."},{"gun":"Cuma","ders":"...","gorev":"..."},{"gun":"Cumartesi","ders":"...","gorev":"..."},{"gun":"Pazar","ders":"...","gorev":"..."}]}`;
       const cevap = await aiIstek(p, 2200, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").trim();
