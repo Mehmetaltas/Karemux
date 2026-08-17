@@ -475,6 +475,25 @@ async function aiIstek(prompt, maxTokens, cihazId, jsonModu) {
   return data.text;
 }
 
+// Uretilen konu anlatimi metnini BAGIMSIZ bir AI cagrisiyla kisaca denetler
+// (bilgi hatasi, mantik hatasi, yabanci dil/alfabe karismasi). Metni ENGELLEMEZ,
+// sadece sorun bulursa altina kisa bir uyari ekler - ogrenci icerigi kaybetmez.
+// Denetim basarisiz olursa (AI hatasi, timeout) sessizce gecilir (fail-open).
+async function icerikDenetle(metin, baglam, cihazId) {
+  try {
+    const p = `Sen bagimsiz bir egitim icerigi kalite kontrolorusun. ${baglam} Asagidaki metni incele: acik bir bilgi/mantik hatasi var mi, ya da Turkce disi bir dil/alfabe (Ingilizce kelime, Kiril, Cince vb.) karismis mi? SADECE JSON dondur: {"temizMi":true} ya da {"temizMi":false,"sorun":"kisa aciklama, en fazla 15 kelime"}
+
+METIN:
+${metin.slice(0, 3000)}`;
+    const cevap = await aiIstek(p, 300, cihazId, true);
+    const temiz = cevap.replace(/```json|```/g, "").trim();
+    const veri = JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
+    return veri.temizMi === false ? (veri.sorun || "Otomatik denetimde isaretlendi") : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 // Uretilen sorulari kalici soru bankasina arsivler - sessizce, hata olsa da akisi bozmaz.
 // Konu anlatimi metnini govde + "Dikkat Edilecek Noktalar" kutusuna ayirir - PDF kitap
 // formatindaki gorsel yapiyi canli sistemde de yansitmak icin.
@@ -1119,7 +1138,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
         .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
-      setAciklama(temizMetin);
+      const uyari = await icerikDenetle(temizMetin, `Bu "${secilenDers}" dersi "${unite}" konusu anlatimi.`, cihazIdRef.current);
+      setAciklama(uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin);
     } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAtCagri) setYukleniyor(null); }
   }
@@ -1780,7 +1800,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     try {
       const p = `Sen deneyimli bir "${u.ders}" ogretmenisin. "${u.unite}" konusunu, ${u.kaynak_sinif}. sinif seviyesinde bir ogrenciye, MEB mufredati kazanimlarina sadik kalarak, sade ve anlasilir bir dille anlat. Once kisa bir giris, sonra ana kavramlar (her biri icin tanim, somut bir gunluk hayat ornegi ve kisa bir cozumlu ornek), sonda 3 maddelik "dikkat edilecek noktalar / sik yapilan hatalar". Toplam 450-600 kelime, konuyu yuzeysel gecme, gercek bir ders anlatimi kadar derinlikli olsun. SADECE duz metin yaz, markdown/LaTeX kullanma. Tum metin SADECE Turkce olmali, Latin alfabesi disinda (Kiril, Cince, Arapca vb.) TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Ispanyolca gibi bati dillerinden de TEK KELIME bile kullanma.`;
       const cevap = await aiIstek(p, 2500, cihazIdRef.current);
-      setSeviyeKonuMetni(cevap);
+      const uyari = await icerikDenetle(cevap, `Bu "${u.ders}" dersi "${u.unite}" konusu anlatimi.`, cihazIdRef.current);
+      setSeviyeKonuMetni(uyari ? `${cevap}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : cevap);
     } catch (e) {
       setSeviyeKonuMetni("Konu anlatimi yuklenemedi, tekrar dene.");
     } finally {
