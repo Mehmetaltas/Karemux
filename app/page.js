@@ -2335,6 +2335,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [sifreGir, setSifreGir] = useState("");
   const [adGir, setAdGir] = useState("");
   const [rolSec, setRolSec] = useState("ogrenci"); // "ogrenci" | "veli"
+  const [veliEpostaGir, setVeliEpostaGir] = useState("");
   const [hesapHata, setHesapHata] = useState("");
   const [sifreUnutAcik, setSifreUnutAcik] = useState(false);
   const [sifreUnutAsama, setSifreUnutAsama] = useState("eposta"); // "eposta" | "kod"
@@ -2486,7 +2487,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eposta: epostaGir, sifre: sifreGir, ad: adGir, rol: rolSec }),
+        body: JSON.stringify({ eposta: epostaGir, sifre: sifreGir, ad: adGir, rol: rolSec, veliEposta: veliEpostaGir }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -4580,6 +4581,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <button onClick={() => setRolSec("ogrenci")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "ogrenci" ? COLORS.coral : COLORS.line}`, background: rolSec === "ogrenci" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎓 Öğrenciyim</button>
                       <button onClick={() => setRolSec("veli")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "veli" ? COLORS.coral : COLORS.line}`, background: rolSec === "veli" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>👪 Veliyim</button>
                     </div>
+                    {rolSec === "ogrenci" && (
+                      <>
+                        <input value={veliEpostaGir} onChange={(e) => setVeliEpostaGir(e.target.value)} placeholder="Veli/ebeveyn e-postasi" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8, lineHeight: 1.5 }}>Hesabinin aktif olabilmesi icin veline/ebeveynine bir onay e-postasi gonderecegiz.</p>
+                      </>
+                    )}
                   </>
                 )}
                 <input value={epostaGir} onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
