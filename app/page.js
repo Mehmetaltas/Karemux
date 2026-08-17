@@ -2146,7 +2146,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     try {
       const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const zayifMetni = zayifDersler.length > 0 ? `Ozellikle zayif oldugu dersler: ${zayifDersler.join(", ")}.` : "";
-      const p = `Sen bir LGS calisma kocususun. ${ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}.` : ""} ${zayifMetni} Ogrenci ${sinif}. sinifta, "${secilenTatil.ad}" donemine giriyor (${secilenTatil.gun} gunluk). ${secilenTatil.key === "yaz" ? "Yaz tatili UZUN oldugu icin, tempo dusuk-orta tutulmali, her gun 1-1.5 saatlik hafif ama DUZENLI bir aliskanlik kurmali, tukenmisligi onlemek icin haftada 1 gun tam dinlenme olmali." : secilenTatil.key === "yariyil" ? "Yariyil tatili orta uzunlukta, eksik konulari kapatmaya ve 2. donem'e hazirliga odaklanmali." : "Ara tatil kisa, sadece son donemdeki eksikleri toparlamaya ve dinlenmeye odaklanmali, agir yeni konu YOK."} Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (120-160 kelime) bir konusma - tatilin ruhuna uygun (dinlenmeyi de onemsediginizi belirt). (2) "program": ${secilenTatil.gun} GUNUN HER BIRI icin bir gorev nesnesi - {"gunNo":1,"ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev"}. Haftada en az 1 gun "Dinlenme" olarak ayarla (agir calisma yok). SADECE JSON dondur, markdown kullanma:
+      const p = `Sen bir LGS calisma kocususun. ${zayifMetni} Ogrenci ${sinif}. sinifta, "${secilenTatil.ad}" donemine giriyor (${secilenTatil.gun} gunluk). ${secilenTatil.key === "yaz" ? "Yaz tatili UZUN oldugu icin, tempo dusuk-orta tutulmali, her gun 1-1.5 saatlik hafif ama DUZENLI bir aliskanlik kurmali, tukenmisligi onlemek icin haftada 1 gun tam dinlenme olmali." : secilenTatil.key === "yariyil" ? "Yariyil tatili orta uzunlukta, eksik konulari kapatmaya ve 2. donem'e hazirliga odaklanmali." : "Ara tatil kisa, sadece son donemdeki eksikleri toparlamaya ve dinlenmeye odaklanmali, agir yeni konu YOK."} Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (120-160 kelime) bir konusma - tatilin ruhuna uygun (dinlenmeyi de onemsediginizi belirt). (2) "program": ${secilenTatil.gun} GUNUN HER BIRI icin bir gorev nesnesi - {"gunNo":1,"ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev"}. Haftada en az 1 gun "Dinlenme" olarak ayarla (agir calisma yok). SADECE JSON dondur, markdown kullanma:
 {"mesaj":"...","program":[{"gunNo":1,"ders":"...","gorev":"..."}, ...]}`;
       const cevap = await aiIstek(p, Math.min(6000, 800 + secilenTatil.gun * 120), cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").trim();
@@ -2323,7 +2323,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
       const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const veriMetni = ozet.map((o) => `${o.ders}: ${o.testSayisi} test, ortalama net ${o.ortalamaNet}, en son net ${o.sonNet}`).join("; ");
-      const p = `Sen bir egitim kocususun. ${ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}.` : ""} Su gercek sinav verilerine dayanarak DERIN, KISISEL bir karne/durum degerlendirmesi yaz: ${veriMetni}. Su noktalara deg: (1) En guclu oldugu 1-2 dersi somut sayilarla ovun, (2) En cok destege ihtiyaci olan 1-2 dersi nazik ama net sekilde belirt, (3) Son sinav ile ortalamasini kiyaslayip bir trend yorumu yap (yukseliyor mu, sabit mi, dususte mi), (4) Somut, uygulanabilir 2-3 tavsiye ver. Sicak, samimi, gercekci bir mentor tonu kullan - ne asiri ovucu ne cesaret kirici ol. 250-320 kelime, SADECE Turkce duz metin, markdown kullanma. Turkce'ye ozgu noktali/simgeli karakterleri DOGRU ve EKSIKSIZ kullan.`;
+      const p = `Sen bir egitim kocususun. Su gercek sinav verilerine dayanarak DERIN, KISISEL bir karne/durum degerlendirmesi yaz: ${veriMetni}. Su noktalara deg: (1) En guclu oldugu 1-2 dersi somut sayilarla ovun, (2) En cok destege ihtiyaci olan 1-2 dersi nazik ama net sekilde belirt, (3) Son sinav ile ortalamasini kiyaslayip bir trend yorumu yap (yukseliyor mu, sabit mi, dususte mi), (4) Somut, uygulanabilir 2-3 tavsiye ver. Sicak, samimi, gercekci bir mentor tonu kullan - ne asiri ovucu ne cesaret kirici ol. 250-320 kelime, SADECE Turkce duz metin, markdown kullanma. Turkce'ye ozgu noktali/simgeli karakterleri DOGRU ve EKSIKSIZ kullan.`;
       const yorum = await aiIstek(p, 1600, cihazIdRef.current);
       setKarneYorum(yorum);
     } catch (e) {
@@ -2695,7 +2695,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         return toplam > 0 ? `${d}: ${tamamlanan}/${toplam} unite tamamlanmis` : null;
       }).filter(Boolean).join(", ");
       const kisiselBaglam = [
-        ogrenciAdi ? `Ogrencinin adi ${ogrenciAdi}, ona ismiyle hitap et.` : "",
         ilerlemeOzeti ? `Guncel ilerlemesi: ${ilerlemeOzeti}. Bu gercek veriyi dikkate alarak konus.` : "",
       ].filter(Boolean).join(" ");
       let konuOzeti = "";
