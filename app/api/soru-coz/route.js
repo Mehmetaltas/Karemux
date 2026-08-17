@@ -18,20 +18,38 @@ export async function POST(req) {
       );
     }
 
-    const talimat = `Bu goreseldeki soruyu coz. ${ders ? `Ders: ${ders}. ` : ""}${sinif ? `Ogrenci ${sinif}. sinifta okuyor - anlatimini bu yasa/seviyeye uygun, cok karmasik terimler kullanmadan, sanki karsisinda oturmus sabirla anlatiyormus gibi kur. ` : ""}
-Bir LGS ogretmeni gibi davran: NET, ADIM ADIM coz. Her adimi kisa bir cumleyle ozetle,
-gereksiz uzun aciklama yapma. En sonda "CEVAP: X" seklinde net sonucu yaz.
-COK ONEMLI - BICIM KURALLARI: SADECE duz metin yaz. KESINLIKLE markdown (yildiz **, kare ayrac vb.)
-veya LaTeX (dolar isareti $, backslash komutlari, \\frac, \\sqrt vb.) KULLANMA. Matematik ifadelerini
-sade klavye karakterleriyle yaz (ornek: "5 bolu 18", "karekok 12", "3 uzeri 2", "0,27 devirli").
-Eger gorsel bir soru degilse ya da okunamiyorsa bunu acikca belirt. Sadece Turkce yaz.`;
+    const talimat = `Bu goreseldeki soruyu, ogrencinin ONCE KENDI DUSUNMESINE firsat verecek sekilde iki parca halinde hazirla. ${ders ? `Ders: ${ders}. ` : ""}${sinif ? `Ogrenci ${sinif}. sinifta okuyor - anlatimini bu yasa/seviyeye uygun, cok karmasik terimler kullanmadan kur. ` : ""}
+(1) "ipucu": Cevabi VERMEDEN, hangi kavram/yontem kullanilmasi gerektigini isaret eden, ogrenciyi dusundurecek TEK cumlelik kucuk bir ipucu.
+(2) "cozum": Bir LGS ogretmeni gibi NET, ADIM ADIM tam cozum. Her adimi kisa bir cumleyle ozetle. En sonda "CEVAP: X" seklinde net sonucu yaz.
+SADECE JSON dondur, markdown/LaTeX kullanma. Matematik ifadelerini sade klavye karakterleriyle yaz (orn. "5 bolu 18", "karekok 12", "3 uzeri 2").
+Eger gorsel bir soru degilse ya da okunamiyorsa, SADECE {"hata":"aciklama"} dondur. Sadece Turkce yaz.
+{"ipucu":"...","cozum":"..."}`;
 
-    const cozum = await aiCagir({ prompt: talimat, imageBase64, mediaType, maxTokens: 1500 });
-    const cozumTemiz = cozum
+    const hamCevap = await aiCagir({ prompt: talimat, imageBase64, mediaType, maxTokens: 1800, jsonModu: true });
+    const temizle = (s) => (s || "")
       .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
       .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
       .replace(/\\[a-zA-Z]+/g, "").replace(/[{}]/g, "");
-    return Response.json({ cozum: cozumTemiz, kalanHak: Math.max(0, limit.limit - limit.kullanim) });
+
+    let veri;
+    try {
+      const temizJson = hamCevap.replace(/```json|```/g, "").trim();
+      veri = JSON.parse(temizJson.slice(temizJson.indexOf("{"), temizJson.lastIndexOf("}") + 1));
+    } catch (e) {
+      // AI beklenen JSON formatinda donmediyse, eski davranisa geri don:
+      // ham metni dogrudan cozum olarak goster, ipucu bos kalsin.
+      veri = { ipucu: "", cozum: hamCevap };
+    }
+
+    if (veri.hata) {
+      return Response.json({ error: veri.hata }, { status: 400 });
+    }
+
+    return Response.json({
+      ipucu: temizle(veri.ipucu),
+      cozum: temizle(veri.cozum),
+      kalanHak: Math.max(0, limit.limit - limit.kullanim),
+    });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Cozum alinamadi: " + e.message }, { status: 502 });

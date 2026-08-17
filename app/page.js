@@ -2448,6 +2448,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   // Soru Coz (fotografla)
   const [soruGorseli, setSoruGorseli] = useState(null);
   const [soruCozumu, setSoruCozumu] = useState("");
+  const [soruIpucu, setSoruIpucu] = useState("");
+  const [tamCozumAcik, setTamCozumAcik] = useState(false);
   const [soruSohbetGecmisi, setSoruSohbetGecmisi] = useState([]);
   const [soruSohbetMetni, setSoruSohbetMetni] = useState("");
   const [soruSohbetYukleniyor, setSoruSohbetYukleniyor] = useState(false);
@@ -2592,7 +2594,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function soruGorseliCoz(dosya) {
-    setYukleniyor("soru"); setHata(""); setSoruCozumu(""); setSoruSohbetGecmisi([]);
+    setYukleniyor("soru"); setHata(""); setSoruCozumu(""); setSoruIpucu(""); setTamCozumAcik(false); setSoruSohbetGecmisi([]);
     try {
       const base64 = await new Promise((resolve, reject) => {
         const r = new FileReader();
@@ -2608,6 +2610,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSoruCozumu(data.cozum);
+      setSoruIpucu(data.ipucu || "");
     } catch (e) {
       setHata(temizHataMesaji(e, "Soru cozulemedi, tekrar dene."));
     } finally {
@@ -4935,7 +4938,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
 
-            {soruCozumu && (() => {
+            {soruCozumu && soruIpucu && !tamCozumAcik && (
+              <div className="kx-fadein" style={{ background: "#FFF8E8", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 14, padding: 18, textAlign: "center" }}>
+                <p style={{ fontSize: 20, marginBottom: 6 }}>💡</p>
+                <p style={{ fontSize: 13.5, lineHeight: 1.6, marginBottom: 14 }}>{soruIpucu}</p>
+                <button className="kx-btn" onClick={() => setTamCozumAcik(true)} style={{ padding: "9px 18px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                  Tam Cozumu Goster
+                </button>
+              </div>
+            )}
+
+            {soruCozumu && (!soruIpucu || tamCozumAcik) && (() => {
               // "CEVAP: X" satirini metnin geri kalanindan ayirip, cevabi one cikan bir rozet olarak gosteriyoruz.
               const satirlar = soruCozumu.split("\n").map((s) => s.trim()).filter(Boolean);
               const cevapSatiriIndex = satirlar.findIndex((s) => /^CEVAP\s*:/i.test(s));
