@@ -3101,7 +3101,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", fontStyle: "italic", fontSize: 13, fontWeight: 700, color: COLORS.ink, marginBottom: 10, paddingLeft: 2 }}>Dersini seç</p>
             <div className="kx-pop" style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 9 }}>
               {gorunurDersler(sinif).map((d) => (
-                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); }} className="kx-card kx-btn" style={{
+                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("bos"); }} className="kx-card kx-btn" style={{
                   position: "relative", padding: "18px 8px 14px", borderRadius: "4px 12px 12px 4px", cursor: "pointer", textAlign: "center",
                   border: "none", background: COLORS.page, overflow: "hidden",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
@@ -3155,7 +3155,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 2 }}>📚 Ders Çalışma Odası</p>
               <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 10 }}>Konu anlat, test coz - asil calisma burada</p>
               {gorunurDersler(sinif).map((d) => (
-                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("ders"); setMenuAcik(false); }} style={{
+                <button key={d.ad} onClick={() => { setSecilenDers(d.ad); setMod("bos"); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: secilenDers === d.ad ? 700 : 500,
                   background: secilenDers === d.ad ? COLORS.page : "transparent", color: secilenDers === d.ad ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
@@ -3446,7 +3446,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       ⚠ Onceki sinif temelin zayif gorunuyor, konu anlatimi bunu dikkate alacak.
                     </p>
                   )}
-                  <button onClick={() => { setSecilenDers(kocPaneliDers); setMod("ders"); setMenuAcik(false); }} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                  <button onClick={() => { setSecilenDers(kocPaneliDers); setMod("bos"); setMenuAcik(false); }} style={{ padding: "10px 22px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
                     📚 Derslere Git ve Calis
                   </button>
                 </div>
