@@ -34,13 +34,15 @@ async function embeddingUret(metin, apiKey) {
   const mevcut = await sql`SELECT COUNT(*)::int AS adet FROM bilgi_parcalari`;
   console.log(`Mevcut bilgi parcasi sayisi: ${mevcut[0].adet}`);
 
-  // Zaten islenmis (ayni ders+unite+soru) kayitlari LEFT JOIN ile disla.
+  // aciklama sutunu su an dolu degil (bilinen bir veri eksigi) - onun yerine
+  // soru + dogru cevabi birlestirip icerik olarak kullaniyoruz, bu da gercek
+  // ve anlamli mufredat verisi. Zaten islenmis kayitlari LEFT JOIN ile disla.
   const kayitlar = await sql`
-    SELECT sb.ders, sb.sinif, sb.unite, sb.alt_konu, sb.soru, sb.aciklama
+    SELECT sb.ders, sb.sinif, sb.unite, sb.alt_konu, sb.soru, sb.secenekler, sb.dogru_index
     FROM soru_bankasi sb
     LEFT JOIN bilgi_parcalari bp
-      ON bp.ders = sb.ders AND bp.unite = sb.unite AND bp.icerik LIKE sb.soru || '%'
-    WHERE sb.aciklama IS NOT NULL AND length(sb.aciklama) > 20 AND bp.id IS NULL
+      ON bp.ders = sb.ders AND bp.icerik LIKE sb.soru || '%'
+    WHERE sb.soru IS NOT NULL AND length(sb.soru) > 15 AND bp.id IS NULL
     ORDER BY sb.id ASC
     LIMIT ${PARTI_BOYUTU}
   `;
@@ -53,7 +55,8 @@ async function embeddingUret(metin, apiKey) {
 
   let eklenen = 0, hata = 0;
   for (const k of kayitlar) {
-    const icerik = `${k.soru}\n\nAciklama: ${k.aciklama}`;
+    const dogruCevap = Array.isArray(k.secenekler) && k.secenekler[k.dogru_index] ? k.secenekler[k.dogru_index] : null;
+    const icerik = dogruCevap ? `${k.soru}\n\nDogru cevap: ${dogruCevap}` : k.soru;
     try {
       const vektor = await embeddingUret(icerik, apiKey);
       const vektorMetni = `[${vektor.join(",")}]`;
