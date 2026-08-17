@@ -97,7 +97,10 @@ async function senaryoTestiCalistir() {
   try {
     const res = await fetch(`${BASE_URL}/api/auth/register`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(process.env.HEALTH_CHECK_SECRET ? { "x-health-check-secret": process.env.HEALTH_CHECK_SECRET } : {}),
+      },
       body: JSON.stringify({
         eposta: testEposta, sifre: "TestSifre123", ad: "Health Check Test",
         rol: "ogrenci", veliEposta: `healthcheck-veli-${Date.now()}@example.com`,

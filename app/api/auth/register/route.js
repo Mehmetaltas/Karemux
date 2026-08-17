@@ -5,6 +5,7 @@ import { resendIstemcisi } from "@/lib/email";
 export async function POST(req) {
   try {
     const { eposta, sifre, ad, rol, veliEposta } = await req.json();
+    const testModu = !!(process.env.HEALTH_CHECK_SECRET && req.headers.get("x-health-check-secret") === process.env.HEALTH_CHECK_SECRET);
     if (!eposta || !sifre || sifre.length < 6) {
       return Response.json({ error: "Gecerli bir e-posta ve en az 6 karakterli sifre gerekli" }, { status: 400 });
     }
@@ -32,18 +33,20 @@ export async function POST(req) {
     const kullanici = sonuc[0];
     const token = tokenUret(kullanici.id);
 
-    try {
-      await resendIstemcisi().emails.send({
-        from: "Karemux <bildirim@karemux.com>",
-        to: eposta,
-        subject: "Karemux dogrulama kodun",
-        text: `Merhaba ${kullanici.ad},\n\nDogrulama kodun: ${dogrulamaKodu}\n\nBu kod 30 dakika gecerlidir.\n\nKaremux Ekibi`,
-      });
-    } catch (e) {
-      console.error("Dogrulama e-postasi gonderilemedi:", e);
+    if (!testModu) {
+      try {
+        await resendIstemcisi().emails.send({
+          from: "Karemux <bildirim@karemux.com>",
+          to: eposta,
+          subject: "Karemux dogrulama kodun",
+          text: `Merhaba ${kullanici.ad},\n\nDogrulama kodun: ${dogrulamaKodu}\n\nBu kod 30 dakika gecerlidir.\n\nKaremux Ekibi`,
+        });
+      } catch (e) {
+        console.error("Dogrulama e-postasi gonderilemedi:", e);
+      }
     }
 
-    if (rolTemiz === "ogrenci" && veliOnayToken) {
+    if (rolTemiz === "ogrenci" && veliOnayToken && !testModu) {
       try {
         const onayLinki = `${process.env.NEXT_PUBLIC_SITE_URL || "https://karemux.com"}/api/auth/veli-onay?token=${veliOnayToken}`;
         await resendIstemcisi().emails.send({
