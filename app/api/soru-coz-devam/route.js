@@ -2,11 +2,17 @@
 // metnini baglam olarak kullanir - gorseli tekrar gondermeye gerek yok.
 import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
+import { moderasyonKontrolEt } from "@/lib/moderasyon";
 
 export async function POST(req) {
   try {
     const { orijinalCozum, sohbetGecmisi, yeniMesaj, ders, sinif, cihazId } = await req.json();
     if (!yeniMesaj || !yeniMesaj.trim()) return Response.json({ error: "Mesaj bos olamaz" }, { status: 400 });
+
+    const moderasyon = await moderasyonKontrolEt(yeniMesaj);
+    if (!moderasyon.uygunMu) {
+      return Response.json({ error: "Bu mesaj uygun degil, lutfen dersle ilgili bir soru yaz." }, { status: 400 });
+    }
 
     const limit = await gunlukLimitKontrolEt(req, cihazId);
     if (!limit.izinVar) {

@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { oturumdanKullaniciId } from "@/lib/auth";
 import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
+import { moderasyonKontrolEt } from "@/lib/moderasyon";
 
 // Veli AI Asistani: veli serbest metinle soru sorar, gercek ogrenci verisine
 // dayanan, eyleme donuk bir cevap alir. AI Privacy Shield ilkesine uyulur:
@@ -18,6 +19,11 @@ export async function POST(req) {
 
     const baglanti = await sql`SELECT 1 FROM veli_ogrenci WHERE veli_id = ${veliId} AND ogrenci_id = ${ogrenciId}`;
     if (baglanti.length === 0) return Response.json({ error: "Bu ogrenciye erisim yetkin yok" }, { status: 403 });
+
+    const moderasyon = await moderasyonKontrolEt(soru);
+    if (!moderasyon.uygunMu) {
+      return Response.json({ error: "Bu soru uygun degil, lutfen ogrenciyle ilgili bir soru yaz." }, { status: 400 });
+    }
 
     const limit = await gunlukLimitKontrolEt(req, null);
     if (!limit.izinVar) {
