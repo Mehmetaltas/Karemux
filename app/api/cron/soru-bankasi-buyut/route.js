@@ -19,15 +19,18 @@ export async function GET(req) {
     // En cok talep goren ama bankada az soru biriken kombinasyonlari bul -
     // gunluk_gorevler/ilerleme'den populerligi, soru_bankasi'ndan mevcut
     // stogu karsilastirarak "acil doldurulmasi gereken" konulari secer.
+    // NOT: ilerleme tablosunda 'sinif' ve 'unite' sutunlari yok - 'sinif'
+    // kullanicilar'dan geliyor, 'unite' yerine 'konu' kullaniliyor.
     const eksikKombinasyonlar = await sql`
-      SELECT i.ders, i.sinif, i.unite, COUNT(DISTINCT i.kullanici_id)::int as ilgi,
+      SELECT i.ders AS ders, u.sinif AS sinif, i.konu AS unite, COUNT(DISTINCT i.kullanici_id)::int as ilgi,
              COALESCE(sb.mevcut, 0)::int as mevcut_soru
       FROM ilerleme i
+      JOIN kullanicilar u ON u.id = i.kullanici_id
       LEFT JOIN (
         SELECT ders, sinif, unite, COUNT(*) as mevcut FROM soru_bankasi GROUP BY ders, sinif, unite
-      ) sb ON sb.ders = i.ders AND sb.sinif = i.sinif AND sb.unite = i.unite
-      WHERE i.ders IS NOT NULL AND i.unite IS NOT NULL
-      GROUP BY i.ders, i.sinif, i.unite, sb.mevcut
+      ) sb ON sb.ders = i.ders AND sb.sinif = u.sinif AND sb.unite = i.konu
+      WHERE i.ders IS NOT NULL AND i.konu IS NOT NULL AND u.sinif IS NOT NULL
+      GROUP BY u.sinif, i.ders, i.konu, sb.mevcut
       HAVING COALESCE(sb.mevcut, 0) < ${HEDEF_SORU_SAYISI}
       ORDER BY ilgi DESC, mevcut_soru ASC
       LIMIT ${GUNLUK_ISLENECEK_KOMBINASYON}
