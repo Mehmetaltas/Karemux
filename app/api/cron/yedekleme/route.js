@@ -20,7 +20,7 @@ export async function GET(req) {
     let anormalDususVarMi = false;
 
     for (const tablo of kritikTablolar) {
-      const sonuc = await sql.query(`SELECT COUNT(*)::int AS adet FROM ${tablo}`);
+      const sonuc = await sql`SELECT COUNT(*)::int AS adet FROM ${sql.unsafe(tablo)}`;
       const adet = sonuc[0].adet;
       rapor.push(`${tablo}: ${adet}`);
       if (adet === 0) anormalDususVarMi = true;
