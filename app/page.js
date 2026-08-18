@@ -2454,27 +2454,37 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
-  async function geriBildirimGonder(ozellik, tur) {
+  async function geriBildirimGonder(ozellik, tur, mesaj) {
     setGeriBildirimDurumu((eski) => ({ ...eski, [ozellik]: tur }));
     try {
       await fetch("/api/geri-bildirim", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, ozellik, tur }),
+        body: JSON.stringify({ cihazId: cihazIdRef.current, ozellik, tur, mesaj: mesaj || null }),
       });
     } catch (e) { /* sessizce gec - geri bildirim kritik degil */ }
   }
 
   function GeriBildirimWidget({ ozellik }) {
+    const [sorunModu, setSorunModu] = useState(false);
+    const [sorunMetni, setSorunMetni] = useState("");
     const durum = geriBildirimDurumu[ozellik];
     if (durum) {
       return <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 10 }}>Geri bildirimin icin tesekkurler!</p>;
+    }
+    if (sorunModu) {
+      return (
+        <div style={{ marginTop: 10 }}>
+          <input value={sorunMetni} onChange={(e) => setSorunMetni(e.target.value)} placeholder="Ne sorun vardi? (istege bagli)" style={{ width: "100%", boxSizing: "border-box", padding: "6px 8px", borderRadius: 6, border: `1.5px solid ${COLORS.line}`, fontSize: 11.5, marginBottom: 6 }} />
+          <button onClick={() => geriBildirimGonder(ozellik, "sorun", sorunMetni)} style={{ padding: "5px 10px", borderRadius: 6, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }}>Gonder</button>
+        </div>
+      );
     }
     return (
       <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
         <span style={{ fontSize: 10.5, color: COLORS.muted }}>Bu yardimci oldu mu?</span>
         <button onClick={() => geriBildirimGonder(ozellik, "begeni")} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👍</button>
-        <button onClick={() => geriBildirimGonder(ozellik, "sorun")} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👎</button>
+        <button onClick={() => setSorunModu(true)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👎</button>
       </div>
     );
   }

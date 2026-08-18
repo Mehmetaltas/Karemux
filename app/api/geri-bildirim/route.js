@@ -35,7 +35,14 @@ export async function GET(req) {
       GROUP BY ozellik, tur
       ORDER BY ozellik, tur
     `;
-    return Response.json({ ozet });
+    const sonSikayetler = await sql`
+      SELECT ozellik, mesaj, olusturulma
+      FROM geri_bildirimler
+      WHERE tur = 'sorun' AND mesaj IS NOT NULL AND length(mesaj) > 2
+      ORDER BY olusturulma DESC
+      LIMIT 50
+    `;
+    return Response.json({ ozet, sonSikayetler });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Getirilemedi" }, { status: 500 });
