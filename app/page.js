@@ -2419,6 +2419,54 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [talepTur, setTalepTur] = useState("konu");
   const [talepMesaj, setTalepMesaj] = useState("");
   const [teshisSonuc, setTeshisSonuc] = useState(null);
+  const [dinleniyor, setDinleniyor] = useState(null); // hangi alan icin dinliyoruz
+
+  // Tarayicinin yerlesik Web Speech API'si - ek maliyet/API anahtari gerektirmez.
+  function mikrofonlaDinle(alanAdi, metinAyarla) {
+    const Tanima = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Tanima) {
+      alert("Tarayicin sesli girisi desteklemiyor. Chrome/Safari deneyebilirsin.");
+      return;
+    }
+    const tanima = new Tanima();
+    tanima.lang = "tr-TR";
+    tanima.interimResults = false;
+    tanima.maxAlternatives = 1;
+    setDinleniyor(alanAdi);
+    tanima.onresult = (e) => {
+      const metin = e.results[0][0].transcript;
+      metinAyarla(metin);
+    };
+    tanima.onerror = () => setDinleniyor(null);
+    tanima.onend = () => setDinleniyor(null);
+    tanima.start();
+  }
+
+  function sesliOku(metin) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel(); // onceki okumayi durdur
+    const konusma = new SpeechSynthesisUtterance(metin);
+    konusma.lang = "tr-TR";
+    konusma.rate = 0.95;
+    window.speechSynthesis.speak(konusma);
+  }
+
+  function MikrofonButonu({ alanAdi, metinAyarla }) {
+    const aktifMi = dinleniyor === alanAdi;
+    return (
+      <button type="button" onClick={() => mikrofonlaDinle(alanAdi, metinAyarla)} disabled={dinleniyor !== null && !aktifMi} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: aktifMi ? 1 : 0.6 }}>
+        {aktifMi ? "🔴" : "🎤"}
+      </button>
+    );
+  }
+
+  function SesliOkuButonu({ metin }) {
+    return (
+      <button type="button" onClick={() => sesliOku(metin)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 13, color: COLORS.muted, marginLeft: 6 }}>
+        🔊
+      </button>
+    );
+  }
   const [teshisYukleniyor, setTeshisYukleniyor] = useState(false);
 
   async function teshisCalistir() {
@@ -5184,7 +5232,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                           padding: "8px 12px", borderRadius: m.rol === "ogrenci" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
                           background: m.rol === "ogrenci" ? COLORS.coral : "#FAF6EE", color: m.rol === "ogrenci" ? "#fff" : "#1B2430",
                           fontSize: 12.5, lineHeight: 1.6, border: m.rol === "ogrenci" ? "none" : `1px solid ${COLORS.line}`,
-                        }}>{m.metin}</div>
+                        }}>{m.metin}{m.rol !== "ogrenci" && <SesliOkuButonu metin={m.metin} />}</div>
                       </div>
                     ))}
                     {soruSohbetYukleniyor && (
@@ -5192,7 +5240,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     )}
                   </div>
                 )}
-                <div style={{ display: "flex", gap: 8 }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <MikrofonButonu alanAdi="soru-sohbet" metinAyarla={setSoruSohbetMetni} />
                   <input value={soruSohbetMetni} onChange={(e) => setSoruSohbetMetni(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") soruSohbetGonder(); }}
                     placeholder="Örn: 3. adımı anlamadım, tekrar açıklar mısın?"
@@ -5445,7 +5494,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                     <div style={{ marginBottom: 12, paddingTop: 10, borderTop: `1px solid ${COLORS.line}` }}>
                       <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, marginBottom: 8 }}>COCUGUNUZ HAKKINDA SORU SORUN</p>
-                      <div style={{ display: "flex", gap: 6 }}>
+                      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                        <MikrofonButonu alanAdi={`veli-${o.ogrenci.id}`} metinAyarla={(metin) => setVeliSoruMetni((eski) => ({ ...eski, [o.ogrenci.id]: metin }))} />
                         <input
                           value={veliSoruMetni[o.ogrenci.id] || ""}
                           onChange={(e) => setVeliSoruMetni((eski) => ({ ...eski, [o.ogrenci.id]: e.target.value }))}
@@ -5462,7 +5512,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       </div>
                       {veliCevaplar[o.ogrenci.id] && (
                         <>
-                          <p style={{ fontSize: 12.5, lineHeight: 1.6, marginTop: 10, background: "#F4F0E4", borderRadius: 8, padding: 10 }}>{veliCevaplar[o.ogrenci.id]}</p>
+                          <p style={{ fontSize: 12.5, lineHeight: 1.6, marginTop: 10, background: "#F4F0E4", borderRadius: 8, padding: 10 }}>{veliCevaplar[o.ogrenci.id]} <SesliOkuButonu metin={veliCevaplar[o.ogrenci.id]} /></p>
                           <GeriBildirimWidget ozellik="veli_asistani" />
                         </>
                       )}
