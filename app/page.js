@@ -5076,6 +5076,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <p style={{ fontSize: 18, fontWeight: 800, color: "#1B2430" }}>{cevapMetni}</p>
                     </div>
                   )}
+                  <div style={{ padding: "0 20px 16px" }}><GeriBildirimWidget ozellik="soru_cozumu" /></div>
                 </div>
               );
             })()}
@@ -5368,7 +5369,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         </button>
                       </div>
                       {veliCevaplar[o.ogrenci.id] && (
-                        <p style={{ fontSize: 12.5, lineHeight: 1.6, marginTop: 10, background: "#F4F0E4", borderRadius: 8, padding: 10 }}>{veliCevaplar[o.ogrenci.id]}</p>
+                        <>
+                          <p style={{ fontSize: 12.5, lineHeight: 1.6, marginTop: 10, background: "#F4F0E4", borderRadius: 8, padding: 10 }}>{veliCevaplar[o.ogrenci.id]}</p>
+                          <GeriBildirimWidget ozellik="veli_asistani" />
+                        </>
                       )}
                     </div>
 
