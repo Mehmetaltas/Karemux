@@ -2414,6 +2414,32 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [veliSoruMetni, setVeliSoruMetni] = useState({});
   const [veliCevaplar, setVeliCevaplar] = useState({});
   const [veliSoruYukleniyor, setVeliSoruYukleniyor] = useState(null);
+  const [geriBildirimDurumu, setGeriBildirimDurumu] = useState({});
+
+  async function geriBildirimGonder(ozellik, tur) {
+    setGeriBildirimDurumu((eski) => ({ ...eski, [ozellik]: tur }));
+    try {
+      await fetch("/api/geri-bildirim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, ozellik, tur }),
+      });
+    } catch (e) { /* sessizce gec - geri bildirim kritik degil */ }
+  }
+
+  function GeriBildirimWidget({ ozellik }) {
+    const durum = geriBildirimDurumu[ozellik];
+    if (durum) {
+      return <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 10 }}>Geri bildirimin icin tesekkurler!</p>;
+    }
+    return (
+      <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
+        <span style={{ fontSize: 10.5, color: COLORS.muted }}>Bu yardimci oldu mu?</span>
+        <button onClick={() => geriBildirimGonder(ozellik, "begeni")} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👍</button>
+        <button onClick={() => geriBildirimGonder(ozellik, "sorun")} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👎</button>
+      </div>
+    );
+  }
 
   async function veliSoruSor(ogrenciId) {
     const soru = (veliSoruMetni[ogrenciId] || "").trim();
@@ -6380,6 +6406,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 10, fontStyle: "italic" }}>Bu görevler Profilinde "Bekleyen Ödevlerin" altında da görünecek.</p>
                     </div>
                   )}
+                  <GeriBildirimWidget ozellik="koc_plani" />
                 </div>
               </div>
             )}
