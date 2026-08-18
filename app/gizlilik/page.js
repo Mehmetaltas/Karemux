@@ -64,6 +64,13 @@ export default function GizlilikPolitikasi() {
       </ul>
       <p>Verileriniz hiçbir şekilde reklam/pazarlama amacıyla üçüncü taraflara satılmaz
       veya kiralanmaz.</p>
+      <p><strong>Sesli özellikler hakkında not:</strong> Uygulamadaki mikrofonla soru
+      sorma ve sesli okuma özellikleri, Karemux sunucularını kullanmaz. Bu özellikler
+      doğrudan tarayıcınızın (örneğin Google Chrome, Safari) kendi yerleşik ses
+      tanıma/sentezi teknolojisiyle çalışır; mikrofon kaydınız işlenmek üzere
+      tarayıcı sağlayıcısının kendi sunucularına gönderilebilir. Bu işlem Karemux'un
+      kontrolü dışındadır ve kullandığınız tarayıcının kendi gizlilik politikasına
+      tabidir.</p>
 
       <h2>6. Verilerin Saklanma Süresi</h2>
       <p>Kişisel verileriniz, hesabınız aktif olduğu sürece ve yukarıdaki amaçların
