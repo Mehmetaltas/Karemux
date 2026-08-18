@@ -2415,6 +2415,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [veliCevaplar, setVeliCevaplar] = useState({});
   const [veliSoruYukleniyor, setVeliSoruYukleniyor] = useState(null);
   const [geriBildirimDurumu, setGeriBildirimDurumu] = useState({});
+  const [talepBaslik, setTalepBaslik] = useState("");
+  const [talepTur, setTalepTur] = useState("konu");
+  const [talepMesaj, setTalepMesaj] = useState("");
+
+  async function talepGonder() {
+    const baslik = talepBaslik.trim();
+    if (baslik.length < 2) return;
+    setTalepMesaj("");
+    try {
+      const res = await fetch("/api/talep", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tur: talepTur, baslik }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setTalepMesaj(`Tesekkurler! Bu talep simdiye kadar ${data.talepSayisi} kez istendi.`);
+      setTalepBaslik("");
+    } catch (e) {
+      setTalepMesaj(e.message || "Gonderilemedi");
+    }
+  }
 
   async function geriBildirimGonder(ozellik, tur) {
     setGeriBildirimDurumu((eski) => ({ ...eski, [ozellik]: tur }));
@@ -4703,6 +4725,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     ))}
                   </div>
                 )}
+
+                <div style={{ background: COLORS.page, borderRadius: 10, padding: 12, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 8 }}>Eksik bir konu ya da ozellik mi var?</p>
+                  <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
+                    <button onClick={() => setTalepTur("konu")} style={{ flex: 1, padding: "6px 0", borderRadius: 6, border: `1.5px solid ${talepTur === "konu" ? COLORS.coral : COLORS.line}`, background: talepTur === "konu" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }}>Konu</button>
+                    <button onClick={() => setTalepTur("ozellik")} style={{ flex: 1, padding: "6px 0", borderRadius: 6, border: `1.5px solid ${talepTur === "ozellik" ? COLORS.coral : COLORS.line}`, background: talepTur === "ozellik" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }}>Ozellik</button>
+                  </div>
+                  <div style={{ display: "flex", gap: 6 }}>
+                    <input value={talepBaslik} onChange={(e) => setTalepBaslik(e.target.value)} placeholder="Orn: Basinc konusu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
+                    <button onClick={talepGonder} style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Talep Et</button>
+                  </div>
+                  {talepMesaj && <p style={{ fontSize: 11.5, marginTop: 8, color: COLORS.muted }}>{talepMesaj}</p>}
+                </div>
 
                 <button onClick={cikisYap} style={{ padding: "8px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>Çıkış Yap</button>
 
