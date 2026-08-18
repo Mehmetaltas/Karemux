@@ -91,6 +91,18 @@ export default function YonetimPaneli() {
   const [ulusalSaat, setUlusalSaat] = useState(24);
   const [ulusalOlusturuluyor, setUlusalOlusturuluyor] = useState(false);
 
+  const [cariler, setCariler] = useState(null);
+  const [yeniCariAd, setYeniCariAd] = useState("");
+  const [yeniCariTur, setYeniCariTur] = useState("musteri");
+  const [yeniCariTelefon, setYeniCariTelefon] = useState("");
+  const [cariEkleniyor, setCariEkleniyor] = useState(false);
+  const [secilenCariId, setSecilenCariId] = useState(null);
+  const [cariHareketleri, setCariHareketleri] = useState(null);
+  const [hareketTur, setHareketTur] = useState("satis_veresiye");
+  const [hareketTutar, setHareketTutar] = useState("");
+  const [hareketAciklama, setHareketAciklama] = useState("");
+  const [hareketEkleniyor, setHareketEkleniyor] = useState(false);
+
   function mesajTemizle() { setHata(""); setBasari(""); }
 
   async function girisDene() {
@@ -199,7 +211,55 @@ export default function YonetimPaneli() {
     } catch (e) { setHata(e.message); } finally { setUlusalOlusturuluyor(false); }
   }
 
+  async function carileriGetir() {
+    try {
+      const res = await fetch(`/api/admin/cari?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setCariler(data.cariler);
+    } catch {}
+  }
+
+  async function cariEkle() {
+    if (!yeniCariAd) return;
+    setCariEkleniyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/cari", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, ad: yeniCariAd, tur: yeniCariTur, telefon: yeniCariTelefon || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari(`"${yeniCariAd}" eklendi.`); setYeniCariAd(""); setYeniCariTelefon("");
+      carileriGetir();
+    } catch (e) { setHata(e.message); } finally { setCariEkleniyor(false); }
+  }
+
+  async function cariSec(id) {
+    setSecilenCariId(id); setCariHareketleri(null);
+    try {
+      const res = await fetch(`/api/admin/cari/hareket?sifre=${encodeURIComponent(sifre)}&cariId=${id}`);
+      const data = await res.json();
+      if (res.ok) setCariHareketleri(data.hareketler);
+    } catch {}
+  }
+
+  async function hareketEkle() {
+    if (!secilenCariId || !hareketTutar) return;
+    setHareketEkleniyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/cari/hareket", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, cariId: secilenCariId, tur: hareketTur, tutarTl: Number(hareketTutar), aciklama: hareketAciklama || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari("Hareket eklendi."); setHareketTutar(""); setHareketAciklama("");
+      carileriGetir(); cariSec(secilenCariId);
+    } catch (e) { setHata(e.message); } finally { setHareketEkleniyor(false); }
+  }
+
   useEffect(() => { if (basari) { const t = setTimeout(() => setBasari(""), 4000); return () => clearTimeout(t); } }, [basari]);
+  useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
 
   // ==== GİRİŞ EKRANI ====
   if (!girisYapildi) {
@@ -226,6 +286,7 @@ export default function YonetimPaneli() {
     ["genel", "📊 Genel Bakış"],
     ["paketler", "💰 Paketler"],
     ["giderler", "🧾 Giderler"],
+    ["cari", "🤝 Cari"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
@@ -363,6 +424,71 @@ export default function YonetimPaneli() {
                 return s ? <p style={{ fontSize: 12.5 }}>Komisyon (~%{s.oran}): <strong style={{ color: T.danger }}>{s.komisyon} ₺</strong> · Net: <strong style={{ color: T.accent }}>{s.net} ₺</strong></p> : null;
               })()}
             </Panel>
+          </>
+        )}
+
+        {sekme === "cari" && (
+          <>
+            <Panel baslik="Yeni Cari Ekle" ikon="➕">
+              <label style={etiketStil}>Ad / Unvan</label>
+              <input value={yeniCariAd} onChange={(e) => setYeniCariAd(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={yeniCariTur} onChange={(e) => setYeniCariTur(e.target.value)} style={girdiStil}>
+                  <option value="musteri">Müşteri (Kurum/Bireysel)</option>
+                  <option value="tedarikci">Tedarikçi</option>
+                  <option value="diger">Diğer</option>
+                </select>
+                <input value={yeniCariTelefon} onChange={(e) => setYeniCariTelefon(e.target.value)} placeholder="Telefon (opsiyonel)" style={girdiStil} />
+              </div>
+              <button onClick={cariEkle} disabled={cariEkleniyor || !yeniCariAd} style={{ ...butonStil(!!yeniCariAd), width: "100%", padding: "10px 0" }}>
+                {cariEkleniyor ? "Ekleniyor..." : "Cari Ekle"}
+              </button>
+            </Panel>
+
+            <Panel baslik="Cari Listesi" ikon="🤝">
+              {!cariler ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : cariler.length === 0 ? (
+                <p style={{ fontSize: 12, color: T.textMuted }}>Henüz cari yok.</p>
+              ) : cariler.map((c) => (
+                <div key={c.id} onClick={() => cariSec(c.id)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenCariId === c.id ? T.surfaceHover : "transparent" }}>
+                  <div>
+                    <p style={{ fontSize: 12.5, fontWeight: 600 }}>{c.ad}</p>
+                    <p style={{ fontSize: 10, color: T.textMuted, textTransform: "capitalize" }}>{c.tur}</p>
+                  </div>
+                  <p style={{ fontFamily: T.mono, fontSize: 13, fontWeight: 700, color: Number(c.bakiye) > 0 ? T.accent : Number(c.bakiye) < 0 ? T.danger : T.textMuted }}>
+                    {Number(c.bakiye) > 0 ? `+${Number(c.bakiye).toFixed(0)} ₺` : `${Number(c.bakiye).toFixed(0)} ₺`}
+                  </p>
+                </div>
+              ))}
+            </Panel>
+
+            {secilenCariId && (
+              <Panel baslik="Hareket Ekle" ikon="📝">
+                <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                  <select value={hareketTur} onChange={(e) => setHareketTur(e.target.value)} style={girdiStil}>
+                    <option value="satis_veresiye">Veresiye Satış (bize borçlandı)</option>
+                    <option value="tahsilat">Tahsilat (ödedi)</option>
+                    <option value="tedarik_borcu">Tedarik Borcu (biz borçlandık)</option>
+                    <option value="odeme">Ödeme Yaptık</option>
+                  </select>
+                  <input type="number" value={hareketTutar} onChange={(e) => setHareketTutar(e.target.value)} placeholder="Tutar ₺" style={girdiStil} />
+                </div>
+                <input value={hareketAciklama} onChange={(e) => setHareketAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+                <button onClick={hareketEkle} disabled={hareketEkleniyor || !hareketTutar} style={{ ...butonStil(!!hareketTutar), width: "100%", padding: "10px 0", marginBottom: 14 }}>
+                  {hareketEkleniyor ? "Ekleniyor..." : "Hareket Ekle"}
+                </button>
+                {cariHareketleri?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, color: T.textMuted, marginBottom: 8, textTransform: "uppercase" }}>Son Hareketler</p>
+                    {cariHareketleri.map((h) => (
+                      <div key={h.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: 11.5 }}>
+                        <span style={{ color: T.textMuted }}>{h.tarih} — {h.tur}{h.aciklama ? ` (${h.aciklama})` : ""}</span>
+                        <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{Number(h.tutar_tl).toFixed(0)} ₺</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Panel>
+            )}
           </>
         )}
 
