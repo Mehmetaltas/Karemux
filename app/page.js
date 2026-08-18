@@ -2419,28 +2419,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [talepTur, setTalepTur] = useState("konu");
   const [talepMesaj, setTalepMesaj] = useState("");
   const [teshisSonuc, setTeshisSonuc] = useState(null);
-  const [kocRandevu, setKocRandevu] = useState(null);
-  const [kocRandevuYukleniyor, setKocRandevuYukleniyor] = useState(false);
-  const [kocRandevuHata, setKocRandevuHata] = useState("");
-
-  async function insanKocIste() {
-    setKocRandevuYukleniyor(true);
-    setKocRandevuHata("");
-    try {
-      const res = await fetch("/api/koc/randevu-talep", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setKocRandevu(data);
-    } catch (e) {
-      setKocRandevuHata(e.message || "Randevu alinamadi");
-    } finally {
-      setKocRandevuYukleniyor(false);
-    }
-  }
   const [teshisYukleniyor, setTeshisYukleniyor] = useState(false);
 
   async function teshisCalistir() {
@@ -4795,19 +4773,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 <div style={{ background: "#EAF7EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1px solid ${RENK_BASARI}` }}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: "#2E7D4F", marginBottom: 8 }}>AI yeterince yardimci olamadi mi?</p>
-                  {!kocRandevu ? (
-                    <button onClick={insanKocIste} disabled={kocRandevuYukleniyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: RENK_BASARI, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
-                      {kocRandevuYukleniyor ? "Araniyor..." : "Insan Koc ile Gorus"}
-                    </button>
-                  ) : (
-                    <div style={{ background: "#fff", borderRadius: 8, padding: 10 }}>
-                      <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>Randevun olusturuldu! ✅</p>
-                      <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 2 }}>Ogretmen: {kocRandevu.ogretmenAdi}</p>
-                      <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 6 }}>Zaman: {new Date(kocRandevu.baslangic).toLocaleString("tr-TR", { dateStyle: "medium", timeStyle: "short" })}</p>
-                      <a href={kocRandevu.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: RENK_BASARI, fontWeight: 700 }}>Gorusme Linki →</a>
-                    </div>
-                  )}
-                  {kocRandevuHata && <p style={{ fontSize: 11.5, color: COLORS.coral, marginTop: 6 }}>{kocRandevuHata}</p>}
+                  <button onClick={() => { setMod("ogretmenders"); setMenuAcik(false); }} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: RENK_BASARI, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
+                    Insan Ogretmenle Canli Ders Ayarla
+                  </button>
                 </div>
 
                 <div style={{ background: COLORS.page, borderRadius: 10, padding: 12, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
