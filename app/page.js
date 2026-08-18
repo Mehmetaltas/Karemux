@@ -4202,6 +4202,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Ders Seç</p>
                 <span style={{ marginLeft: "auto", fontSize: 10.5, fontWeight: 700, color: COLORS.muted, background: "#F0EBDC", padding: "3px 9px", borderRadius: 999 }}>{sinif}. Sinif</span>
               </div>
+              {!denemeDers && zayifDersler.length > 0 && (
+                <button onClick={() => { setDenemeDers(zayifDersler[0]); setKapsamUnite(null); setDenemeSorulari(null); }} style={{ display: "block", width: "100%", textAlign: "left", background: "#FFF1EF", border: `1px solid ${COLORS.coral}`, borderRadius: 10, padding: "10px 12px", marginBottom: 12, cursor: "pointer" }}>
+                  <p style={{ fontSize: 11.5, color: "#B23A2E", margin: 0 }}>💡 Onerimiz: <strong>{zayifDersler[0]}</strong> — bu derste zorlaniyorsun, bugun bu denemeyi cozmeni oneririz</p>
+                </button>
+              )}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }} className="kx-pop">
                 {gorunurDersler(sinif).map((d) => (
                   <button key={d.ad} onClick={() => { setDenemeDers(d.ad); setKapsamUnite(null); setDenemeSorulari(null); }} style={{
