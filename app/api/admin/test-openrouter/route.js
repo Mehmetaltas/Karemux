@@ -10,7 +10,7 @@ export async function GET(req) {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, max_tokens: 50, messages: [{ role: "user", content: "Merhaba, sadece 'test basarili' yaz" }] }),
+      body: JSON.stringify({ model, max_tokens: 700, messages: [{ role: "user", content: "Merhaba, sadece 'test basarili' yaz" }] }),
     });
     const hamMetin = await res.text();
     return Response.json({ modelKullanilan: model, httpDurum: res.status, hamYanit: hamMetin });
