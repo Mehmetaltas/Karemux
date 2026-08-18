@@ -38,6 +38,6 @@ export async function GET(req) {
     return Response.json({ ok: true, rapor, anormalDususVarMi });
   } catch (e) {
     console.error(e);
-    return Response.json({ error: "Cron gorevi basarisiz: " + e.message, stack: e.stack }, { status: 500 });
+    return Response.json({ error: "Cron gorevi basarisiz" }, { status: 500 });
   }
 }
