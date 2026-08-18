@@ -19,6 +19,10 @@
     {
       "path": "/api/cron/soru-bankasi-buyut",
       "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/rag-buyut",
+      "schedule": "0 4 * * *"
     }
   ]
 }
