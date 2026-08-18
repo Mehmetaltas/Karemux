@@ -31,6 +31,8 @@ export async function POST(req) {
     await sql`DELETE FROM veli_ogrenci WHERE veli_id = ${kullaniciId} OR ogrenci_id = ${kullaniciId}`;
     await sql`DELETE FROM guvenlik_denemeleri WHERE anahtar = ${kullanici[0].eposta}`;
 
+    const silinenKategoriler = "hata_kitapcigi, ilerleme, sinav_sonuclari, seviye_tespit_kademe, seviye_tespit_sonuc, ulusal_deneme_sonuclari, gunluk_kullanim, gunluk_gorevler, veli_ogrenci";
+
     const maliKayit = await sql`SELECT 1 FROM odemeler WHERE kullanici_id = ${kullaniciId} LIMIT 1`;
     if (maliKayit.length > 0) {
       await sql`
@@ -44,6 +46,14 @@ export async function POST(req) {
           hedef_il = NULL, hedef_ilce = NULL, hedef_okul = NULL, hedef_puan = NULL
         WHERE id = ${kullaniciId}
       `;
+      // Imha kaydi - KVKK geregi, ama kisisel veri (eposta/isim) ICERMEDEN, sadece anonim referans (id) ile.
+      try {
+        await sql`
+          INSERT INTO imha_kayitlari (anonim_referans, islem_turu, islem_sonucu, silinen_veri_kategorileri, anonimlestirme_yapildi_mi, tetikleyen_olay)
+          VALUES (${String(kullaniciId)}, 'hesap_silme', 'basarili', ${silinenKategoriler + ", kullanici_kimlik_bilgisi (anonimlestirildi)"}, true, 'kullanici_talebi')
+        `;
+      } catch (e) { console.error("Imha kaydi olusturulamadi:", e.message); }
+
       return new Response(JSON.stringify({ ok: true, anonimlestirildi: true }), {
         status: 200,
         headers: { "Content-Type": "application/json", "Set-Cookie": cikisCookieBaslik() },
@@ -51,6 +61,13 @@ export async function POST(req) {
     }
 
     await sql`DELETE FROM kullanicilar WHERE id = ${kullaniciId}`;
+    try {
+      await sql`
+        INSERT INTO imha_kayitlari (anonim_referans, islem_turu, islem_sonucu, silinen_veri_kategorileri, anonimlestirme_yapildi_mi, tetikleyen_olay)
+        VALUES (${String(kullaniciId)}, 'hesap_silme', 'basarili', ${silinenKategoriler + ", kullanici_hesabi (tamamen silindi)"}, false, 'kullanici_talebi')
+      `;
+    } catch (e) { console.error("Imha kaydi olusturulamadi:", e.message); }
+
     return new Response(JSON.stringify({ ok: true, anonimlestirildi: false }), {
       status: 200,
       headers: { "Content-Type": "application/json", "Set-Cookie": cikisCookieBaslik() },

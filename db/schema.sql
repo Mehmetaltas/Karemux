@@ -202,3 +202,16 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 -- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS okul TEXT;
 -- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS telefon TEXT;
 -- ALTER TABLE kullanicilar ADD COLUMN IF NOT EXISTS sinif INTEGER;
+
+-- KVKK imha kayitlari (17 Agustos 2026'da eklendi) - kisisel veri ICERMEZ,
+-- sadece hangi islemin ne zaman/nasil yapildiginin kanitini tutar.
+-- CREATE TABLE IF NOT EXISTS imha_kayitlari (
+--   id SERIAL PRIMARY KEY,
+--   anonim_referans TEXT NOT NULL,
+--   islem_turu TEXT NOT NULL,
+--   islem_tarihi TIMESTAMPTZ NOT NULL DEFAULT now(),
+--   islem_sonucu TEXT NOT NULL,
+--   silinen_veri_kategorileri TEXT,
+--   anonimlestirme_yapildi_mi BOOLEAN NOT NULL,
+--   tetikleyen_olay TEXT
+-- );
