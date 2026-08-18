@@ -2527,10 +2527,33 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  const [hesapSilAcik, setHesapSilAcik] = useState(false);
+  const [hesapSilSifre, setHesapSilSifre] = useState("");
+  const [hesapSilMesaj, setHesapSilMesaj] = useState("");
+
   async function cikisYap() {
     await fetch("/api/auth/logout", { method: "POST" });
     setHesap(null);
     setVeliOgrenciler([]);
+  }
+
+  async function hesabimiSil() {
+    setHesapSilMesaj("");
+    try {
+      const res = await fetch("/api/auth/hesap-sil", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre: hesapSilSifre }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setHesap(null);
+      setVeliOgrenciler([]);
+      setHesapSilAcik(false);
+      setHesapSilSifre("");
+    } catch (e) {
+      setHesapSilMesaj(e.message || "Hesap silinemedi");
+    }
   }
 
   async function dogrulaGonder() {
@@ -4633,6 +4656,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 )}
 
                 <button onClick={cikisYap} style={{ padding: "8px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>Çıkış Yap</button>
+
+                {!hesapSilAcik ? (
+                  <button onClick={() => setHesapSilAcik(true)} style={{ display: "block", marginTop: 14, border: "none", background: "none", color: COLORS.coral, fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>
+                    Hesabimi Sil
+                  </button>
+                ) : (
+                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${COLORS.line}` }}>
+                    <p style={{ fontSize: 12.5, color: COLORS.coral, fontWeight: 700, marginBottom: 6 }}>Bu islem geri alinamaz</p>
+                    <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 10, lineHeight: 1.5 }}>Ogrenme gecmisin, sorularin, tum ilerlemen kalici olarak silinecek. Onaylamak icin sifreni gir.</p>
+                    <input type="password" value={hesapSilSifre} onChange={(e) => setHesapSilSifre(e.target.value)} placeholder="Sifren" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={hesabimiSil} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Evet, Hesabimi Sil</button>
+                      <button onClick={() => { setHesapSilAcik(false); setHesapSilSifre(""); setHesapSilMesaj(""); }} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>Vazgec</button>
+                    </div>
+                    {hesapSilMesaj && <p style={{ fontSize: 12, color: COLORS.coral, marginTop: 8 }}>{hesapSilMesaj}</p>}
+                  </div>
+                )}
               </div>
             ) : (
               <div>
