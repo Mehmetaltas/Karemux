@@ -2418,6 +2418,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [talepBaslik, setTalepBaslik] = useState("");
   const [talepTur, setTalepTur] = useState("konu");
   const [talepMesaj, setTalepMesaj] = useState("");
+  const [teshisSonuc, setTeshisSonuc] = useState(null);
+  const [teshisYukleniyor, setTeshisYukleniyor] = useState(false);
+
+  async function teshisCalistir() {
+    setTeshisYukleniyor(true);
+    setTeshisSonuc(null);
+    try {
+      const res = await fetch(`/api/teshis?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      setTeshisSonuc(data);
+    } catch (e) {
+      setTeshisSonuc({ kontroller: [{ ad: "Baglanti", durum: "sorun", detay: "Teshis alinamadi, internetini kontrol et" }], genelDurum: "sorun" });
+    } finally {
+      setTeshisYukleniyor(false);
+    }
+  }
 
   async function talepGonder() {
     const baslik = talepBaslik.trim();
@@ -4725,6 +4741,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     ))}
                   </div>
                 )}
+
+                <div style={{ marginBottom: 14 }}>
+                  <button onClick={teshisCalistir} disabled={teshisYukleniyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                    {teshisYukleniyor ? "Kontrol ediliyor..." : "🔍 Bir Sorun mu Var? Teshis Et"}
+                  </button>
+                  {teshisSonuc && (
+                    <div style={{ marginTop: 8, background: COLORS.page, borderRadius: 8, padding: 10, border: `1px solid ${COLORS.line}` }}>
+                      {teshisSonuc.kontroller.map((k, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "5px 0" }}>
+                          <span style={{ fontSize: 13 }}>{k.durum === "ok" ? "✅" : k.durum === "uyari" ? "⚠️" : "❌"}</span>
+                          <div>
+                            <p style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{k.ad}</p>
+                            <p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>{k.detay}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <div style={{ background: COLORS.page, borderRadius: 10, padding: 12, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
                   <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 8 }}>Eksik bir konu ya da ozellik mi var?</p>
