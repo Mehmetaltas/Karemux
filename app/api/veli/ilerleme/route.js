@@ -63,7 +63,7 @@ export async function GET(req) {
           : `${ogrenci.ad} genel olarak iyi gidiyor, belirgin bir zayif nokta yok.`;
 
       sonuc.push({
-        ogrenci: { ad: ogrenci.ad, sinif: ogrenci.sinif },
+        ogrenci: { id: ogrenci.id, ad: ogrenci.ad, sinif: ogrenci.sinif },
         gecmis: satirlar,
         zayifDersler,
         netOzet: netSatirlari,

@@ -2411,6 +2411,29 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [baglantiKoduGir, setBaglantiKoduGir] = useState("");
   const [veliMesaj, setVeliMesaj] = useState("");
   const [veliOgrenciler, setVeliOgrenciler] = useState([]);
+  const [veliSoruMetni, setVeliSoruMetni] = useState({});
+  const [veliCevaplar, setVeliCevaplar] = useState({});
+  const [veliSoruYukleniyor, setVeliSoruYukleniyor] = useState(null);
+
+  async function veliSoruSor(ogrenciId) {
+    const soru = (veliSoruMetni[ogrenciId] || "").trim();
+    if (!soru) return;
+    setVeliSoruYukleniyor(ogrenciId);
+    try {
+      const res = await fetch("/api/veli/asistan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ogrenciId, soru }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setVeliCevaplar((eski) => ({ ...eski, [ogrenciId]: data.cevap }));
+    } catch (e) {
+      setVeliCevaplar((eski) => ({ ...eski, [ogrenciId]: e.message || "Cevap alinamadi" }));
+    } finally {
+      setVeliSoruYukleniyor(null);
+    }
+  }
 
   useEffect(() => {
     fetch("/api/auth/me").then((r) => r.json()).then((d) => {
@@ -5300,6 +5323,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <p style={{ fontSize: 11.5, color: "#2C5AA3", fontWeight: 600 }}>{"\uD83D\uDCA1"} {o.oneri}</p>
                       </div>
                     )}
+
+                    <div style={{ marginBottom: 12, paddingTop: 10, borderTop: `1px solid ${COLORS.line}` }}>
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, marginBottom: 8 }}>COCUGUNUZ HAKKINDA SORU SORUN</p>
+                      <div style={{ display: "flex", gap: 6 }}>
+                        <input
+                          value={veliSoruMetni[o.ogrenci.id] || ""}
+                          onChange={(e) => setVeliSoruMetni((eski) => ({ ...eski, [o.ogrenci.id]: e.target.value }))}
+                          placeholder="Orn: Bu hafta neden dustu?"
+                          style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }}
+                        />
+                        <button
+                          onClick={() => veliSoruSor(o.ogrenci.id)}
+                          disabled={veliSoruYukleniyor === o.ogrenci.id}
+                          style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
+                        >
+                          {veliSoruYukleniyor === o.ogrenci.id ? "..." : "Sor"}
+                        </button>
+                      </div>
+                      {veliCevaplar[o.ogrenci.id] && (
+                        <p style={{ fontSize: 12.5, lineHeight: 1.6, marginTop: 10, background: "#F4F0E4", borderRadius: 8, padding: 10 }}>{veliCevaplar[o.ogrenci.id]}</p>
+                      )}
+                    </div>
 
                     {o.enZayifKonular?.length > 0 && (
                       <div style={{ marginBottom: 12 }}>
