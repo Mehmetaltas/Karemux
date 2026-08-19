@@ -30,16 +30,18 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const { ogretmenId, baslangicISO, cihazId } = await req.json();
+    const { ogretmenId, baslangicISO, cihazId, sureDk } = await req.json();
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
     if (!ogretmenId || !baslangicISO) return Response.json({ error: "Eksik veri" }, { status: 400 });
+
+    const gecerliSure = [30, 45, 60].includes(Number(sureDk)) ? Number(sureDk) : 60;
 
     const ogretmen = await sql`SELECT ad, saatlik_ucret_tl FROM ogretmenler WHERE id = ${ogretmenId} AND aktif = true`;
     if (ogretmen.length === 0) return Response.json({ error: "Ogretmen bulunamadi" }, { status: 404 });
 
     const baslangic = new Date(baslangicISO);
-    const bitis = new Date(baslangic.getTime() + 60 * 60000); // standart 60 dk ders
+    const bitis = new Date(baslangic.getTime() + gecerliSure * 60000);
 
     const catisma = await sql`
       SELECT 1 FROM randevular
@@ -48,7 +50,7 @@ export async function POST(req) {
     `;
     if (catisma.length > 0) return Response.json({ error: "Bu saat dolu, baska bir slot secin" }, { status: 409 });
 
-    const ucretTl = Number(ogretmen[0].saatlik_ucret_tl) || 0;
+    const ucretTl = Math.round(((Number(ogretmen[0].saatlik_ucret_tl) || 0) * gecerliSure / 60) * 100) / 100;
     const odaId = `karemux-ders-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const jitsiLink = `https://meet.jit.si/${odaId}`;
 

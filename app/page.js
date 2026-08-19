@@ -1822,7 +1822,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [ogretmenler, setOgretmenler] = useState(null);
   const [secilenOgretmenId, setSecilenOgretmenId] = useState(null);
-  const [ogretmenKategori, setOgretmenKategori] = useState("ders"); // "ders" | "rehberlik"
+  const [ogretmenKategori, setOgretmenKategori] = useState("ders");
+  const [dersSuresiDk, setDersSuresiDk] = useState(60); // "ders" | "rehberlik"
   const [musaitSlotlar, setMusaitSlotlar] = useState(null);
   const [randevuAliniyor, setRandevuAliniyor] = useState(null); // hangi slot alinmaya calisiliyor
   const [randevularim, setRandevularim] = useState(null);
@@ -1835,7 +1836,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function ogretmenSecVeSlotlariGetir(ogretmenId) {
     setSecilenOgretmenId(ogretmenId); setMusaitSlotlar(null);
-    const res = await fetch(`/api/randevu/musaitlik?ogretmenId=${ogretmenId}`);
+    const res = await fetch(`/api/randevu/musaitlik?ogretmenId=${ogretmenId}&sureDk=${dersSuresiDk}`);
     const data = await res.json();
     setMusaitSlotlar(data.slotlar || []);
   }
@@ -1845,7 +1846,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     try {
       const res = await fetch("/api/randevu/al", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ogretmenId: secilenOgretmenId, baslangicISO: slotISO, cihazId: cihazIdRef.current }),
+        body: JSON.stringify({ ogretmenId: secilenOgretmenId, baslangicISO: slotISO, cihazId: cihazIdRef.current, sureDk: dersSuresiDk }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -5363,6 +5364,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 12.5, fontWeight: 700 }}>Rehber Öğretmen</p>
                   <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>Danışmanlık, motivasyon</p>
                 </button>
+              </div>
+
+              <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                {[30, 45, 60].map((dk) => (
+                  <button key={dk} onClick={() => { setDersSuresiDk(dk); if (secilenOgretmenId) ogretmenSecVeSlotlariGetir(secilenOgretmenId); }} style={{
+                    flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer",
+                    border: `1.5px solid ${dersSuresiDk === dk ? COLORS.coral : COLORS.line}`,
+                    background: dersSuresiDk === dk ? "#FFF1EF" : COLORS.page, color: dersSuresiDk === dk ? COLORS.coral : COLORS.muted,
+                  }}>{dk} dk</button>
+                ))}
               </div>
 
               {randevularim?.length > 0 && (

@@ -20,6 +20,7 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
     const ogretmenId = searchParams.get("ogretmenId");
+    const sureDk = [30, 45, 60].includes(Number(searchParams.get("sureDk"))) ? Number(searchParams.get("sureDk")) : 60;
 
     if (!ogretmenId) {
       const ogretmenler = await sql`SELECT id, ad, brans, saatlik_ucret_tl FROM ogretmenler WHERE aktif = true ORDER BY ad ASC`;
@@ -43,8 +44,8 @@ export async function GET(req) {
         // Genis musaitlik penceresini 60 dakikalik standart ders sureli
         // slotlara bol (piyasa arastirmasi: standart ders suresi 60 dk).
         let slotBaslangic = new Date(blokBaslangic);
-        while (slotBaslangic.getTime() + 60 * 60000 <= blokBitis.getTime()) {
-          const slotBitis = new Date(slotBaslangic.getTime() + 60 * 60000);
+        while (slotBaslangic.getTime() + sureDk * 60000 <= blokBitis.getTime()) {
+          const slotBitis = new Date(slotBaslangic.getTime() + sureDk * 60000);
           const catisiyorMu = mevcutRandevular.some((r) => {
             const rBas = new Date(r.baslangic_zamani).getTime();
             const rBit = new Date(r.bitis_zamani).getTime();
@@ -53,7 +54,7 @@ export async function GET(req) {
           if (!catisiyorMu && slotBaslangic > new Date()) {
             slotlar.push(slotBaslangic.toISOString());
           }
-          slotBaslangic = slotBitis;
+          slotBaslangic = new Date(slotBaslangic.getTime() + sureDk * 60000);
         }
       }
     }
