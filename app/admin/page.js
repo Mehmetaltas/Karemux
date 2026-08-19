@@ -676,7 +676,7 @@ export default function YonetimPaneli() {
               <Panel baslik="En Cok AI Kullanan 10 Ogrenci (Bu Ay)" ikon="📊">
                 {maliyetVeri.enCokKullananlar.map((k, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.enCokKullananlar.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 12.5 }}>
-                    <span>{k.ad}</span>
+                    <span>{k.ad} <span style={{ color: T.textMuted, fontSize: 10 }}>#{k.id}</span></span>
                     <span style={{ fontFamily: T.mono }}>{k.istekSayisi} istek · <strong style={{ color: T.amber }}>~{k.tahminiMaliyetTl} ₺</strong></span>
                   </div>
                 ))}

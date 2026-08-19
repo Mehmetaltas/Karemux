@@ -44,12 +44,15 @@ export async function GET(req) {
       ? Math.round(((uretimToplam + tahminiAiMaliyetTl) / aktifKullanici) * 100) / 100
       : 0;
 
+    // Kullaniciya gore grupla (k.id), isme gore DEGIL - birden fazla
+    // kullanici ayni ada ("Anonim" vb.) sahip olabilir, isme gore gruplamak
+    // onlari yanlislikla tek satirda birlestirir.
     const enCokKullananlar = await sql`
-      SELECT k.ad, SUM(g.ai_istek_sayisi)::int AS istekSayisi
+      SELECT g.kullanici_id, k.ad, SUM(g.ai_istek_sayisi)::int AS istekSayisi
       FROM gunluk_kullanim g
       JOIN kullanicilar k ON k.id = g.kullanici_id
       WHERE g.tarih >= date_trunc('month', CURRENT_DATE)
-      GROUP BY k.ad ORDER BY istekSayisi DESC LIMIT 10
+      GROUP BY g.kullanici_id, k.ad ORDER BY istekSayisi DESC LIMIT 10
     `;
 
     return Response.json({
@@ -59,7 +62,7 @@ export async function GET(req) {
       toplamIstek,
       aktifKullanici,
       kisiBasiOrtalamaMaliyet,
-      enCokKullananlar: enCokKullananlar.map((k) => ({ ad: k.ad, istekSayisi: k.isteksayisi, tahminiMaliyetTl: Math.round(k.isteksayisi * 0.01 * 100) / 100 })),
+      enCokKullananlar: enCokKullananlar.map((k) => ({ id: k.kullanici_id, ad: k.ad, istekSayisi: k.isteksayisi, tahminiMaliyetTl: Math.round(k.isteksayisi * 0.01 * 100) / 100 })),
     });
   } catch (e) {
     console.error(e);
