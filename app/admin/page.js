@@ -119,6 +119,12 @@ export default function YonetimPaneli() {
   const [kasaHareketAciklama, setKasaHareketAciklama] = useState("");
   const [kasaHareketEkleniyor, setKasaHareketEkleniyor] = useState(false);
   const [maliyetVeri, setMaliyetVeri] = useState(null);
+  const [simulasyonVeri, setSimulasyonVeri] = useState(null);
+  const [senaryoKonuAnlatimi, setSenaryoKonuAnlatimi] = useState(10);
+  const [senaryoSoruCozumu, setSenaryoSoruCozumu] = useState(15);
+  const [senaryoTekrarTesti, setSenaryoTekrarTesti] = useState(5);
+  const [senaryoDeneme, setSenaryoDeneme] = useState(2);
+  const [senaryoKisiSayisi, setSenaryoKisiSayisi] = useState(100);
   const [planlamaVeri, setPlanlamaVeri] = useState(null);
   const [hedefGelir, setHedefGelir] = useState("");
   const [hedefGider, setHedefGider] = useState("");
@@ -284,6 +290,15 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && (sekme === "kasa" || sekme === "cari" || sekme === "giderler") && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "maliyet" && !maliyetVeri) maliyetGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "simulasyon" && !simulasyonVeri) simulasyonGetir(); }, [girisYapildi, sekme]);
+
+  async function simulasyonGetir() {
+    try {
+      const res = await fetch(`/api/admin/simulasyon?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setSimulasyonVeri(data);
+    } catch {}
+  }
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
 
   async function maliyetGetir() {
@@ -394,6 +409,7 @@ export default function YonetimPaneli() {
     ["cari", "🤝 Cari"],
     ["kasa", "🏦 Kasa/Banka"],
     ["maliyet", "🤖 Üretim Maliyeti"],
+    ["simulasyon", "🧮 Simülasyon"],
     ["planlama", "📈 Finansal Planlama"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
@@ -750,6 +766,45 @@ export default function YonetimPaneli() {
             </Panel>
           </>
         )}
+
+        {sekme === "simulasyon" && simulasyonVeri && (() => {
+          const b = simulasyonVeri.birimMaliyetler;
+          const kisiBasi = senaryoKonuAnlatimi * b.konu_anlatimi.maliyetTl + senaryoSoruCozumu * b.soru_cozumu.maliyetTl + senaryoTekrarTesti * b.tekrar_testi.maliyetTl + senaryoDeneme * b.deneme_yazili.maliyetTl;
+          const topluMaliyet = kisiBasi * senaryoKisiSayisi;
+          return (
+            <>
+              <div style={{ background: "#2A2010", border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11.5, color: T.amber }}>
+                ⚠️ Bu bir SIMULASYONDUR - gercek kullanim GEREKCE farkli olabilir. Model: {simulasyonVeri.varsayimlar.model}, Kur: {simulasyonVeri.varsayimlar.usdTry} TL/USD.
+              </div>
+              <Panel baslik="Bir Ayda Senaryo (Kisi Basi)" ikon="👤">
+                <label style={etiketStil}>Konu Anlatimi (adet)</label>
+                <input type="number" value={senaryoKonuAnlatimi} onChange={(e) => setSenaryoKonuAnlatimi(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <label style={etiketStil}>Soru Cozumu (adet)</label>
+                <input type="number" value={senaryoSoruCozumu} onChange={(e) => setSenaryoSoruCozumu(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <label style={etiketStil}>Tekrar Testi (adet)</label>
+                <input type="number" value={senaryoTekrarTesti} onChange={(e) => setSenaryoTekrarTesti(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <label style={etiketStil}>Deneme/Yazili (adet)</label>
+                <input type="number" value={senaryoDeneme} onChange={(e) => setSenaryoDeneme(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <label style={etiketStil}>Toplu Hesap Icin Kisi Sayisi</label>
+                <input type="number" value={senaryoKisiSayisi} onChange={(e) => setSenaryoKisiSayisi(Number(e.target.value))} style={girdiStil} />
+              </Panel>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+                <KpiKart etiket="Kisi Basi Aylik Maliyet" deger={`${kisiBasi.toFixed(2)} ₺`} renk={T.amber} ikon="👤" />
+                <KpiKart etiket={`${senaryoKisiSayisi} Kisilik Toplam`} deger={`${topluMaliyet.toFixed(0)} ₺`} renk={T.danger} ikon="👥" />
+              </div>
+
+              <Panel baslik="Birim Maliyetler (Referans)" ikon="📐">
+                {Object.entries(b).map(([anahtar, o]) => (
+                  <div key={anahtar} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${T.border}`, fontSize: 12.5 }}>
+                    <span style={{ color: T.textMuted }}>{o.ad}</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{o.maliyetTl} ₺</span>
+                  </div>
+                ))}
+              </Panel>
+            </>
+          );
+        })()}
 
         {sekme === "ogretmen" && (
           <Panel baslik="Yeni Öğretmen Ekle" ikon="🎓">
