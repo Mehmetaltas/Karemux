@@ -118,6 +118,7 @@ export default function YonetimPaneli() {
   const [kasaHareketTutar, setKasaHareketTutar] = useState("");
   const [kasaHareketAciklama, setKasaHareketAciklama] = useState("");
   const [kasaHareketEkleniyor, setKasaHareketEkleniyor] = useState(false);
+  const [maliyetVeri, setMaliyetVeri] = useState(null);
 
   function mesajTemizle() { setHata(""); setBasari(""); }
 
@@ -277,6 +278,15 @@ export default function YonetimPaneli() {
   useEffect(() => { if (basari) { const t = setTimeout(() => setBasari(""), 4000); return () => clearTimeout(t); } }, [basari]);
   useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && (sekme === "kasa" || sekme === "cari" || sekme === "giderler") && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "maliyet" && !maliyetVeri) maliyetGetir(); }, [girisYapildi, sekme]);
+
+  async function maliyetGetir() {
+    try {
+      const res = await fetch(`/api/admin/maliyet?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setMaliyetVeri(data);
+    } catch {}
+  }
 
   async function kasaGetir() {
     try {
@@ -352,6 +362,7 @@ export default function YonetimPaneli() {
     ["giderler", "🧾 Giderler"],
     ["cari", "🤝 Cari"],
     ["kasa", "🏦 Kasa/Banka"],
+    ["maliyet", "🤖 Üretim Maliyeti"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
@@ -633,6 +644,42 @@ export default function YonetimPaneli() {
                     ))}
                   </div>
                 )}
+              </Panel>
+            )}
+          </>
+        )}
+
+        {sekme === "maliyet" && maliyetVeri && (
+          <>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+              <KpiKart etiket="Uretim Gideri (Bu Ay)" deger={`${maliyetVeri.uretimToplam.toFixed(0)} ₺`} renk={T.danger} altYazi="Gerçek gider kayıtları" ikon="🏭" />
+              <KpiKart etiket="Tahmini AI Maliyeti" deger={`~${maliyetVeri.tahminiAiMaliyetTl} ₺`} renk={T.amber} altYazi={`${maliyetVeri.toplamIstek} istek (KABA TAHMIN)`} ikon="🤖" />
+              <KpiKart etiket="Kisi Basi Ortalama" deger={`~${maliyetVeri.kisiBasiOrtalamaMaliyet} ₺`} renk={T.accent} altYazi={`${maliyetVeri.aktifKullanici} aktif kullanici`} ikon="👤" />
+            </div>
+
+            <div style={{ background: "#2A2010", border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11.5, color: T.amber }}>
+              ⚠️ Bu sayfadaki AI maliyeti TAHMINIDIR (istek başı ~0.01₺ varsayımıyla) — gerçek fatura değildir. Sağlayıcıların (Anthropic, Google, Groq) kendi konsollarından arada bir gerçek maliyetle karşılaştırıp bu tahmini kalibre etmen önerilir.
+            </div>
+
+            {maliyetVeri.uretimGiderleri?.length > 0 && (
+              <Panel baslik="Uretim Gideri Kategorileri (Bu Ay)" ikon="🏭">
+                {maliyetVeri.uretimGiderleri.map((g, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.uretimGiderleri.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 12.5 }}>
+                    <span style={{ color: T.textMuted, textTransform: "capitalize" }}>{g.kategori}</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{Number(g.toplam).toFixed(0)} ₺</span>
+                  </div>
+                ))}
+              </Panel>
+            )}
+
+            {maliyetVeri.enCokKullananlar?.length > 0 && (
+              <Panel baslik="En Cok AI Kullanan 10 Ogrenci (Bu Ay)" ikon="📊">
+                {maliyetVeri.enCokKullananlar.map((k, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.enCokKullananlar.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 12.5 }}>
+                    <span>{k.ad}</span>
+                    <span style={{ fontFamily: T.mono }}>{k.istekSayisi} istek · <strong style={{ color: T.amber }}>~{k.tahminiMaliyetTl} ₺</strong></span>
+                  </div>
+                ))}
               </Panel>
             )}
           </>
