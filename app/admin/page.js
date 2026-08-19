@@ -103,6 +103,20 @@ export default function YonetimPaneli() {
   const [hareketAciklama, setHareketAciklama] = useState("");
   const [hareketEkleniyor, setHareketEkleniyor] = useState(false);
 
+  const [kasaHesaplari, setKasaHesaplari] = useState(null);
+  const [kasaToplamBakiye, setKasaToplamBakiye] = useState(0);
+  const [yeniHesapAdi, setYeniHesapAdi] = useState("");
+  const [yeniHesapTur, setYeniHesapTur] = useState("banka");
+  const [yeniHesapBanka, setYeniHesapBanka] = useState("");
+  const [yeniHesapBaslangic, setYeniHesapBaslangic] = useState("");
+  const [hesapEkleniyor, setHesapEkleniyor] = useState(false);
+  const [secilenHesapId, setSecilenHesapId] = useState(null);
+  const [kasaHareketleri, setKasaHareketleri] = useState(null);
+  const [kasaHareketTur, setKasaHareketTur] = useState("giris");
+  const [kasaHareketTutar, setKasaHareketTutar] = useState("");
+  const [kasaHareketAciklama, setKasaHareketAciklama] = useState("");
+  const [kasaHareketEkleniyor, setKasaHareketEkleniyor] = useState(false);
+
   function mesajTemizle() { setHata(""); setBasari(""); }
 
   async function girisDene() {
@@ -260,6 +274,54 @@ export default function YonetimPaneli() {
 
   useEffect(() => { if (basari) { const t = setTimeout(() => setBasari(""), 4000); return () => clearTimeout(t); } }, [basari]);
   useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "kasa" && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
+
+  async function kasaGetir() {
+    try {
+      const res = await fetch(`/api/admin/kasa?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) { setKasaHesaplari(data.hesaplar); setKasaToplamBakiye(data.toplamBakiye); }
+    } catch {}
+  }
+
+  async function hesapEkle() {
+    if (!yeniHesapAdi) return;
+    setHesapEkleniyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/kasa", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, hesapAdi: yeniHesapAdi, tur: yeniHesapTur, bankaAdi: yeniHesapBanka || null, baslangicBakiyesi: Number(yeniHesapBaslangic) || 0 }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari(`"${yeniHesapAdi}" eklendi.`); setYeniHesapAdi(""); setYeniHesapBanka(""); setYeniHesapBaslangic("");
+      kasaGetir();
+    } catch (e) { setHata(e.message); } finally { setHesapEkleniyor(false); }
+  }
+
+  async function hesapSec(id) {
+    setSecilenHesapId(id); setKasaHareketleri(null);
+    try {
+      const res = await fetch(`/api/admin/kasa/hareket?sifre=${encodeURIComponent(sifre)}&hesapId=${id}`);
+      const data = await res.json();
+      if (res.ok) setKasaHareketleri(data.hareketler);
+    } catch {}
+  }
+
+  async function kasaHareketEkle() {
+    if (!secilenHesapId || !kasaHareketTutar) return;
+    setKasaHareketEkleniyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/kasa/hareket", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, hesapId: secilenHesapId, tur: kasaHareketTur, tutarTl: Number(kasaHareketTutar), aciklama: kasaHareketAciklama || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari("Hareket eklendi."); setKasaHareketTutar(""); setKasaHareketAciklama("");
+      kasaGetir(); hesapSec(secilenHesapId);
+    } catch (e) { setHata(e.message); } finally { setKasaHareketEkleniyor(false); }
+  }
 
   // ==== GİRİŞ EKRANI ====
   if (!girisYapildi) {
@@ -287,6 +349,7 @@ export default function YonetimPaneli() {
     ["paketler", "💰 Paketler"],
     ["giderler", "🧾 Giderler"],
     ["cari", "🤝 Cari"],
+    ["kasa", "🏦 Kasa/Banka"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
@@ -483,6 +546,73 @@ export default function YonetimPaneli() {
                       <div key={h.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: 11.5 }}>
                         <span style={{ color: T.textMuted }}>{h.tarih} — {h.tur}{h.aciklama ? ` (${h.aciklama})` : ""}</span>
                         <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{Number(h.tutar_tl).toFixed(0)} ₺</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Panel>
+            )}
+          </>
+        )}
+
+        {sekme === "kasa" && (
+          <>
+            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: "16px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 10.5, fontWeight: 600, color: T.textMuted, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Toplam Bakiye (Tüm Hesaplar)</p>
+              <p style={{ fontFamily: T.mono, fontSize: 24, fontWeight: 700, color: kasaToplamBakiye >= 0 ? T.accent : T.danger }}>{kasaToplamBakiye.toFixed(0)} ₺</p>
+            </div>
+
+            <Panel baslik="Yeni Hesap Ekle" ikon="➕">
+              <label style={etiketStil}>Hesap Adı</label>
+              <input value={yeniHesapAdi} onChange={(e) => setYeniHesapAdi(e.target.value)} placeholder="Örn: İş Bankası Şirket Hesabı" style={{ ...girdiStil, marginBottom: 10 }} />
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={yeniHesapTur} onChange={(e) => setYeniHesapTur(e.target.value)} style={girdiStil}>
+                  <option value="banka">Banka Hesabı</option>
+                  <option value="nakit">Nakit (Kasa)</option>
+                </select>
+                <input value={yeniHesapBanka} onChange={(e) => setYeniHesapBanka(e.target.value)} placeholder="Banka adı (opsiyonel)" style={girdiStil} />
+              </div>
+              <label style={etiketStil}>Başlangıç Bakiyesi (₺)</label>
+              <input type="number" value={yeniHesapBaslangic} onChange={(e) => setYeniHesapBaslangic(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <button onClick={hesapEkle} disabled={hesapEkleniyor || !yeniHesapAdi} style={{ ...butonStil(!!yeniHesapAdi), width: "100%", padding: "10px 0" }}>
+                {hesapEkleniyor ? "Ekleniyor..." : "Hesap Ekle"}
+              </button>
+            </Panel>
+
+            <Panel baslik="Hesaplar" ikon="🏦">
+              {!kasaHesaplari ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : kasaHesaplari.length === 0 ? (
+                <p style={{ fontSize: 12, color: T.textMuted }}>Henüz hesap yok.</p>
+              ) : kasaHesaplari.map((h) => (
+                <div key={h.id} onClick={() => hesapSec(h.id)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenHesapId === h.id ? T.surfaceHover : "transparent" }}>
+                  <div>
+                    <p style={{ fontSize: 12.5, fontWeight: 600 }}>{h.tur === "nakit" ? "💵" : "🏦"} {h.hesap_adi}</p>
+                    {h.banka_adi && <p style={{ fontSize: 10, color: T.textMuted }}>{h.banka_adi}</p>}
+                  </div>
+                  <p style={{ fontFamily: T.mono, fontSize: 13, fontWeight: 700, color: Number(h.bakiye) >= 0 ? T.accent : T.danger }}>{Number(h.bakiye).toFixed(0)} ₺</p>
+                </div>
+              ))}
+            </Panel>
+
+            {secilenHesapId && (
+              <Panel baslik="Hareket Ekle" ikon="📝">
+                <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                  <select value={kasaHareketTur} onChange={(e) => setKasaHareketTur(e.target.value)} style={girdiStil}>
+                    <option value="giris">Giriş (Para Girdi)</option>
+                    <option value="cikis">Çıkış (Para Çıktı)</option>
+                  </select>
+                  <input type="number" value={kasaHareketTutar} onChange={(e) => setKasaHareketTutar(e.target.value)} placeholder="Tutar ₺" style={girdiStil} />
+                </div>
+                <input value={kasaHareketAciklama} onChange={(e) => setKasaHareketAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+                <button onClick={kasaHareketEkle} disabled={kasaHareketEkleniyor || !kasaHareketTutar} style={{ ...butonStil(!!kasaHareketTutar), width: "100%", padding: "10px 0", marginBottom: 14 }}>
+                  {kasaHareketEkleniyor ? "Ekleniyor..." : "Hareket Ekle"}
+                </button>
+                {kasaHareketleri?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, color: T.textMuted, marginBottom: 8, textTransform: "uppercase" }}>Son Hareketler</p>
+                    {kasaHareketleri.map((k) => (
+                      <div key={k.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: 11.5 }}>
+                        <span style={{ color: T.textMuted }}>{k.tarih} — {k.tur === "giris" ? "Giriş" : "Çıkış"}{k.aciklama ? ` (${k.aciklama})` : ""}</span>
+                        <span style={{ fontFamily: T.mono, fontWeight: 700, color: k.tur === "giris" ? T.accent : T.danger }}>{k.tur === "giris" ? "+" : "-"}{Number(k.tutar_tl).toFixed(0)} ₺</span>
                       </div>
                     ))}
                   </div>
