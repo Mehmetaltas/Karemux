@@ -5370,7 +5370,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 11.5, fontWeight: 700, color: "#2E7D4F", marginBottom: 8 }}>✓ Yaklaşan Randevuların</p>
                   {randevularim.map((r) => (
                     <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 12 }}>
-                      <span>{r.ogretmen_adi} ({r.brans}) — {new Date(r.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}</span>
+                      <span>{r.ogretmen_adi} ({r.brans}) — {new Date(r.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}{r.ucret_tl > 0 && <span style={{ color: r.odendi ? "#2E7D4F" : "#B23A2E", fontWeight: 700 }}> · {r.ucret_tl}₺ {r.odendi ? "Ödendi" : "Ödenmedi"}</span>}</span>
                       <a href={r.zoom_link} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.coral, fontWeight: 700, fontSize: 11.5 }}>Katıl →</a>
                     </div>
                   ))}
