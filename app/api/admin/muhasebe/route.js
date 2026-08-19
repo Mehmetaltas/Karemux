@@ -100,17 +100,29 @@ export async function PATCH(req) {
 // POST: Manuel gider ekleme (muhasebe, bagkur, vergi vb.)
 export async function POST(req) {
   try {
-    const { sifre, kategori, tutarTl, aciklama, tarih, tekrarlayan } = await req.json();
+    const { sifre, kategori, tutarTl, aciklama, tarih, tekrarlayan, hesapId } = await req.json();
     const yetki = await yetkiKontrol(req, sifre);
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
     if (!kategori || !tutarTl) return Response.json({ error: "Kategori ve tutar gerekli" }, { status: 400 });
 
+    const gunTarihi = tarih || new Date().toISOString().slice(0, 10);
     await sql`
       INSERT INTO giderler (kategori, tutar_tl, aciklama, tarih, tekrarlayan)
-      VALUES (${kategori}, ${tutarTl}, ${aciklama || null}, ${tarih || new Date().toISOString().slice(0, 10)}, ${tekrarlayan || false})
+      VALUES (${kategori}, ${tutarTl}, ${aciklama || null}, ${gunTarihi}, ${tekrarlayan || false})
     `;
-    return Response.json({ ok: true });
+
+    // Hangi hesaptan odendigi secildiyse, kasaya otomatik cikis yazilir.
+    let kasaHareketiOlusturuldu = false;
+    if (hesapId) {
+      await sql`
+        INSERT INTO kasa_hareketleri (hesap_id, tur, tutar_tl, aciklama, tarih)
+        VALUES (${hesapId}, 'cikis', ${tutarTl}, ${`Gider: ${kategori}${aciklama ? ` - ${aciklama}` : ""}`}, ${gunTarihi})
+      `;
+      kasaHareketiOlusturuldu = true;
+    }
+
+    return Response.json({ ok: true, kasaHareketiOlusturuldu });
   } catch (e) {
     console.error(e);
     return Response.json({ error: e.message }, { status: 500 });

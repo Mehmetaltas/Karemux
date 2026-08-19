@@ -17,18 +17,32 @@ const GECERLI_TURLER = ["satis_veresiye", "tahsilat", "tedarik_borcu", "odeme"];
 
 export async function POST(req) {
   try {
-    const { sifre, cariId, tur, tutarTl, aciklama, tarih } = await req.json();
+    const { sifre, cariId, tur, tutarTl, aciklama, tarih, hesapId } = await req.json();
     const yetki = await yetkiKontrol(req, sifre);
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
     if (!cariId || !GECERLI_TURLER.includes(tur) || !tutarTl || tutarTl <= 0) {
       return Response.json({ error: "Gecerli cariId, tur ve tutar gerekli" }, { status: 400 });
     }
 
+    const gunTarihi = tarih || new Date().toISOString().slice(0, 10);
     await sql`
       INSERT INTO cari_hareketleri (cari_id, tur, tutar_tl, aciklama, tarih)
-      VALUES (${cariId}, ${tur}, ${tutarTl}, ${aciklama || null}, ${tarih || new Date().toISOString().slice(0, 10)})
+      VALUES (${cariId}, ${tur}, ${tutarTl}, ${aciklama || null}, ${gunTarihi})
     `;
-    return Response.json({ ok: true });
+
+    // Tahsilat/odeme gercek para hareketidir - secilen kasa/banka hesabina da
+    // otomatik yansitilir, boylece iki ayri yere elle girmek gerekmez.
+    let kasaHareketiOlusturuldu = false;
+    if (hesapId && (tur === "tahsilat" || tur === "odeme")) {
+      const kasaTuru = tur === "tahsilat" ? "giris" : "cikis";
+      await sql`
+        INSERT INTO kasa_hareketleri (hesap_id, tur, tutar_tl, aciklama, tarih)
+        VALUES (${hesapId}, ${kasaTuru}, ${tutarTl}, ${aciklama ? `Cari: ${aciklama}` : "Cari islemi"}, ${gunTarihi})
+      `;
+      kasaHareketiOlusturuldu = true;
+    }
+
+    return Response.json({ ok: true, kasaHareketiOlusturuldu });
   } catch (e) {
     console.error(e);
     return Response.json({ error: e.message }, { status: 500 });

@@ -68,6 +68,7 @@ export default function YonetimPaneli() {
   const [giderAciklama, setGiderAciklama] = useState("");
   const [giderTekrarlayan, setGiderTekrarlayan] = useState(false);
   const [giderEkleniyor, setGiderEkleniyor] = useState(false);
+  const [giderHesapId, setGiderHesapId] = useState("");
 
   const [taksitTutar, setTaksitTutar] = useState("");
   const [taksitSayisi, setTaksitSayisi] = useState(1);
@@ -101,6 +102,7 @@ export default function YonetimPaneli() {
   const [hareketTur, setHareketTur] = useState("satis_veresiye");
   const [hareketTutar, setHareketTutar] = useState("");
   const [hareketAciklama, setHareketAciklama] = useState("");
+  const [hareketHesapId, setHareketHesapId] = useState("");
   const [hareketEkleniyor, setHareketEkleniyor] = useState(false);
 
   const [kasaHesaplari, setKasaHesaplari] = useState(null);
@@ -164,7 +166,7 @@ export default function YonetimPaneli() {
     try {
       const res = await fetch("/api/admin/muhasebe", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sifre, kategori: giderKategori, tutarTl: Number(giderTutar), aciklama: giderAciklama, tekrarlayan: giderTekrarlayan }),
+        body: JSON.stringify({ sifre, kategori: giderKategori, tutarTl: Number(giderTutar), aciklama: giderAciklama, tekrarlayan: giderTekrarlayan, hesapId: giderHesapId || null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -263,7 +265,7 @@ export default function YonetimPaneli() {
     try {
       const res = await fetch("/api/admin/cari/hareket", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sifre, cariId: secilenCariId, tur: hareketTur, tutarTl: Number(hareketTutar), aciklama: hareketAciklama || null }),
+        body: JSON.stringify({ sifre, cariId: secilenCariId, tur: hareketTur, tutarTl: Number(hareketTutar), aciklama: hareketAciklama || null, hesapId: hareketHesapId || null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -274,7 +276,7 @@ export default function YonetimPaneli() {
 
   useEffect(() => { if (basari) { const t = setTimeout(() => setBasari(""), 4000); return () => clearTimeout(t); } }, [basari]);
   useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
-  useEffect(() => { if (girisYapildi && sekme === "kasa" && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && (sekme === "kasa" || sekme === "cari" || sekme === "giderler") && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
 
   async function kasaGetir() {
     try {
@@ -456,6 +458,11 @@ export default function YonetimPaneli() {
                 <input type="checkbox" checked={giderTekrarlayan} onChange={(e) => setGiderTekrarlayan(e.target.checked)} />
                 Her ay otomatik tekrarla
               </label>
+              <label style={etiketStil}>Hangi Kasa/Banka Hesabından? (opsiyonel, seçilirse otomatik yansır)</label>
+              <select value={giderHesapId} onChange={(e) => setGiderHesapId(e.target.value)} style={{ ...girdiStil, marginBottom: 12 }}>
+                <option value="">— Seçilmedi —</option>
+                {kasaHesaplari?.map((h) => <option key={h.id} value={h.id}>{h.hesap_adi}</option>)}
+              </select>
               <button onClick={giderEkle} disabled={giderEkleniyor || !giderTutar} style={{ ...butonStil(!!giderTutar, T.danger), width: "100%", padding: "10px 0" }}>
                 {giderEkleniyor ? "Ekleniyor..." : "Gider Ekle"}
               </button>
@@ -536,6 +543,15 @@ export default function YonetimPaneli() {
                   <input type="number" value={hareketTutar} onChange={(e) => setHareketTutar(e.target.value)} placeholder="Tutar ₺" style={girdiStil} />
                 </div>
                 <input value={hareketAciklama} onChange={(e) => setHareketAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+                {(hareketTur === "tahsilat" || hareketTur === "odeme") && (
+                  <div style={{ marginBottom: 10 }}>
+                    <label style={etiketStil}>Hangi Kasa/Banka Hesabı? (opsiyonel, seçilirse otomatik yansır)</label>
+                    <select value={hareketHesapId} onChange={(e) => setHareketHesapId(e.target.value)} style={girdiStil}>
+                      <option value="">— Seçilmedi —</option>
+                      {kasaHesaplari?.map((h) => <option key={h.id} value={h.id}>{h.hesap_adi}</option>)}
+                    </select>
+                  </div>
+                )}
                 <button onClick={hareketEkle} disabled={hareketEkleniyor || !hareketTutar} style={{ ...butonStil(!!hareketTutar), width: "100%", padding: "10px 0", marginBottom: 14 }}>
                   {hareketEkleniyor ? "Ekleniyor..." : "Hareket Ekle"}
                 </button>
