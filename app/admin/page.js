@@ -130,6 +130,10 @@ export default function YonetimPaneli() {
   const [hedefGider, setHedefGider] = useState("");
   const [hedefNot, setHedefNot] = useState("");
   const [hedefKaydediliyor, setHedefKaydediliyor] = useState(false);
+  const [kurumlarVeri, setKurumlarVeri] = useState(null);
+  const [duzenlenenKurumFiyat, setDuzenlenenKurumFiyat] = useState({});
+  const [duzenlenenKurumMin, setDuzenlenenKurumMin] = useState({});
+  const [kurumKaydediliyor, setKurumKaydediliyor] = useState(null);
 
   function mesajTemizle() { setHata(""); setBasari(""); }
 
@@ -300,6 +304,32 @@ export default function YonetimPaneli() {
     } catch {}
   }
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "kurumlar" && !kurumlarVeri) kurumlariGetir(); }, [girisYapildi, sekme]);
+
+  async function kurumlariGetir() {
+    try {
+      const res = await fetch(`/api/admin/kurum?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setKurumlarVeri(data.kurumlar);
+    } catch {}
+  }
+
+  async function kurumFiyatKaydet(kurumId) {
+    const fiyat = duzenlenenKurumFiyat[kurumId];
+    const min = duzenlenenKurumMin[kurumId];
+    if (fiyat == null && min == null) return;
+    setKurumKaydediliyor(kurumId); mesajTemizle();
+    try {
+      const mevcut = kurumlarVeri.find((k) => k.id === kurumId);
+      const res = await fetch("/api/admin/kurum", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, kurumId, kisiBasiFiyatTl: fiyat != null ? Number(fiyat) : mevcut.kisi_basi_fiyat_tl, minKisiSayisi: min != null ? Number(min) : mevcut.min_kisi_sayisi }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari("Kurum fiyatı güncellendi."); kurumlariGetir();
+    } catch (e) { setHata(e.message); } finally { setKurumKaydediliyor(null); }
+  }
 
   async function maliyetGetir() {
     try {
@@ -411,6 +441,7 @@ export default function YonetimPaneli() {
     ["maliyet", "🤖 Üretim Maliyeti"],
     ["simulasyon", "🧮 Simülasyon"],
     ["planlama", "📈 Finansal Planlama"],
+    ["kurumlar", "🏢 Kurumlar"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
@@ -805,6 +836,34 @@ export default function YonetimPaneli() {
             </>
           );
         })()}
+
+        {sekme === "kurumlar" && (
+          <Panel baslik="Kurumlar ve Fiyatlandırma" ikon="🏢">
+            {!kurumlarVeri ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : kurumlarVeri.length === 0 ? (
+              <p style={{ fontSize: 12, color: T.textMuted }}>Henüz kurum yok.</p>
+            ) : kurumlarVeri.map((k) => (
+              <div key={k.id} style={{ background: "#0F131B", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700 }}>{k.ad} <span style={{ color: T.textMuted, fontWeight: 400, fontSize: 11 }}>({k.kurum_kodu})</span></p>
+                  <p style={{ fontSize: 11, color: T.textMuted }}>{k.ogrenci_sayisi} öğrenci</p>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={etiketStil}>Kişi Başı Fiyat (₺/ay)</label>
+                    <input type="number" defaultValue={k.kisi_basi_fiyat_tl} onChange={(e) => setDuzenlenenKurumFiyat((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <label style={etiketStil}>Min. Kişi Sayısı</label>
+                    <input type="number" defaultValue={k.min_kisi_sayisi} onChange={(e) => setDuzenlenenKurumMin((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
+                  </div>
+                  <button onClick={() => kurumFiyatKaydet(k.id)} disabled={kurumKaydediliyor === k.id} style={{ ...butonStil(true), padding: "9px 14px", alignSelf: "flex-end" }}>
+                    {kurumKaydediliyor === k.id ? "..." : "Kaydet"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </Panel>
+        )}
 
         {sekme === "ogretmen" && (
           <Panel baslik="Yeni Öğretmen Ekle" ikon="🎓">
