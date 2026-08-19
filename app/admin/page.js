@@ -119,6 +119,11 @@ export default function YonetimPaneli() {
   const [kasaHareketAciklama, setKasaHareketAciklama] = useState("");
   const [kasaHareketEkleniyor, setKasaHareketEkleniyor] = useState(false);
   const [maliyetVeri, setMaliyetVeri] = useState(null);
+  const [planlamaVeri, setPlanlamaVeri] = useState(null);
+  const [hedefGelir, setHedefGelir] = useState("");
+  const [hedefGider, setHedefGider] = useState("");
+  const [hedefNot, setHedefNot] = useState("");
+  const [hedefKaydediliyor, setHedefKaydediliyor] = useState(false);
 
   function mesajTemizle() { setHata(""); setBasari(""); }
 
@@ -279,6 +284,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && (sekme === "kasa" || sekme === "cari" || sekme === "giderler") && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "maliyet" && !maliyetVeri) maliyetGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
 
   async function maliyetGetir() {
     try {
@@ -286,6 +292,31 @@ export default function YonetimPaneli() {
       const data = await res.json();
       if (res.ok) setMaliyetVeri(data);
     } catch {}
+  }
+
+  async function planlamaGetir() {
+    try {
+      const res = await fetch(`/api/admin/planlama?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) {
+        setPlanlamaVeri(data);
+        if (data.hedef) { setHedefGelir(String(data.hedef.gelir_hedefi_tl)); setHedefGider(String(data.hedef.gider_hedefi_tl)); setHedefNot(data.hedef.notlar || ""); }
+      }
+    } catch {}
+  }
+
+  async function hedefKaydet() {
+    if (!planlamaVeri) return;
+    setHedefKaydediliyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/planlama", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, yil: planlamaVeri.yil, ay: planlamaVeri.ay, gelirHedefiTl: Number(hedefGelir) || 0, giderHedefiTl: Number(hedefGider) || 0, notlar: hedefNot || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari("Hedef kaydedildi."); planlamaGetir();
+    } catch (e) { setHata(e.message); } finally { setHedefKaydediliyor(false); }
   }
 
   async function kasaGetir() {
@@ -363,6 +394,7 @@ export default function YonetimPaneli() {
     ["cari", "🤝 Cari"],
     ["kasa", "🏦 Kasa/Banka"],
     ["maliyet", "🤖 Üretim Maliyeti"],
+    ["planlama", "📈 Finansal Planlama"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
@@ -682,6 +714,40 @@ export default function YonetimPaneli() {
                 ))}
               </Panel>
             )}
+          </>
+        )}
+
+        {sekme === "planlama" && planlamaVeri && (
+          <>
+            <Panel baslik={`Bu Ay Hedef (${planlamaVeri.ay}/${planlamaVeri.yil})`} ikon="🎯">
+              <label style={etiketStil}>Gelir Hedefi (₺)</label>
+              <input type="number" value={hedefGelir} onChange={(e) => setHedefGelir(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <label style={etiketStil}>Gider Hedefi (₺)</label>
+              <input type="number" value={hedefGider} onChange={(e) => setHedefGider(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <label style={etiketStil}>Not (opsiyonel)</label>
+              <input value={hedefNot} onChange={(e) => setHedefNot(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <button onClick={hedefKaydet} disabled={hedefKaydediliyor} style={{ ...butonStil(true), width: "100%", padding: "10px 0" }}>
+                {hedefKaydediliyor ? "Kaydediliyor..." : "Hedefi Kaydet"}
+              </button>
+            </Panel>
+
+            <Panel baslik="Hedef vs Gerceklesen" ikon="📊">
+              <div style={{ display: "flex", gap: 20, marginBottom: 4 }}>
+                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>GELIR (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gelir.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gelir_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
+                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>GIDER (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gider.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gider_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
+              </div>
+            </Panel>
+
+            <Panel baslik="Basit Projeksiyon (Bir Sonraki Ay)" ikon="🔮" sagUst={<span style={{ fontSize: 9.5, color: T.textMuted }}>{planlamaVeri.projeksiyon.veriliAySayisi} aylik veri</span>}>
+              <div style={{ background: "#2A2010", border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 11.5, color: T.amber }}>
+                ⚠️ "Hicbir sey degismezse" senaryosu: son tamamlanmis aylarin ortalama geliri, tekrarlayan giderler dusulerek. Gercek is planlaması yerine gecmez.
+              </div>
+              <div style={{ display: "flex", gap: 20 }}>
+                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>ORT. AYLIK GELIR</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700 }}>{planlamaVeri.projeksiyon.ortalamaAylikGelir.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>TEKRARLAYAN GIDER</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700, color: T.danger }}>{planlamaVeri.projeksiyon.tekrarlayanAylikGider.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>TAHMINI KAR</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700, color: planlamaVeri.projeksiyon.tahminiAylikKar >= 0 ? T.accent : T.danger }}>{planlamaVeri.projeksiyon.tahminiAylikKar.toFixed(0)} ₺</p></div>
+              </div>
+            </Panel>
           </>
         )}
 
