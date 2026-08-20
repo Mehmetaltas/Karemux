@@ -29,6 +29,9 @@ export async function POST(req) {
     if (!kullanici?.eposta || !kullanici?.ad || !kullanici?.adres) {
       return Response.json({ error: "Kullanıcı bilgileri eksik" }, { status: 400 });
     }
+    if (!kullanici?.id) {
+      return Response.json({ error: "Odeme icin giris yapmis olman gerekiyor" }, { status: 401 });
+    }
     const tcKimlikNo = (kullanici.tcKimlikNo || "").replace(/\D/g, "");
     if (tcKimlikNo.length !== 11) {
       return Response.json({ error: "Geçerli bir TC kimlik numarası girilmeli (11 hane)" }, { status: 400 });
@@ -89,6 +92,13 @@ export async function POST(req) {
     if (sonuc.status !== "success") {
       return Response.json({ error: sonuc.errorMessage || "Ödeme başlatılamadı" }, { status: 400 });
     }
+
+    // Bekleyen odeme kaydi - callback'te bu conversationId ile eslestirip
+    // hangi kullaniciya hangi paketin verilecegini buluyoruz.
+    await sql`
+      INSERT INTO odemeler (kullanici_id, tutar, para_birimi, durum, conversation_id, plan)
+      VALUES (${kullanici.id}, ${secilenPlan.fiyat}, 'TRY', 'beklemede', ${conversationId}, ${plan})
+    `;
 
     return Response.json({ checkoutFormContent: sonuc.checkoutFormContent, token: sonuc.token });
   } catch (e) {
