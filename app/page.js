@@ -3112,10 +3112,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setMod("kocluk");
   }
 
+  // Kullanicinin sinifina gore dogru yillik paket anahtarini dondurur.
+  // 8. sinif LGS paketine, 5/6/7 kendi paketine gider. Eslesme yoksa null.
+  function sinifaGorePaketAnahtari(sinifNo) {
+    const n = Number(sinifNo);
+    if (n === 5) return "yillik_5_sinif";
+    if (n === 6) return "yillik_6_sinif";
+    if (n === 7) return "yillik_7_sinif";
+    if (n === 8) return "yillik_8_sinif_lgs";
+    return null;
+  }
+
   async function premiumSatinAl(plan) {
     setOdemeHata(""); setCheckoutHtml("");
     if (!hesap) {
       setOdemeHata("Odeme yapabilmek icin once giris yapmalisin.");
+      return;
+    }
+    if (!plan) {
+      setOdemeHata("Once profilden sinifini secmelisin (5-8 arasi).");
       return;
     }
     if (!odemeAdres.trim()) {
@@ -5129,12 +5144,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     onChange={(e) => setOdemeTcKimlikNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
                     style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, fontSize: 13 }} />
                 </div>
-                <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-                  <button onClick={() => premiumSatinAl("premium_aylik")} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>
-                    Aylik 99,90₺
-                  </button>
-                  <button onClick={() => premiumSatinAl("premium_yillik")} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", color: COLORS.ink, fontWeight: 600 }}>
-                    Yillik 899,90₺
+                <div style={{ marginBottom: 12 }}>
+                  <button onClick={() => premiumSatinAl(sinifaGorePaketAnahtari(hesap?.sinif))} style={{ width: "100%", padding: "12px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>
+                    {hesap?.sinif ? `${hesap.sinif}. Sinif Yillik Paket - 5000₺` : "Yillik Paket - 5000₺ (once profilden sinifini sec)"}
                   </button>
                 </div>
                 {odemeHata && <p style={{ color: COLORS.coral, fontSize: 13 }}>{odemeHata}</p>}
