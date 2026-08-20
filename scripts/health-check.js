@@ -20,6 +20,13 @@ const BEKLENEN_TABLOLAR = {
   ilerleme: ["id", "kullanici_id", "ders", "konu", "dogru_sayisi", "toplam_soru"],
   kurumlar: ["id", "ad", "kurum_kodu"],
   gunluk_gorevler: ["id", "kullanici_id", "hafta_baslangic", "gun", "ders", "gorev", "tamamlandi"],
+  cariler: ["id", "ad", "tur"],
+  cari_hareketleri: ["id", "cari_id", "tur", "tutar_tl"],
+  banka_hesaplari: ["id", "hesap_adi", "tur", "baslangic_bakiyesi"],
+  kasa_hareketleri: ["id", "hesap_id", "tur", "tutar_tl"],
+  finansal_hedefler: ["id", "yil", "ay", "gelir_hedefi_tl", "gider_hedefi_tl"],
+  randevular: ["id", "ogretmen_id", "ogrenci_id", "baslangic_zamani", "ucret_tl", "odendi"],
+  ogretmenler: ["id", "ad", "brans", "saatlik_ucret_tl"],
 };
 
 const KRITIK_API_UCLARI = [
@@ -80,6 +87,47 @@ async function apiKontrolEt() {
     } catch (e) {
       console.log(`  RED  ${yol}: istek basarisiz -> ${e.message}`);
     }
+  }
+  return { gecen, toplam };
+}
+
+// Bugun (19 Agustos) eklenen Muhasebe/Randevu/Simulasyon sistemlerinin
+// gercekten canli ve calisir durumda oldugunu dogrular - sifre gerektiren
+// admin uc noktalari icin ULUSAL_DENEME_YONETICI_SIFRESI kullanilir.
+async function finansPaneliKontrolEt() {
+  console.log("\n=== FINANS/RANDEVU/SIMULASYON PANELI TESTI ===");
+  let gecen = 0, toplam = 0;
+  const sifre = process.env.ULUSAL_DENEME_YONETICI_SIFRESI;
+  if (!sifre) {
+    console.log("  UYARI ULUSAL_DENEME_YONETICI_SIFRESI tanimli degil, bu test atlaniyor.");
+    return { gecen: 0, toplam: 0 };
+  }
+  const ucLar = [
+    "/api/admin/cari", "/api/admin/kasa", "/api/admin/maliyet",
+    "/api/admin/planlama", "/api/admin/simulasyon", "/api/admin/kurum",
+  ];
+  for (const yol of ucLar) {
+    toplam++;
+    try {
+      const res = await fetch(`${BASE_URL}${yol}?sifre=${encodeURIComponent(sifre)}`);
+      if (res.status === 200) {
+        console.log(`  OK   ${yol}`);
+        gecen++;
+      } else {
+        console.log(`  RED  ${yol}: beklenen 200, gelen ${res.status}`);
+      }
+    } catch (e) {
+      console.log(`  RED  ${yol}: istek basarisiz -> ${e.message}`);
+    }
+  }
+  // Ozel ders randevu sistemi PUBLIC (sifre gerektirmiyor) - ayri kontrol.
+  toplam++;
+  try {
+    const res = await fetch(`${BASE_URL}/api/randevu/musaitlik`);
+    if (res.status === 200) { console.log("  OK   /api/randevu/musaitlik"); gecen++; }
+    else console.log(`  RED  /api/randevu/musaitlik: beklenen 200, gelen ${res.status}`);
+  } catch (e) {
+    console.log(`  RED  /api/randevu/musaitlik: istek basarisiz -> ${e.message}`);
   }
   return { gecen, toplam };
 }
@@ -359,15 +407,17 @@ async function rolYetkiTestiCalistir() {
   const senaryo = await senaryoTestiCalistir();
   const entegrasyon = await entegrasyonTestiCalistir();
   const rolYetki = await rolYetkiTestiCalistir();
+  const finans = await finansPaneliKontrolEt();
 
-  const toplamGecen = db.gecen + api.gecen + senaryo.gecen + entegrasyon.gecen + rolYetki.gecen;
-  const toplamTest = db.toplam + api.toplam + senaryo.toplam + entegrasyon.toplam + rolYetki.toplam;
+  const toplamGecen = db.gecen + api.gecen + senaryo.gecen + entegrasyon.gecen + rolYetki.gecen + finans.gecen;
+  const toplamTest = db.toplam + api.toplam + senaryo.toplam + entegrasyon.toplam + rolYetki.toplam + finans.toplam;
   console.log("\n=== SONUC ===");
   console.log(`Database:    ${db.gecen}/${db.toplam}`);
   console.log(`API:         ${api.gecen}/${api.toplam}`);
   console.log(`Senaryo:     ${senaryo.gecen}/${senaryo.toplam}`);
   console.log(`Entegrasyon: ${entegrasyon.gecen}/${entegrasyon.toplam}`);
   console.log(`Rol/Yetki:   ${rolYetki.gecen}/${rolYetki.toplam}`);
+  console.log(`Finans/Randevu: ${finans.gecen}/${finans.toplam}`);
   console.log(`TOPLAM:      ${toplamGecen}/${toplamTest} ${toplamGecen === toplamTest ? "— HEPSI GECTI" : "— BAZI TESTLER BASARISIZ"}`);
 
   process.exit(toplamGecen === toplamTest ? 0 : 1);
