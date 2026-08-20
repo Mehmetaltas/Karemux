@@ -4,6 +4,7 @@
 // Sandbox: https://sandbox-api.iyzipay.com | Production: https://api.iyzipay.com
 
 import Iyzipay from "iyzipay";
+import { sql } from "@/lib/db";
 
 function iyzipayIstemcisi() {
   return new Iyzipay({
@@ -13,18 +14,18 @@ function iyzipayIstemcisi() {
   });
 }
 
-const PLANLAR = {
-  premium_aylik: { fiyat: "99.90", ad: "Karemux Premium (Aylık)" },
-  premium_yillik: { fiyat: "899.90", ad: "Karemux Premium (Yıllık)" },
-};
-
+// ONEMLI: Fiyatlar artik GERCEK `paketler` DB tablosundan okunuyor. Eskiden
+// burada ayri, kopuk bir PLANLAR sabiti vardi (premium_aylik/premium_yillik,
+// 99.90/899.90 TL) ve gercek yonetim panelindeki fiyatlarla hicbir ilgisi
+// yoktu. 19 Agustos'ta Faz 10 taramasinda bulunup duzeltildi.
 export async function POST(req) {
   try {
     const { plan, kullanici } = await req.json();
-    const secilenPlan = PLANLAR[plan];
-    if (!secilenPlan) {
+    const paketSonuc = await sql`SELECT ad, fiyat_tl FROM paketler WHERE anahtar = ${plan} AND aktif = true`;
+    if (paketSonuc.length === 0) {
       return Response.json({ error: "Geçersiz plan" }, { status: 400 });
     }
+    const secilenPlan = { fiyat: Number(paketSonuc[0].fiyat_tl).toFixed(2), ad: `Karemux ${paketSonuc[0].ad}` };
     if (!kullanici?.eposta || !kullanici?.ad || !kullanici?.adres) {
       return Response.json({ error: "Kullanıcı bilgileri eksik" }, { status: 400 });
     }

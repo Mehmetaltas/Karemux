@@ -55,6 +55,20 @@ export async function GET(req) {
       GROUP BY g.kullanici_id, k.ad ORDER BY istekSayisi DESC LIMIT 10
     `;
 
+    // Paket bazinda gercek maliyet: her aktif abonelikteki kullanicinin, bu
+    // ayki AI istek hacminden gelen tahmini maliyeti, paketine gore toplanir.
+    // Bu, "hangi paket bize ne kadara mal oluyor" sorusuna GERCEK veriyle cevap verir.
+    const paketBazindaMaliyet = await sql`
+      SELECT p.anahtar, p.ad, p.fiyat_tl, COUNT(DISTINCT a.kullanici_id)::int AS aktifAbone,
+        COALESCE(SUM(g.ai_istek_sayisi), 0)::int AS toplamIstek
+      FROM paketler p
+      LEFT JOIN abonelikler a ON a.plan = p.anahtar AND a.durum = 'aktif'
+      LEFT JOIN gunluk_kullanim g ON g.kullanici_id = a.kullanici_id AND g.tarih >= date_trunc('month', CURRENT_DATE)
+      WHERE p.aktif = true
+      GROUP BY p.anahtar, p.ad, p.fiyat_tl
+      ORDER BY toplamIstek DESC
+    `;
+
     return Response.json({
       uretimGiderleri,
       uretimToplam,
@@ -63,6 +77,10 @@ export async function GET(req) {
       aktifKullanici,
       kisiBasiOrtalamaMaliyet,
       enCokKullananlar: enCokKullananlar.map((k) => ({ id: k.kullanici_id, ad: k.ad, istekSayisi: k.isteksayisi, tahminiMaliyetTl: Math.round(k.isteksayisi * 0.01 * 100) / 100 })),
+      paketBazindaMaliyet: paketBazindaMaliyet.map((p) => ({
+        anahtar: p.anahtar, ad: p.ad, fiyatTl: Number(p.fiyat_tl), aktifAbone: p.aktifabone, toplamIstek: p.toplamistek,
+        tahminiAiMaliyetTl: Math.round(p.toplamistek * 0.01 * 100) / 100,
+      })),
     });
   } catch (e) {
     console.error(e);
