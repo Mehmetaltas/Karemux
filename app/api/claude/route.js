@@ -1,25 +1,9 @@
-import { sql } from "@/lib/db";
 import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { ilgiliBilgiParcalariniGetir } from "@/lib/rag";
-import { kullaniciIdCoz } from "@/lib/kullanici";
+import { hasPackageFeature } from "@/lib/paket";
 
 export const maxDuration = 60; // Vercel fonksiyon zaman asimini mumkun oldugunca uzat
-
-// Kamp gibi kendi basina satilan (ayri paketler tablosu satiri olan) ozellikler
-// icin: gerekliPaket verilmisse, kullanicinin ya TAM O PAKETI ya da herhangi bir
-// yillik_* (Sinirsiz her sey) paketini aktif abonelikte tasidigini dogrula.
-async function paketErisimiVarMi(req, cihazId, gerekliPaket) {
-  const kullaniciId = await kullaniciIdCoz(req, cihazId);
-  if (!kullaniciId) return false;
-  const sonuc = await sql`
-    SELECT 1 FROM abonelikler
-    WHERE kullanici_id = ${kullaniciId} AND durum = 'aktif'
-      AND (plan = ${gerekliPaket} OR plan LIKE 'yillik_%')
-    LIMIT 1
-  `;
-  return sonuc.length > 0;
-}
 
 export async function POST(req) {
   try {
@@ -29,7 +13,7 @@ export async function POST(req) {
     }
 
     if (gerekliPaket) {
-      const erisimVar = await paketErisimiVarMi(req, cihazId, gerekliPaket);
+      const erisimVar = await hasPackageFeature(req, cihazId, gerekliPaket);
       if (!erisimVar) {
         return Response.json({ error: "Bu ozellik icin ilgili paketi satin almalisin." }, { status: 403 });
       }
