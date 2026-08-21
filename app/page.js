@@ -1426,6 +1426,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [odemeAdres, setOdemeAdres] = useState("");
   const [odemeTcKimlikNo, setOdemeTcKimlikNo] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
+  const [tumPaketler, setTumPaketler] = useState(null);
   const [profilOkul, setProfilOkul] = useState("");
   const [profilIl, setProfilIl] = useState("");
   const [telegramDurum, setTelegramDurum] = useState(null); // {baglandi, kod, botKullaniciAdi}
@@ -2569,6 +2570,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   useEffect(() => {
     if (hesap) {
       fetch("/api/abonelik/durum").then((r) => r.json()).then((d) => setAktifAbonelik(d.aktifAbonelik)).catch(() => {});
+      fetch("/api/paketler").then((r) => r.json()).then((d) => setTumPaketler(d.paketler)).catch(() => {});
     }
   }, [hesap]);
 
@@ -5126,9 +5128,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, fontSize: 13 }} />
                 </div>
                 <div style={{ marginBottom: 12 }}>
-                  <button onClick={() => premiumSatinAl(sinifaGorePaketAnahtari(hesap?.sinif))} style={{ width: "100%", padding: "12px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>
-                    {hesap?.sinif ? `${hesap.sinif}. Sinif Yillik Paket - 5000₺` : "Yillik Paket - 5000₺ (once profilden sinifini sec)"}
-                  </button>
+                  {!tumPaketler ? (
+                    <p style={{ fontSize: 12.5, color: COLORS.muted }}>Paketler yukleniyor...</p>
+                  ) : (
+                    tumPaketler
+                      .filter((p) => !p.anahtar.startsWith("yillik_") || p.anahtar === sinifaGorePaketAnahtari(hesap?.sinif))
+                      .map((p) => (
+                        <div key={p.anahtar} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${COLORS.line}` }}>
+                          <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>{p.ad}</p>
+                          {p.aciklama && <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>{p.aciklama}</p>}
+                          <button onClick={() => premiumSatinAl(p.anahtar)} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                            {p.ad} — {Number(p.fiyat_tl).toLocaleString("tr-TR")}₺
+                          </button>
+                        </div>
+                      ))
+                  )}
+                  {tumPaketler && !sinifaGorePaketAnahtari(hesap?.sinif) && (
+                    <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 4 }}>Yıllık paketi görmek için önce profilden sınıfını seç.</p>
+                  )}
                 </div>
                 {odemeHata && <p style={{ color: COLORS.coral, fontSize: 13 }}>{odemeHata}</p>}
                 {checkoutHtml && <div dangerouslySetInnerHTML={{ __html: checkoutHtml }} />}

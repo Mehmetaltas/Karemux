@@ -68,9 +68,19 @@ export async function POST(req) {
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
 
-    // Bireysel abonelik satin almasi (mevcut davranis)
-    const paket = await sql`SELECT sure_gun FROM paketler WHERE anahtar = ${plan}`;
+    // Bireysel satin alma - paket TURUNE gore dallanir.
+    const paket = await sql`SELECT sure_gun, kredi_miktari FROM paketler WHERE anahtar = ${plan}`;
     const sureGun = paket[0]?.sure_gun || 365;
+
+    if (paket[0]?.kredi_miktari) {
+      // Kredi paketi (orn. soru_coz_kredi) - abonelik DEGIL, mevcut kredi bakiyesine EKLENIR.
+      await sql`
+        INSERT INTO kullanici_kredileri (kullanici_id, kalan_kredi)
+        VALUES (${kullaniciId}, ${paket[0].kredi_miktari})
+        ON CONFLICT (kullanici_id) DO UPDATE SET kalan_kredi = kullanici_kredileri.kalan_kredi + ${paket[0].kredi_miktari}, guncellenme = now()
+      `;
+      return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
+    }
 
     await sql`
       INSERT INTO abonelikler (kullanici_id, plan, durum, iyzico_abonelik_id, baslangic, bitis)
