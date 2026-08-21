@@ -640,24 +640,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
   const [dersTekrarSonuclari, setDersTekrarSonuclari] = useState({}); // { [ders]: [{tur, dogru, toplam}, ...] }
   const [tekrarAnlatimOnbellek, setTekrarAnlatimOnbellek] = useState({}); // { "ders::tur": metin } - ayni turda tekrar uretmemek icin
-  const [randevuTarih, setRandevuTarih] = useState("");
-  const [randevuSaat, setRandevuSaat] = useState("");
-  const [randevuGonderildi, setRandevuGonderildi] = useState({}); // { [ders]: true }
-  const [randevuGonderiliyor, setRandevuGonderiliyor] = useState(false);
-
-  async function randevuTalebiGonder(dersAdi) {
-    if (!randevuTarih || !randevuSaat) return;
-    setRandevuGonderiliyor(true);
-    try {
-      await fetch("/api/randevu-talebi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, ders: dersAdi, tarih: randevuTarih, saat: randevuSaat }),
-      });
-      setRandevuGonderildi((eski) => ({ ...eski, [dersAdi]: true }));
-    } catch (e) {}
-    finally { setRandevuGonderiliyor(false); }
-  }
 
   const [dersTekrarKontrolYukleniyor, setDersTekrarKontrolYukleniyor] = useState(false);
 
@@ -3943,22 +3925,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <p style={{ fontSize: 12.5, color: "#6B7566", marginBottom: 14 }}>
                       Uc tur tekrar denemesine ragmen zorlaniyorsun - bu normal, bazen birebir destek gerekir.
                     </p>
-                    {randevuGonderildi[secilenDers] ? (
-                      <p style={{ fontSize: 13, fontWeight: 600, color: RENK_BASARI }}>✓ Talebin alindi, tercih ettigin zamana yakin bir egitmen seninle iletisime gececek.</p>
-                    ) : (
-                      <>
-                        <p style={{ fontSize: 11.5, color: "#6B7566", marginBottom: 10, fontStyle: "italic" }}>
-                          (Not: bu, gorusme icin tercih tarihi/saatini kaydeder - gercek goruntulu gorusme ozelligi ayrica eklenecek, once bir egitmen sizinle iletisime gececek.)
-                        </p>
-                        <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                          <input type="date" value={randevuTarih} onChange={(e) => setRandevuTarih(e.target.value)} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13 }} />
-                          <input type="time" value={randevuSaat} onChange={(e) => setRandevuSaat(e.target.value)} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13 }} />
-                        </div>
-                        <button onClick={() => randevuTalebiGonder(secilenDers)} disabled={!randevuTarih || !randevuSaat || randevuGonderiliyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-                          {randevuGonderiliyor ? "Gonderiliyor..." : "Gorusme Talebi Gonder"}
-                        </button>
-                      </>
-                    )}
+                    <button onClick={() => { modGecis("ogretmenders"); setOgretmenKategori("rehberlik"); }} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                      Rehber Öğretmenle Randevu Al →
+                    </button>
                   </div>
                 );
               }
