@@ -107,7 +107,7 @@ export default function Tanitim() {
             { baslik: "📖 Öğrenme", ogeler: ["Sınırsız Konu Anlatımı (6 ders)", "Yeni Nesil Soru Çözümü", "Paragraf Stüdyosu (8 tür pratik)", "Formül ve Kural Kartları", "Kelime Kartları (İngilizce + Türkçe)", "Fotoğrafla Soru Çözme"] },
             { baslik: "📝 Sınav Hazırlığı", ogeler: ["Deneme Sınavı", "Yazılı Hazırlığı", "Türkiye Geneli Deneme (gerçek sıralama)", "Bursluluk Sınavı (İOKBS) Hazırlığı", "Sınav Stratejisi Rehberi", "Sınav Kaygısı Desteği"] },
             { baslik: "🎯 Kişisel Takip", ogeler: ["Zayıf Konu Haritası", "Aralıklı Tekrar Sistemi", "Haftalık Çalışma Planı", "Hedef Okulum ve Puan Hesaplayıcı", "Karne ve İlerleme Raporu", "Ara Tatil ve Yaz Tatili Programları"] },
-            { baslik: "👥 İnsan Desteği", ogeler: ["Öğretmenle Görüntülü Özel Ders", "Rehber Öğretmenle Danışmanlık", "Veli Paneli (canlı takip)", "Kurum/Okul Paneli (toplu rapor)"] },
+            { baslik: "👥 İnsan Desteği", ogeler: ["Öğretmenle Görüntülü Özel Ders", "Rehber Öğretmenle Danışmanlık", "Veli Paneli (canlı takip)", "Kurum/Dershane Paneli (toplu rapor)", "Kurumlara Özel Toplu Lisans", "Kurumlara Özel Deneme Satışı"] },
           ].map((grup, gi) => (
             <div key={gi} style={{ marginBottom: 22 }}>
               <p style={{ fontWeight: 800, fontSize: 13.5, marginBottom: 10, color: C.red }}>{grup.baslik}</p>
