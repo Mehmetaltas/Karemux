@@ -1651,6 +1651,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }, [mod, hesap?.eposta]);
 
   const [kurumOlusturAdi, setKurumOlusturAdi] = useState("");
+  const [kurumOlusturEposta, setKurumOlusturEposta] = useState("");
+  const [kurumOlusturSifre, setKurumOlusturSifre] = useState("");
+  const [kurumOlusturYoneticiAdi, setKurumOlusturYoneticiAdi] = useState("");
   const [kurumOlusturSonuc, setKurumOlusturSonuc] = useState(null); // {kurumKodu, ad}
   const [kurumOlusturYukleniyor, setKurumOlusturYukleniyor] = useState(false);
   const [kurumRaporu, setKurumRaporu] = useState(null);
@@ -2061,16 +2064,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function kurumOlustur() {
-    if (!kurumOlusturAdi.trim()) return;
+    if (!kurumOlusturAdi.trim() || !kurumOlusturEposta.trim() || kurumOlusturSifre.length < 6) return;
     setKurumOlusturYukleniyor(true); setHata("");
     try {
-      const res = await fetch("/api/kurum/olustur", {
+      // GUNCELLEME: artik hesapsiz kod uretmiyor - gercek bir kurum yoneticisi
+      // hesabi (eposta+sifre) olusturuyor, otomatik giris de yapiyor.
+      const res = await fetch("/api/kurum/kayit", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ad: kurumOlusturAdi.trim() }),
+        body: JSON.stringify({
+          kurumAdi: kurumOlusturAdi.trim(),
+          eposta: kurumOlusturEposta.trim(),
+          sifre: kurumOlusturSifre,
+          yoneticiAdi: kurumOlusturYoneticiAdi.trim(),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setKurumOlusturSonuc(data);
+      setKurumOlusturSonuc({ ad: kurumOlusturAdi.trim(), kurumKodu: data.kurumKodu });
     } catch (e) {
       setHata(temizHataMesaji(e, "Kurum olusturulamadi, tekrar dene."));
     } finally {
@@ -5686,21 +5696,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             {!kurumRaporu && (
               <>
                 <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>1) Yeni Kurum Oluştur</p>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>1) Kurum Hesabı Oluştur</p>
+                  <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10 }}>Gerçek bir kurum yöneticisi hesabı oluşturur - giriş bilgilerin bu olacak.</p>
                   {!kurumOlusturSonuc ? (
                     <>
                       <input value={kurumOlusturAdi} onChange={(e) => setKurumOlusturAdi(e.target.value)} placeholder="Okul / Dershane Adı"
+                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
+                      <input value={kurumOlusturYoneticiAdi} onChange={(e) => setKurumOlusturYoneticiAdi(e.target.value)} placeholder="Yönetici Adı Soyadı"
+                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
+                      <input type="email" value={kurumOlusturEposta} onChange={(e) => setKurumOlusturEposta(e.target.value)} placeholder="E-posta"
+                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
+                      <input type="password" value={kurumOlusturSifre} onChange={(e) => setKurumOlusturSifre(e.target.value)} placeholder="Şifre (en az 6 karakter)"
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
-                      <button className="kx-btn" onClick={kurumOlustur} disabled={kurumOlusturYukleniyor || !kurumOlusturAdi.trim()}
+                      <button className="kx-btn" onClick={kurumOlustur} disabled={kurumOlusturYukleniyor || !kurumOlusturAdi.trim() || !kurumOlusturEposta.trim() || kurumOlusturSifre.length < 6}
                         style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
-                        {kurumOlusturYukleniyor ? "Oluşturuluyor..." : "Kurum Oluştur"}
+                        {kurumOlusturYukleniyor ? "Oluşturuluyor..." : "Kurum Hesabı Oluştur"}
                       </button>
                     </>
                   ) : (
                     <div style={{ background: RENK_BASARI_ACIK, borderRadius: 10, padding: 14, textAlign: "center" }}>
-                      <p style={{ fontSize: 12, color: "#2E7D4F", marginBottom: 6 }}>"{kurumOlusturSonuc.ad}" oluşturuldu!</p>
+                      <p style={{ fontSize: 12, color: "#2E7D4F", marginBottom: 6 }}>"{kurumOlusturSonuc.ad}" hesabı oluşturuldu, giriş yapıldı!</p>
                       <p style={{ fontSize: 22, fontWeight: 900, letterSpacing: 2, color: "#1B2430" }}>{kurumOlusturSonuc.kurumKodu}</p>
-                      <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Bu kodu öğrencilerine ver — Profil sayfasından bu koda bağlanabilirler. Kodu ayrıca aşağıya girip raporu görebilirsin.</p>
+                      <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Bu kodu öğrencilerine ver — kendi hesaplarından bu koda bağlanabilirler. Aşağıdan raporunu ve lisanslarını yönetebilirsin.</p>
                     </div>
                   )}
                 </div>
