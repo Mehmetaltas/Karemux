@@ -38,16 +38,23 @@ export async function POST(req) {
     }
 
     const bekleyenOdeme = await sql`
-      SELECT id, kullanici_id, plan, kurum_id, ucretli_deneme_id FROM odemeler WHERE conversation_id = ${sonuc.conversationId} AND durum = 'beklemede'
+      SELECT id, kullanici_id, plan, kurum_id, ucretli_deneme_id, kurum_lisans_id FROM odemeler WHERE conversation_id = ${sonuc.conversationId} AND durum = 'beklemede'
     `;
     if (bekleyenOdeme.length === 0) {
       // Odeme basarili ama eslestirilecek bekleyen kayit yok - beklenmeyen durum, loglayip yonlendir.
       console.error("Callback: eslesen bekleyen odeme kaydi bulunamadi, conversationId:", sonuc.conversationId);
       return Response.redirect(`${siteUrl}/?odeme=hata`, 302);
     }
-    const { id: odemeId, kullanici_id: kullaniciId, plan, kurum_id: kurumId, ucretli_deneme_id: denemeId } = bekleyenOdeme[0];
+    const { id: odemeId, kullanici_id: kullaniciId, plan, kurum_id: kurumId, ucretli_deneme_id: denemeId, kurum_lisans_id: lisansId } = bekleyenOdeme[0];
 
     await sql`UPDATE odemeler SET durum = 'basarili', iyzico_odeme_id = ${sonuc.paymentId || token} WHERE id = ${odemeId}`;
+
+    if (kurumId && lisansId) {
+      // Kurum toplu lisans satin almasi - koltuklar SATIN ALINDI ama henuz
+      // hicbir ogrenciye ATANMADI (atama ayri bir adim, /api/kurum/koltuk-ata).
+      await sql`UPDATE kurum_lisans_satin_alma SET odendi = true WHERE id = ${lisansId}`;
+      return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
+    }
 
     if (kurumId && denemeId) {
       // Kurum-deneme satin almasi (bireysel abonelik degil) - kurum_deneme_satin_alma'ya isaretlenir.
