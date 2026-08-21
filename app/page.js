@@ -2112,10 +2112,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  // Merkezi kamp/program tanimi (Faz 13): yeni bir tatil turu eklemek icin
+  // sadece buraya bir satir eklemek yeterli - kod dallanmasi gerekmez.
+  // gerekliPaket, paketler.anahtar ile eslesir (odeme/erisim kontrolu buradan okunur).
   const TATIL_TURLERI = [
-    { key: "ara", ad: "Ara Tatil", gun: 7, aciklama: "Kısa toparlanma, eksik konuları kapatma" },
-    { key: "yariyil", ad: "Yarıyıl Tatili", gun: 14, aciklama: "2 haftalık dengeli tekrar programı" },
-    { key: "yaz", ad: "Yaz Tatili (İlk Ay)", gun: 30, aciklama: "Uzun soluklu, sürdürülebilir tempo" },
+    { key: "ara", ad: "Ara Tatil", gun: 7, aciklama: "Kısa toparlanma, eksik konuları kapatma", gerekliPaket: "ara_tatil" },
+    { key: "yariyil", ad: "Yarıyıl Tatili", gun: 14, aciklama: "2 haftalık dengeli tekrar programı", gerekliPaket: "ara_tatil" },
+    { key: "yaz", ad: "Yaz Tatili (İlk Ay)", gun: 30, aciklama: "Uzun soluklu, sürdürülebilir tempo", gerekliPaket: "yaz_tatili" },
   ];
   const [tatilTuru, setTatilTuru] = useState(null);
   const [tatilProgramiMesaj, setTatilProgramiMesaj] = useState("");
@@ -2131,8 +2134,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const zayifMetni = zayifDersler.length > 0 ? `Ozellikle zayif oldugu dersler: ${zayifDersler.join(", ")}.` : "";
       const p = `Sen bir LGS calisma kocususun. ${zayifMetni} Ogrenci ${sinif}. sinifta, "${secilenTatil.ad}" donemine giriyor (${secilenTatil.gun} gunluk). ${secilenTatil.key === "yaz" ? `Yaz tatili UZUN oldugu icin, tempo dusuk-orta tutulmali, her gun 1-1.5 saatlik hafif ama DUZENLI bir aliskanlik kurmali, tukenmisligi onlemek icin haftada 1 gun tam dinlenme olmali. Once zayif konulara odaklan (eksik kapatma), ama sure uzun oldugu icin ILERI HAZIRLIK da ekle: gorevlerin bir kismi bir sonraki sinifin/donemin konularina hafif bir on bakis olsun. Gorev cesitliligi onemli - sirayla konu anlatimi, soru cozumu, kisa test, fasikul calismasi, deneme/tekrar gibi FARKLI turlerde gorevler dagit, hep ayni turden gorev verme.` : secilenTatil.key === "yariyil" ? "Yariyil tatili orta uzunlukta, once zayif konulari kapatmaya, sonra 2. donem'e hazirliga odaklanmali." : "Ara tatil kisa, sadece son donemdeki zayif konulari toparlamaya ve dinlenmeye odaklanmali, agir yeni konu YOK."} Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (120-160 kelime) bir konusma - tatilin ruhuna uygun (dinlenmeyi de onemsediginizi belirt). (2) "program": ${secilenTatil.gun} GUNUN HER BIRI icin bir gorev nesnesi - {"gunNo":1,"ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev"}. Haftada en az 1 gun "Dinlenme" olarak ayarla (agir calisma yok). SADECE JSON dondur, markdown kullanma:
 {"mesaj":"...","program":[{"gunNo":1,"ders":"...","gorev":"..."}, ...]}`;
-      const gerekliPaket = secilenTatil.key === "yaz" ? "yaz_tatili" : "ara_tatil"; // ara ve yariyil -> ayni paket (somestr/ara tatil)
-      const cevap = await aiIstek(p, Math.min(6000, 800 + secilenTatil.gun * 120), cihazIdRef.current, true, null, gerekliPaket);
+      const cevap = await aiIstek(p, Math.min(6000, 800 + secilenTatil.gun * 120), cihazIdRef.current, true, null, secilenTatil.gerekliPaket);
       const temiz = cevap.replace(/```json|```/g, "").trim();
       const baslangic = temiz.indexOf("{");
       const bitis = temiz.lastIndexOf("}");
