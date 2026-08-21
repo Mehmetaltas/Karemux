@@ -1653,7 +1653,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [kurumOlusturAdi, setKurumOlusturAdi] = useState("");
   const [kurumOlusturSonuc, setKurumOlusturSonuc] = useState(null); // {kurumKodu, ad}
   const [kurumOlusturYukleniyor, setKurumOlusturYukleniyor] = useState(false);
-  const [kurumRaporKodu, setKurumRaporKodu] = useState("");
   const [kurumRaporu, setKurumRaporu] = useState(null);
   const [kurumRaporYukleniyor, setKurumRaporYukleniyor] = useState(false);
   const [kurumBaglanKodu, setKurumBaglanKodu] = useState("");
@@ -2080,15 +2079,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function kurumRaporuGetir() {
-    if (!kurumRaporKodu.trim()) return;
     setKurumRaporYukleniyor(true); setHata(""); setKurumRaporu(null);
     try {
-      const res = await fetch(`/api/kurum/rapor?kod=${encodeURIComponent(kurumRaporKodu.trim())}`);
+      // GUVENLIK GUNCELLEMESI: artik kod DEGIL, oturum (kurum yoneticisi girisi) kullaniliyor.
+      const res = await fetch("/api/kurum/rapor");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setKurumRaporu(data);
     } catch (e) {
-      setHata(temizHataMesaji(e, "Rapor alinamadi, kodu kontrol et."));
+      setHata(temizHataMesaji(e, "Rapor alinamadi - kurum yoneticisi olarak giris yapmis olman gerekiyor."));
     } finally {
       setKurumRaporYukleniyor(false);
     }
@@ -5707,10 +5706,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
 
                 <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>2) Kurum Raporunu Görüntüle</p>
-                  <input value={kurumRaporKodu} onChange={(e) => setKurumRaporKodu(e.target.value.toUpperCase())} placeholder="Kurum Kodu (örn: A7K2M9XP)"
-                    style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10, letterSpacing: 1 }} />
-                  <button className="kx-btn" onClick={kurumRaporuGetir} disabled={kurumRaporYukleniyor || !kurumRaporKodu.trim()}
+                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>2) Kurum Raporunu Görüntüle</p>
+                  <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10 }}>Kurum yöneticisi hesabınla giriş yapmış olman gerekir.</p>
+                  <button className="kx-btn" onClick={kurumRaporuGetir} disabled={kurumRaporYukleniyor}
                     style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
                     {kurumRaporYukleniyor ? "Getiriliyor..." : "Raporu Getir"}
                   </button>

@@ -1,17 +1,18 @@
 import { sql } from "@/lib/db";
+import { kurumYoneticisiCoz } from "@/lib/kurum";
 
-// Kurum kodunu bilen herkes (kurum yoneticisi) bu kurumdaki TUM ogrencilerin
-// TOPLU/anonim istatistiklerini gorebilir - tek tek ogrenci adi/kimligi degil,
-// sadece agregatif sayilar (kac ogrenci, ders bazinda ortalama net, en zayif
-// konular). Bu, veli baglanti kodu ile ayni "kod = erisim anahtari" mantigidir.
+// GUVENLIK GUNCELLEMESI (19 Agustos): eskiden kurum kodunu bilen HERKES bu
+// raporu gorebiliyordu (kod sizdirilirsa - orn. ayrilan bir ogrenciden -
+// sonsuza kadar gorulebilirdi). Artik SADECE giris yapmis, gercek kurum
+// yoneticisi kendi kurumunun raporunu gorebiliyor (bugun kurulan kurumYoneticisiCoz
+// oturum sistemine baglandi).
 export async function GET(req) {
   try {
-    const kurumKodu = new URL(req.url).searchParams.get("kod");
-    if (!kurumKodu) return Response.json({ error: "Kurum kodu gerekli" }, { status: 400 });
+    const yonetici = await kurumYoneticisiCoz(req);
+    if (!yonetici) return Response.json({ error: "Giris yapmis bir kurum yoneticisi olmalisin" }, { status: 401 });
+    const kurumId = yonetici.kurumId;
 
-    const kurum = await sql`SELECT id, ad FROM kurumlar WHERE kurum_kodu = ${kurumKodu.trim().toUpperCase()}`;
-    if (kurum.length === 0) return Response.json({ error: "Bu kodla eslesen bir kurum bulunamadi" }, { status: 404 });
-    const kurumId = kurum[0].id;
+    const kurum = await sql`SELECT ad FROM kurumlar WHERE id = ${kurumId}`;
 
     const ogrenciSayisi = await sql`SELECT COUNT(*) as sayi FROM kullanicilar WHERE kurum_id = ${kurumId}`;
 
