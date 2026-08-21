@@ -19,7 +19,7 @@ export async function GET(req) {
   const yetki = await yetkiKontrol(req, sifre);
   if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
-  const denemeler = await sql`SELECT id, ad, ders, sinif, fiyat_tl, aktif FROM ucretli_denemeler ORDER BY olusturulma DESC`;
+  const denemeler = await sql`SELECT id, ad, ders, sinif, fiyat_tl, aktif, kapsam, il FROM ucretli_denemeler ORDER BY olusturulma DESC`;
   const satinAlmalar = await sql`
     SELECT k.kurum_id, k.deneme_id, k.tutar_tl, k.odendi, ku.ad AS kurum_adi
     FROM kurum_deneme_satin_alma k JOIN kurumlar ku ON ku.id = k.kurum_id

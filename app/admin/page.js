@@ -134,6 +134,29 @@ export default function YonetimPaneli() {
   const [duzenlenenKurumFiyat, setDuzenlenenKurumFiyat] = useState({});
   const [duzenlenenKurumMin, setDuzenlenenKurumMin] = useState({});
   const [kurumKaydediliyor, setKurumKaydediliyor] = useState(null);
+  const [randevuOdemeVeri, setRandevuOdemeVeri] = useState(null);
+  const [randevuIsaretleniyor, setRandevuIsaretleniyor] = useState(null);
+
+  async function randevuOdemeGetir() {
+    try {
+      const res = await fetch(`/api/admin/randevu-odeme?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setRandevuOdemeVeri(data.randevular);
+    } catch {}
+  }
+
+  async function randevuOdendiIsaretle(randevuId, odendi) {
+    setRandevuIsaretleniyor(randevuId); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/randevu-odeme", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, randevuId, odendi }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari("Randevu ödeme durumu güncellendi."); randevuOdemeGetir();
+    } catch (e) { setHata(e.message); } finally { setRandevuIsaretleniyor(null); }
+  }
 
   function mesajTemizle() { setHata(""); setBasari(""); }
 
@@ -305,6 +328,7 @@ export default function YonetimPaneli() {
   }
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kurumlar" && !kurumlarVeri) kurumlariGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
 
   async function kurumlariGetir() {
     try {
@@ -442,6 +466,7 @@ export default function YonetimPaneli() {
     ["simulasyon", "🧮 Simülasyon"],
     ["planlama", "📈 Finansal Planlama"],
     ["kurumlar", "🏢 Kurumlar"],
+    ["randevuodeme", "📅 Randevu Ödemeleri"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
@@ -860,6 +885,21 @@ export default function YonetimPaneli() {
                     {kurumKaydediliyor === k.id ? "..." : "Kaydet"}
                   </button>
                 </div>
+              </div>
+            ))}
+          </Panel>
+        )}
+
+        {sekme === "randevuodeme" && (
+          <Panel baslik="Özel Ders Ödemeleri (Ücretli Randevular)" ikon="📅">
+            {!randevuOdemeVeri ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : randevuOdemeVeri.length === 0 ? (
+              <p style={{ fontSize: 12, color: T.textMuted }}>Ücretli randevu yok.</p>
+            ) : randevuOdemeVeri.map((r) => (
+              <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: 12.5 }}>
+                <span>{r.ogrenci_adi} — {r.ogretmen_adi} · {new Date(r.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })} · <strong>{r.ucret_tl}₺</strong></span>
+                <button onClick={() => randevuOdendiIsaretle(r.id, !r.odendi)} disabled={randevuIsaretleniyor === r.id} style={{ ...butonStil(!r.odendi), padding: "6px 12px", fontSize: 11 }}>
+                  {randevuIsaretleniyor === r.id ? "..." : r.odendi ? "✓ Ödendi" : "Ödendi işaretle"}
+                </button>
               </div>
             ))}
           </Panel>
