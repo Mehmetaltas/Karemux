@@ -38,19 +38,32 @@ export async function POST(req) {
     }
 
     const bekleyenOdeme = await sql`
-      SELECT id, kullanici_id, plan FROM odemeler WHERE conversation_id = ${sonuc.conversationId} AND durum = 'beklemede'
+      SELECT id, kullanici_id, plan, kurum_id, ucretli_deneme_id FROM odemeler WHERE conversation_id = ${sonuc.conversationId} AND durum = 'beklemede'
     `;
     if (bekleyenOdeme.length === 0) {
       // Odeme basarili ama eslestirilecek bekleyen kayit yok - beklenmeyen durum, loglayip yonlendir.
       console.error("Callback: eslesen bekleyen odeme kaydi bulunamadi, conversationId:", sonuc.conversationId);
       return Response.redirect(`${siteUrl}/?odeme=hata`, 302);
     }
-    const { id: odemeId, kullanici_id: kullaniciId, plan } = bekleyenOdeme[0];
-
-    const paket = await sql`SELECT sure_gun FROM paketler WHERE anahtar = ${plan}`;
-    const sureGun = paket[0]?.sure_gun || 365;
+    const { id: odemeId, kullanici_id: kullaniciId, plan, kurum_id: kurumId, ucretli_deneme_id: denemeId } = bekleyenOdeme[0];
 
     await sql`UPDATE odemeler SET durum = 'basarili', iyzico_odeme_id = ${sonuc.paymentId || token} WHERE id = ${odemeId}`;
+
+    if (kurumId && denemeId) {
+      // Kurum-deneme satin almasi (bireysel abonelik degil) - kurum_deneme_satin_alma'ya isaretlenir.
+      const denemeSonuc = await sql`SELECT fiyat_tl FROM ucretli_denemeler WHERE id = ${denemeId}`;
+      const tutar = denemeSonuc[0]?.fiyat_tl || 0;
+      await sql`
+        INSERT INTO kurum_deneme_satin_alma (kurum_id, deneme_id, tutar_tl, odendi)
+        VALUES (${kurumId}, ${denemeId}, ${tutar}, true)
+        ON CONFLICT (kurum_id, deneme_id) DO UPDATE SET tutar_tl = ${tutar}, odendi = true
+      `;
+      return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
+    }
+
+    // Bireysel abonelik satin almasi (mevcut davranis)
+    const paket = await sql`SELECT sure_gun FROM paketler WHERE anahtar = ${plan}`;
+    const sureGun = paket[0]?.sure_gun || 365;
 
     await sql`
       INSERT INTO abonelikler (kullanici_id, plan, durum, iyzico_abonelik_id, baslangic, bitis)
