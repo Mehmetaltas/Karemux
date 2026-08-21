@@ -1,6 +1,7 @@
 // Fotografla soru cozumu - lib/ai.js soyutlamasi + gunluk kullanim limiti ile.
 import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
+import { gorselSoruErisimVarMi } from "@/lib/paket";
 
 export async function POST(req) {
   try {
@@ -14,6 +15,16 @@ export async function POST(req) {
     if (!limit.izinVar) {
       return Response.json(
         { error: limit.premium ? `Bugunluk yogun kullanim sinirina ulastin (${limit.limit}/gun), yarin devam edebilirsin.` : `Gunluk ucretsiz kullanim hakkin doldu (${limit.limit}/gun). Premium ile daha fazla kullanabilirsin.` },
+        { status: 429 }
+      );
+    }
+
+    // Gorsel soru cozme, genel AI limitine EK olarak ayri bir ticari kapiya
+    // tabi: gunde 3 ucretsiz -> satin alinmis kredi -> yillik_* abonelik.
+    const gorselErisim = await gorselSoruErisimVarMi(req, cihazId);
+    if (!gorselErisim.izinVar) {
+      return Response.json(
+        { error: "Bugunluk ucretsiz gorsel soru cozme hakkin (3) doldu ve kredin kalmadi. Kredi paketi satin alabilir ya da yillik pakete gecebilirsin." },
         { status: 429 }
       );
     }
