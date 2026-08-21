@@ -1427,6 +1427,21 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [odemeTcKimlikNo, setOdemeTcKimlikNo] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
   const [tumPaketler, setTumPaketler] = useState(null);
+  const [teshisSonucu, setTeshisSonucu] = useState(null);
+  const [teshisYukleniyor, setTeshisYukleniyor] = useState(false);
+
+  async function teshisCalistir() {
+    setTeshisYukleniyor(true); setTeshisSonucu(null);
+    try {
+      const res = await fetch(`/api/teshis?cihazId=${encodeURIComponent(cihazIdRef.current)}`);
+      const data = await res.json();
+      setTeshisSonucu(data);
+    } catch (e) {
+      setTeshisSonucu({ kontroller: [{ ad: "Genel", durum: "sorun", detay: "Teshis calistirilamadi: " + e.message }], genelDurum: "sorun" });
+    } finally {
+      setTeshisYukleniyor(false);
+    }
+  }
   const [profilOkul, setProfilOkul] = useState("");
   const [profilIl, setProfilIl] = useState("");
   const [telegramDurum, setTelegramDurum] = useState(null); // {baglandi, kod, botKullaniciAdi}
@@ -3477,6 +3492,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               {[
                 ["sorucoz", "📷 Soru Coz (Fotograf)"],
                 ["premium", "💳 Premium"],
+                ["teshis", "🩺 Hesap Teshisi"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -5069,6 +5085,39 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {mod === "teshis" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🩺</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Hesap Teşhisi</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Hesabınla ilgili olası sorunları kontrol eder - "AI kullanamıyorum", "Premium görünmüyor" gibi durumlarda.</p>
+            </div>
+
+            <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+              {!teshisSonucu ? (
+                <button className="kx-btn" onClick={teshisCalistir} disabled={teshisYukleniyor} style={{ width: "100%", padding: "12px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}>
+                  {teshisYukleniyor ? "Kontrol ediliyor..." : "Teşhisi Başlat"}
+                </button>
+              ) : (
+                <>
+                  {teshisSonucu.kontroller.map((k, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "10px 0", borderBottom: i < teshisSonucu.kontroller.length - 1 ? `1px solid ${COLORS.line}` : "none" }}>
+                      <span style={{ fontSize: 16, flexShrink: 0 }}>{k.durum === "ok" ? "✅" : k.durum === "uyari" ? "⚠️" : "❌"}</span>
+                      <div>
+                        <p style={{ fontWeight: 700, fontSize: 13, margin: 0 }}>{k.ad}</p>
+                        <p style={{ fontSize: 12, color: COLORS.muted, margin: "2px 0 0" }}>{k.detay}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <button onClick={teshisCalistir} disabled={teshisYukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "transparent", color: COLORS.ink, fontWeight: 600, fontSize: 12.5, marginTop: 12, cursor: "pointer" }}>
+                    {teshisYukleniyor ? "Kontrol ediliyor..." : "Tekrar Kontrol Et"}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         )}
 
