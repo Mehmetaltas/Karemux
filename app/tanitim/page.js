@@ -85,7 +85,7 @@ export default function Tanitim() {
           { ikon: "✨", b: "Akıllı Sistemle Sınırsız Üretim", a: "Statik soru bankası değil — her seferinde taze, seviyene uygun içerik." },
           { ikon: "🗺️", b: "Zayıf Konunu Sana Gösterir", a: "Nerede eksiğin var, tek bakışta gör; sistem otomatik plan çıkarır." },
           { ikon: "🎓", b: "Gerçek Öğretmenle Görüntülü Ders", a: "İstersen özel ders, istersen rehberlik danışmanlığı — tek tıkla randevu." },
-          { ikon: "💸", b: "Dershanenin Onda Biri Fiyatına", a: "29.000₺'lik paketler yerine, aylık 349₺'den başlayan erişim." },
+          { ikon: "💸", b: "Dershanenin Onda Biri Fiyatına", a: "29.000₺'lik paketler yerine, yıllık 5.000₺'ye tam erişim." },
         ].map((m, i) => (
           <div key={i} style={{ display: "flex", gap: 14, marginBottom: 18, alignItems: "flex-start" }}>
             <div style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 10, background: C.paperDeep, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{m.ikon}</div>
@@ -140,7 +140,7 @@ export default function Tanitim() {
             </thead>
             <tbody>
               {[
-                ["Yıllık Fiyat", "2.999₺'den başlar", "30.000–180.000₺", "Genelde daha ucuz ama sınırlı"],
+                ["Yıllık Fiyat", "5.000₺", "30.000–180.000₺", "Genelde daha ucuz ama sınırlı"],
                 ["Soru Kaynağı", "Akıllı sistemle anlık, sınırsız üretim", "Basılı kitap + kaynak", "Sabit, önceden hazırlanmış havuz"],
                 ["Kişiselleştirme", "Her öğrenciye özel, gerçek zamanlı", "Sınıf ortalamasına göre", "Genellikle yok / sınırlı"],
                 ["Gerçek Öğretmen", "İsteğe bağlı, görüntülü randevu", "Zorunlu, sabit program", "Yok"],
