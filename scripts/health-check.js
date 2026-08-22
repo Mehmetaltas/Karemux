@@ -35,6 +35,11 @@ const KRITIK_API_UCLARI = [
   { yol: "/api/soru-bankasi", beklenen: 200 },
   { yol: "/api/ulusal-deneme/aktif", beklenen: 200 },
   { yol: "/api/basarilar", beklenen: 200 },
+  { yol: "/api/paketler", beklenen: 200 },
+  { yol: "/api/canli-ders/listele", beklenen: 200 },
+  // OPSIYONEL FILTRELI cagri - 19 Agustos'ta bulunan gizli hatanin (Neon sql
+  // sablon etiketi ic ice sql`` desteklemiyor) tekrarlanmamasi icin.
+  { yol: "/api/canli-ders/listele?tur=grup", beklenen: 200 },
 ];
 
 async function veritabaniKontrolEt() {
@@ -284,6 +289,22 @@ async function entegrasyonTestiCalistir() {
       }
     } catch (e) {
       console.log(`  RED  Istatistik istegi basarisiz: ${e.message}`);
+    }
+
+    // OPSIYONEL FILTRE testi - 19 Agustos'ta bulunan gizli hatanin (Neon sql
+    // sablon etiketi ic ice sql`` parcalarini desteklemiyor) tekrarlanmamasi
+    // icin BILEREK eklendi. Bu tur filtreli cagrilar mutlaka test edilmeli.
+    toplam++;
+    try {
+      const res = await fetch(`${BASE_URL}/api/hata-kitapcigi?ders=Matematik`, { headers: { Cookie: cerez } });
+      if (res.ok) {
+        console.log("  OK   /api/hata-kitapcigi?ders= (opsiyonel filtre) calisiyor");
+        gecen++;
+      } else {
+        console.log(`  RED  /api/hata-kitapcigi?ders= HATA VERDI (durum ${res.status}) - gizli SQL hatasi olabilir`);
+      }
+    } catch (e) {
+      console.log(`  RED  Filtreli istek basarisiz: ${e.message}`);
     }
   } else {
     console.log("  ATLA Kayit basarisiz oldugu icin sonraki adimlar atlandi");
