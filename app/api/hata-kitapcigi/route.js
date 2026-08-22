@@ -96,18 +96,20 @@ export async function GET(req) {
       return Response.json({ istatistik });
     }
 
+    // NOT: Neon sql sablon etiketi ic ice sql`` parcalarini desteklemiyor -
+    // NULL-guvenli tek kosul kullanildi (19 Agustos bulunan/duzeltilen kalip).
     const kayitlar = kullaniciId
       ? await sql`
           SELECT id, ders, alt_konu, soru, secenekler, dogru_index, aciklama, cozuldu, olusturulma
           FROM hata_kitapcigi
-          WHERE kullanici_id = ${kullaniciId} AND cozuldu = false ${ders ? sql`AND ders = ${ders}` : sql``}
+          WHERE kullanici_id = ${kullaniciId} AND cozuldu = false AND (${ders}::text IS NULL OR ders = ${ders})
           ORDER BY olusturulma DESC
           LIMIT 100
         `
       : await sql`
           SELECT id, ders, alt_konu, soru, secenekler, dogru_index, aciklama, cozuldu, olusturulma
           FROM hata_kitapcigi
-          WHERE cihaz_id = ${cihazId} AND cozuldu = false ${ders ? sql`AND ders = ${ders}` : sql``}
+          WHERE cihaz_id = ${cihazId} AND cozuldu = false AND (${ders}::text IS NULL OR ders = ${ders})
           ORDER BY olusturulma DESC
           LIMIT 100
         `;
