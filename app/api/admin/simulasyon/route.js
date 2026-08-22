@@ -44,19 +44,24 @@ async function yetkiKontrol(req, sifre) {
 // GET: sabit birim maliyetleri dondurur (arayuz bunlari gosterip, kullanicinin
 // girdigi sayilarla CLIENT tarafinda carpar - ekstra istek gerekmez).
 export async function GET(req) {
-  const sifre = new URL(req.url).searchParams.get("sifre");
-  const yetki = await yetkiKontrol(req, sifre);
-  if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
+  try {
+    const sifre = new URL(req.url).searchParams.get("sifre");
+    const yetki = await yetkiKontrol(req, sifre);
+    if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
-  const birimMaliyetler = Object.fromEntries(
-    Object.entries(OZELLIKLER).map(([anahtar, ozellik]) => [
-      anahtar,
-      { ad: ozellik.ad, ciktiToken: ozellik.ciktiToken, maliyetTl: maliyetHesapla(ozellik.ciktiToken) },
-    ])
-  );
+    const birimMaliyetler = Object.fromEntries(
+      Object.entries(OZELLIKLER).map(([anahtar, ozellik]) => [
+        anahtar,
+        { ad: ozellik.ad, ciktiToken: ozellik.ciktiToken, maliyetTl: maliyetHesapla(ozellik.ciktiToken) },
+      ])
+    );
 
-  return Response.json({
-    birimMaliyetler,
-    varsayimlar: { usdTry: USD_TRY, girdiFiyatUsdMtok: GIRDI_FIYAT_USD_MTOK, ciktiFiyatUsdMtok: CIKTI_FIYAT_USD_MTOK, ortalamaGirdiToken: ORTALAMA_GIRDI_TOKEN, model: "Gemini 3.6 Flash (birincil saglayici)" },
-  });
+    return Response.json({
+      birimMaliyetler,
+      varsayimlar: { usdTry: USD_TRY, girdiFiyatUsdMtok: GIRDI_FIYAT_USD_MTOK, ciktiFiyatUsdMtok: CIKTI_FIYAT_USD_MTOK, ortalamaGirdiToken: ORTALAMA_GIRDI_TOKEN, model: "Gemini 3.6 Flash (birincil saglayici)" },
+    });
+  } catch (e) {
+    console.error(e);
+    return Response.json({ error: "Hesaplanamadi" }, { status: 500 });
+  }
 }
