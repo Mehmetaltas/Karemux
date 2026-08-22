@@ -1427,6 +1427,42 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [odemeTcKimlikNo, setOdemeTcKimlikNo] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
   const [tumPaketler, setTumPaketler] = useState(null);
+  const [canliDersOturumlari, setCanliDersOturumlari] = useState(null);
+  const [canliDersKatilimYukleniyor, setCanliDersKatilimYukleniyor] = useState(null);
+  const [canliDersMesaj, setCanliDersMesaj] = useState("");
+  const [canliDersCheckoutHtml, setCanliDersCheckoutHtml] = useState("");
+
+  async function canliDersOturumlariGetir() {
+    try {
+      const res = await fetch("/api/canli-ders/listele");
+      const data = await res.json();
+      setCanliDersOturumlari(data.oturumlar || []);
+    } catch (e) {}
+  }
+
+  async function canliDerseKatil(oturumId) {
+    if (!hesap) { setCanliDersMesaj("Once giris yapmalisin."); return; }
+    if (!odemeAdres.trim()) { setCanliDersMesaj("Once Premium ekranindan fatura adresini gir."); return; }
+    if (!/^[1-9][0-9]{10}$/.test(odemeTcKimlikNo)) { setCanliDersMesaj("Once Premium ekranindan gecerli bir TC kimlik numarasi gir."); return; }
+    setCanliDersKatilimYukleniyor(oturumId); setCanliDersMesaj(""); setCanliDersCheckoutHtml("");
+    try {
+      const [ad, ...soyadParcalari] = (hesap.ad || "Kullanici").split(" ");
+      const res = await fetch("/api/canli-ders/checkout", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          oturumId, cihazId: cihazIdRef.current,
+          iletisim: { ad, soyad: soyadParcalari.join(" ") || "-", eposta: hesap.eposta || "", adres: odemeAdres, sehir: "Istanbul", tcKimlikNo: odemeTcKimlikNo },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setCanliDersCheckoutHtml(data.checkoutFormContent);
+    } catch (e) {
+      setCanliDersMesaj(e.message);
+    } finally {
+      setCanliDersKatilimYukleniyor(null);
+    }
+  }
   const [profilOkul, setProfilOkul] = useState("");
   const [profilIl, setProfilIl] = useState("");
   const [telegramDurum, setTelegramDurum] = useState(null); // {baglandi, kod, botKullaniciAdi}
@@ -2571,6 +2607,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (hesap) {
       fetch("/api/abonelik/durum").then((r) => r.json()).then((d) => setAktifAbonelik(d.aktifAbonelik)).catch(() => {});
       fetch("/api/paketler").then((r) => r.json()).then((d) => setTumPaketler(d.paketler)).catch(() => {});
+      canliDersOturumlariGetir();
     }
   }, [hesap]);
 
@@ -3464,6 +3501,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["kurumpaneli", "🏢 Kurum Paneli"],
                 ["velipaneli", "👪 Veli Paneli"],
                 ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
+                ["canliders", "👥 Grup Dersi / Kamp / Soru Cozum"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -5098,6 +5136,38 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {mod === "canliders" && (
+          <div>
+            <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>👥</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Grup Dersi / Kamp / Soru Cozum</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Diger ogrencilerle birlikte, gercek ogretmenle canli oturumlar. Yillik abonelere %25 indirim.</p>
+            </div>
+
+            {!canliDersOturumlari ? (
+              <p style={{ fontSize: 12.5, color: COLORS.muted }}>Yukleniyor...</p>
+            ) : canliDersOturumlari.length === 0 ? (
+              <p style={{ fontSize: 12.5, color: COLORS.muted }}>Su an planli bir oturum yok.</p>
+            ) : (
+              canliDersOturumlari.map((o) => (
+                <div key={o.id} style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 10 }}>
+                  <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>
+                    {o.tur === "grup" ? "👥 Grup Dersi" : o.tur === "kamp" ? "🏕️ Konu Kampi" : "❓ Soru Cozum Saati"} — {o.ders}{o.konu ? ` (${o.konu})` : ""}
+                  </p>
+                  <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
+                    {o.ogretmen_adi} · {new Date(o.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })} · {o.sure_dk}dk{o.oturum_sayisi > 1 ? ` × ${o.oturum_sayisi} oturum` : ""} · {o.kalanKontenjan} kontenjan kaldi
+                  </p>
+                  <button onClick={() => canliDerseKatil(o.id)} disabled={canliDersKatilimYukleniyor === o.id} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                    {canliDersKatilimYukleniyor === o.id ? "..." : `Katil — ${o.fiyat_tl}₺`}
+                  </button>
+                </div>
+              ))
+            )}
+            {canliDersMesaj && <p style={{ color: COLORS.coral, fontSize: 13 }}>{canliDersMesaj}</p>}
+            {canliDersCheckoutHtml && <div dangerouslySetInnerHTML={{ __html: canliDersCheckoutHtml }} />}
           </div>
         )}
 
