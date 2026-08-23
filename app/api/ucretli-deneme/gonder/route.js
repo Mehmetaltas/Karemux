@@ -30,11 +30,12 @@ export async function POST(req) {
 
     const sorular = deneme[0].sorular;
     let dogru = 0, yanlis = 0, bos = 0;
+    const yanlisSoruNo = [], bosSoruNo = [];
     for (let i = 0; i < sorular.length; i++) {
       const verilen = cevaplar[i];
-      if (verilen === undefined || verilen === null) bos++;
+      if (verilen === undefined || verilen === null) { bos++; bosSoruNo.push(i + 1); }
       else if (verilen === sorular[i].dogruIndex) dogru++;
-      else yanlis++;
+      else { yanlis++; yanlisSoruNo.push(i + 1); }
     }
     const net = Math.max(0, dogru - yanlis / 3);
 
@@ -43,7 +44,28 @@ export async function POST(req) {
       VALUES (${denemeId}, ${kullaniciId}, ${kurumId}, ${dogru}, ${yanlis}, ${bos}, ${net})
     `;
 
-    return Response.json({ dogru, yanlis, bos, net });
+    // Zenginlestirilmis karne verisi - ulusal-deneme/gonder ile AYNI desen
+    // (siralama, yuzdelik dilim), UZERINE kurum ortalamasi karsilastirmasi eklendi
+    // (Pozitif ornegindeki "sube/okul ortalamasi" mantigi - kurumun KENDI
+    // ogrencileri arasindaki karsilastirma, disaridaki kurumlarla degil).
+    const kurumSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kurum_id = ${kurumId} ORDER BY net DESC`;
+    const kurumKatilimci = kurumSiralama.length;
+    const kurumSiram = kurumSiralama.findIndex((r) => Number(r.net) <= net) + 1;
+    const kurumOrtalama = kurumKatilimci > 0 ? Math.round((kurumSiralama.reduce((t, r) => t + Number(r.net), 0) / kurumKatilimci) * 100) / 100 : null;
+
+    const genelSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} ORDER BY net DESC`;
+    const genelKatilimci = genelSiralama.length;
+    const genelSiram = genelSiralama.findIndex((r) => Number(r.net) <= net) + 1;
+    const genelOrtalama = genelKatilimci > 0 ? Math.round((genelSiralama.reduce((t, r) => t + Number(r.net), 0) / genelKatilimci) * 100) / 100 : null;
+
+    const cevapAnahtari = sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama || null }));
+
+    return Response.json({
+      dogru, yanlis, bos, net,
+      yanlisSoruNo, bosSoruNo, cevapAnahtari,
+      kurumSiram, kurumKatilimci, kurumOrtalama,
+      genelSiram, genelKatilimci, genelOrtalama,
+    });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Gonderilemedi: " + e.message }, { status: 500 });
