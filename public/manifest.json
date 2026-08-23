@@ -1,15 +1,28 @@
 {
-  "name": "Karemux — LGS Ders Koçu",
-  "short_name": "Karemux",
-  "description": "Yapay zekâ destekli LGS konu anlatımı, soru üretimi ve çalışma planı.",
+  "name": "KAREMU X — Eğitim Sistemi",
+  "short_name": "KAREMU X",
+  "description": "5. sınıftan LGS'ye kadar yapay zekâ destekli kişisel eğitim sistemi.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1F3D2E",
   "theme_color": "#1F3D2E",
   "orientation": "portrait",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

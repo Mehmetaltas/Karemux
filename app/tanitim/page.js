@@ -80,7 +80,7 @@ export default function Tanitim() {
 
       {/* ==== NEDEN KAREMUX ==== */}
       <div style={{ padding: "20px 20px 48px", maxWidth: 480, margin: "0 auto" }}>
-        <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 22, textAlign: "center" }}>Neden Karemux?</h2>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 22, textAlign: "center" }}>Neden KAREMU X?</h2>
         {[
           { ikon: "✨", b: "Akıllı Sistemle Sınırsız Üretim", a: "Statik soru bankası değil — her seferinde taze, seviyene uygun içerik." },
           { ikon: "🗺️", b: "Zayıf Konunu Sana Gösterir", a: "Nerede eksiğin var, tek bakışta gör; sistem otomatik plan çıkarır." },
@@ -169,7 +169,7 @@ export default function Tanitim() {
       <div style={{ padding: "48px 20px 60px", textAlign: "center" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(22px, 6vw, 30px)", marginBottom: 14 }}>Kalemini al, başla.</h2>
         <p style={{ fontSize: 13.5, color: C.inkSoft, marginBottom: 22 }}>Kayıt ücretsiz, kredi kartı gerekmez.</p>
-        <a href="https://karemux-nu.vercel.app/" style={{ background: C.red, color: "#fff", padding: "14px 30px", borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Karemux'a Git →</a>
+        <a href="https://karemux-nu.vercel.app/" style={{ background: C.red, color: "#fff", padding: "14px 30px", borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none", display: "inline-block" }}>KAREMU X'a Git →</a>
         <p style={{ marginTop: 28, fontSize: 11, color: C.inkSoft }}>Web · PC · Tablet · Mobil — tüm cihazlarda aynı hesapla çalışır.</p>
       </div>
 

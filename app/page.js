@@ -3234,13 +3234,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       `}</style>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
-          <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, display: "block", objectFit: "cover" }} />
+          <img src="/icons/icon-192.png" alt="KAREMU X logo" className="kx-logo-header" style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, display: "block", objectFit: "cover" }} />
           <button onClick={() => setMenuAcik((a) => !a)} style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
           }}>☰</button>
           <div>
-            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.5, color: COLORS.mustard, margin: "0 0 2px", textTransform: "uppercase" }}>Karemux Egitim Sistemleri</p>
+            <p style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1.5, color: COLORS.mustard, margin: "0 0 2px", textTransform: "uppercase" }}>KAREMU X Eğitim Sistemleri</p>
             <h1 style={{ fontSize: 22, fontWeight: 700, color: COLORS.bgText || COLORS.page, margin: 0 }}>5.Siniftan LGS'ye Hazirlik</h1>
           </div>
         </div>
@@ -3251,7 +3251,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             background: COLORS.gradient, borderRadius: 16, padding: "28px 20px",
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
-            <img src="/icons/icon-192.png" alt="Karemux" className="kx-logo-acilis" style={{ width: 32, height: 32, borderRadius: 9, marginBottom: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.22)" }} />
+            <img src="/icons/icon-192.png" alt="KAREMU X" className="kx-logo-acilis" style={{ width: 32, height: 32, borderRadius: 9, marginBottom: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.22)" }} />
             <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: COLORS.page, fontWeight: 700, fontSize: 19, marginBottom: 8 }}>Hoş geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
@@ -4433,7 +4433,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div className="kx-fadein" style={{ marginTop: 16 }}>
                 <div style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
                   <div style={{ background: COLORS.gradient, padding: "18px 20px", textAlign: "center" }}>
-                    <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 26, height: 26, borderRadius: 7, marginBottom: 8 }} />
+                    <img src="/icons/icon-192.png" alt="KAREMU X" style={{ width: 26, height: 26, borderRadius: 7, marginBottom: 8 }} />
                     <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.page, margin: 0 }}>📄 Sonuç Belgesi</p>
                     {denemeBelgesi.testNo > 1 && (
                       <p style={{ fontSize: 11, color: "#B7C4BC", marginTop: 4 }}>{denemeBelgesi.kayitDersAdi} — {denemeBelgesi.testNo}. Test</p>
@@ -5279,8 +5279,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               return (
                 <div className="kx-fadein" style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
                   <div style={{ background: COLORS.gradient, padding: "16px 20px", display: "flex", alignItems: "center", gap: 10 }}>
-                    <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0 }} />
-                    <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.page, margin: 0 }}>Karemux Çözüm</p>
+                    <img src="/icons/icon-192.png" alt="KAREMU X" style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0 }} />
+                    <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.page, margin: 0 }}>KAREMU X Çözüm</p>
                   </div>
                   <div style={{ padding: "20px 20px 8px" }}>
                     <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, letterSpacing: 0.5, marginBottom: 12 }}>ADIM ADIM ÇÖZÜM</p>
@@ -5317,7 +5317,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       </div>
                     ))}
                     {soruSohbetYukleniyor && (
-                      <div style={{ alignSelf: "flex-start", fontSize: 11.5, color: COLORS.muted, fontStyle: "italic" }}>Karemux yazıyor...</div>
+                      <div style={{ alignSelf: "flex-start", fontSize: 11.5, color: COLORS.muted, fontStyle: "italic" }}>KAREMU X yazıyor...</div>
                     )}
                   </div>
                 )}
