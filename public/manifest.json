@@ -1,6 +1,6 @@
 {
-  "name": "KAREMU X — Eğitim Sistemi",
-  "short_name": "KAREMU X",
+  "name": "Karemux — Eğitim Sistemi",
+  "short_name": "Karemux",
   "description": "5. sınıftan LGS'ye kadar yapay zekâ destekli kişisel eğitim sistemi.",
   "start_url": "/",
   "display": "standalone",
