@@ -6290,6 +6290,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               )}
 
               {burslulukGonderildi && (
+                <>
                 <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 16, padding: 24, textAlign: "center", marginTop: 14 }}>
                   <p style={{ color: COLORS.mustard, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, marginBottom: 8 }}>BURSLULUK DENEMESİ SONUCU</p>
                   <p style={{ color: "#fff", fontSize: 40, fontWeight: 900, marginBottom: 4 }}>{genelNet.toFixed(2)}</p>
@@ -6326,6 +6327,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </tbody>
                   </table>
                 </div>
+                </>
               )}
             </div>
           );
