@@ -6195,14 +6195,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           const cevaplananSayi = Object.keys(burslulukCevaplar).length;
 
           let dogruSayisi = 0, yanlisSayisi = 0, bosSayisi = 0;
+          // Ders bazli kirilim (Pozitif ornegindeki karneden ilham alinarak eklendi) -
+          // her dersin kendi dogru/yanlis/bos/net'i AYRI tutulur, toplamin yaninda gosterilir.
+          const dersBazliOzet = {};
           if (tumSorularHazir) {
             BURSLULUK_DERSLER.forEach((ders) => {
+              let d = 0, y = 0, b = 0;
               (burslulukSorular[ders] || []).forEach((s, i) => {
                 const anahtar = `${ders}::${i}`;
-                if (!(anahtar in burslulukCevaplar)) bosSayisi++;
-                else if (burslulukCevaplar[anahtar] === s.dogruIndex) dogruSayisi++;
-                else yanlisSayisi++;
+                if (!(anahtar in burslulukCevaplar)) b++;
+                else if (burslulukCevaplar[anahtar] === s.dogruIndex) d++;
+                else y++;
               });
+              dersBazliOzet[ders] = { dogru: d, yanlis: y, bos: b, net: Math.max(0, d - y / 3) };
+              dogruSayisi += d; yanlisSayisi += y; bosSayisi += b;
             });
           }
           const genelNet = Math.max(0, dogruSayisi - yanlisSayisi / 3);
@@ -6293,6 +6299,32 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <div><p style={{ color: "#FF6B5E", fontSize: 18, fontWeight: 800 }}>{yanlisSayisi}</p><p style={{ color: "#8A968E", fontSize: 10 }}>YANLIŞ</p></div>
                     <div><p style={{ color: "#8A968E", fontSize: 18, fontWeight: 800 }}>{bosSayisi}</p><p style={{ color: "#8A968E", fontSize: 10 }}>BOŞ</p></div>
                   </div>
+                </div>
+
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginTop: 10 }}>
+                  <p style={{ fontSize: 11.5, fontWeight: 700, marginBottom: 8, color: COLORS.ink }}>Ders Bazlı Kırılım</p>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
+                    <thead>
+                      <tr style={{ borderBottom: `1.5px solid ${COLORS.line}` }}>
+                        <td style={{ padding: "4px 2px", fontWeight: 700, color: COLORS.muted }}>Ders</td>
+                        <td style={{ padding: "4px 2px", fontWeight: 700, color: RENK_BASARI, textAlign: "center" }}>D</td>
+                        <td style={{ padding: "4px 2px", fontWeight: 700, color: "#FF6B5E", textAlign: "center" }}>Y</td>
+                        <td style={{ padding: "4px 2px", fontWeight: 700, color: COLORS.muted, textAlign: "center" }}>B</td>
+                        <td style={{ padding: "4px 2px", fontWeight: 700, color: COLORS.ink, textAlign: "center" }}>Net</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {BURSLULUK_DERSLER.map((ders) => dersBazliOzet[ders] && (
+                        <tr key={ders} style={{ borderBottom: `1px solid ${COLORS.line}` }}>
+                          <td style={{ padding: "5px 2px" }}>{ders}</td>
+                          <td style={{ padding: "5px 2px", textAlign: "center", color: RENK_BASARI, fontWeight: 700 }}>{dersBazliOzet[ders].dogru}</td>
+                          <td style={{ padding: "5px 2px", textAlign: "center", color: "#FF6B5E", fontWeight: 700 }}>{dersBazliOzet[ders].yanlis}</td>
+                          <td style={{ padding: "5px 2px", textAlign: "center", color: COLORS.muted }}>{dersBazliOzet[ders].bos}</td>
+                          <td style={{ padding: "5px 2px", textAlign: "center", fontWeight: 800 }}>{dersBazliOzet[ders].net.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
