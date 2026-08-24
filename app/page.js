@@ -1427,6 +1427,34 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [odemeTcKimlikNo, setOdemeTcKimlikNo] = useState("");
   const [aktifAbonelik, setAktifAbonelik] = useState(null);
   const [tumPaketler, setTumPaketler] = useState(null);
+  const [randevuOdemeYukleniyor, setRandevuOdemeYukleniyor] = useState(null);
+  const [randevuOdemeMesaj, setRandevuOdemeMesaj] = useState("");
+  const [randevuOdemeCheckoutHtml, setRandevuOdemeCheckoutHtml] = useState("");
+
+  async function randevuyeOde(randevuId) {
+    if (!hesap) { setRandevuOdemeMesaj("Once giris yapmalisin."); return; }
+    if (!odemeAdres.trim()) { setRandevuOdemeMesaj("Once Premium ekranindan fatura adresini gir."); return; }
+    if (!/^[1-9][0-9]{10}$/.test(odemeTcKimlikNo)) { setRandevuOdemeMesaj("Once Premium ekranindan gecerli bir TC kimlik numarasi gir."); return; }
+    setRandevuOdemeYukleniyor(randevuId); setRandevuOdemeMesaj(""); setRandevuOdemeCheckoutHtml("");
+    try {
+      const [ad, ...soyadParcalari] = (hesap.ad || "Kullanici").split(" ");
+      const res = await fetch("/api/randevu/checkout", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          randevuId, cihazId: cihazIdRef.current,
+          iletisim: { ad, soyad: soyadParcalari.join(" ") || "-", eposta: hesap.eposta || "", adres: odemeAdres, sehir: "Istanbul", tcKimlikNo: odemeTcKimlikNo },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setRandevuOdemeCheckoutHtml(data.checkoutFormContent);
+    } catch (e) {
+      setRandevuOdemeMesaj(e.message);
+    } finally {
+      setRandevuOdemeYukleniyor(null);
+    }
+  }
+
   const [canliDersOturumlari, setCanliDersOturumlari] = useState(null);
   const [canliDersKatilimYukleniyor, setCanliDersKatilimYukleniyor] = useState(null);
   const [canliDersMesaj, setCanliDersMesaj] = useState("");
@@ -5460,11 +5488,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 14, marginBottom: 14 }}>
                   <p style={{ fontSize: 11.5, fontWeight: 700, color: "#2E7D4F", marginBottom: 8 }}>✓ Yaklaşan Randevuların</p>
                   {randevularim.map((r) => (
-                    <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 12 }}>
+                    <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 12, gap: 8 }}>
                       <span>{r.ogretmen_adi} ({r.brans}) — {new Date(r.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}{r.ucret_tl > 0 && <span style={{ color: r.odendi ? "#2E7D4F" : "#B23A2E", fontWeight: 700 }}> · {r.ucret_tl}₺ {r.odendi ? "Ödendi" : "Ödenmedi"}</span>}</span>
-                      <a href={r.zoom_link} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.coral, fontWeight: 700, fontSize: 11.5 }}>Katıl →</a>
+                      {r.ucret_tl > 0 && !r.odendi ? (
+                        <button onClick={() => randevuyeOde(r.id)} disabled={randevuOdemeYukleniyor === r.id} style={{ background: "none", border: "none", color: COLORS.coral, fontWeight: 700, fontSize: 11.5, cursor: "pointer", flexShrink: 0 }}>
+                          {randevuOdemeYukleniyor === r.id ? "..." : "Öde ve Katıl →"}
+                        </button>
+                      ) : (
+                        <a href={r.zoom_link} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.coral, fontWeight: 700, fontSize: 11.5, flexShrink: 0 }}>Katıl →</a>
+                      )}
                     </div>
                   ))}
+                  {randevuOdemeMesaj && <p style={{ color: COLORS.coral, fontSize: 11.5, marginTop: 6 }}>{randevuOdemeMesaj}</p>}
+                  {randevuOdemeCheckoutHtml && <div dangerouslySetInnerHTML={{ __html: randevuOdemeCheckoutHtml }} />}
                 </div>
               )}
 
