@@ -1,0 +1,34 @@
+import { sql } from "@/lib/db";
+import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
+
+// Herkese acik ogretmen basvuru formu - kimlik dogrulama gerektirmez,
+// ama spam/kotuye kullanima karsi IP bazli deneme siniri var.
+export async function POST(req) {
+  try {
+    const ip = istekIpAdresi(req);
+    const kontrol = await denemeSiniriKontrolEt(ip, "ogretmen_basvuru", 3, 60);
+    if (!kontrol.izinVar) {
+      return Response.json({ error: "Cok fazla basvuru denemesi. 1 saat sonra tekrar dene." }, { status: 429 });
+    }
+
+    const { ad, eposta, telefon, brans, kategori, istenenKademe, deneyimYili, ozgecmisMetni } = await req.json();
+
+    if (!ad?.trim() || !eposta?.trim() || !brans?.trim() || !kategori?.trim()) {
+      return Response.json({ error: "Ad, eposta, brans ve kategori gerekli" }, { status: 400 });
+    }
+    if (!["A", "B", "C"].includes(istenenKademe)) {
+      return Response.json({ error: "Gecerli bir kademe secilmeli (A/B/C)" }, { status: 400 });
+    }
+
+    await sql`
+      INSERT INTO ogretmen_basvurulari (ad, eposta, telefon, brans, kategori, istenen_kademe, deneyim_yili, ozgecmis_metni)
+      VALUES (${ad.trim()}, ${eposta.trim()}, ${telefon || null}, ${brans.trim()}, ${kategori.trim()}, ${istenenKademe}, ${deneyimYili || null}, ${ozgecmisMetni || null})
+    `;
+
+    await denemeKaydet(ip, "ogretmen_basvuru", true);
+    return Response.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    return Response.json({ error: "Basvuru gonderilemedi: " + e.message }, { status: 500 });
+  }
+}

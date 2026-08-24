@@ -50,13 +50,16 @@ export async function POST(req) {
     `;
     if (catisma.length > 0) return Response.json({ error: "Bu saat dolu, baska bir slot secin" }, { status: 409 });
 
-    const ucretTl = Math.round(((Number(ogretmen[0].saatlik_ucret_tl) || 0) * gecerliSure / 60) * 100) / 100;
+    // Ogretmen payi (KOMISYONSUZ, gercek tutar) + ogrenciye gosterilen fiyat
+    // (%20 Karemux komisyonu DAHIL, ayri yazilmaz - Canli Ders ile ayni desen, 23 Agustos karari).
+    const ogretmenPayiTl = Math.round(((Number(ogretmen[0].saatlik_ucret_tl) || 0) * gecerliSure / 60) * 100) / 100;
+    const ucretTl = Math.round((ogretmenPayiTl * 1.20) * 100) / 100;
     const odaId = `karemux-ders-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const jitsiLink = `https://meet.jit.si/${odaId}`;
 
     const sonuc = await sql`
-      INSERT INTO randevular (ogretmen_id, ogrenci_id, baslangic_zamani, bitis_zamani, zoom_link, zoom_meeting_id, durum, ucret_tl, odendi)
-      VALUES (${ogretmenId}, ${kullaniciId}, ${baslangic.toISOString()}, ${bitis.toISOString()}, ${jitsiLink}, ${odaId}, 'planlandi', ${ucretTl}, false)
+      INSERT INTO randevular (ogretmen_id, ogrenci_id, baslangic_zamani, bitis_zamani, zoom_link, zoom_meeting_id, durum, ucret_tl, ogretmen_payi_tl, odendi)
+      VALUES (${ogretmenId}, ${kullaniciId}, ${baslangic.toISOString()}, ${bitis.toISOString()}, ${jitsiLink}, ${odaId}, 'planlandi', ${ucretTl}, ${ogretmenPayiTl}, false)
       RETURNING id
     `;
     return Response.json({ ok: true, id: sonuc[0].id, ucretTl });
