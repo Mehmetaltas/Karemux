@@ -451,10 +451,17 @@ export default function YonetimPaneli() {
   // ==== GİRİŞ EKRANI ====
   if (!girisYapildi) {
     return (
-      <div style={{ minHeight: "100vh", background: T.bg, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.font, padding: 20 }}>
-        <div style={{ width: "100%", maxWidth: 340 }}>
+      <div style={{ minHeight: "100vh", background: `radial-gradient(circle at 50% 0%, ${T.accentSoft} 0%, ${T.bg} 60%)`, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: T.font, padding: 20 }}>
+        <style>{`
+          @keyframes adminFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes adminLogoPop { 0% { opacity: 0; transform: scale(0.5) rotate(-15deg); } 60% { opacity: 1; transform: scale(1.1) rotate(3deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+          @keyframes adminGlow { 0%, 100% { box-shadow: 0 0 24px rgba(34,211,170,0.15); } 50% { box-shadow: 0 0 40px rgba(34,211,170,0.3); } }
+          .admin-giris-kutu { animation: adminFadeUp 0.5s ease-out; }
+          .admin-logo { animation: adminLogoPop 0.6s cubic-bezier(0.34,1.56,0.64,1), adminGlow 3s ease-in-out infinite 0.6s; }
+        `}</style>
+        <div className="admin-giris-kutu" style={{ width: "100%", maxWidth: 340 }}>
           <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: T.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: 20 }}>🔐</div>
+            <img src="/icons/icon-192.png" alt="Karemux" className="admin-logo" style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 14px", display: "block", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }} />
             <p style={{ color: T.text, fontSize: 17, fontWeight: 700 }}>Karemux Yönetim</p>
             <p style={{ color: T.textMuted, fontSize: 12, marginTop: 3 }}>Bu alan sadece yöneticiye açıktır</p>
           </div>
@@ -489,9 +496,13 @@ export default function YonetimPaneli() {
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.font, color: T.text, paddingBottom: 60 }}>
+      <style>{`
+        @keyframes adminPanelFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .admin-panel-govde { animation: adminPanelFadeIn 0.35s ease-out; }
+      `}</style>
       <div style={{ borderBottom: `1px solid ${T.border}`, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: T.bg, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🔐</div>
+          <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 30, height: 30, borderRadius: 8, display: "block", objectFit: "cover" }} />
           <div>
             <p style={{ fontWeight: 700, fontSize: 14.5, margin: 0 }}>Karemux Yönetim</p>
             {personelAd && <p style={{ fontSize: 10.5, color: T.textMuted, margin: 0 }}>Hoş geldin, {personelAd}</p>}
