@@ -53,6 +53,9 @@ function butonStil(aktif, renk) {
 
 export default function YonetimPaneli() {
   const [sifre, setSifre] = useState("");
+  const [personelEposta, setPersonelEposta] = useState("");
+  const [personelSifre, setPersonelSifre] = useState("");
+  const [personelAd, setPersonelAd] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [sekme, setSekme] = useState("genel");
   const [hata, setHata] = useState("");
@@ -164,13 +167,23 @@ export default function YonetimPaneli() {
     mesajTemizle();
     setYukleniyor(true);
     try {
-      const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(sifre)}`);
+      // GERCEK kisisel giris - personel tablosuyla dogrulanir (24 Agustos).
+      const girisRes = await fetch("/api/personel/giris", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: personelEposta, sifre: personelSifre }),
+      });
+      const girisData = await girisRes.json();
+      if (!girisRes.ok) throw new Error(girisData.error || "Giris basarisiz");
+      setPersonelAd(girisData.ad);
+      setSifre(girisData.sifre);
+
+      const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(girisData.sifre)}`);
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Giriş başarısız");
       setMuhasebeVeri(data);
       setGirisYapildi(true);
     } catch (e) {
-      setHata(e.message || "Şifre hatalı ya da bağlantı sorunu.");
+      setHata(e.message || "Hatali giris ya da baglanti sorunu.");
     } finally {
       setYukleniyor(false);
     }
@@ -445,9 +458,11 @@ export default function YonetimPaneli() {
             <p style={{ color: T.text, fontSize: 17, fontWeight: 700 }}>Karemux Yönetim</p>
             <p style={{ color: T.textMuted, fontSize: 12, marginTop: 3 }}>Bu alan sadece yöneticiye açıktır</p>
           </div>
-          <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} onKeyDown={(e) => e.key === "Enter" && girisDene()}
-            placeholder="Yönetici şifresi" style={{ ...girdiStil, padding: "12px 14px", fontSize: 14, marginBottom: 10 }} autoFocus />
-          <button onClick={girisDene} disabled={yukleniyor || !sifre} style={{ ...butonStil(!!sifre), width: "100%", padding: "12px 0", fontSize: 13.5 }}>
+          <input type="email" value={personelEposta} onChange={(e) => setPersonelEposta(e.target.value)}
+            placeholder="Eposta" style={{ ...girdiStil, padding: "12px 14px", fontSize: 14, marginBottom: 10 }} autoFocus />
+          <input type="password" value={personelSifre} onChange={(e) => setPersonelSifre(e.target.value)} onKeyDown={(e) => e.key === "Enter" && girisDene()}
+            placeholder="Şifre" style={{ ...girdiStil, padding: "12px 14px", fontSize: 14, marginBottom: 10 }} />
+          <button onClick={girisDene} disabled={yukleniyor || !personelEposta || !personelSifre} style={{ ...butonStil(!!(personelEposta && personelSifre)), width: "100%", padding: "12px 0", fontSize: 13.5 }}>
             {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap"}
           </button>
           {hata && <p style={{ color: T.danger, fontSize: 12, marginTop: 12, textAlign: "center" }}>{hata}</p>}
@@ -477,9 +492,12 @@ export default function YonetimPaneli() {
       <div style={{ borderBottom: `1px solid ${T.border}`, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: T.bg, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <div style={{ width: 30, height: 30, borderRadius: 8, background: T.accentSoft, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>🔐</div>
-          <p style={{ fontWeight: 700, fontSize: 14.5 }}>Karemux Yönetim</p>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: 14.5, margin: 0 }}>Karemux Yönetim</p>
+            {personelAd && <p style={{ fontSize: 10.5, color: T.textMuted, margin: 0 }}>Hoş geldin, {personelAd}</p>}
+          </div>
         </div>
-        <button onClick={() => { setGirisYapildi(false); setSifre(""); }} style={{ background: "none", border: "none", color: T.textMuted, fontSize: 11.5, cursor: "pointer" }}>Çıkış</button>
+        <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }} style={{ background: "none", border: "none", color: T.textMuted, fontSize: 11.5, cursor: "pointer" }}>Çıkış</button>
       </div>
 
       <div style={{ padding: "16px 16px 0", display: "flex", gap: 6, overflowX: "auto" }}>
