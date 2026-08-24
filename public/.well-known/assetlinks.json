@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.karemux_nu.twa",
+    "sha256_cert_fingerprints": ["24889564f5b92ccc0c5d6e32eb7e9917e7447a66f11db46a908b6d703d9c9bb7"]
+  }
+}]
