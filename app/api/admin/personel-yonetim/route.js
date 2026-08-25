@@ -27,9 +27,11 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-  if (!yetkiliMi(req)) return Response.json({ error: "Yetkisiz" }, { status: 401 });
   try {
     const govde = await req.json();
+    if (govde.sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI) {
+      return Response.json({ error: "Yetkisiz" }, { status: 401 });
+    }
 
     if (govde.islem === "izinKarar") {
       const { izinId, karar } = govde;
