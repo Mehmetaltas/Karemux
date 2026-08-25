@@ -107,6 +107,31 @@ async function finansPaneliKontrolEt() {
     console.log("  UYARI ULUSAL_DENEME_YONETICI_SIFRESI tanimli degil, bu test atlaniyor.");
     return { gecen: 0, toplam: 0 };
   }
+  // Bu uc noktalar artik personelAdminMi() ile korunuyor (25 Agustos guvenlik
+  // duzeltmesi) - sifre tek basina yetmiyor, gercek admin personel oturumu gerekiyor.
+  let personelCerez = null;
+  const pEposta = process.env.HEALTH_CHECK_PERSONEL_EPOSTA;
+  const pSifre = process.env.HEALTH_CHECK_PERSONEL_SIFRE;
+  if (pEposta && pSifre) {
+    try {
+      const girisRes = await fetch(`${BASE_URL}/api/personel/giris`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: pEposta, sifre: pSifre }),
+      });
+      const setCookie = girisRes.headers.get("set-cookie");
+      if (girisRes.status === 200 && setCookie) {
+        personelCerez = setCookie.split(";")[0];
+        console.log("  OK   personel girisi (health check icin)");
+      } else {
+        console.log(`  UYARI personel girisi basarisiz (${girisRes.status}), asagidaki testler basarisiz olabilir`);
+      }
+    } catch (e) {
+      console.log(`  UYARI personel girisi istegi basarisiz -> ${e.message}`);
+    }
+  } else {
+    console.log("  UYARI HEALTH_CHECK_PERSONEL_EPOSTA/SIFRE tanimli degil, asagidaki testler basarisiz olabilir");
+  }
+
   const ucLar = [
     "/api/admin/cari", "/api/admin/kasa", "/api/admin/maliyet",
     "/api/admin/planlama", "/api/admin/simulasyon", "/api/admin/kurum",
@@ -114,7 +139,9 @@ async function finansPaneliKontrolEt() {
   for (const yol of ucLar) {
     toplam++;
     try {
-      const res = await fetch(`${BASE_URL}${yol}?sifre=${encodeURIComponent(sifre)}`);
+      const res = await fetch(`${BASE_URL}${yol}?sifre=${encodeURIComponent(sifre)}`, {
+        headers: personelCerez ? { Cookie: personelCerez } : {},
+      });
       if (res.status === 200) {
         console.log(`  OK   ${yol}`);
         gecen++;

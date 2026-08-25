@@ -22,6 +22,9 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXT_PUBLIC_SITE_URL: https://karemux-nu.vercel.app
           HEALTH_CHECK_SECRET: ${{ secrets.HEALTH_CHECK_SECRET }}
+          ULUSAL_DENEME_YONETICI_SIFRESI: ${{ secrets.ULUSAL_DENEME_YONETICI_SIFRESI }}
+          HEALTH_CHECK_PERSONEL_EPOSTA: ${{ secrets.HEALTH_CHECK_PERSONEL_EPOSTA }}
+          HEALTH_CHECK_PERSONEL_SIFRE: ${{ secrets.HEALTH_CHECK_PERSONEL_SIFRE }}
         run: node scripts/health-check.js
       - name: Basarisizlik bildirimi (Telegram)
         if: failure()
