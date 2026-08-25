@@ -1,12 +1,13 @@
 import { sql } from "@/lib/db";
+import { personelAdminMi } from "@/lib/personel";
 
-function yetkiliMi(req) {
+async function yetkiliMi(req) {
   const sifre = new URL(req.url).searchParams.get("sifre");
-  return sifre === process.env.ULUSAL_DENEME_YONETICI_SIFRESI;
+  return sifre === process.env.ULUSAL_DENEME_YONETICI_SIFRESI && (await personelAdminMi(req));
 }
 
 export async function GET(req) {
-  if (!yetkiliMi(req)) return Response.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!(await yetkiliMi(req))) return Response.json({ error: "Yetkisiz" }, { status: 401 });
   const personelListesi = await sql`SELECT id, ad, eposta, rol, aktif FROM personel ORDER BY ad`;
   const izinler = await sql`
     SELECT i.id, i.personel_id, p.ad AS personel_adi, i.baslangic_tarihi, i.bitis_tarihi, i.tur, i.durum, i.aciklama, i.talep_tarihi
@@ -29,7 +30,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const govde = await req.json();
-    if (govde.sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI) {
+    if (govde.sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI || !(await personelAdminMi(req))) {
       return Response.json({ error: "Yetkisiz" }, { status: 401 });
     }
 

@@ -1,11 +1,12 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
+import { personelAdminMi } from "@/lib/personel";
 
 async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
   const kontrol = await denemeSiniriKontrolEt(ip, "randevu_odeme_admin", 5, 15);
   if (!kontrol.izinVar) return { izinVar: false, hata: "Cok fazla deneme. 15 dakika sonra tekrar dene." };
-  if (sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI) {
+  if (sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI || !(await personelAdminMi(req))) {
     await denemeKaydet(ip, "randevu_odeme_admin", false);
     return { izinVar: false, hata: "Yetkisiz" };
   }

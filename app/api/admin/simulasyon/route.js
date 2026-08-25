@@ -1,4 +1,5 @@
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
+import { personelAdminMi } from "@/lib/personel";
 
 // Gercek token verileri (app/page.js'teki gercek aiIstek() cagrilarindan
 // cikarildi, tahmin degil):
@@ -33,7 +34,7 @@ async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
   const kontrol = await denemeSiniriKontrolEt(ip, "simulasyon_paneli", 5, 15);
   if (!kontrol.izinVar) return { izinVar: false, hata: "Cok fazla deneme. 15 dakika sonra tekrar dene." };
-  if (sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI) {
+  if (sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI || !(await personelAdminMi(req))) {
     await denemeKaydet(ip, "simulasyon_paneli", false);
     return { izinVar: false, hata: "Yetkisiz" };
   }
