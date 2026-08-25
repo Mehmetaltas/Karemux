@@ -82,6 +82,41 @@ export default function YonetimPaneli() {
   const [yeniOgretmenBaslangic, setYeniOgretmenBaslangic] = useState("16:00");
   const [yeniOgretmenBitis, setYeniOgretmenBitis] = useState("20:00");
   const [ogretmenEkleniyor, setOgretmenEkleniyor] = useState(false);
+  const [ogretmenBasvurulari, setOgretmenBasvurulari] = useState(null);
+  const [basvuruIslemDurumu, setBasvuruIslemDurumu] = useState(null);
+  const [basvuruOnaySaatlikUcret, setBasvuruOnaySaatlikUcret] = useState({});
+
+  async function basvurulariGetir() {
+    try {
+      const res = await fetch(`/api/admin/ogretmen-basvuru?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setOgretmenBasvurulari(data.basvurular);
+    } catch {}
+  }
+
+  async function basvuruKararVer(id, karar) {
+    setBasvuruIslemDurumu(id); mesajTemizle();
+    try {
+      const govde = { sifre, basvuruId: id, karar };
+      if (karar === "onayla") {
+        const ucret = basvuruOnaySaatlikUcret[id];
+        if (!ucret || Number(ucret) <= 0) { setHata("Onay icin saatlik ucret girilmeli."); setBasvuruIslemDurumu(null); return; }
+        govde.saatlikUcret = ucret;
+      }
+      const res = await fetch("/api/admin/ogretmen-basvuru", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(govde),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari(karar === "onayla" ? "Basvuru onaylandi, ogretmen olusturuldu." : "Basvuru reddedildi.");
+      basvurulariGetir();
+    } catch (e) {
+      setHata(e.message);
+    } finally {
+      setBasvuruIslemDurumu(null);
+    }
+  }
 
   const [duyuruMesaji, setDuyuruMesaji] = useState("");
   const [duyuruIl, setDuyuruIl] = useState("");
@@ -342,6 +377,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kurumlar" && !kurumlarVeri) kurumlariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
 
   async function kurumlariGetir() {
     try {
@@ -953,6 +989,37 @@ export default function YonetimPaneli() {
             <button onClick={ogretmenEkle} disabled={ogretmenEkleniyor || !yeniOgretmenAd} style={{ ...butonStil(!!yeniOgretmenAd), width: "100%", padding: "10px 0" }}>
               {ogretmenEkleniyor ? "Ekleniyor..." : "Öğretmen Ekle"}
             </button>
+          </Panel>
+        )}
+
+        {sekme === "ogretmen" && (
+          <Panel baslik="Öğretmen Başvuruları" ikon="📋">
+            {!ogretmenBasvurulari ? (
+              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Yükleniyor...</p>
+            ) : ogretmenBasvurulari.filter((b) => b.durum === "beklemede").length === 0 ? (
+              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Bekleyen başvuru yok.</p>
+            ) : (
+              ogretmenBasvurulari.filter((b) => b.durum === "beklemede").map((b) => (
+                <div key={b.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+                  <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>{b.ad} <span style={{ color: T.textMuted, fontWeight: 500 }}>· {b.brans} · {b.istenen_kademe} kademe</span></p>
+                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 6 }}>{b.eposta} {b.telefon ? `· ${b.telefon}` : ""}</p>
+                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>Kategori: {b.kategori} · Deneyim: {b.deneyim_yili ?? "?"} yıl · Eğitim: {b.egitim_seviyesi}{b.egitim_alani ? ` (${b.egitim_alani})` : ""}</p>
+                  {b.sertifikalar && <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>Sertifikalar: {b.sertifikalar}</p>}
+                  {b.sinav_hazirlik_deneyimi && <p style={{ fontSize: 11, color: T.accent, marginBottom: 2 }}>✓ Sınav hazırlık deneyimi var</p>}
+                  {b.ozgecmis_metni && <p style={{ fontSize: 11.5, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{b.ozgecmis_metni}</p>}
+                  <p style={{ fontSize: 10.5, color: T.accent, marginTop: 6 }}>✓ Adli sicil beyanı · ✓ Bilgi doğruluğu beyanı</p>
+                  <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
+                    <input type="number" placeholder="Saatlik ücret ₺" value={basvuruOnaySaatlikUcret[b.id] || ""} onChange={(e) => setBasvuruOnaySaatlikUcret((eski) => ({ ...eski, [b.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, width: 120 }} />
+                    <button onClick={() => basvuruKararVer(b.id, "onayla")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true), padding: "9px 14px", fontSize: 12 }}>
+                      {basvuruIslemDurumu === b.id ? "..." : "Onayla"}
+                    </button>
+                    <button onClick={() => basvuruKararVer(b.id, "reddet")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true, T.danger), padding: "9px 14px", fontSize: 12 }}>
+                      Reddet
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </Panel>
         )}
 

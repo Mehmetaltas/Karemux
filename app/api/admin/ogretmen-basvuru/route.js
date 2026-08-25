@@ -19,7 +19,8 @@ export async function GET(req) {
   if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
   const basvurular = await sql`
-    SELECT id, ad, eposta, telefon, brans, kategori, istenen_kademe, deneyim_yili, ozgecmis_metni, durum, admin_notu, basvuru_tarihi, degerlendirme_tarihi
+    SELECT id, ad, eposta, telefon, brans, kategori, istenen_kademe, deneyim_yili, ozgecmis_metni, durum, admin_notu, basvuru_tarihi, degerlendirme_tarihi,
+           egitim_seviyesi, egitim_alani, sertifikalar, sinav_hazirlik_deneyimi, adli_sicil_beyani, bilgi_dogrulugu_beyani, cv_dosya_url
     FROM ogretmen_basvurulari ORDER BY basvuru_tarihi DESC
   `;
   return Response.json({ basvurular });

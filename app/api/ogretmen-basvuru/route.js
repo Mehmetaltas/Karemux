@@ -3,6 +3,10 @@ import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenl
 
 // Herkese acik ogretmen basvuru formu - kimlik dogrulama gerektirmez,
 // ama spam/kotuye kullanima karsi IP bazli deneme siniri var.
+// GUNCELLEME (25 Agustos): tam CV bilgileri + YASAL beyanlar zorunlu -
+// adli sicil (cocuklarla calisan platform icin guvenlik onlemi) ve
+// bilgi dogrulugu (yanlis beyanin sorumlulugu basvurana ait) onaylanmadan
+// basvuru kabul edilmiyor.
 export async function POST(req) {
   try {
     const ip = istekIpAdresi(req);
@@ -11,7 +15,11 @@ export async function POST(req) {
       return Response.json({ error: "Cok fazla basvuru denemesi. 1 saat sonra tekrar dene." }, { status: 429 });
     }
 
-    const { ad, eposta, telefon, brans, kategori, istenenKademe, deneyimYili, ozgecmisMetni } = await req.json();
+    const {
+      ad, eposta, telefon, brans, kategori, istenenKademe, deneyimYili, ozgecmisMetni,
+      egitimSeviyesi, egitimAlani, sertifikalar, sinavHazirlikDeneyimi,
+      adliSicilBeyani, bilgiDogruluguBeyani, cvDosyaUrl,
+    } = await req.json();
 
     if (!ad?.trim() || !eposta?.trim() || !brans?.trim() || !kategori?.trim()) {
       return Response.json({ error: "Ad, eposta, brans ve kategori gerekli" }, { status: 400 });
@@ -19,10 +27,27 @@ export async function POST(req) {
     if (!["A", "B", "C"].includes(istenenKademe)) {
       return Response.json({ error: "Gecerli bir kademe secilmeli (A/B/C)" }, { status: 400 });
     }
+    if (!egitimSeviyesi?.trim()) {
+      return Response.json({ error: "Egitim seviyesi gerekli" }, { status: 400 });
+    }
+    if (!adliSicilBeyani) {
+      return Response.json({ error: "Adli sicil kaydi beyani onaylanmadan basvuru kabul edilmiyor" }, { status: 400 });
+    }
+    if (!bilgiDogruluguBeyani) {
+      return Response.json({ error: "Bilgi dogrulugu beyani onaylanmadan basvuru kabul edilmiyor" }, { status: 400 });
+    }
 
     await sql`
-      INSERT INTO ogretmen_basvurulari (ad, eposta, telefon, brans, kategori, istenen_kademe, deneyim_yili, ozgecmis_metni)
-      VALUES (${ad.trim()}, ${eposta.trim()}, ${telefon || null}, ${brans.trim()}, ${kategori.trim()}, ${istenenKademe}, ${deneyimYili || null}, ${ozgecmisMetni || null})
+      INSERT INTO ogretmen_basvurulari (
+        ad, eposta, telefon, brans, kategori, istenen_kademe, deneyim_yili, ozgecmis_metni,
+        egitim_seviyesi, egitim_alani, sertifikalar, sinav_hazirlik_deneyimi,
+        adli_sicil_beyani, bilgi_dogrulugu_beyani, cv_dosya_url
+      )
+      VALUES (
+        ${ad.trim()}, ${eposta.trim()}, ${telefon || null}, ${brans.trim()}, ${kategori.trim()}, ${istenenKademe}, ${deneyimYili || null}, ${ozgecmisMetni || null},
+        ${egitimSeviyesi.trim()}, ${egitimAlani || null}, ${sertifikalar || null}, ${!!sinavHazirlikDeneyimi},
+        ${true}, ${true}, ${cvDosyaUrl || null}
+      )
     `;
 
     await denemeKaydet(ip, "ogretmen_basvuru", true);
