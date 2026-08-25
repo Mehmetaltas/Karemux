@@ -83,6 +83,128 @@ export default function YonetimPaneli() {
   const [yeniOgretmenBitis, setYeniOgretmenBitis] = useState("20:00");
   const [ogretmenEkleniyor, setOgretmenEkleniyor] = useState(false);
   const [talepler, setTalepler] = useState(null);
+  const [kariyerBasvurulari, setKariyerBasvurulari] = useState(null);
+
+  // --- Kisisel Ik: Mesai/Izin/Gorev ---
+  const [mesaiVeri, setMesaiVeri] = useState(null);
+  const [mesaiIslemDurumu, setMesaiIslemDurumu] = useState(false);
+  const [mesaiCikisNotu, setMesaiCikisNotu] = useState("");
+  const [izinlerim, setIzinlerim] = useState(null);
+  const [izinBaslangic, setIzinBaslangic] = useState("");
+  const [izinBitis, setIzinBitis] = useState("");
+  const [izinTur, setIzinTur] = useState("yillik");
+  const [izinAciklama, setIzinAciklama] = useState("");
+  const [izinGonderiliyor, setIzinGonderiliyor] = useState(false);
+  const [gorevlerim, setGorevlerim] = useState(null);
+
+  async function mesaiGetir() {
+    try {
+      const res = await fetch("/api/personel/mesai");
+      const data = await res.json();
+      if (res.ok) setMesaiVeri(data);
+    } catch {}
+  }
+  async function mesaiIslemYap(aksiyon) {
+    setMesaiIslemDurumu(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/personel/mesai", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ aksiyon, not: mesaiCikisNotu || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setMesaiCikisNotu("");
+      mesaiGetir();
+    } catch (e) { setHata(e.message); } finally { setMesaiIslemDurumu(false); }
+  }
+
+  async function izinleriGetir() {
+    try {
+      const res = await fetch("/api/personel/izin");
+      const data = await res.json();
+      if (res.ok) setIzinlerim(data.izinler);
+    } catch {}
+  }
+  async function izinTalepEt() {
+    if (!izinBaslangic || !izinBitis) { setHata("Baslangic ve bitis tarihi gerekli."); return; }
+    setIzinGonderiliyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/personel/izin", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ baslangicTarihi: izinBaslangic, bitisTarihi: izinBitis, tur: izinTur, aciklama: izinAciklama || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari("Izin talebin gonderildi."); setIzinBaslangic(""); setIzinBitis(""); setIzinAciklama("");
+      izinleriGetir();
+    } catch (e) { setHata(e.message); } finally { setIzinGonderiliyor(false); }
+  }
+
+  async function gorevleriGetir() {
+    try {
+      const res = await fetch("/api/personel/gorevlerim");
+      const data = await res.json();
+      if (res.ok) setGorevlerim(data.gorevler);
+    } catch {}
+  }
+  async function gorevDurumGuncelle(gorevId, durum) {
+    try {
+      await fetch("/api/personel/gorevlerim", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ gorevId, durum }),
+      });
+      gorevleriGetir();
+    } catch {}
+  }
+
+  // --- Admin: Personel Yonetimi ---
+  const [ikYonetimVeri, setIkYonetimVeri] = useState(null);
+  const [izinKararDurumu, setIzinKararDurumu] = useState(null);
+  const [yeniGorevBaslik, setYeniGorevBaslik] = useState("");
+  const [yeniGorevAciklama, setYeniGorevAciklama] = useState("");
+  const [yeniGorevAtanan, setYeniGorevAtanan] = useState("");
+  const [yeniGorevSonTarih, setYeniGorevSonTarih] = useState("");
+  const [gorevAtaniyor, setGorevAtaniyor] = useState(false);
+
+  async function ikYonetimGetir() {
+    try {
+      const res = await fetch(`/api/admin/personel-yonetim?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setIkYonetimVeri(data);
+    } catch {}
+  }
+  async function izinKararVer(izinId, karar) {
+    setIzinKararDurumu(izinId);
+    try {
+      await fetch("/api/admin/personel-yonetim", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, islem: "izinKarar", izinId, karar }),
+      });
+      ikYonetimGetir();
+    } catch {} finally { setIzinKararDurumu(null); }
+  }
+  async function gorevAta() {
+    if (!yeniGorevBaslik.trim()) return;
+    setGorevAtaniyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/personel-yonetim", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, islem: "gorevAta", atananPersonelId: yeniGorevAtanan || null, baslik: yeniGorevBaslik, aciklama: yeniGorevAciklama || null, oncelik: "normal", sonTarih: yeniGorevSonTarih || null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari("Gorev atandi."); setYeniGorevBaslik(""); setYeniGorevAciklama(""); setYeniGorevSonTarih("");
+      ikYonetimGetir();
+    } catch (e) { setHata(e.message); } finally { setGorevAtaniyor(false); }
+  }
+
+  async function kariyerBasvurulariGetir() {
+    try {
+      const res = await fetch(`/api/admin/kariyer-basvuru?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setKariyerBasvurulari(data.basvurular);
+    } catch {}
+  }
 
   async function talepleriGetir() {
     try {
@@ -388,6 +510,9 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "kariyer" && !kariyerBasvurulari) kariyerBasvurulariGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ik") { if (!mesaiVeri) mesaiGetir(); if (!izinlerim) izinleriGetir(); if (!gorevlerim) gorevleriGetir(); } }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ikyonetim" && !ikYonetimVeri) ikYonetimGetir(); }, [girisYapildi, sekme]);
 
   async function kurumlariGetir() {
     try {
@@ -539,6 +664,9 @@ export default function YonetimPaneli() {
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
     ["talepler", "💡 Kullanıcı Talepleri"],
+    ["kariyer", "🧑‍💼 Kariyer Havuzu"],
+    ["ik", "🕐 Mesai/İzin/Görev"],
+    ["ikyonetim", "🗂️ Personel Yönetimi"],
   ];
 
   return (
@@ -1052,6 +1180,150 @@ export default function YonetimPaneli() {
               ))
             )}
           </Panel>
+        )}
+
+        {sekme === "kariyer" && (
+          <Panel baslik="Kariyer Havuzu" ikon="🧑‍💼">
+            {!kariyerBasvurulari ? (
+              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Yükleniyor...</p>
+            ) : kariyerBasvurulari.length === 0 ? (
+              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Henüz başvuru yok.</p>
+            ) : (
+              kariyerBasvurulari.map((b) => (
+                <div key={b.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+                  <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>{b.ad} <span style={{ color: T.textMuted, fontWeight: 500 }}>· {b.departman} · {b.basvuru_turu === "danismanlik" ? "Danışmanlık" : "Tam Zamanlı"}</span></p>
+                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>{b.eposta}{b.telefon ? ` · ${b.telefon}` : ""}</p>
+                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>Deneyim: {b.deneyim_yili ?? "?"} yıl · Eğitim: {b.egitim_seviyesi || "?"}{b.egitim_alani ? ` (${b.egitim_alani})` : ""}</p>
+                  {b.portfolyo_url && <p style={{ fontSize: 11.5, marginBottom: 2 }}><a href={b.portfolyo_url} target="_blank" rel="noopener noreferrer" style={{ color: T.accent }}>{b.portfolyo_url}</a></p>}
+                  {b.ozgecmis_metni && <p style={{ fontSize: 11.5, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{b.ozgecmis_metni}</p>}
+                </div>
+              ))
+            )}
+          </Panel>
+        )}
+
+        {sekme === "ik" && (
+          <>
+            <Panel baslik="Mesai" ikon="🕐">
+              {mesaiVeri?.acikKayit ? (
+                <>
+                  <p style={{ fontSize: 12.5, color: T.accent, marginBottom: 10 }}>✓ Şu an mesaidesin — giriş: {new Date(mesaiVeri.acikKayit.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</p>
+                  <input value={mesaiCikisNotu} onChange={(e) => setMesaiCikisNotu(e.target.value)} placeholder="Çıkış notu (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+                  <button onClick={() => mesaiIslemYap("cikis")} disabled={mesaiIslemDurumu} style={{ ...butonStil(true, T.danger), width: "100%", padding: "10px 0" }}>Çıkış Yap</button>
+                </>
+              ) : (
+                <button onClick={() => mesaiIslemYap("giris")} disabled={mesaiIslemDurumu} style={{ ...butonStil(true), width: "100%", padding: "10px 0" }}>Girişi Başlat</button>
+              )}
+              {mesaiVeri?.sonKayitlar?.length > 0 && (
+                <div style={{ marginTop: 14 }}>
+                  <p style={{ fontSize: 11, color: T.textMuted, marginBottom: 6 }}>Son Kayıtlar</p>
+                  {mesaiVeri.sonKayitlar.map((k) => (
+                    <p key={k.id} style={{ fontSize: 11.5, color: T.textMuted, margin: "4px 0" }}>
+                      {new Date(k.giris_zamani).toLocaleDateString("tr-TR")} · {new Date(k.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })} → {k.cikis_zamani ? new Date(k.cikis_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }) : "devam ediyor"}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </Panel>
+
+            <Panel baslik="İzin Talebi" ikon="🏖️">
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <input type="date" value={izinBaslangic} onChange={(e) => setIzinBaslangic(e.target.value)} style={girdiStil} />
+                <input type="date" value={izinBitis} onChange={(e) => setIzinBitis(e.target.value)} style={girdiStil} />
+              </div>
+              <select value={izinTur} onChange={(e) => setIzinTur(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }}>
+                <option value="yillik">Yıllık İzin</option>
+                <option value="mazeret">Mazeret İzni</option>
+                <option value="hastalik">Hastalık İzni</option>
+              </select>
+              <input value={izinAciklama} onChange={(e) => setIzinAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+              <button onClick={izinTalepEt} disabled={izinGonderiliyor} style={{ ...butonStil(true), width: "100%", padding: "10px 0" }}>Talep Gönder</button>
+              {izinlerim?.length > 0 && (
+                <div style={{ marginTop: 14 }}>
+                  {izinlerim.map((i) => (
+                    <div key={i.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 11.5, borderBottom: `1px solid ${T.border}` }}>
+                      <span>{i.baslangic_tarihi} → {i.bitis_tarihi} ({i.tur})</span>
+                      <span style={{ color: i.durum === "onaylandi" ? T.accent : i.durum === "reddedildi" ? T.danger : T.amber, fontWeight: 700 }}>{i.durum}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Panel>
+
+            <Panel baslik="Görevlerim" ikon="✅">
+              {!gorevlerim || gorevlerim.length === 0 ? (
+                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Atanmış görevin yok.</p>
+              ) : (
+                gorevlerim.map((g) => (
+                  <div key={g.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 700, fontSize: 13 }}>{g.baslik}</p>
+                    {g.aciklama && <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 6 }}>{g.aciklama}</p>}
+                    {g.son_tarih && <p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 6 }}>Son tarih: {g.son_tarih}</p>}
+                    <select value={g.durum} onChange={(e) => gorevDurumGuncelle(g.id, e.target.value)} style={{ ...girdiStil, marginBottom: 0, fontSize: 11.5, padding: "6px 8px" }}>
+                      <option value="acik">Açık</option>
+                      <option value="devam_ediyor">Devam Ediyor</option>
+                      <option value="tamamlandi">Tamamlandı</option>
+                    </select>
+                  </div>
+                ))
+              )}
+            </Panel>
+          </>
+        )}
+
+        {sekme === "ikyonetim" && (
+          <>
+            <Panel baslik="Şu An Mesaide" ikon="🟢">
+              {!ikYonetimVeri?.bugunMesaide || ikYonetimVeri.bugunMesaide.length === 0 ? (
+                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Şu an mesaide kimse yok.</p>
+              ) : (
+                ikYonetimVeri.bugunMesaide.map((m) => (
+                  <p key={m.id} style={{ fontSize: 12.5, margin: "4px 0" }}>🟢 {m.personel_adi} — {new Date(m.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}'den beri</p>
+                ))
+              )}
+            </Panel>
+
+            <Panel baslik="İzin Talepleri" ikon="🏖️">
+              {!ikYonetimVeri?.izinler || ikYonetimVeri.izinler.filter((i) => i.durum === "beklemede").length === 0 ? (
+                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Bekleyen izin talebi yok.</p>
+              ) : (
+                ikYonetimVeri.izinler.filter((i) => i.durum === "beklemede").map((i) => (
+                  <div key={i.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 700, fontSize: 13 }}>{i.personel_adi} — {i.tur}</p>
+                    <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 8 }}>{i.baslangic_tarihi} → {i.bitis_tarihi}{i.aciklama ? ` · ${i.aciklama}` : ""}</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => izinKararVer(i.id, "onaylandi")} disabled={izinKararDurumu === i.id} style={{ ...butonStil(true), padding: "7px 12px", fontSize: 11.5 }}>Onayla</button>
+                      <button onClick={() => izinKararVer(i.id, "reddedildi")} disabled={izinKararDurumu === i.id} style={{ ...butonStil(true, T.danger), padding: "7px 12px", fontSize: 11.5 }}>Reddet</button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </Panel>
+
+            <Panel baslik="Görev Ata" ikon="📌">
+              <select value={yeniGorevAtanan} onChange={(e) => setYeniGorevAtanan(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }}>
+                <option value="">— Personel Seç —</option>
+                {ikYonetimVeri?.personelListesi?.map((p) => <option key={p.id} value={p.id}>{p.ad}</option>)}
+              </select>
+              <input value={yeniGorevBaslik} onChange={(e) => setYeniGorevBaslik(e.target.value)} placeholder="Görev başlığı" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={yeniGorevAciklama} onChange={(e) => setYeniGorevAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input type="date" value={yeniGorevSonTarih} onChange={(e) => setYeniGorevSonTarih(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <button onClick={gorevAta} disabled={gorevAtaniyor || !yeniGorevBaslik} style={{ ...butonStil(!!yeniGorevBaslik), width: "100%", padding: "10px 0" }}>Görev Ata</button>
+            </Panel>
+
+            <Panel baslik="Tüm Görevler" ikon="📋">
+              {!ikYonetimVeri?.gorevler || ikYonetimVeri.gorevler.length === 0 ? (
+                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Henüz görev yok.</p>
+              ) : (
+                ikYonetimVeri.gorevler.map((g) => (
+                  <div key={g.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 11.5, borderBottom: `1px solid ${T.border}` }}>
+                    <span>{g.baslik} {g.atanan_adi ? `— ${g.atanan_adi}` : ""}</span>
+                    <span style={{ color: g.durum === "tamamlandi" ? T.accent : T.textMuted, fontWeight: 700 }}>{g.durum}</span>
+                  </div>
+                ))
+              )}
+            </Panel>
+          </>
         )}
 
         {sekme === "duyuru" && (

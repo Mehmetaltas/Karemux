@@ -180,6 +180,8 @@ export default function Tanitim() {
           {" · "}
           <a href="/ogretmen-basvuru" style={{ color: C.inkSoft, textDecoration: "underline" }}>Öğretmen Başvurusu</a>
           {" · "}
+          <a href="/kariyer" style={{ color: C.inkSoft, textDecoration: "underline" }}>Kariyer</a>
+          {" · "}
           info@karemux.com
         </p>
       </div>
