@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
+import { resendIstemcisi } from "@/lib/email";
 
 // Herkese acik ogretmen basvuru formu - kimlik dogrulama gerektirmez,
 // ama spam/kotuye kullanima karsi IP bazli deneme siniri var.
@@ -51,6 +52,21 @@ export async function POST(req) {
     `;
 
     await denemeKaydet(ip, "ogretmen_basvuru", true);
+
+    // Info kutusuna bildirim - basarisiz olsa da basvurunun kendisini engellemez.
+    try {
+      await resendIstemcisi().emails.send({
+        from: "Karemux <bildirim@karemux.com>",
+        to: "info@karemux.com",
+        subject: `Yeni Ogretmen Basvurusu: ${ad.trim()} (${brans.trim()}, ${istenenKademe} kademe)`,
+        html: `<p><b>${ad.trim()}</b> yeni bir ogretmen basvurusu gonderdi.</p>
+<p>Eposta: ${eposta.trim()}${telefon ? ` · Telefon: ${telefon}` : ""}</p>
+<p>Brans: ${brans.trim()} · Kategori: ${kategori.trim()} · Kademe: ${istenenKademe}</p>
+<p>Deneyim: ${deneyimYili ?? "?"} yil · Egitim: ${egitimSeviyesi.trim()}${egitimAlani ? ` (${egitimAlani})` : ""}</p>
+<p>Admin panelinden incele: https://karemux-nu.vercel.app/admin</p>`,
+      });
+    } catch (e) { console.error("Basvuru bildirim epostasi gonderilemedi:", e); }
+
     return Response.json({ ok: true });
   } catch (e) {
     console.error(e);
