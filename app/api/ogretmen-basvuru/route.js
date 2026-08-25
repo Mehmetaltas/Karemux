@@ -57,7 +57,7 @@ export async function POST(req) {
     try {
       await resendIstemcisi().emails.send({
         from: "Karemux <bildirim@karemux.com>",
-        to: "42mehmetaltas@gmail.com",
+        to: "info@karemux.com",
         subject: `Yeni Ogretmen Basvurusu: ${ad.trim()} (${brans.trim()}, ${istenenKademe} kademe)`,
         html: `<p><b>${ad.trim()}</b> yeni bir ogretmen basvurusu gonderdi.</p>
 <p>Eposta: ${eposta.trim()}${telefon ? ` · Telefon: ${telefon}` : ""}</p>

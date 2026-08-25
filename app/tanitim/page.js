@@ -173,6 +173,17 @@ export default function Tanitim() {
         <p style={{ marginTop: 28, fontSize: 11, color: C.inkSoft }}>Web · PC · Tablet · Mobil — tüm cihazlarda aynı hesapla çalışır.</p>
       </div>
 
+      {/* ==== FOOTER ==== */}
+      <div style={{ padding: "24px 20px 40px", textAlign: "center", borderTop: `1px solid ${C.grid}` }}>
+        <p style={{ fontSize: 11.5, color: C.inkSoft }}>
+          <a href="/iletisim" style={{ color: C.inkSoft, textDecoration: "underline" }}>İletişim</a>
+          {" · "}
+          <a href="/ogretmen-basvuru" style={{ color: C.inkSoft, textDecoration: "underline" }}>Öğretmen Başvurusu</a>
+          {" · "}
+          info@karemux.com
+        </p>
+      </div>
+
     </div>
   );
 }

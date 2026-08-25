@@ -82,6 +82,15 @@ export default function YonetimPaneli() {
   const [yeniOgretmenBaslangic, setYeniOgretmenBaslangic] = useState("16:00");
   const [yeniOgretmenBitis, setYeniOgretmenBitis] = useState("20:00");
   const [ogretmenEkleniyor, setOgretmenEkleniyor] = useState(false);
+  const [talepler, setTalepler] = useState(null);
+
+  async function talepleriGetir() {
+    try {
+      const res = await fetch(`/api/talep?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setTalepler(data.talepler);
+    } catch {}
+  }
   const [ogretmenBasvurulari, setOgretmenBasvurulari] = useState(null);
   const [basvuruIslemDurumu, setBasvuruIslemDurumu] = useState(null);
   const [basvuruOnaySaatlikUcret, setBasvuruOnaySaatlikUcret] = useState({});
@@ -378,6 +387,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "kurumlar" && !kurumlarVeri) kurumlariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
 
   async function kurumlariGetir() {
     try {
@@ -528,6 +538,7 @@ export default function YonetimPaneli() {
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
     ["deneme", "🇹🇷 Ulusal Deneme"],
+    ["talepler", "💡 Kullanıcı Talepleri"],
   ];
 
   return (
@@ -1017,6 +1028,26 @@ export default function YonetimPaneli() {
                       Reddet
                     </button>
                   </div>
+                </div>
+              ))
+            )}
+          </Panel>
+        )}
+
+        {sekme === "talepler" && (
+          <Panel baslik="Kullanıcı Talepleri (Konu/Özellik)" ikon="💡">
+            {!talepler ? (
+              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Yükleniyor...</p>
+            ) : talepler.length === 0 ? (
+              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Henüz talep yok.</p>
+            ) : (
+              talepler.map((t, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}` }}>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>{t.tur === "konu" ? "📖" : "✨"} {t.baslik}</p>
+                    <p style={{ fontSize: 10.5, color: T.textMuted, margin: 0 }}>Son talep: {new Date(t.son_talep).toLocaleDateString("tr-TR")}</p>
+                  </div>
+                  <p style={{ fontFamily: T.mono, fontSize: 16, fontWeight: 800, color: T.accent, margin: 0 }}>{t.talep_sayisi}</p>
                 </div>
               ))
             )}
