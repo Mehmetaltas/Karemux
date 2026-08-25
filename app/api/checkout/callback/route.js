@@ -82,8 +82,19 @@ export async function POST(req) {
     }
 
     // Bireysel satin alma - paket TURUNE gore dallanir.
-    const paket = await sql`SELECT sure_gun, kredi_miktari FROM paketler WHERE anahtar = ${plan}`;
+    const paket = await sql`SELECT id, sure_gun, kredi_miktari, fiyat_tl FROM paketler WHERE anahtar = ${plan}`;
     const sureGun = paket[0]?.sure_gun || 365;
+    const paketFiyati = paket[0]?.fiyat_tl || 0;
+
+    // GERCEK ACIK KAPATILDI (25 Agustos): bu satislar INSERT'i eskiden HIC
+    // yoktu - muhasebe panelinin "Bu Ay Gelir" KPI'si SADECE satislar
+    // tablosundan hesaplaniyor, yani gercek satislar olsa bile panel HER
+    // ZAMAN 0 gelir gosteriyordu. Iyzico komisyonu henuz gercek anahtarlar
+    // baglanmadigi icin bilinmiyor, simdilik net_gelir_tl = tutar_tl.
+    await sql`
+      INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
+      VALUES (${kullaniciId}, ${paket[0]?.id || null}, ${paketFiyati}, ${paketFiyati})
+    `;
 
     if (paket[0]?.kredi_miktari) {
       // Kredi paketi (orn. soru_coz_kredi) - abonelik DEGIL, mevcut kredi bakiyesine EKLENIR.
