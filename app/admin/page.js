@@ -1,41 +1,57 @@
 "use client";
 import { useState, useEffect } from "react";
 
-// ==== Tasarim tokenlari - koyu "kontrol odasi" estetigi ====
+// ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
+// karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
 const T = {
-  bg: "#0B0E14",
-  surface: "#141821",
-  surfaceHover: "#1B212C",
-  border: "#242B38",
-  text: "#E8ECF1",
-  textMuted: "#7C8798",
-  accent: "#22D3AA",       // gelir/pozitif
-  accentSoft: "#0F2E27",
-  danger: "#F0625A",
-  dangerSoft: "#301818",
-  amber: "#E8B33C",
+  bg: "#F7F7F5",           // kagit zemin
+  surface: "#FFFFFF",      // kart/panel yuzeyi
+  surfaceHover: "#EFEFEA",
+  border: "#E4E4DF",       // cetvel cizgisi
+  text: "#1B2430",         // murekkep lacivert
+  textMuted: "#6B7280",
+  accent: "#3E7D5C",       // tebesir yesili - gelir/pozitif/onay
+  accentSoft: "#E3EFE8",
+  danger: "#B23A2E",       // kirmizi kalem - uyari/duzeltme
+  dangerSoft: "#F5E4E1",
+  amber: "#B8860B",
+  amberSoft: "#F5EBD6",
+  inputBg: "#FFFFFF",
+  onAccent: "#FFFFFF",     // vurgu renkli buton uzerindeki metin
   font: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  headingFont: "Georgia, 'Times New Roman', serif",
   mono: "'SF Mono', 'Roboto Mono', ui-monospace, monospace",
+};
+
+// ==== Tipografi olcegi - 16 rastgele deger yerine 7 anlamli isim ====
+const TYPO = {
+  micro: 10.5,      // zaman damgasi, ikincil detay
+  caption: 11.5,    // etiket, yardimci metin
+  body: 12.5,        // standart govde metni
+  bodyStrong: 13.5,  // vurgulu metin, alt basliklar
+  heading: 15,       // panel basliklari
+  title: 18,         // sayfa basligi
+  display: 24,        // buyuk KPI rakamlari
 };
 
 function KpiKart({ etiket, deger, renk, altYazi, ikon }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: "16px 18px", flex: "1 1 140px", minWidth: 140 }}>
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "16px 18px", flex: "1 1 140px", minWidth: 140 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
-        <span style={{ fontSize: 10.5, fontWeight: 600, color: T.textMuted, letterSpacing: 0.4, textTransform: "uppercase" }}>{etiket}</span>
-        <span style={{ fontSize: 15, opacity: 0.7 }}>{ikon}</span>
+        <span style={{ fontSize: TYPO.micro, fontWeight: 600, color: T.textMuted, letterSpacing: 0.4, textTransform: "uppercase" }}>{etiket}</span>
+        <span style={{ fontSize: TYPO.heading, opacity: 0.7 }}>{ikon}</span>
       </div>
-      <p style={{ fontFamily: T.mono, fontSize: 22, fontWeight: 700, color: renk || T.text, letterSpacing: -0.5, fontVariantNumeric: "tabular-nums" }}>{deger}</p>
-      {altYazi && <p style={{ fontSize: 11, color: T.textMuted, marginTop: 4 }}>{altYazi}</p>}
+      <p style={{ fontFamily: T.mono, fontSize: TYPO.display, fontWeight: 700, color: renk || T.text, letterSpacing: -0.5, fontVariantNumeric: "tabular-nums" }}>{deger}</p>
+      {altYazi && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginTop: 4 }}>{altYazi}</p>}
     </div>
   );
 }
 
 function Panel({ baslik, ikon, children, sagUst }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: 18, marginBottom: 14 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <p style={{ fontSize: 13.5, fontWeight: 700, color: T.text, display: "flex", alignItems: "center", gap: 7 }}>
+    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: 18, marginBottom: 14 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14, paddingBottom: 10, borderBottom: `1px solid ${T.border}` }}>
+        <p style={{ fontFamily: T.headingFont, fontSize: TYPO.heading, fontWeight: 700, color: T.text, display: "flex", alignItems: "center", gap: 7, margin: 0 }}>
           <span>{ikon}</span> {baslik}
         </p>
         {sagUst}
@@ -45,10 +61,20 @@ function Panel({ baslik, ikon, children, sagUst }) {
   );
 }
 
-const girdiStil = { width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 8, border: `1px solid ${T.border}`, background: "#0F131B", color: T.text, fontSize: 13, fontFamily: T.font, outline: "none" };
-const etiketStil = { fontSize: 10.5, fontWeight: 600, color: T.textMuted, marginBottom: 5, display: "block", textTransform: "uppercase", letterSpacing: 0.3 };
+// Onaylanan/tamamlanan kayitlar icin kucuk, yuvarlak "kase" rozeti - Kayit
+// Defteri konseptinin imza ogesi.
+function KaseRozeti({ metin }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 9px", borderRadius: 999, border: `1.5px solid ${T.accent}`, color: T.accent, fontSize: TYPO.micro, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.3 }}>
+      ✓ {metin}
+    </span>
+  );
+}
+
+const girdiStil = { width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.border}`, background: T.inputBg, color: T.text, fontSize: TYPO.bodyStrong, fontFamily: T.font, outline: "none" };
+const etiketStil = { fontSize: TYPO.micro, fontWeight: 600, color: T.textMuted, marginBottom: 5, display: "block", textTransform: "uppercase", letterSpacing: 0.3 };
 function butonStil(aktif, renk) {
-  return { padding: "9px 16px", borderRadius: 8, border: "none", background: aktif ? (renk || T.accent) : "#232A38", color: aktif ? "#08110D" : T.textMuted, fontWeight: 700, fontSize: 12.5, cursor: aktif ? "pointer" : "default", transition: "background 0.15s" };
+  return { padding: "9px 16px", borderRadius: 6, border: "none", background: aktif ? (renk || T.accent) : T.surfaceHover, color: aktif ? T.onAccent : T.textMuted, fontWeight: 700, fontSize: TYPO.body, cursor: aktif ? "pointer" : "default", transition: "background 0.15s" };
 }
 
 export default function YonetimPaneli() {
@@ -626,24 +652,24 @@ export default function YonetimPaneli() {
         <style>{`
           @keyframes adminFadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
           @keyframes adminLogoPop { 0% { opacity: 0; transform: scale(0.5) rotate(-15deg); } 60% { opacity: 1; transform: scale(1.1) rotate(3deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
-          @keyframes adminGlow { 0%, 100% { box-shadow: 0 0 24px rgba(34,211,170,0.15); } 50% { box-shadow: 0 0 40px rgba(34,211,170,0.3); } }
+          @keyframes adminGlow { 0%, 100% { box-shadow: 0 0 24px rgba(62,125,92,0.15); } 50% { box-shadow: 0 0 40px rgba(62,125,92,0.3); } }
           .admin-giris-kutu { animation: adminFadeUp 0.5s ease-out; }
           .admin-logo { animation: adminLogoPop 0.6s cubic-bezier(0.34,1.56,0.64,1), adminGlow 3s ease-in-out infinite 0.6s; }
         `}</style>
         <div className="admin-giris-kutu" style={{ width: "100%", maxWidth: 340 }}>
           <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <img src="/icons/icon-192.png" alt="Karemux" className="admin-logo" style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 14px", display: "block", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }} />
-            <p style={{ color: T.text, fontSize: 17, fontWeight: 700 }}>Karemux Yönetim</p>
-            <p style={{ color: T.textMuted, fontSize: 12, marginTop: 3 }}>Bu alan sadece yöneticiye açıktır</p>
+            <img src="/icons/icon-192.png" alt="Karemux" className="admin-logo" style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 14px", display: "block", boxShadow: "0 4px 16px rgba(27,36,48,0.18)" }} />
+            <p style={{ color: T.text, fontSize: TYPO.title, fontWeight: 700 }}>Karemux Yönetim</p>
+            <p style={{ color: T.textMuted, fontSize: TYPO.body, marginTop: 3 }}>Bu alan sadece yöneticiye açıktır</p>
           </div>
           <input type="email" value={personelEposta} onChange={(e) => setPersonelEposta(e.target.value)}
-            placeholder="Eposta" style={{ ...girdiStil, padding: "12px 14px", fontSize: 14, marginBottom: 10 }} autoFocus />
+            placeholder="Eposta" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} autoFocus />
           <input type="password" value={personelSifre} onChange={(e) => setPersonelSifre(e.target.value)} onKeyDown={(e) => e.key === "Enter" && girisDene()}
-            placeholder="Şifre" style={{ ...girdiStil, padding: "12px 14px", fontSize: 14, marginBottom: 10 }} />
-          <button onClick={girisDene} disabled={yukleniyor || !personelEposta || !personelSifre} style={{ ...butonStil(!!(personelEposta && personelSifre)), width: "100%", padding: "12px 0", fontSize: 13.5 }}>
+            placeholder="Şifre" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} />
+          <button onClick={girisDene} disabled={yukleniyor || !personelEposta || !personelSifre} style={{ ...butonStil(!!(personelEposta && personelSifre)), width: "100%", padding: "12px 0", fontSize: TYPO.bodyStrong }}>
             {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap"}
           </button>
-          {hata && <p style={{ color: T.danger, fontSize: 12, marginTop: 12, textAlign: "center" }}>{hata}</p>}
+          {hata && <p style={{ color: T.danger, fontSize: TYPO.body, marginTop: 12, textAlign: "center" }}>{hata}</p>}
         </div>
       </div>
     );
@@ -679,16 +705,16 @@ export default function YonetimPaneli() {
         <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
           <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 30, height: 30, borderRadius: 8, display: "block", objectFit: "cover" }} />
           <div>
-            <p style={{ fontWeight: 700, fontSize: 14.5, margin: 0 }}>Karemux Yönetim</p>
-            {personelAd && <p style={{ fontSize: 10.5, color: T.textMuted, margin: 0 }}>Hoş geldin, {personelAd}</p>}
+            <p style={{ fontWeight: 700, fontSize: TYPO.heading, margin: 0 }}>Karemux Yönetim</p>
+            {personelAd && <p style={{ fontSize: TYPO.micro, color: T.textMuted, margin: 0 }}>Hoş geldin, {personelAd}</p>}
           </div>
         </div>
-        <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }} style={{ background: "none", border: "none", color: T.textMuted, fontSize: 11.5, cursor: "pointer" }}>Çıkış</button>
+        <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }} style={{ background: "none", border: "none", color: T.textMuted, fontSize: TYPO.caption, cursor: "pointer" }}>Çıkış</button>
       </div>
 
       <div style={{ padding: "16px 16px 0", display: "flex", gap: 6, overflowX: "auto" }}>
         {SEKMELER.map(([k, etiket]) => (
-          <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ ...butonStil(true, sekme === k ? T.accent : "#1B212C"), color: sekme === k ? "#08110D" : T.textMuted, whiteSpace: "nowrap", flexShrink: 0 }}>
+          <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ ...butonStil(true, sekme === k ? T.accent : T.surfaceHover), color: sekme === k ? T.onAccent : T.textMuted, whiteSpace: "nowrap", flexShrink: 0 }}>
             {etiket}
           </button>
         ))}
@@ -696,7 +722,7 @@ export default function YonetimPaneli() {
 
       <div style={{ padding: 16, maxWidth: 720, margin: "0 auto" }}>
         {(hata || basari) && (
-          <div style={{ background: hata ? T.dangerSoft : T.accentSoft, border: `1px solid ${hata ? T.danger : T.accent}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 12.5, color: hata ? T.danger : T.accent }}>
+          <div style={{ background: hata ? T.dangerSoft : T.accentSoft, border: `1px solid ${hata ? T.danger : T.accent}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: TYPO.body, color: hata ? T.danger : T.accent }}>
             {hata || basari}
           </div>
         )}
@@ -712,16 +738,16 @@ export default function YonetimPaneli() {
 
             <Panel baslik="Genel Toplam (Kuruluştan Beri)" ikon="🏦">
               <div style={{ display: "flex", gap: 20 }}>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>GELİR</p><p style={{ fontFamily: T.mono, fontSize: 16, fontWeight: 700 }}>{muhasebeVeri.genel.gelir.toFixed(0)} ₺</p></div>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>GİDER</p><p style={{ fontFamily: T.mono, fontSize: 16, fontWeight: 700 }}>{muhasebeVeri.genel.gider.toFixed(0)} ₺</p></div>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>{muhasebeVeri.genel.kar >= 0 ? "KÂR" : "ZARAR"}</p><p style={{ fontFamily: T.mono, fontSize: 16, fontWeight: 700, color: muhasebeVeri.genel.kar >= 0 ? T.accent : T.danger }}>{muhasebeVeri.genel.kar.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>GELİR</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700 }}>{muhasebeVeri.genel.gelir.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>GİDER</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700 }}>{muhasebeVeri.genel.gider.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>{muhasebeVeri.genel.kar >= 0 ? "KÂR" : "ZARAR"}</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700, color: muhasebeVeri.genel.kar >= 0 ? T.accent : T.danger }}>{muhasebeVeri.genel.kar.toFixed(0)} ₺</p></div>
               </div>
             </Panel>
 
             {muhasebeVeri.paketBazindaSatis?.some((p) => p.adet > 0) && (
               <Panel baslik="Paket Bazında Satış (Bu Ay)" ikon="📦">
                 {muhasebeVeri.paketBazindaSatis.filter((p) => p.adet > 0).map((p, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < muhasebeVeri.paketBazindaSatis.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 12.5 }}>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < muhasebeVeri.paketBazindaSatis.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
                     <span style={{ color: T.textMuted }}>{p.ad}</span>
                     <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{p.adet} adet · {Number(p.toplam).toFixed(0)} ₺</span>
                   </div>
@@ -732,7 +758,7 @@ export default function YonetimPaneli() {
             {muhasebeVeri.giderKategoriler?.length > 0 && (
               <Panel baslik="Gider Dağılımı (Bu Ay)" ikon="🧾">
                 {muhasebeVeri.giderKategoriler.map((g, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < muhasebeVeri.giderKategoriler.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 12.5 }}>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < muhasebeVeri.giderKategoriler.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
                     <span style={{ color: T.textMuted, textTransform: "capitalize" }}>{g.kategori}</span>
                     <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{Number(g.toplam).toFixed(0)} ₺</span>
                   </div>
@@ -745,16 +771,16 @@ export default function YonetimPaneli() {
         {sekme === "paketler" && muhasebeVeri && (
           <Panel baslik="Satış Paketleri" ikon="💰">
             {muhasebeVeri.paketler?.map((p) => (
-              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, background: "#0F131B", borderRadius: 9, padding: "10px 12px" }}>
+              <div key={p.id} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8, background: T.surfaceHover, borderRadius: 9, padding: "10px 12px" }}>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 600 }}>{p.ad}</p>
-                  <p style={{ fontSize: 10.5, color: T.textMuted }}>{p.sure_gun ? `${p.sure_gun} gün erişim` : `${p.kredi_miktari} kredi`}</p>
+                  <p style={{ fontSize: TYPO.body, fontWeight: 600 }}>{p.ad}</p>
+                  <p style={{ fontSize: TYPO.micro, color: T.textMuted }}>{p.sure_gun ? `${p.sure_gun} gün erişim` : `${p.kredi_miktari} kredi`}</p>
                 </div>
                 <input type="number" defaultValue={p.fiyat_tl} onChange={(e) => setDuzenlenenFiyatlar((eski) => ({ ...eski, [p.id]: e.target.value }))}
                   style={{ ...girdiStil, width: 80, textAlign: "right", padding: "7px 9px" }} />
-                <span style={{ color: T.textMuted, fontSize: 11 }}>₺</span>
+                <span style={{ color: T.textMuted, fontSize: TYPO.caption }}>₺</span>
                 <button onClick={() => fiyatKaydet(p.id)} disabled={fiyatKaydediliyor === p.id || duzenlenenFiyatlar[p.id] == null}
-                  style={{ ...butonStil(duzenlenenFiyatlar[p.id] != null), padding: "7px 12px", fontSize: 11 }}>
+                  style={{ ...butonStil(duzenlenenFiyatlar[p.id] != null), padding: "7px 12px", fontSize: TYPO.caption }}>
                   {fiyatKaydediliyor === p.id ? "..." : "Kaydet"}
                 </button>
               </div>
@@ -773,7 +799,7 @@ export default function YonetimPaneli() {
               <input type="number" value={giderTutar} onChange={(e) => setGiderTutar(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <label style={etiketStil}>Açıklama (opsiyonel)</label>
               <input value={giderAciklama} onChange={(e) => setGiderAciklama(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
-              <label style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12, fontSize: 12, color: T.textMuted }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12, fontSize: TYPO.body, color: T.textMuted }}>
                 <input type="checkbox" checked={giderTekrarlayan} onChange={(e) => setGiderTekrarlayan(e.target.checked)} />
                 Her ay otomatik tekrarla
               </label>
@@ -790,7 +816,7 @@ export default function YonetimPaneli() {
             {muhasebeVeri?.sonGiderler?.length > 0 && (
               <Panel baslik="Son Giderler" ikon="🧾">
                 {muhasebeVeri.sonGiderler.map((g) => (
-                  <div key={g.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${T.border}`, fontSize: 12 }}>
+                  <div key={g.id} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body }}>
                     <div>
                       <span style={{ textTransform: "capitalize" }}>{g.kategori}</span>
                       {g.aciklama && <span style={{ color: T.textMuted }}> — {g.aciklama}</span>}
@@ -801,7 +827,7 @@ export default function YonetimPaneli() {
               </Panel>
             )}
 
-            <Panel baslik="Taksit Komisyon Hesaplayıcı" ikon="📐" sagUst={<span style={{ fontSize: 9.5, color: T.textMuted }}>tahmini</span>}>
+            <Panel baslik="Taksit Komisyon Hesaplayıcı" ikon="📐" sagUst={<span style={{ fontSize: TYPO.micro, color: T.textMuted }}>tahmini</span>}>
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <input type="number" value={taksitTutar} onChange={(e) => setTaksitTutar(e.target.value)} placeholder="Satış tutarı" style={girdiStil} />
                 <select value={taksitSayisi} onChange={(e) => setTaksitSayisi(Number(e.target.value))} style={girdiStil}>
@@ -810,7 +836,7 @@ export default function YonetimPaneli() {
               </div>
               {taksitTutar && (() => {
                 const s = taksitHesapla(Number(taksitTutar), taksitSayisi);
-                return s ? <p style={{ fontSize: 12.5 }}>Komisyon (~%{s.oran}): <strong style={{ color: T.danger }}>{s.komisyon} ₺</strong> · Net: <strong style={{ color: T.accent }}>{s.net} ₺</strong></p> : null;
+                return s ? <p style={{ fontSize: TYPO.body }}>Komisyon (~%{s.oran}): <strong style={{ color: T.danger }}>{s.komisyon} ₺</strong> · Net: <strong style={{ color: T.accent }}>{s.net} ₺</strong></p> : null;
               })()}
             </Panel>
           </>
@@ -835,15 +861,15 @@ export default function YonetimPaneli() {
             </Panel>
 
             <Panel baslik="Cari Listesi" ikon="🤝">
-              {!cariler ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : cariler.length === 0 ? (
-                <p style={{ fontSize: 12, color: T.textMuted }}>Henüz cari yok.</p>
+              {!cariler ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : cariler.length === 0 ? (
+                <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz cari yok.</p>
               ) : cariler.map((c) => (
                 <div key={c.id} onClick={() => cariSec(c.id)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenCariId === c.id ? T.surfaceHover : "transparent" }}>
                   <div>
-                    <p style={{ fontSize: 12.5, fontWeight: 600 }}>{c.ad}</p>
-                    <p style={{ fontSize: 10, color: T.textMuted, textTransform: "capitalize" }}>{c.tur}</p>
+                    <p style={{ fontSize: TYPO.body, fontWeight: 600 }}>{c.ad}</p>
+                    <p style={{ fontSize: TYPO.micro, color: T.textMuted, textTransform: "capitalize" }}>{c.tur}</p>
                   </div>
-                  <p style={{ fontFamily: T.mono, fontSize: 13, fontWeight: 700, color: Number(c.bakiye) > 0 ? T.accent : Number(c.bakiye) < 0 ? T.danger : T.textMuted }}>
+                  <p style={{ fontFamily: T.mono, fontSize: TYPO.bodyStrong, fontWeight: 700, color: Number(c.bakiye) > 0 ? T.accent : Number(c.bakiye) < 0 ? T.danger : T.textMuted }}>
                     {Number(c.bakiye) > 0 ? `+${Number(c.bakiye).toFixed(0)} ₺` : `${Number(c.bakiye).toFixed(0)} ₺`}
                   </p>
                 </div>
@@ -876,9 +902,9 @@ export default function YonetimPaneli() {
                 </button>
                 {cariHareketleri?.length > 0 && (
                   <div>
-                    <p style={{ fontSize: 10.5, fontWeight: 700, color: T.textMuted, marginBottom: 8, textTransform: "uppercase" }}>Son Hareketler</p>
+                    <p style={{ fontSize: TYPO.micro, fontWeight: 700, color: T.textMuted, marginBottom: 8, textTransform: "uppercase" }}>Son Hareketler</p>
                     {cariHareketleri.map((h) => (
-                      <div key={h.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: 11.5 }}>
+                      <div key={h.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
                         <span style={{ color: T.textMuted }}>{h.tarih} — {h.tur}{h.aciklama ? ` (${h.aciklama})` : ""}</span>
                         <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{Number(h.tutar_tl).toFixed(0)} ₺</span>
                       </div>
@@ -893,8 +919,8 @@ export default function YonetimPaneli() {
         {sekme === "kasa" && (
           <>
             <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 14, padding: "16px 18px", marginBottom: 14, textAlign: "center" }}>
-              <p style={{ fontSize: 10.5, fontWeight: 600, color: T.textMuted, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Toplam Bakiye (Tüm Hesaplar)</p>
-              <p style={{ fontFamily: T.mono, fontSize: 24, fontWeight: 700, color: kasaToplamBakiye >= 0 ? T.accent : T.danger }}>{kasaToplamBakiye.toFixed(0)} ₺</p>
+              <p style={{ fontSize: TYPO.micro, fontWeight: 600, color: T.textMuted, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 6 }}>Toplam Bakiye (Tüm Hesaplar)</p>
+              <p style={{ fontFamily: T.mono, fontSize: TYPO.display, fontWeight: 700, color: kasaToplamBakiye >= 0 ? T.accent : T.danger }}>{kasaToplamBakiye.toFixed(0)} ₺</p>
             </div>
 
             <Panel baslik="Yeni Hesap Ekle" ikon="➕">
@@ -915,15 +941,15 @@ export default function YonetimPaneli() {
             </Panel>
 
             <Panel baslik="Hesaplar" ikon="🏦">
-              {!kasaHesaplari ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : kasaHesaplari.length === 0 ? (
-                <p style={{ fontSize: 12, color: T.textMuted }}>Henüz hesap yok.</p>
+              {!kasaHesaplari ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kasaHesaplari.length === 0 ? (
+                <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz hesap yok.</p>
               ) : kasaHesaplari.map((h) => (
                 <div key={h.id} onClick={() => hesapSec(h.id)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenHesapId === h.id ? T.surfaceHover : "transparent" }}>
                   <div>
-                    <p style={{ fontSize: 12.5, fontWeight: 600 }}>{h.tur === "nakit" ? "💵" : "🏦"} {h.hesap_adi}</p>
-                    {h.banka_adi && <p style={{ fontSize: 10, color: T.textMuted }}>{h.banka_adi}</p>}
+                    <p style={{ fontSize: TYPO.body, fontWeight: 600 }}>{h.tur === "nakit" ? "💵" : "🏦"} {h.hesap_adi}</p>
+                    {h.banka_adi && <p style={{ fontSize: TYPO.micro, color: T.textMuted }}>{h.banka_adi}</p>}
                   </div>
-                  <p style={{ fontFamily: T.mono, fontSize: 13, fontWeight: 700, color: Number(h.bakiye) >= 0 ? T.accent : T.danger }}>{Number(h.bakiye).toFixed(0)} ₺</p>
+                  <p style={{ fontFamily: T.mono, fontSize: TYPO.bodyStrong, fontWeight: 700, color: Number(h.bakiye) >= 0 ? T.accent : T.danger }}>{Number(h.bakiye).toFixed(0)} ₺</p>
                 </div>
               ))}
             </Panel>
@@ -943,9 +969,9 @@ export default function YonetimPaneli() {
                 </button>
                 {kasaHareketleri?.length > 0 && (
                   <div>
-                    <p style={{ fontSize: 10.5, fontWeight: 700, color: T.textMuted, marginBottom: 8, textTransform: "uppercase" }}>Son Hareketler</p>
+                    <p style={{ fontSize: TYPO.micro, fontWeight: 700, color: T.textMuted, marginBottom: 8, textTransform: "uppercase" }}>Son Hareketler</p>
                     {kasaHareketleri.map((k) => (
-                      <div key={k.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: 11.5 }}>
+                      <div key={k.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
                         <span style={{ color: T.textMuted }}>{k.tarih} — {k.tur === "giris" ? "Giriş" : "Çıkış"}{k.aciklama ? ` (${k.aciklama})` : ""}</span>
                         <span style={{ fontFamily: T.mono, fontWeight: 700, color: k.tur === "giris" ? T.accent : T.danger }}>{k.tur === "giris" ? "+" : "-"}{Number(k.tutar_tl).toFixed(0)} ₺</span>
                       </div>
@@ -965,14 +991,14 @@ export default function YonetimPaneli() {
               <KpiKart etiket="Kisi Basi Ortalama" deger={`~${maliyetVeri.kisiBasiOrtalamaMaliyet} ₺`} renk={T.accent} altYazi={`${maliyetVeri.aktifKullanici} aktif kullanici`} ikon="👤" />
             </div>
 
-            <div style={{ background: "#2A2010", border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11.5, color: T.amber }}>
+            <div style={{ background: T.amberSoft, border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: TYPO.caption, color: T.amber }}>
               ⚠️ Bu sayfadaki AI maliyeti TAHMINIDIR (istek başı ~0.01₺ varsayımıyla) — gerçek fatura değildir. Sağlayıcıların (Anthropic, Google, Groq) kendi konsollarından arada bir gerçek maliyetle karşılaştırıp bu tahmini kalibre etmen önerilir.
             </div>
 
             {maliyetVeri.uretimGiderleri?.length > 0 && (
               <Panel baslik="Uretim Gideri Kategorileri (Bu Ay)" ikon="🏭">
                 {maliyetVeri.uretimGiderleri.map((g, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.uretimGiderleri.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 12.5 }}>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.uretimGiderleri.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
                     <span style={{ color: T.textMuted, textTransform: "capitalize" }}>{g.kategori}</span>
                     <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{Number(g.toplam).toFixed(0)} ₺</span>
                   </div>
@@ -983,8 +1009,8 @@ export default function YonetimPaneli() {
             {maliyetVeri.enCokKullananlar?.length > 0 && (
               <Panel baslik="En Cok AI Kullanan 10 Ogrenci (Bu Ay)" ikon="📊">
                 {maliyetVeri.enCokKullananlar.map((k, i) => (
-                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.enCokKullananlar.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 12.5 }}>
-                    <span>{k.ad} <span style={{ color: T.textMuted, fontSize: 10 }}>#{k.id}</span></span>
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.enCokKullananlar.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
+                    <span>{k.ad} <span style={{ color: T.textMuted, fontSize: TYPO.micro }}>#{k.id}</span></span>
                     <span style={{ fontFamily: T.mono }}>{k.istekSayisi} istek · <strong style={{ color: T.amber }}>~{k.tahminiMaliyetTl} ₺</strong></span>
                   </div>
                 ))}
@@ -1009,19 +1035,19 @@ export default function YonetimPaneli() {
 
             <Panel baslik="Hedef vs Gerceklesen" ikon="📊">
               <div style={{ display: "flex", gap: 20, marginBottom: 4 }}>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>GELIR (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gelir.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gelir_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>GIDER (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gider.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gider_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>GELIR (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gelir.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gelir_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>GIDER (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gider.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gider_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
               </div>
             </Panel>
 
-            <Panel baslik="Basit Projeksiyon (Bir Sonraki Ay)" ikon="🔮" sagUst={<span style={{ fontSize: 9.5, color: T.textMuted }}>{planlamaVeri.projeksiyon.veriliAySayisi} aylik veri</span>}>
-              <div style={{ background: "#2A2010", border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: 11.5, color: T.amber }}>
+            <Panel baslik="Basit Projeksiyon (Bir Sonraki Ay)" ikon="🔮" sagUst={<span style={{ fontSize: TYPO.micro, color: T.textMuted }}>{planlamaVeri.projeksiyon.veriliAySayisi} aylik veri</span>}>
+              <div style={{ background: T.amberSoft, border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: TYPO.caption, color: T.amber }}>
                 ⚠️ "Hicbir sey degismezse" senaryosu: son tamamlanmis aylarin ortalama geliri, tekrarlayan giderler dusulerek. Gercek is planlaması yerine gecmez.
               </div>
               <div style={{ display: "flex", gap: 20 }}>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>ORT. AYLIK GELIR</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700 }}>{planlamaVeri.projeksiyon.ortalamaAylikGelir.toFixed(0)} ₺</p></div>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>TEKRARLAYAN GIDER</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700, color: T.danger }}>{planlamaVeri.projeksiyon.tekrarlayanAylikGider.toFixed(0)} ₺</p></div>
-                <div><p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 3 }}>TAHMINI KAR</p><p style={{ fontFamily: T.mono, fontSize: 15, fontWeight: 700, color: planlamaVeri.projeksiyon.tahminiAylikKar >= 0 ? T.accent : T.danger }}>{planlamaVeri.projeksiyon.tahminiAylikKar.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>ORT. AYLIK GELIR</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700 }}>{planlamaVeri.projeksiyon.ortalamaAylikGelir.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>TEKRARLAYAN GIDER</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700, color: T.danger }}>{planlamaVeri.projeksiyon.tekrarlayanAylikGider.toFixed(0)} ₺</p></div>
+                <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>TAHMINI KAR</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700, color: planlamaVeri.projeksiyon.tahminiAylikKar >= 0 ? T.accent : T.danger }}>{planlamaVeri.projeksiyon.tahminiAylikKar.toFixed(0)} ₺</p></div>
               </div>
             </Panel>
           </>
@@ -1033,7 +1059,7 @@ export default function YonetimPaneli() {
           const topluMaliyet = kisiBasi * senaryoKisiSayisi;
           return (
             <>
-              <div style={{ background: "#2A2010", border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: 11.5, color: T.amber }}>
+              <div style={{ background: T.amberSoft, border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: TYPO.caption, color: T.amber }}>
                 ⚠️ Bu bir SIMULASYONDUR - gercek kullanim GEREKCE farkli olabilir. Model: {simulasyonVeri.varsayimlar.model}, Kur: {simulasyonVeri.varsayimlar.usdTry} TL/USD.
               </div>
               <Panel baslik="Bir Ayda Senaryo (Kisi Basi)" ikon="👤">
@@ -1056,7 +1082,7 @@ export default function YonetimPaneli() {
 
               <Panel baslik="Birim Maliyetler (Referans)" ikon="📐">
                 {Object.entries(b).map(([anahtar, o]) => (
-                  <div key={anahtar} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${T.border}`, fontSize: 12.5 }}>
+                  <div key={anahtar} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body }}>
                     <span style={{ color: T.textMuted }}>{o.ad}</span>
                     <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{o.maliyetTl} ₺</span>
                   </div>
@@ -1068,13 +1094,13 @@ export default function YonetimPaneli() {
 
         {sekme === "kurumlar" && (
           <Panel baslik="Kurumlar ve Fiyatlandırma" ikon="🏢">
-            {!kurumlarVeri ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : kurumlarVeri.length === 0 ? (
-              <p style={{ fontSize: 12, color: T.textMuted }}>Henüz kurum yok.</p>
+            {!kurumlarVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kurumlarVeri.length === 0 ? (
+              <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz kurum yok.</p>
             ) : kurumlarVeri.map((k) => (
-              <div key={k.id} style={{ background: "#0F131B", borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
+              <div key={k.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                  <p style={{ fontSize: 13, fontWeight: 700 }}>{k.ad} <span style={{ color: T.textMuted, fontWeight: 400, fontSize: 11 }}>({k.kurum_kodu})</span></p>
-                  <p style={{ fontSize: 11, color: T.textMuted }}>{k.ogrenci_sayisi} öğrenci</p>
+                  <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{k.ad} <span style={{ color: T.textMuted, fontWeight: 400, fontSize: TYPO.caption }}>({k.kurum_kodu})</span></p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{k.ogrenci_sayisi} öğrenci</p>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
@@ -1096,12 +1122,12 @@ export default function YonetimPaneli() {
 
         {sekme === "randevuodeme" && (
           <Panel baslik="Özel Ders Ödemeleri (Ücretli Randevular)" ikon="📅">
-            {!randevuOdemeVeri ? <p style={{ fontSize: 12, color: T.textMuted }}>Yükleniyor...</p> : randevuOdemeVeri.length === 0 ? (
-              <p style={{ fontSize: 12, color: T.textMuted }}>Ücretli randevu yok.</p>
+            {!randevuOdemeVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : randevuOdemeVeri.length === 0 ? (
+              <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Ücretli randevu yok.</p>
             ) : randevuOdemeVeri.map((r) => (
-              <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: 12.5 }}>
+              <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body }}>
                 <span>{r.ogrenci_adi} — {r.ogretmen_adi} · {new Date(r.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })} · <strong>{r.ucret_tl}₺</strong></span>
-                <button onClick={() => randevuOdendiIsaretle(r.id, !r.odendi)} disabled={randevuIsaretleniyor === r.id} style={{ ...butonStil(!r.odendi), padding: "6px 12px", fontSize: 11 }}>
+                <button onClick={() => randevuOdendiIsaretle(r.id, !r.odendi)} disabled={randevuIsaretleniyor === r.id} style={{ ...butonStil(!r.odendi), padding: "6px 12px", fontSize: TYPO.caption }}>
                   {randevuIsaretleniyor === r.id ? "..." : r.odendi ? "✓ Ödendi" : "Ödendi işaretle"}
                 </button>
               </div>
@@ -1134,25 +1160,25 @@ export default function YonetimPaneli() {
         {sekme === "ogretmen" && (
           <Panel baslik="Öğretmen Başvuruları" ikon="📋">
             {!ogretmenBasvurulari ? (
-              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Yükleniyor...</p>
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
             ) : ogretmenBasvurulari.filter((b) => b.durum === "beklemede").length === 0 ? (
-              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Bekleyen başvuru yok.</p>
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Bekleyen başvuru yok.</p>
             ) : (
               ogretmenBasvurulari.filter((b) => b.durum === "beklemede").map((b) => (
-                <div key={b.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-                  <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>{b.ad} <span style={{ color: T.textMuted, fontWeight: 500 }}>· {b.brans} · {b.istenen_kademe} kademe</span></p>
-                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 6 }}>{b.eposta} {b.telefon ? `· ${b.telefon}` : ""}</p>
-                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>Kategori: {b.kategori} · Deneyim: {b.deneyim_yili ?? "?"} yıl · Eğitim: {b.egitim_seviyesi}{b.egitim_alani ? ` (${b.egitim_alani})` : ""}</p>
-                  {b.sertifikalar && <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>Sertifikalar: {b.sertifikalar}</p>}
-                  {b.sinav_hazirlik_deneyimi && <p style={{ fontSize: 11, color: T.accent, marginBottom: 2 }}>✓ Sınav hazırlık deneyimi var</p>}
-                  {b.ozgecmis_metni && <p style={{ fontSize: 11.5, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{b.ozgecmis_metni}</p>}
-                  <p style={{ fontSize: 10.5, color: T.accent, marginTop: 6 }}>✓ Adli sicil beyanı · ✓ Bilgi doğruluğu beyanı</p>
+                <div key={b.id} style={{ background: T.surfaceHover, border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+                  <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, marginBottom: 2 }}>{b.ad} <span style={{ color: T.textMuted, fontWeight: 500 }}>· {b.brans} · {b.istenen_kademe} kademe</span></p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 6 }}>{b.eposta} {b.telefon ? `· ${b.telefon}` : ""}</p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 2 }}>Kategori: {b.kategori} · Deneyim: {b.deneyim_yili ?? "?"} yıl · Eğitim: {b.egitim_seviyesi}{b.egitim_alani ? ` (${b.egitim_alani})` : ""}</p>
+                  {b.sertifikalar && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 2 }}>Sertifikalar: {b.sertifikalar}</p>}
+                  {b.sinav_hazirlik_deneyimi && <p style={{ fontSize: TYPO.caption, color: T.accent, marginBottom: 2 }}>✓ Sınav hazırlık deneyimi var</p>}
+                  {b.ozgecmis_metni && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{b.ozgecmis_metni}</p>}
+                  <p style={{ fontSize: TYPO.micro, color: T.accent, marginTop: 6 }}>✓ Adli sicil beyanı · ✓ Bilgi doğruluğu beyanı</p>
                   <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
                     <input type="number" placeholder="Saatlik ücret ₺" value={basvuruOnaySaatlikUcret[b.id] || ""} onChange={(e) => setBasvuruOnaySaatlikUcret((eski) => ({ ...eski, [b.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, width: 120 }} />
-                    <button onClick={() => basvuruKararVer(b.id, "onayla")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true), padding: "9px 14px", fontSize: 12 }}>
+                    <button onClick={() => basvuruKararVer(b.id, "onayla")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body }}>
                       {basvuruIslemDurumu === b.id ? "..." : "Onayla"}
                     </button>
-                    <button onClick={() => basvuruKararVer(b.id, "reddet")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true, T.danger), padding: "9px 14px", fontSize: 12 }}>
+                    <button onClick={() => basvuruKararVer(b.id, "reddet")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true, T.danger), padding: "9px 14px", fontSize: TYPO.body }}>
                       Reddet
                     </button>
                   </div>
@@ -1165,17 +1191,17 @@ export default function YonetimPaneli() {
         {sekme === "talepler" && (
           <Panel baslik="Kullanıcı Talepleri (Konu/Özellik)" ikon="💡">
             {!talepler ? (
-              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Yükleniyor...</p>
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
             ) : talepler.length === 0 ? (
-              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Henüz talep yok.</p>
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Henüz talep yok.</p>
             ) : (
               talepler.map((t, i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}` }}>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>{t.tur === "konu" ? "📖" : "✨"} {t.baslik}</p>
-                    <p style={{ fontSize: 10.5, color: T.textMuted, margin: 0 }}>Son talep: {new Date(t.son_talep).toLocaleDateString("tr-TR")}</p>
+                    <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700, margin: 0 }}>{t.tur === "konu" ? "📖" : "✨"} {t.baslik}</p>
+                    <p style={{ fontSize: TYPO.micro, color: T.textMuted, margin: 0 }}>Son talep: {new Date(t.son_talep).toLocaleDateString("tr-TR")}</p>
                   </div>
-                  <p style={{ fontFamily: T.mono, fontSize: 16, fontWeight: 800, color: T.accent, margin: 0 }}>{t.talep_sayisi}</p>
+                  <p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 800, color: T.accent, margin: 0 }}>{t.talep_sayisi}</p>
                 </div>
               ))
             )}
@@ -1185,17 +1211,17 @@ export default function YonetimPaneli() {
         {sekme === "kariyer" && (
           <Panel baslik="Kariyer Havuzu" ikon="🧑‍💼">
             {!kariyerBasvurulari ? (
-              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Yükleniyor...</p>
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
             ) : kariyerBasvurulari.length === 0 ? (
-              <p style={{ color: T.textMuted, fontSize: 12.5 }}>Henüz başvuru yok.</p>
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Henüz başvuru yok.</p>
             ) : (
               kariyerBasvurulari.map((b) => (
-                <div key={b.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
-                  <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>{b.ad} <span style={{ color: T.textMuted, fontWeight: 500 }}>· {b.departman} · {b.basvuru_turu === "danismanlik" ? "Danışmanlık" : "Tam Zamanlı"}</span></p>
-                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>{b.eposta}{b.telefon ? ` · ${b.telefon}` : ""}</p>
-                  <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 2 }}>Deneyim: {b.deneyim_yili ?? "?"} yıl · Eğitim: {b.egitim_seviyesi || "?"}{b.egitim_alani ? ` (${b.egitim_alani})` : ""}</p>
-                  {b.portfolyo_url && <p style={{ fontSize: 11.5, marginBottom: 2 }}><a href={b.portfolyo_url} target="_blank" rel="noopener noreferrer" style={{ color: T.accent }}>{b.portfolyo_url}</a></p>}
-                  {b.ozgecmis_metni && <p style={{ fontSize: 11.5, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{b.ozgecmis_metni}</p>}
+                <div key={b.id} style={{ background: T.surfaceHover, border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+                  <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, marginBottom: 2 }}>{b.ad} <span style={{ color: T.textMuted, fontWeight: 500 }}>· {b.departman} · {b.basvuru_turu === "danismanlik" ? "Danışmanlık" : "Tam Zamanlı"}</span></p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 2 }}>{b.eposta}{b.telefon ? ` · ${b.telefon}` : ""}</p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 2 }}>Deneyim: {b.deneyim_yili ?? "?"} yıl · Eğitim: {b.egitim_seviyesi || "?"}{b.egitim_alani ? ` (${b.egitim_alani})` : ""}</p>
+                  {b.portfolyo_url && <p style={{ fontSize: TYPO.caption, marginBottom: 2 }}><a href={b.portfolyo_url} target="_blank" rel="noopener noreferrer" style={{ color: T.accent }}>{b.portfolyo_url}</a></p>}
+                  {b.ozgecmis_metni && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{b.ozgecmis_metni}</p>}
                 </div>
               ))
             )}
@@ -1207,7 +1233,7 @@ export default function YonetimPaneli() {
             <Panel baslik="Mesai" ikon="🕐">
               {mesaiVeri?.acikKayit ? (
                 <>
-                  <p style={{ fontSize: 12.5, color: T.accent, marginBottom: 10 }}>✓ Şu an mesaidesin — giriş: {new Date(mesaiVeri.acikKayit.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</p>
+                  <p style={{ fontSize: TYPO.body, color: T.accent, marginBottom: 10 }}>✓ Şu an mesaidesin — giriş: {new Date(mesaiVeri.acikKayit.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</p>
                   <input value={mesaiCikisNotu} onChange={(e) => setMesaiCikisNotu(e.target.value)} placeholder="Çıkış notu (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
                   <button onClick={() => mesaiIslemYap("cikis")} disabled={mesaiIslemDurumu} style={{ ...butonStil(true, T.danger), width: "100%", padding: "10px 0" }}>Çıkış Yap</button>
                 </>
@@ -1216,9 +1242,9 @@ export default function YonetimPaneli() {
               )}
               {mesaiVeri?.sonKayitlar?.length > 0 && (
                 <div style={{ marginTop: 14 }}>
-                  <p style={{ fontSize: 11, color: T.textMuted, marginBottom: 6 }}>Son Kayıtlar</p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 6 }}>Son Kayıtlar</p>
                   {mesaiVeri.sonKayitlar.map((k) => (
-                    <p key={k.id} style={{ fontSize: 11.5, color: T.textMuted, margin: "4px 0" }}>
+                    <p key={k.id} style={{ fontSize: TYPO.caption, color: T.textMuted, margin: "4px 0" }}>
                       {new Date(k.giris_zamani).toLocaleDateString("tr-TR")} · {new Date(k.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })} → {k.cikis_zamani ? new Date(k.cikis_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }) : "devam ediyor"}
                     </p>
                   ))}
@@ -1241,7 +1267,7 @@ export default function YonetimPaneli() {
               {izinlerim?.length > 0 && (
                 <div style={{ marginTop: 14 }}>
                   {izinlerim.map((i) => (
-                    <div key={i.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 11.5, borderBottom: `1px solid ${T.border}` }}>
+                    <div key={i.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: TYPO.caption, borderBottom: `1px solid ${T.border}` }}>
                       <span>{i.baslangic_tarihi} → {i.bitis_tarihi} ({i.tur})</span>
                       <span style={{ color: i.durum === "onaylandi" ? T.accent : i.durum === "reddedildi" ? T.danger : T.amber, fontWeight: 700 }}>{i.durum}</span>
                     </div>
@@ -1252,14 +1278,14 @@ export default function YonetimPaneli() {
 
             <Panel baslik="Görevlerim" ikon="✅">
               {!gorevlerim || gorevlerim.length === 0 ? (
-                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Atanmış görevin yok.</p>
+                <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Atanmış görevin yok.</p>
               ) : (
                 gorevlerim.map((g) => (
-                  <div key={g.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
-                    <p style={{ fontWeight: 700, fontSize: 13 }}>{g.baslik}</p>
-                    {g.aciklama && <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 6 }}>{g.aciklama}</p>}
-                    {g.son_tarih && <p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 6 }}>Son tarih: {g.son_tarih}</p>}
-                    <select value={g.durum} onChange={(e) => gorevDurumGuncelle(g.id, e.target.value)} style={{ ...girdiStil, marginBottom: 0, fontSize: 11.5, padding: "6px 8px" }}>
+                  <div key={g.id} style={{ background: T.surfaceHover, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong }}>{g.baslik}</p>
+                    {g.aciklama && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 6 }}>{g.aciklama}</p>}
+                    {g.son_tarih && <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 6 }}>Son tarih: {g.son_tarih}</p>}
+                    <select value={g.durum} onChange={(e) => gorevDurumGuncelle(g.id, e.target.value)} style={{ ...girdiStil, marginBottom: 0, fontSize: TYPO.caption, padding: "6px 8px" }}>
                       <option value="acik">Açık</option>
                       <option value="devam_ediyor">Devam Ediyor</option>
                       <option value="tamamlandi">Tamamlandı</option>
@@ -1275,25 +1301,25 @@ export default function YonetimPaneli() {
           <>
             <Panel baslik="Şu An Mesaide" ikon="🟢">
               {!ikYonetimVeri?.bugunMesaide || ikYonetimVeri.bugunMesaide.length === 0 ? (
-                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Şu an mesaide kimse yok.</p>
+                <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Şu an mesaide kimse yok.</p>
               ) : (
                 ikYonetimVeri.bugunMesaide.map((m) => (
-                  <p key={m.id} style={{ fontSize: 12.5, margin: "4px 0" }}>🟢 {m.personel_adi} — {new Date(m.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}'den beri</p>
+                  <p key={m.id} style={{ fontSize: TYPO.body, margin: "4px 0" }}>🟢 {m.personel_adi} — {new Date(m.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}'den beri</p>
                 ))
               )}
             </Panel>
 
             <Panel baslik="İzin Talepleri" ikon="🏖️">
               {!ikYonetimVeri?.izinler || ikYonetimVeri.izinler.filter((i) => i.durum === "beklemede").length === 0 ? (
-                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Bekleyen izin talebi yok.</p>
+                <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Bekleyen izin talebi yok.</p>
               ) : (
                 ikYonetimVeri.izinler.filter((i) => i.durum === "beklemede").map((i) => (
-                  <div key={i.id} style={{ background: "#0F131B", border: `1px solid ${T.border}`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
-                    <p style={{ fontWeight: 700, fontSize: 13 }}>{i.personel_adi} — {i.tur}</p>
-                    <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 8 }}>{i.baslangic_tarihi} → {i.bitis_tarihi}{i.aciklama ? ` · ${i.aciklama}` : ""}</p>
+                  <div key={i.id} style={{ background: T.surfaceHover, border: `1px solid ${T.border}`, borderRadius: 10, padding: 12, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong }}>{i.personel_adi} — {i.tur}</p>
+                    <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 8 }}>{i.baslangic_tarihi} → {i.bitis_tarihi}{i.aciklama ? ` · ${i.aciklama}` : ""}</p>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <button onClick={() => izinKararVer(i.id, "onaylandi")} disabled={izinKararDurumu === i.id} style={{ ...butonStil(true), padding: "7px 12px", fontSize: 11.5 }}>Onayla</button>
-                      <button onClick={() => izinKararVer(i.id, "reddedildi")} disabled={izinKararDurumu === i.id} style={{ ...butonStil(true, T.danger), padding: "7px 12px", fontSize: 11.5 }}>Reddet</button>
+                      <button onClick={() => izinKararVer(i.id, "onaylandi")} disabled={izinKararDurumu === i.id} style={{ ...butonStil(true), padding: "7px 12px", fontSize: TYPO.caption }}>Onayla</button>
+                      <button onClick={() => izinKararVer(i.id, "reddedildi")} disabled={izinKararDurumu === i.id} style={{ ...butonStil(true, T.danger), padding: "7px 12px", fontSize: TYPO.caption }}>Reddet</button>
                     </div>
                   </div>
                 ))
@@ -1313,10 +1339,10 @@ export default function YonetimPaneli() {
 
             <Panel baslik="Tüm Görevler" ikon="📋">
               {!ikYonetimVeri?.gorevler || ikYonetimVeri.gorevler.length === 0 ? (
-                <p style={{ color: T.textMuted, fontSize: 12.5 }}>Henüz görev yok.</p>
+                <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Henüz görev yok.</p>
               ) : (
                 ikYonetimVeri.gorevler.map((g) => (
-                  <div key={g.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 11.5, borderBottom: `1px solid ${T.border}` }}>
+                  <div key={g.id} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: TYPO.caption, borderBottom: `1px solid ${T.border}` }}>
                     <span>{g.baslik} {g.atanan_adi ? `— ${g.atanan_adi}` : ""}</span>
                     <span style={{ color: g.durum === "tamamlandi" ? T.accent : T.textMuted, fontWeight: 700 }}>{g.durum}</span>
                   </div>
@@ -1340,7 +1366,7 @@ export default function YonetimPaneli() {
             <button onClick={duyuruGonder} disabled={duyuruGonderiliyor || !duyuruMesaji} style={{ ...butonStil(!!duyuruMesaji), width: "100%", padding: "10px 0" }}>
               {duyuruGonderiliyor ? "Gönderiliyor..." : "Duyuruyu Gönder"}
             </button>
-            {duyuruSonuc && <p style={{ fontSize: 12, color: T.accent, marginTop: 10 }}>✓ {duyuruSonuc.basarili}/{duyuruSonuc.hedeflenen} kişiye ulaştırıldı.</p>}
+            {duyuruSonuc && <p style={{ fontSize: TYPO.body, color: T.accent, marginTop: 10 }}>✓ {duyuruSonuc.basarili}/{duyuruSonuc.hedeflenen} kişiye ulaştırıldı.</p>}
           </Panel>
         )}
 
