@@ -537,8 +537,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kariyer" && !kariyerBasvurulari) kariyerBasvurulariGetir(); }, [girisYapildi, sekme]);
-  useEffect(() => { if (girisYapildi && sekme === "ik") { if (!mesaiVeri) mesaiGetir(); if (!izinlerim) izinleriGetir(); if (!gorevlerim) gorevleriGetir(); } }, [girisYapildi, sekme]);
-  useEffect(() => { if (girisYapildi && sekme === "ikyonetim" && !ikYonetimVeri) ikYonetimGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ik") { if (!mesaiVeri) mesaiGetir(); if (!izinlerim) izinleriGetir(); if (!gorevlerim) gorevleriGetir(); if (!ikYonetimVeri) ikYonetimGetir(); } }, [girisYapildi, sekme]);
 
   async function kurumlariGetir() {
     try {
@@ -691,8 +690,7 @@ export default function YonetimPaneli() {
     ["deneme", "🇹🇷 Ulusal Deneme"],
     ["talepler", "💡 Kullanıcı Talepleri"],
     ["kariyer", "🧑‍💼 Kariyer Havuzu"],
-    ["ik", "🕐 Mesai/İzin/Görev"],
-    ["ikyonetim", "🗂️ Personel Yönetimi"],
+    ["ik", "🗂️ Personel Yönetimi"],
   ];
 
   return (
@@ -1084,7 +1082,7 @@ export default function YonetimPaneli() {
                 {Object.entries(b).map(([anahtar, o]) => (
                   <div key={anahtar} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body }}>
                     <span style={{ color: T.textMuted }}>{o.ad}</span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{o.maliyetTl} ₺</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{String(o.maliyetTl).replace(".", ",")} ₺</span>
                   </div>
                 ))}
               </Panel>
@@ -1294,11 +1292,7 @@ export default function YonetimPaneli() {
                 ))
               )}
             </Panel>
-          </>
-        )}
 
-        {sekme === "ikyonetim" && (
-          <>
             <Panel baslik="Şu An Mesaide" ikon="🟢">
               {!ikYonetimVeri?.bugunMesaide || ikYonetimVeri.bugunMesaide.length === 0 ? (
                 <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Şu an mesaide kimse yok.</p>
