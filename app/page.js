@@ -899,12 +899,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   useEffect(() => {
     if (ilkYuklemeRef.current) {
       ilkYuklemeRef.current = false;
-      window.history.replaceState({ mod, menuAcik }, "");
+      window.history.replaceState({ mod, menuAcik, secilenDers }, "");
       return;
     }
     if (geriTusundanRef.current) { geriTusundanRef.current = false; return; }
-    window.history.pushState({ mod, menuAcik }, "");
-  }, [mod, menuAcik]);
+    window.history.pushState({ mod, menuAcik, secilenDers }, "");
+  }, [mod, menuAcik, secilenDers]);
 
   useEffect(() => {
     function geriTusuGeldi(e) {
@@ -912,8 +912,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       if (e.state) {
         setMod(e.state.mod);
         setMenuAcik(e.state.menuAcik ?? false);
+        setSecilenDers(e.state.secilenDers ?? null);
       } else {
-        setMod("bos"); setMenuAcik(false);
+        setMod("bos"); setMenuAcik(false); setSecilenDers(null);
       }
     }
     window.addEventListener("popstate", geriTusuGeldi);
