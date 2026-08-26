@@ -183,7 +183,29 @@ export default function Tanitim() {
           ))}
         </div>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
-          Fiyatlara Karemux komisyonu dahildir, ayrı yazılmaz — ders saatlerini öğretmen ekranından seçersin.
+          Ders saatlerini öğretmen ekranından seçersin.
+        </p>
+      </div>
+
+      {/* ==== CANLI DERS (GRUP/KAMP/SORU COZUM) ==== */}
+      <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>Canlı Grup Dersi, Kamp, Soru Çözüm</h2>
+        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle grup dersi — katılımcı sayısı arttıkça kişi başı fiyat düşer.</p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+          {[
+            { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "~50₺/kişi/saat" },
+            { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "~85₺/kişi/saat" },
+            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "~150₺/kişi/saat" },
+          ].map((k) => (
+            <div key={k.kademe} style={{ flex: "1 1 180px", maxWidth: 220, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 18, textAlign: "center" }}>
+              <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red, marginBottom: 4 }}>{k.kademe} Kademe</p>
+              <p style={{ fontSize: 11.5, color: C.inkSoft, marginBottom: 10 }}>{k.aciklama}</p>
+              <p style={{ fontWeight: 700, fontSize: 14 }}>{k.fiyat}</p>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
+          Örnek fiyatlar 10 kişilik bir grup dersine göre hesaplanmıştır — kapasite ve süreye göre değişir.
         </p>
       </div>
 
