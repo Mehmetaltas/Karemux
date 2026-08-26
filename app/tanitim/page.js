@@ -171,9 +171,9 @@ export default function Tanitim() {
         <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle birebir ders — öğretmen seviyesine göre saatlik ücret.</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
           {[
-            { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "300–500₺/saat" },
-            { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "500–900₺/saat" },
-            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "900₺+/saat" },
+            { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "360–600₺/saat" },
+            { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "600–1.080₺/saat" },
+            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "1.080₺+/saat" },
           ].map((k) => (
             <div key={k.kademe} style={{ flex: "1 1 180px", maxWidth: 220, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 18, textAlign: "center" }}>
               <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red, marginBottom: 4 }}>{k.kademe} Kademe</p>
