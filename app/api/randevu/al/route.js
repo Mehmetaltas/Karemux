@@ -50,10 +50,11 @@ export async function POST(req) {
     `;
     if (catisma.length > 0) return Response.json({ error: "Bu saat dolu, baska bir slot secin" }, { status: 409 });
 
-    // Ogretmen payi (KOMISYONSUZ, gercek tutar) + ogrenciye gosterilen fiyat
-    // (%20 Karemux komisyonu DAHIL, ayri yazilmaz - Canli Ders ile ayni desen, 23 Agustos karari).
+    // Ogretmen payi (Karemux'un ogretmene odeyecegi gercek tutar) + ogrenciye
+    // gosterilen NIHAI fiyat (kar marji + gizli giderler DAHIL, tek fiyat -
+    // 26 Agustos'ta degisen is modeline gore, bkz lib/fiyatlandirma.js).
     const ogretmenPayiTl = Math.round(((Number(ogretmen[0].saatlik_ucret_tl) || 0) * gecerliSure / 60) * 100) / 100;
-    const ucretTl = Math.round((ogretmenPayiTl * 1.20) * 100) / 100;
+    const ucretTl = ozelDersFiyatiHesapla(ogretmenPayiTl);
     const odaId = `karemux-ders-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const jitsiLink = `https://meet.jit.si/${odaId}`;
 

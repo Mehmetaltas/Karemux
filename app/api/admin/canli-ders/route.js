@@ -1,15 +1,19 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
+import { ozelDersFiyatiHesapla } from "@/lib/fiyatlandirma";
 
-// Fiyatlandirma mantigi (kullanicinin onayladigi model):
+// Fiyatlandirma mantigi (26 Agustos'ta degisen is modeline gore - bkz
+// lib/fiyatlandirma.js): Karemux hizmeti ogretmenden satin alip kendi
+// uzerine kar koyarak ogrenciye satan taraf (reseller).
 // - Ogretmen, oturum basina KENDI saatlik_ucret_tl'sine gore SABIT bir ucret alir
 //   (kac ogrenci katilirsa katilsin - gercek sinif ekonomisiyle ayni).
-// - Ogrenciye gosterilen fiyat = (ogretmen_payi_toplam / max_kapasite) * 1.20
-//   (%20 Karemux komisyonu, AYRI YAZILMAZ - tek toplam fiyat gosterilir).
+// - Ogrenciye gosterilen fiyat = kisi basi ogretmen payi + kar marji + gizli
+//   giderler (taksit komisyonu/banka - TAHMINI, mali musavir onayina acik),
+//   tek toplam fiyat gosterilir.
 function fiyatHesapla(saatlikUcret, sureDk, oturumSayisi, maxKapasite) {
   const ogretmenPayiToplam = Math.round((Number(saatlikUcret) * (sureDk / 60) * oturumSayisi) * 100) / 100;
   const ogrenciPayiHam = ogretmenPayiToplam / maxKapasite;
-  const fiyatTl = Math.round((ogrenciPayiHam * 1.20) / 5) * 5; // 5 TL'ye yuvarla, sade gorunsun
+  const fiyatTl = Math.round(ozelDersFiyatiHesapla(ogrenciPayiHam) / 5) * 5; // 5 TL'ye yuvarla, sade gorunsun
   return { ogretmenPayiToplam, fiyatTl };
 }
 
