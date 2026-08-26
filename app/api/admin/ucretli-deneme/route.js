@@ -1,4 +1,5 @@
 import { sql } from "@/lib/db";
+import { ucretliDenemeOlustur } from "@/lib/ucretliDenemeOlustur";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 
 async function yetkiKontrol(req, sifre) {
@@ -31,9 +32,20 @@ export async function GET(req) {
 // gercek odeme/fatura sureci sistem disinda yurutuluyor - bu sadece erisim kaydini acar).
 export async function POST(req) {
   try {
-    const { sifre, kurumId, denemeId, tutarTl, odendi } = await req.json();
-    const yetki = await yetkiKontrol(req, sifre);
+    const govde = await req.json();
+    const yetki = await yetkiKontrol(req, govde.sifre);
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
+
+    // 25 Agustos: yeni ucretli deneme OLUSTURMA eklendi - bu tabloya daha
+    // once HIC yazan bir mekanizma yoktu. islem alani olmayan eski
+    // cagrilar geriye donuk uyumlu kalsin diye kurum satin alma varsayilan.
+    if (govde.islem === "olustur") {
+      const { ad, sinif, ders, soruSayisi, fiyatTl, kapsam, il } = govde;
+      const sonuc = await ucretliDenemeOlustur({ ad, sinif, ders: ders?.trim(), soruSayisi, fiyatTl, kapsam, il: il?.trim() });
+      return Response.json({ ok: true, ...sonuc });
+    }
+
+    const { kurumId, denemeId, tutarTl, odendi } = govde;
     if (!kurumId || !denemeId) return Response.json({ error: "kurumId ve denemeId gerekli" }, { status: 400 });
 
     await sql`
