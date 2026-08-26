@@ -13,6 +13,16 @@ async function yetkiKontrol(req, sifre) {
   return { izinVar: true };
 }
 
+// GET: aktif ogretmen listesini dondurur (canli ders vb. formlarda secim icin).
+export async function GET(req) {
+  const sifre = new URL(req.url).searchParams.get("sifre");
+  const yetki = await yetkiKontrol(req, sifre);
+  if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
+
+  const ogretmenler = await sql`SELECT id, ad, brans, kademe, saatlik_ucret_tl FROM ogretmenler WHERE aktif = true ORDER BY ad`;
+  return Response.json({ ogretmenler });
+}
+
 // POST: yeni ogretmen ekler, ardindan musaitlik saatlerini (opsiyonel) kaydeder.
 export async function POST(req) {
   try {
