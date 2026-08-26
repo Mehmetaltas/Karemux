@@ -5245,6 +5245,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   {tumPaketler && !sinifaGorePaketAnahtari(hesap?.sinif) && (
                     <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 4 }}>Yıllık paketi görmek için önce profilden sınıfını seç.</p>
                   )}
+
+                  {/* Ozel Ders bilgi karti - kullanicinin talebiyle (26 Agustos): satin
+                      alinabilir bir "paket" degil (randevu bazli calisir), ama seviye/
+                      ucret bilgisi burada da gorunur olmali, dogrudan yonlendirme ile. */}
+                  <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${COLORS.line}` }}>
+                    <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>🎓 Özel Ders (1-1)</p>
+                    <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
+                      Öğretmen seviyesine göre saatlik ücret: <b>C</b> kademe 300-500₺ · <b>B</b> kademe 500-900₺ · <b>A</b> kademe 900₺+ (Karemux komisyonu dahil, tek fiyat). Ders saatlerini öğretmen ekranından seçersin.
+                    </p>
+                    <button onClick={() => { setMod("ogretmenders"); setMenuAcik(false); }} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: `1.5px solid ${COLORS.coral}`, background: "transparent", color: COLORS.coral, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                      Özel Ders Öğretmeni Bul →
+                    </button>
+                  </div>
                 </div>
                 {odemeHata && <p style={{ color: COLORS.coral, fontSize: 13 }}>{odemeHata}</p>}
                 {checkoutHtml && <div dangerouslySetInnerHTML={{ __html: checkoutHtml }} />}

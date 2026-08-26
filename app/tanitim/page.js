@@ -165,6 +165,28 @@ export default function Tanitim() {
         </p>
       </div>
 
+      {/* ==== OZEL DERS ==== */}
+      <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>1-1 Özel Ders de İstersen</h2>
+        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle birebir ders — öğretmen seviyesine göre saatlik ücret.</p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+          {[
+            { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "300–500₺/saat" },
+            { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "500–900₺/saat" },
+            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "900₺+/saat" },
+          ].map((k) => (
+            <div key={k.kademe} style={{ flex: "1 1 180px", maxWidth: 220, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 18, textAlign: "center" }}>
+              <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red, marginBottom: 4 }}>{k.kademe} Kademe</p>
+              <p style={{ fontSize: 11.5, color: C.inkSoft, marginBottom: 10 }}>{k.aciklama}</p>
+              <p style={{ fontWeight: 700, fontSize: 14 }}>{k.fiyat}</p>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
+          Fiyatlara Karemux komisyonu dahildir, ayrı yazılmaz — ders saatlerini öğretmen ekranından seçersin.
+        </p>
+      </div>
+
       {/* ==== KAPANIS CTA ==== */}
       <div style={{ padding: "48px 20px 60px", textAlign: "center" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(22px, 6vw, 30px)", marginBottom: 14 }}>Kalemini al, başla.</h2>
