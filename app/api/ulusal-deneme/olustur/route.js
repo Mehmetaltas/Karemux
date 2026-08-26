@@ -5,7 +5,7 @@ import { denemeOlustur } from "@/lib/ulusalDenemeOlustur";
 // lib/ulusalDenemeOlustur.js'de - haftalik otomatik cron da bunu kullanir.
 export async function POST(req) {
   try {
-    const { ad, sinif, ders, soruSayisi, acikKalmaSaati, yoneticiSifre } = await req.json();
+    const { ad, sinif, ders, soruSayisi, acikKalmaSaati, yoneticiSifre, kapsam, il } = await req.json();
 
     const ip = istekIpAdresi(req);
     const ipKontrol = await denemeSiniriKontrolEt(ip, "ulusal_deneme_yonetici", 5, 15);
@@ -18,7 +18,7 @@ export async function POST(req) {
     }
     await denemeKaydet(ip, "ulusal_deneme_yonetici", true);
 
-    const sonuc = await denemeOlustur({ ad, sinif, ders, soruSayisi, acikKalmaSaati });
+    const sonuc = await denemeOlustur({ ad, sinif, ders, soruSayisi, acikKalmaSaati, kapsam, il });
     return Response.json(sonuc);
   } catch (e) {
     console.error(e);

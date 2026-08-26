@@ -334,6 +334,8 @@ export default function YonetimPaneli() {
   const [ulusalDers, setUlusalDers] = useState("Matematik");
   const [ulusalSaat, setUlusalSaat] = useState(24);
   const [ulusalOlusturuluyor, setUlusalOlusturuluyor] = useState(false);
+  const [ulusalKapsam, setUlusalKapsam] = useState("ulusal");
+  const [ulusalIl, setUlusalIl] = useState("");
 
   const [cariler, setCariler] = useState(null);
   const [yeniCariAd, setYeniCariAd] = useState("");
@@ -515,15 +517,16 @@ export default function YonetimPaneli() {
 
   async function ulusalOlustur() {
     if (!ulusalAd) return;
+    if (ulusalKapsam === "yerel" && !ulusalIl) { setHata("Yerel kapsam icin il gerekli."); return; }
     setUlusalOlusturuluyor(true); mesajTemizle();
     try {
       const res = await fetch("/api/ulusal-deneme/olustur", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ yoneticiSifre: sifre, ad: ulusalAd, sinif: Number(ulusalSinif), ders: ulusalDers, acikKalmaSaati: ulusalSaat }),
+        body: JSON.stringify({ yoneticiSifre: sifre, ad: ulusalAd, sinif: Number(ulusalSinif), ders: ulusalDers, acikKalmaSaati: ulusalSaat, kapsam: ulusalKapsam, il: ulusalKapsam === "yerel" ? ulusalIl : null }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setBasari(`"${ulusalAd}" başlatıldı.`); setUlusalAd("");
+      setBasari(`"${ulusalAd}" başlatıldı.`); setUlusalAd(""); setUlusalIl("");
     } catch (e) { setHata(e.message); } finally { setUlusalOlusturuluyor(false); }
   }
 
@@ -769,7 +772,6 @@ export default function YonetimPaneli() {
     ["randevuodeme", "📅 Randevu Ödemeleri"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
-    ["deneme", "🇹🇷 Ulusal Deneme"],
     ["talepler", "💡 Kullanıcı Talepleri"],
     ["kariyer", "🧑‍💼 Kariyer Havuzu"],
     ["ik", "🗂️ Personel Yönetimi"],
@@ -1174,6 +1176,33 @@ export default function YonetimPaneli() {
 
         {sekme === "kurumlar" && (
           <>
+            <Panel baslik="Ücretsiz Deneme Oluştur (Karemux)" ikon="🇹🇷">
+              <label style={etiketStil}>Deneme Adı</label>
+              <input value={ulusalAd} onChange={(e) => setUlusalAd(e.target.value)} placeholder="Örn: 15. Hafta Türkiye Denemesi" style={{ ...girdiStil, marginBottom: 10 }} />
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={ulusalSinif} onChange={(e) => setUlusalSinif(e.target.value)} style={girdiStil}>
+                  {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
+                </select>
+                <select value={ulusalDers} onChange={(e) => setUlusalDers(e.target.value)} style={girdiStil}>
+                  {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce"].map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={ulusalKapsam} onChange={(e) => setUlusalKapsam(e.target.value)} style={girdiStil}>
+                  <option value="ulusal">Ulusal (Türkiye Geneli)</option>
+                  <option value="yerel">Yerel (İl Bazlı)</option>
+                </select>
+                {ulusalKapsam === "yerel" && (
+                  <input value={ulusalIl} onChange={(e) => setUlusalIl(e.target.value)} placeholder="İl (örn: İstanbul)" style={girdiStil} />
+                )}
+              </div>
+              <label style={etiketStil}>Açık Kalma Süresi (saat)</label>
+              <input type="number" value={ulusalSaat} onChange={(e) => setUlusalSaat(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 14 }} />
+              <button onClick={ulusalOlustur} disabled={ulusalOlusturuluyor || !ulusalAd} style={{ ...butonStil(!!ulusalAd), width: "100%", padding: "10px 0" }}>
+                {ulusalOlusturuluyor ? "Oluşturuluyor..." : "Şimdi Başlat"}
+              </button>
+            </Panel>
+
             <Panel baslik="Ücretli Deneme Oluştur" ikon="🎲">
               <label style={etiketStil}>Deneme Adı</label>
               <input value={udAd} onChange={(e) => setUdAd(e.target.value)} placeholder="Örn: İstanbul Yerel Deneme #1" style={{ ...girdiStil, marginBottom: 10 }} />
@@ -1549,25 +1578,6 @@ export default function YonetimPaneli() {
           </Panel>
         )}
 
-        {sekme === "deneme" && (
-          <Panel baslik="Türkiye Geneli Deneme Başlat" ikon="🇹🇷">
-            <label style={etiketStil}>Deneme Adı</label>
-            <input value={ulusalAd} onChange={(e) => setUlusalAd(e.target.value)} placeholder="Örn: 15. Hafta Türkiye Denemesi" style={{ ...girdiStil, marginBottom: 10 }} />
-            <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-              <select value={ulusalSinif} onChange={(e) => setUlusalSinif(e.target.value)} style={girdiStil}>
-                {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
-              </select>
-              <select value={ulusalDers} onChange={(e) => setUlusalDers(e.target.value)} style={girdiStil}>
-                {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce"].map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
-            <label style={etiketStil}>Açık Kalma Süresi (saat)</label>
-            <input type="number" value={ulusalSaat} onChange={(e) => setUlusalSaat(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 14 }} />
-            <button onClick={ulusalOlustur} disabled={ulusalOlusturuluyor || !ulusalAd} style={{ ...butonStil(!!ulusalAd), width: "100%", padding: "10px 0" }}>
-              {ulusalOlusturuluyor ? "Oluşturuluyor..." : "Şimdi Başlat"}
-            </button>
-          </Panel>
-        )}
       </div>
     </div>
   );

@@ -9,9 +9,20 @@ export async function GET(req) {
     const cihazId = new URL(req.url).searchParams.get("cihazId");
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
 
+    // Yerel (il bazli) denemeler SADECE kullanicinin kendi ilindekilere
+    // gosterilir - kapsam='ulusal' her zaman herkese acik. Misafir/il
+    // bilinmiyorsa (kullaniciIli NULL) sadece ulusal denemeler gorunur
+    // (guvenli varsayilan, 26 Agustos'ta eklendi).
+    let kullaniciIli = null;
+    if (kullaniciId) {
+      const kullanici = await sql`SELECT il FROM kullanicilar WHERE id = ${kullaniciId}`;
+      kullaniciIli = kullanici[0]?.il || null;
+    }
+
     const aktif = await sql`
       SELECT id, ad, sinif, ders, sorular, acilis, kapanis FROM ulusal_denemeler
       WHERE acilis <= now() AND kapanis >= now()
+        AND (kapsam = 'ulusal' OR il = ${kullaniciIli})
       ORDER BY acilis DESC LIMIT 1
     `;
     if (aktif.length === 0) {
