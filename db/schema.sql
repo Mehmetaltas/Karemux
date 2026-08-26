@@ -1,145 +1,16 @@
--- Neon Postgres üzerinde çalıştırın (Neon konsolu > SQL Editor'e yapıştırıp Run'a basın,
--- ya da: psql "$DATABASE_URL" -f db/schema.sql)
+-- Karemux veritabani semasi
+-- 26 Agustos 2026'da canli DB'den otomatik cekildi (information_schema.columns)
 
-CREATE TABLE IF NOT EXISTS kullanicilar (
-  id SERIAL PRIMARY KEY,
-  eposta TEXT UNIQUE NOT NULL,
-  sifre_hash TEXT NOT NULL,
-  ad TEXT,
-  rol TEXT NOT NULL DEFAULT 'ogrenci',   -- 'ogrenci' | 'veli'
-  eposta_dogrulandi BOOLEAN NOT NULL DEFAULT false,
-  dogrulama_kodu TEXT,
-  dogrulama_kodu_son_tarih TIMESTAMPTZ,
-  veli_baglanti_kodu TEXT UNIQUE,        -- öğrencinin veliye vereceği kod
-  olusturulma TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS veli_ogrenci (
-  id SERIAL PRIMARY KEY,
-  veli_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  ogrenci_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  olusturulma TIMESTAMPTZ DEFAULT now(),
-  UNIQUE(veli_id, ogrenci_id)
-);
-
-CREATE TABLE IF NOT EXISTS gunluk_kullanim (
-  id SERIAL PRIMARY KEY,
-  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  tarih DATE NOT NULL DEFAULT CURRENT_DATE,
-  ai_istek_sayisi INTEGER NOT NULL DEFAULT 0,
-  UNIQUE(kullanici_id, tarih)
-);
-
-CREATE TABLE IF NOT EXISTS abonelikler (
-  id SERIAL PRIMARY KEY,
-  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  plan TEXT NOT NULL,               -- 'ucretsiz' | 'premium_aylik' | 'premium_yillik'
-  durum TEXT NOT NULL DEFAULT 'aktif', -- 'aktif' | 'iptal' | 'suresi_doldu'
-  iyzico_abonelik_id TEXT,
-  baslangic TIMESTAMPTZ DEFAULT now(),
-  bitis TIMESTAMPTZ
-);
-
-CREATE TABLE IF NOT EXISTS odemeler (
-  id SERIAL PRIMARY KEY,
-  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  iyzico_odeme_id TEXT,
-  tutar NUMERIC(10,2) NOT NULL,
-  para_birimi TEXT DEFAULT 'TRY',
-  durum TEXT NOT NULL,               -- 'basarili' | 'basarisiz' | 'beklemede'
-  olusturulma TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS ilerleme (
-  id SERIAL PRIMARY KEY,
-  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  ders TEXT NOT NULL,
-  konu TEXT NOT NULL,
-  dogru_sayisi INTEGER,
-  toplam_soru INTEGER,
-  olusturulma TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS sinav_sonuclari (
-  id SERIAL PRIMARY KEY,
-  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  tur TEXT NOT NULL,              -- 'deneme' | 'yazili1' | 'yazili2' | 'yazili3' | 'seviye'
-  ders TEXT NOT NULL,
-  dogru INTEGER NOT NULL,
-  yanlis INTEGER NOT NULL,
-  bos INTEGER NOT NULL,
-  net NUMERIC(5,2) NOT NULL,
-  olusturulma TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS soru_bankasi (
-  id SERIAL PRIMARY KEY,
-  ders TEXT NOT NULL,
-  sinif INTEGER,
-  unite TEXT,
-  alt_konu TEXT,
-  zorluk TEXT,
-  soru TEXT NOT NULL,
-  secenekler JSONB NOT NULL,
-  dogru_index INTEGER NOT NULL,
-  kaynak_turu TEXT,          -- 'quiz' | 'fasikul' | 'paragraf' | 'yazili' | 'deneme' | 'seviye'
-  gosterim_sayisi INTEGER NOT NULL DEFAULT 0,
-  dogru_cevaplanma_sayisi INTEGER NOT NULL DEFAULT 0,
-  olusturulma TIMESTAMPTZ DEFAULT now()
-);
-
-CREATE INDEX IF NOT EXISTS idx_soru_bankasi_ders ON soru_bankasi(ders, sinif, unite);
-
-CREATE INDEX IF NOT EXISTS idx_ilerleme_kullanici ON ilerleme(kullanici_id);
-CREATE INDEX IF NOT EXISTS idx_abonelik_kullanici ON abonelikler(kullanici_id);
-CREATE INDEX IF NOT EXISTS idx_veli_ogrenci_veli ON veli_ogrenci(veli_id);
-CREATE INDEX IF NOT EXISTS idx_veli_ogrenci_ogrenci ON veli_ogrenci(ogrenci_id);
-CREATE INDEX IF NOT EXISTS idx_gunluk_kullanim ON gunluk_kullanim(kullanici_id, tarih);
-CREATE INDEX IF NOT EXISTS idx_sinav_sonuclari_kullanici ON sinav_sonuclari(kullanici_id, ders, tur);
-
-CREATE TABLE IF NOT EXISTS hata_kitapcigi (
-  id SERIAL PRIMARY KEY,
-  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE SET NULL,
-  cihaz_id TEXT,
-  ders TEXT NOT NULL,
-  alt_konu TEXT,
-  soru TEXT NOT NULL,
-  secenekler JSONB NOT NULL,
-  dogru_index INTEGER NOT NULL,
-  verilen_index INTEGER,
-  aciklama TEXT,
-  cozuldu BOOLEAN NOT NULL DEFAULT false,
-  olusturulma TIMESTAMPTZ DEFAULT now()
-);
-CREATE INDEX IF NOT EXISTS idx_hata_kitapcigi_kullanici ON hata_kitapcigi(kullanici_id, ders, cozuldu);
-CREATE INDEX IF NOT EXISTS idx_hata_kitapcigi_cihaz ON hata_kitapcigi(cihaz_id, ders, cozuldu);
-
--- Koc (AI) ya da ileride gercek bir ogretmen/veli tarafindan atanan gunluk gorevler.
--- "kaynak" alani hangisinden geldigini ayirt eder, boylece ayni yapi ikisi icin de kullanilabilir.
-CREATE TABLE IF NOT EXISTS gunluk_gorevler (
-  id SERIAL PRIMARY KEY,
-  kullanici_id INTEGER REFERENCES kullanicilar(id) ON DELETE CASCADE,
-  cihaz_id TEXT,
-  hafta_baslangic DATE NOT NULL,
-  gun TEXT NOT NULL, -- 'Pazartesi', 'Sali', ...
-  ders TEXT NOT NULL,
-  gorev TEXT NOT NULL,
-  kaynak TEXT NOT NULL DEFAULT 'koc', -- 'koc' | 'ogretmen' | 'veli'
-  tamamlandi BOOLEAN NOT NULL DEFAULT false,
-  olusturulma TIMESTAMPTZ DEFAULT now()
-);
-CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_kullanici ON gunluk_gorevler(kullanici_id, hafta_baslangic);
-CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id, hafta_baslangic);
-
--- ============================================================
--- ASAGIDAKI BOLUM 19-21 AGUSTOS 2026'DA CANLI VERITABANINDAN
--- OTOMATIK OLARAK CIKARILDI - yukaridaki eski ALTER TABLE yorum
--- listesinin YERINE GECER (o liste eksik/guncel degildi, bircok
--- tablonun temel CREATE TABLE'i hic yoktu). Bu, GERCEK, doğrulanmis
--- sutun yapisidir (information_schema.columns'dan). Tip/varsayilan
--- bilgisi dogru ama FK/UNIQUE/INDEX kisitlari burada YOK - onlar
--- icin canli DB'ye (\d tablo_adi) bakilmali.
--- ============================================================
+-- abonelikler
+--   id: integer NOT NULL DEFAULT nextval('abonelikler_id_seq'::regclass)
+--   kullanici_id: integer
+--   plan: text NOT NULL
+--   durum: text NOT NULL DEFAULT 'aktif'::text
+--   iyzico_abonelik_id: text
+--   baslangic: timestamp with time zone DEFAULT now()
+--   bitis: timestamp with time zone
+--   kaynak: text NOT NULL DEFAULT 'bireysel'::text
+--   kurum_lisans_id: integer
 
 -- banka_hesaplari
 --   id: integer NOT NULL DEFAULT nextval('banka_hesaplari_id_seq'::regclass)
@@ -160,6 +31,31 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   icerik: text NOT NULL
 --   embedding: USER-DEFINED
 --   kaynak: text
+--   olusturulma: timestamp with time zone DEFAULT now()
+
+-- canli_ders_katilimcilari
+--   id: integer NOT NULL DEFAULT nextval('canli_ders_katilimcilari_id_seq'::regclass)
+--   oturum_id: integer
+--   ogrenci_id: integer
+--   odendi: boolean NOT NULL DEFAULT false
+--   katilim_tarihi: timestamp with time zone DEFAULT now()
+
+-- canli_ders_oturumlari
+--   id: integer NOT NULL DEFAULT nextval('canli_ders_oturumlari_id_seq'::regclass)
+--   tur: text NOT NULL
+--   ogretmen_id: integer
+--   ders: text NOT NULL
+--   konu: text
+--   baslangic_zamani: timestamp with time zone NOT NULL
+--   sure_dk: integer NOT NULL DEFAULT 60
+--   oturum_sayisi: integer NOT NULL DEFAULT 1
+--   oturum_araligi_gun: integer NOT NULL DEFAULT 0
+--   max_kapasite: integer NOT NULL
+--   fiyat_tl: numeric NOT NULL
+--   ogretmen_payi_tl: numeric NOT NULL
+--   jitsi_link: text NOT NULL
+--   jitsi_oda_id: text NOT NULL
+--   durum: text NOT NULL DEFAULT 'planlandi'::text
 --   olusturulma: timestamp with time zone DEFAULT now()
 
 -- cari_hareketleri
@@ -206,11 +102,55 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   tekrarlayan: boolean NOT NULL DEFAULT false
 --   olusturulma: timestamp with time zone DEFAULT now()
 
+-- gunluk_gorevler
+--   id: integer NOT NULL DEFAULT nextval('gunluk_gorevler_id_seq'::regclass)
+--   kullanici_id: integer
+--   cihaz_id: text
+--   hafta_baslangic: date NOT NULL
+--   gun: text NOT NULL
+--   ders: text NOT NULL
+--   gorev: text NOT NULL
+--   kaynak: text NOT NULL DEFAULT 'koc'::text
+--   tamamlandi: boolean NOT NULL DEFAULT false
+--   olusturulma: timestamp with time zone DEFAULT now()
+
+-- gunluk_kullanim
+--   id: integer NOT NULL DEFAULT nextval('gunluk_kullanim_id_seq'::regclass)
+--   kullanici_id: integer
+--   tarih: date NOT NULL DEFAULT CURRENT_DATE
+--   ai_istek_sayisi: integer NOT NULL DEFAULT 0
+--   gorsel_soru_sayisi: integer NOT NULL DEFAULT 0
+
 -- guvenlik_denemeleri
 --   id: integer NOT NULL DEFAULT nextval('guvenlik_denemeleri_id_seq'::regclass)
 --   anahtar: text NOT NULL
 --   tur: text NOT NULL
 --   basarili: boolean NOT NULL DEFAULT false
+--   olusturulma: timestamp with time zone DEFAULT now()
+
+-- hata_kitapcigi
+--   id: integer NOT NULL DEFAULT nextval('hata_kitapcigi_id_seq'::regclass)
+--   kullanici_id: integer
+--   cihaz_id: text
+--   ders: text NOT NULL
+--   alt_konu: text
+--   soru: text NOT NULL
+--   secenekler: jsonb NOT NULL
+--   dogru_index: integer NOT NULL
+--   verilen_index: integer
+--   aciklama: text
+--   cozuldu: boolean NOT NULL DEFAULT false
+--   sonraki_tekrar: date DEFAULT (CURRENT_DATE + 1)
+--   tekrar_asamasi: integer NOT NULL DEFAULT 0
+--   olusturulma: timestamp with time zone DEFAULT now()
+
+-- ilerleme
+--   id: integer NOT NULL DEFAULT nextval('ilerleme_id_seq'::regclass)
+--   kullanici_id: integer
+--   ders: text NOT NULL
+--   konu: text NOT NULL
+--   dogru_sayisi: integer
+--   toplam_soru: integer
 --   olusturulma: timestamp with time zone DEFAULT now()
 
 -- imha_kayitlari
@@ -223,6 +163,25 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   anonimlestirme_yapildi_mi: boolean NOT NULL
 --   tetikleyen_olay: text
 
+-- kariyer_basvurulari
+--   id: integer NOT NULL DEFAULT nextval('kariyer_basvurulari_id_seq'::regclass)
+--   ad: text NOT NULL
+--   eposta: text NOT NULL
+--   telefon: text
+--   basvuru_turu: text NOT NULL
+--   departman: text NOT NULL
+--   deneyim_yili: integer
+--   egitim_seviyesi: text
+--   egitim_alani: text
+--   portfolyo_url: text
+--   ozgecmis_metni: text
+--   adli_sicil_beyani: boolean NOT NULL DEFAULT false
+--   bilgi_dogrulugu_beyani: boolean NOT NULL DEFAULT false
+--   durum: text NOT NULL DEFAULT 'beklemede'::text
+--   admin_notu: text
+--   basvuru_tarihi: timestamp with time zone DEFAULT now()
+--   degerlendirme_tarihi: timestamp with time zone
+
 -- kasa_hareketleri
 --   id: integer NOT NULL DEFAULT nextval('kasa_hareketleri_id_seq'::regclass)
 --   hesap_id: integer NOT NULL
@@ -232,10 +191,52 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   tarih: date DEFAULT CURRENT_DATE
 --   olusturulma: timestamp with time zone DEFAULT now()
 
+-- kullanici_kredileri
+--   kullanici_id: integer NOT NULL
+--   kalan_kredi: integer NOT NULL DEFAULT 0
+--   guncellenme: timestamp with time zone DEFAULT now()
+
+-- kullanicilar
+--   id: integer NOT NULL DEFAULT nextval('kullanicilar_id_seq'::regclass)
+--   eposta: text NOT NULL
+--   sifre_hash: text NOT NULL
+--   ad: text
+--   rol: text NOT NULL DEFAULT 'ogrenci'::text
+--   eposta_dogrulandi: boolean NOT NULL DEFAULT false
+--   dogrulama_kodu: text
+--   dogrulama_kodu_son_tarih: timestamp with time zone
+--   veli_baglanti_kodu: text
+--   olusturulma: timestamp with time zone DEFAULT now()
+--   sifre_sifirlama_kodu: text
+--   sifre_sifirlama_son_tarih: timestamp with time zone
+--   okul: text
+--   telefon: text
+--   sinif: integer
+--   hedef_il: text
+--   hedef_ilce: text
+--   hedef_okul: text
+--   hedef_puan: integer
+--   kurum_id: integer
+--   telegram_chat_id: text
+--   telegram_baglanti_kodu: text
+--   il: text
+--   veli_eposta: text
+--   veli_onay_verildi: boolean NOT NULL DEFAULT false
+--   veli_onay_token: text
+
 -- kurum_deneme_satin_alma
 --   id: integer NOT NULL DEFAULT nextval('kurum_deneme_satin_alma_id_seq'::regclass)
 --   kurum_id: integer
 --   deneme_id: integer
+--   tutar_tl: numeric NOT NULL
+--   odendi: boolean NOT NULL DEFAULT false
+--   satin_alma_tarihi: timestamp with time zone DEFAULT now()
+
+-- kurum_lisans_satin_alma
+--   id: integer NOT NULL DEFAULT nextval('kurum_lisans_satin_alma_id_seq'::regclass)
+--   kurum_id: integer
+--   plan: text NOT NULL
+--   koltuk_sayisi: integer NOT NULL
 --   tutar_tl: numeric NOT NULL
 --   odendi: boolean NOT NULL DEFAULT false
 --   satin_alma_tarihi: timestamp with time zone DEFAULT now()
@@ -247,6 +248,9 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   olusturulma: timestamp with time zone DEFAULT now()
 --   kisi_basi_fiyat_tl: numeric DEFAULT 300
 --   min_kisi_sayisi: integer DEFAULT 20
+--   vergi_no: text
+--   vergi_dairesi: text
+--   yetkili_unvan: text
 
 -- mevcut_okullar
 --   id: integer NOT NULL DEFAULT nextval('mevcut_okullar_id_seq'::regclass)
@@ -254,6 +258,44 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   ilce: text NOT NULL
 --   okul_adi: text NOT NULL
 --   onaylandi: boolean NOT NULL DEFAULT false
+
+-- odemeler
+--   id: integer NOT NULL DEFAULT nextval('odemeler_id_seq'::regclass)
+--   kullanici_id: integer
+--   iyzico_odeme_id: text
+--   tutar: numeric NOT NULL
+--   para_birimi: text DEFAULT 'TRY'::text
+--   durum: text NOT NULL
+--   olusturulma: timestamp with time zone DEFAULT now()
+--   conversation_id: text
+--   plan: text
+--   kurum_id: integer
+--   ucretli_deneme_id: integer
+--   kurum_lisans_id: integer
+--   canli_ders_oturum_id: integer
+--   randevu_id: integer
+
+-- ogretmen_basvurulari
+--   id: integer NOT NULL DEFAULT nextval('ogretmen_basvurulari_id_seq'::regclass)
+--   ad: text NOT NULL
+--   eposta: text NOT NULL
+--   telefon: text
+--   brans: text NOT NULL
+--   kategori: text NOT NULL
+--   istenen_kademe: text NOT NULL
+--   deneyim_yili: integer
+--   ozgecmis_metni: text
+--   durum: text NOT NULL DEFAULT 'beklemede'::text
+--   admin_notu: text
+--   basvuru_tarihi: timestamp with time zone DEFAULT now()
+--   degerlendirme_tarihi: timestamp with time zone
+--   egitim_seviyesi: text
+--   egitim_alani: text
+--   sertifikalar: text
+--   sinav_hazirlik_deneyimi: boolean DEFAULT false
+--   adli_sicil_beyani: boolean DEFAULT false
+--   bilgi_dogrulugu_beyani: boolean DEFAULT false
+--   cv_dosya_url: text
 
 -- ogretmen_musaitlik
 --   id: integer NOT NULL DEFAULT nextval('ogretmen_musaitlik_id_seq'::regclass)
@@ -270,6 +312,7 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   aktif: boolean NOT NULL DEFAULT true
 --   olusturulma: timestamp with time zone DEFAULT now()
 --   saatlik_ucret_tl: numeric DEFAULT 600
+--   kademe: text DEFAULT 'B'::text
 
 -- paketler
 --   id: integer NOT NULL DEFAULT nextval('paketler_id_seq'::regclass)
@@ -283,6 +326,46 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   olusturulma: timestamp with time zone DEFAULT now()
 --   gunluk_ai_limiti: integer
 
+-- personel
+--   id: integer NOT NULL DEFAULT nextval('personel_id_seq'::regclass)
+--   ad: text NOT NULL
+--   eposta: text NOT NULL
+--   sifre_hash: text NOT NULL
+--   rol: text NOT NULL DEFAULT 'calisan'::text
+--   aktif: boolean NOT NULL DEFAULT true
+--   olusturulma: timestamp with time zone DEFAULT now()
+--   son_giris: timestamp with time zone
+
+-- personel_gorev
+--   id: integer NOT NULL DEFAULT nextval('personel_gorev_id_seq'::regclass)
+--   atanan_personel_id: integer
+--   atayan_personel_id: integer
+--   baslik: text NOT NULL
+--   aciklama: text
+--   durum: text NOT NULL DEFAULT 'acik'::text
+--   oncelik: text NOT NULL DEFAULT 'normal'::text
+--   son_tarih: date
+--   olusturulma: timestamp with time zone DEFAULT now()
+--   tamamlanma_tarihi: timestamp with time zone
+
+-- personel_izin
+--   id: integer NOT NULL DEFAULT nextval('personel_izin_id_seq'::regclass)
+--   personel_id: integer NOT NULL
+--   baslangic_tarihi: date NOT NULL
+--   bitis_tarihi: date NOT NULL
+--   tur: text NOT NULL DEFAULT 'yillik'::text
+--   durum: text NOT NULL DEFAULT 'beklemede'::text
+--   aciklama: text
+--   talep_tarihi: timestamp with time zone DEFAULT now()
+--   karar_tarihi: timestamp with time zone
+
+-- personel_mesai
+--   id: integer NOT NULL DEFAULT nextval('personel_mesai_id_seq'::regclass)
+--   personel_id: integer NOT NULL
+--   giris_zamani: timestamp with time zone NOT NULL DEFAULT now()
+--   cikis_zamani: timestamp with time zone
+--   calisma_notu: text
+
 -- randevular
 --   id: integer NOT NULL DEFAULT nextval('randevular_id_seq'::regclass)
 --   ogretmen_id: integer
@@ -295,6 +378,7 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   olusturulma: timestamp with time zone DEFAULT now()
 --   ucret_tl: numeric
 --   odendi: boolean NOT NULL DEFAULT false
+--   ogretmen_payi_tl: numeric
 
 -- satislar
 --   id: integer NOT NULL DEFAULT nextval('satislar_id_seq'::regclass)
@@ -323,6 +407,33 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   dogru_sayisi: integer NOT NULL
 --   zayif_unite_sayisi: integer NOT NULL
 --   olusturulma: timestamp with time zone DEFAULT now()
+
+-- sinav_sonuclari
+--   id: integer NOT NULL DEFAULT nextval('sinav_sonuclari_id_seq'::regclass)
+--   kullanici_id: integer
+--   tur: text NOT NULL
+--   ders: text NOT NULL
+--   dogru: integer NOT NULL
+--   yanlis: integer NOT NULL
+--   bos: integer NOT NULL
+--   net: numeric NOT NULL
+--   olusturulma: timestamp with time zone DEFAULT now()
+
+-- soru_bankasi
+--   id: integer NOT NULL DEFAULT nextval('soru_bankasi_id_seq'::regclass)
+--   ders: text NOT NULL
+--   sinif: integer
+--   unite: text
+--   alt_konu: text
+--   zorluk: text
+--   soru: text NOT NULL
+--   secenekler: jsonb NOT NULL
+--   dogru_index: integer NOT NULL
+--   kaynak_turu: text
+--   gosterim_sayisi: integer NOT NULL DEFAULT 0
+--   dogru_cevaplanma_sayisi: integer NOT NULL DEFAULT 0
+--   olusturulma: timestamp with time zone DEFAULT now()
+--   aciklama: text
 
 -- talepler
 --   id: integer NOT NULL DEFAULT nextval('talepler_id_seq'::regclass)
@@ -376,4 +487,10 @@ CREATE INDEX IF NOT EXISTS idx_gunluk_gorevler_cihaz ON gunluk_gorevler(cihaz_id
 --   sorular: jsonb NOT NULL
 --   acilis: timestamp with time zone NOT NULL
 --   kapanis: timestamp with time zone NOT NULL
+--   olusturulma: timestamp with time zone DEFAULT now()
+
+-- veli_ogrenci
+--   id: integer NOT NULL DEFAULT nextval('veli_ogrenci_id_seq'::regclass)
+--   veli_id: integer
+--   ogrenci_id: integer
 --   olusturulma: timestamp with time zone DEFAULT now()
