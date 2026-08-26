@@ -108,6 +108,54 @@ export default function YonetimPaneli() {
   const [yeniOgretmenBaslangic, setYeniOgretmenBaslangic] = useState("16:00");
   const [yeniOgretmenBitis, setYeniOgretmenBitis] = useState("20:00");
   const [ogretmenEkleniyor, setOgretmenEkleniyor] = useState(false);
+  const [ogretmenlerListesi, setOgretmenlerListesi] = useState(null);
+  const [canliDersOturumlari, setCanliDersOturumlari] = useState(null);
+  const [cdTur, setCdTur] = useState("grup");
+  const [cdOgretmenId, setCdOgretmenId] = useState("");
+  const [cdDers, setCdDers] = useState("Matematik");
+  const [cdKonu, setCdKonu] = useState("");
+  const [cdBaslangic, setCdBaslangic] = useState("");
+  const [cdSureDk, setCdSureDk] = useState(60);
+  const [cdOturumSayisi, setCdOturumSayisi] = useState(1);
+  const [cdOturumAraligiGun, setCdOturumAraligiGun] = useState(0);
+  const [cdMaxKapasite, setCdMaxKapasite] = useState(10);
+  const [cdOlusturuluyor, setCdOlusturuluyor] = useState(false);
+
+  async function ogretmenleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/ogretmen?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setOgretmenlerListesi(data.ogretmenler);
+    } catch {}
+  }
+
+  async function canliDersleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/canli-ders?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setCanliDersOturumlari(data.oturumlar);
+    } catch {}
+  }
+
+  async function canliDersOlustur() {
+    if (!cdOgretmenId || !cdBaslangic) { setHata("Ogretmen ve baslangic zamani gerekli."); return; }
+    setCdOlusturuluyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/canli-ders", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sifre, tur: cdTur, ogretmenId: Number(cdOgretmenId), ders: cdDers, konu: cdKonu || null,
+          baslangicISO: new Date(cdBaslangic).toISOString(), sureDk: Number(cdSureDk),
+          oturumSayisi: Number(cdOturumSayisi), oturumAraligiGun: Number(cdOturumAraligiGun), maxKapasite: Number(cdMaxKapasite),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari(`Oturum olusturuldu (${data.fiyatTl}₺/ogrenci, ogretmene ${data.ogretmenPayiToplam}₺).`);
+      setCdKonu(""); setCdBaslangic("");
+      canliDersleriGetir();
+    } catch (e) { setHata(e.message); } finally { setCdOlusturuluyor(false); }
+  }
   const [talepler, setTalepler] = useState(null);
   const [kariyerBasvurulari, setKariyerBasvurulari] = useState(null);
 
@@ -541,6 +589,7 @@ export default function YonetimPaneli() {
   }
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kurumlar") { if (!kurumlarVeri) kurumlariGetir(); if (!ucretliDenemelerVeri) ucretliDenemeleriGetir(); } }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
@@ -716,6 +765,7 @@ export default function YonetimPaneli() {
     ["simulasyon", "🧮 Simülasyon"],
     ["planlama", "📈 Finansal Planlama"],
     ["kurumlar", "🏢 Kurumlar"],
+    ["canliders", "🎥 Canlı Ders"],
     ["randevuodeme", "📅 Randevu Ödemeleri"],
     ["ogretmen", "🎓 Öğretmenler"],
     ["duyuru", "📢 Duyuru"],
@@ -1189,6 +1239,67 @@ export default function YonetimPaneli() {
               </div>
             ))}
           </Panel>
+          </>
+        )}
+
+        {sekme === "canliders" && (
+          <>
+            <Panel baslik="Canlı Ders Oturumu Oluştur" ikon="🎥">
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={cdTur} onChange={(e) => setCdTur(e.target.value)} style={girdiStil}>
+                  <option value="grup">Grup</option>
+                  <option value="kamp">Kamp</option>
+                  <option value="soru_cozum">Soru Çözüm</option>
+                </select>
+                <select value={cdOgretmenId} onChange={(e) => setCdOgretmenId(e.target.value)} style={girdiStil}>
+                  <option value="">— Öğretmen Seç —</option>
+                  {ogretmenlerListesi?.map((o) => <option key={o.id} value={o.id}>{o.ad} ({o.brans}, {o.kademe || "?"} · {o.saatlik_ucret_tl}₺/sa)</option>)}
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={cdDers} onChange={(e) => setCdDers(e.target.value)} style={girdiStil}>
+                  {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce"].map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+                <input value={cdKonu} onChange={(e) => setCdKonu(e.target.value)} placeholder="Konu (opsiyonel)" style={girdiStil} />
+              </div>
+              <label style={etiketStil}>Başlangıç Zamanı</label>
+              <input type="datetime-local" value={cdBaslangic} onChange={(e) => setCdBaslangic(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={etiketStil}>Süre (dk)</label>
+                  <select value={cdSureDk} onChange={(e) => setCdSureDk(e.target.value)} style={girdiStil}>
+                    {[30, 45, 60].map((s) => <option key={s} value={s}>{s} dk</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={etiketStil}>Oturum Sayısı</label>
+                  <input type="number" min="1" value={cdOturumSayisi} onChange={(e) => setCdOturumSayisi(e.target.value)} style={girdiStil} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={etiketStil}>Aralık (gün)</label>
+                  <input type="number" min="0" value={cdOturumAraligiGun} onChange={(e) => setCdOturumAraligiGun(e.target.value)} style={girdiStil} />
+                </div>
+              </div>
+              <label style={etiketStil}>Maksimum Kapasite</label>
+              <input type="number" min="2" value={cdMaxKapasite} onChange={(e) => setCdMaxKapasite(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <button onClick={canliDersOlustur} disabled={cdOlusturuluyor || !cdOgretmenId || !cdBaslangic} style={{ ...butonStil(!!(cdOgretmenId && cdBaslangic)), width: "100%", padding: "10px 0" }}>
+                {cdOlusturuluyor ? "Oluşturuluyor..." : "Oturum Oluştur"}
+              </button>
+            </Panel>
+
+            <Panel baslik="Planlanan Oturumlar" ikon="📋">
+              {!canliDersOturumlari || canliDersOturumlari.length === 0 ? (
+                <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Planlanan oturum yok.</p>
+              ) : (
+                canliDersOturumlari.map((o) => (
+                  <div key={o.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong }}>{o.ders}{o.konu ? ` — ${o.konu}` : ""} <span style={{ color: T.textMuted, fontWeight: 500, fontSize: TYPO.caption }}>({o.tur})</span></p>
+                    <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{o.ogretmen_adi} · {new Date(o.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })} · {o.sure_dk}dk · {o.kayitli_ogrenci}/{o.max_kapasite} öğrenci</p>
+                    <p style={{ fontFamily: T.mono, fontSize: TYPO.caption, marginTop: 4 }}>{o.fiyat_tl}₺/öğrenci · Öğretmen payı: {o.ogretmen_payi_tl}₺</p>
+                  </div>
+                ))
+              )}
+            </Panel>
           </>
         )}
 
