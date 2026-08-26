@@ -326,6 +326,14 @@ export default function YonetimPaneli() {
   const [hedefNot, setHedefNot] = useState("");
   const [hedefKaydediliyor, setHedefKaydediliyor] = useState(false);
   const [kurumlarVeri, setKurumlarVeri] = useState(null);
+  const [ucretliDenemelerVeri, setUcretliDenemelerVeri] = useState(null);
+  const [udAd, setUdAd] = useState("");
+  const [udSinif, setUdSinif] = useState(8);
+  const [udDers, setUdDers] = useState("Matematik");
+  const [udFiyat, setUdFiyat] = useState("");
+  const [udKapsam, setUdKapsam] = useState("ulusal");
+  const [udIl, setUdIl] = useState("");
+  const [udOlusturuluyor, setUdOlusturuluyor] = useState(false);
   const [duzenlenenKurumFiyat, setDuzenlenenKurumFiyat] = useState({});
   const [duzenlenenKurumMin, setDuzenlenenKurumMin] = useState({});
   const [kurumKaydediliyor, setKurumKaydediliyor] = useState(null);
@@ -532,7 +540,7 @@ export default function YonetimPaneli() {
     } catch {}
   }
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
-  useEffect(() => { if (girisYapildi && sekme === "kurumlar" && !kurumlarVeri) kurumlariGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "kurumlar") { if (!kurumlarVeri) kurumlariGetir(); if (!ucretliDenemelerVeri) ucretliDenemeleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
@@ -545,6 +553,30 @@ export default function YonetimPaneli() {
       const data = await res.json();
       if (res.ok) setKurumlarVeri(data.kurumlar);
     } catch {}
+  }
+
+  async function ucretliDenemeleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/ucretli-deneme?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setUcretliDenemelerVeri(data);
+    } catch {}
+  }
+
+  async function ucretliDenemeOlustur() {
+    if (!udAd || !udFiyat) return;
+    if (udKapsam === "yerel" && !udIl) { setHata("Yerel kapsam icin il gerekli."); return; }
+    setUdOlusturuluyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/ucretli-deneme", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, islem: "olustur", ad: udAd, sinif: Number(udSinif), ders: udDers, soruSayisi: 20, fiyatTl: Number(udFiyat), kapsam: udKapsam, il: udKapsam === "yerel" ? udIl : null }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari(`"${udAd}" olusturuldu (${data.soruSayisi} soru).`); setUdAd(""); setUdFiyat(""); setUdIl("");
+      ucretliDenemeleriGetir();
+    } catch (e) { setHata(e.message); } finally { setUdOlusturuluyor(false); }
   }
 
   async function kurumFiyatKaydet(kurumId) {
@@ -1091,7 +1123,48 @@ export default function YonetimPaneli() {
         })()}
 
         {sekme === "kurumlar" && (
-          <Panel baslik="Kurumlar ve Fiyatlandırma" ikon="🏢">
+          <>
+            <Panel baslik="Ücretli Deneme Oluştur" ikon="🎲">
+              <label style={etiketStil}>Deneme Adı</label>
+              <input value={udAd} onChange={(e) => setUdAd(e.target.value)} placeholder="Örn: İstanbul Yerel Deneme #1" style={{ ...girdiStil, marginBottom: 10 }} />
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={udSinif} onChange={(e) => setUdSinif(e.target.value)} style={girdiStil}>
+                  {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
+                </select>
+                <select value={udDers} onChange={(e) => setUdDers(e.target.value)} style={girdiStil}>
+                  {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce"].map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <select value={udKapsam} onChange={(e) => setUdKapsam(e.target.value)} style={girdiStil}>
+                  <option value="ulusal">Ulusal (Türkiye Geneli)</option>
+                  <option value="yerel">Yerel (İl Bazlı)</option>
+                </select>
+                {udKapsam === "yerel" && (
+                  <input value={udIl} onChange={(e) => setUdIl(e.target.value)} placeholder="İl (örn: İstanbul)" style={girdiStil} />
+                )}
+              </div>
+              <label style={etiketStil}>Fiyat (₺)</label>
+              <input type="number" value={udFiyat} onChange={(e) => setUdFiyat(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <button onClick={ucretliDenemeOlustur} disabled={udOlusturuluyor || !udAd || !udFiyat} style={{ ...butonStil(!!(udAd && udFiyat)), width: "100%", padding: "10px 0" }}>
+                {udOlusturuluyor ? "AI ile sorular üretiliyor..." : "Deneme Oluştur"}
+              </button>
+            </Panel>
+
+            <Panel baslik="Ücretli Denemeler" ikon="📋">
+              {!ucretliDenemelerVeri?.denemeler || ucretliDenemelerVeri.denemeler.length === 0 ? (
+                <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz ücretli deneme yok.</p>
+              ) : (
+                ucretliDenemelerVeri.denemeler.map((d) => (
+                  <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body }}>
+                    <span>{d.ad} <span style={{ color: T.textMuted, fontSize: TYPO.caption }}>({d.ders}, {d.sinif}. sınıf, {d.kapsam === "yerel" ? `Yerel: ${d.il}` : "Ulusal"})</span></span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{d.fiyat_tl}₺</span>
+                  </div>
+                ))
+              )}
+            </Panel>
+
+            <Panel baslik="Kurumlar ve Fiyatlandırma" ikon="🏢">
             {!kurumlarVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kurumlarVeri.length === 0 ? (
               <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz kurum yok.</p>
             ) : kurumlarVeri.map((k) => (
@@ -1116,6 +1189,7 @@ export default function YonetimPaneli() {
               </div>
             ))}
           </Panel>
+          </>
         )}
 
         {sekme === "randevuodeme" && (
