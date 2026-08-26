@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
-import { ozelDersFiyatiHesapla } from "@/lib/fiyatlandirma";
+import { topluDersFiyatiHesapla } from "@/lib/fiyatlandirma";
 
 // Fiyatlandirma mantigi (26 Agustos'ta degisen is modeline gore - bkz
 // lib/fiyatlandirma.js): Karemux hizmeti ogretmenden satin alip kendi
@@ -13,7 +13,7 @@ import { ozelDersFiyatiHesapla } from "@/lib/fiyatlandirma";
 function fiyatHesapla(saatlikUcret, sureDk, oturumSayisi, maxKapasite) {
   const ogretmenPayiToplam = Math.round((Number(saatlikUcret) * (sureDk / 60) * oturumSayisi) * 100) / 100;
   const ogrenciPayiHam = ogretmenPayiToplam / maxKapasite;
-  const fiyatTl = Math.round(ozelDersFiyatiHesapla(ogrenciPayiHam) / 5) * 5; // 5 TL'ye yuvarla, sade gorunsun
+  const fiyatTl = Math.round(topluDersFiyatiHesapla(ogrenciPayiHam) / 5) * 5; // 5 TL'ye yuvarla, sade gorunsun
   return { ogretmenPayiToplam, fiyatTl };
 }
 
