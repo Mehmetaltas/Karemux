@@ -212,7 +212,7 @@ export default function Tanitim() {
           </div>
         </div>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
-          Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce. Örnek programlar ve fiyatlardır; gerçek fiyat seçtiğiniz öğretmene göre değişir.
+          Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce.
         </p>
       </div>
 
