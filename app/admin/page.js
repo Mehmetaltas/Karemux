@@ -859,11 +859,11 @@ export default function YonetimPaneli() {
             <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700, marginBottom: 6 }}>1-1 Özel Ders (randevu)</p>
             <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>C Kademe</span><span style={{ fontFamily: T.mono }}>600₺/saat</span></div>
             <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>B Kademe</span><span style={{ fontFamily: T.mono }}>900₺/saat</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, marginBottom: 14 }}><span>A Kademe</span><span style={{ fontFamily: T.mono }}>1.100₺+/saat</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, marginBottom: 14 }}><span>A Kademe</span><span style={{ fontFamily: T.mono }}>1.300₺+/saat</span></div>
             <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700, marginBottom: 6 }}>Canlı Grup Dersi / Kamp / Soru Çözüm (sabit: 5 kişilik grup)</p>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>Grup Dersi (haftada 2 gün, ayda 8 ders)</span><span style={{ fontFamily: T.mono }}>1.190₺/ay</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>Kamp (5 gün, günde 2 saat, tek seferlik)</span><span style={{ fontFamily: T.mono }}>1.485₺</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body }}><span>Soru Çözüm Saati (haftada 1 gün, ayda 4 ders)</span><span style={{ fontFamily: T.mono }}>595₺/ay</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>Grup Dersi (haftada 2 gün, ayda 8 ders)</span><span style={{ fontFamily: T.mono }}>1.200₺/ay</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>Kamp (5 gün, günde 2 saat, tek seferlik)</span><span style={{ fontFamily: T.mono }}>1.600₺</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body }}><span>Soru Çözüm Saati (haftada 1 gün, ayda 4 ders)</span><span style={{ fontFamily: T.mono }}>600₺/ay</span></div>
             <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 6 }}>5 kişilik sabit grup, C kademe (600₺/sa) öğretmen varsayımıyla hesaplanmıştır. Gerçek oturum saatlik ücretine göre değişir.</p>
           </Panel>
 

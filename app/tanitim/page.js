@@ -173,7 +173,7 @@ export default function Tanitim() {
           {[
             { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "600₺/saat" },
             { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "900₺/saat" },
-            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "1.100₺+/saat" },
+            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "1.300₺+/saat" },
           ].map((k) => (
             <div key={k.kademe} style={{ flex: "1 1 180px", maxWidth: 220, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 18, textAlign: "center" }}>
               <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red, marginBottom: 4 }}>{k.kademe} Kademe</p>
@@ -198,17 +198,17 @@ export default function Tanitim() {
           <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
             <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Grup Dersi</p>
             <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Haftada 2 gün, 1'er saat<br/>Ayda 8 ders</p>
-            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>1.190₺/ay</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>1.200₺/ay</p>
           </div>
           <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
             <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Kamp</p>
             <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>5 gün, günde 2 saat<br/>Tek seferlik yoğun program</p>
-            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>1.485₺</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>1.600₺</p>
           </div>
           <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
             <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Soru Çözüm Saati</p>
             <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Haftada 1 gün, 1 saat<br/>Ayda 4 ders</p>
-            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>595₺/ay</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>600₺/ay</p>
           </div>
         </div>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>

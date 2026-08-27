@@ -5252,7 +5252,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${COLORS.line}` }}>
                     <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>🎓 Özel Ders (1-1)</p>
                     <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
-                      Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce. Öğretmen seviyesine göre net saatlik ücret: <b>C</b> kademe 600₺ · <b>B</b> kademe 900₺ · <b>A</b> kademe 1.100₺+. Ders saatlerini öğretmen ekranından seçersin.
+                      Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce. Öğretmen seviyesine göre net saatlik ücret: <b>C</b> kademe 600₺ · <b>B</b> kademe 900₺ · <b>A</b> kademe 1.300₺+. Ders saatlerini öğretmen ekranından seçersin.
                     </p>
                     <button onClick={() => { setMod("ogretmenders"); setMenuAcik(false); }} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: `1.5px solid ${COLORS.coral}`, background: "transparent", color: COLORS.coral, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
                       Özel Ders Öğretmeni Bul →
@@ -5267,7 +5267,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       Sabit 5 kişilik gruplar, net paket fiyatı. Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce.
                     </p>
                     <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
-                      <b>Grup Dersi</b> (haftada 2 gün, ayda 8 ders): 1.190₺/ay · <b>Kamp</b> (5 gün yoğun, tek seferlik): 1.485₺ · <b>Soru Çözüm Saati</b> (haftada 1 gün, ayda 4 ders): 595₺/ay
+                      <b>Grup Dersi</b> (haftada 2 gün, ayda 8 ders): 1.200₺/ay · <b>Kamp</b> (5 gün yoğun, tek seferlik): 1.600₺ · <b>Soru Çözüm Saati</b> (haftada 1 gün, ayda 4 ders): 600₺/ay
                     </p>
                   </div>
                 </div>
