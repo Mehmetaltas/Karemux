@@ -2082,7 +2082,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function ulusalDenemeyiGetir() {
     setUlusalYukleniyor(true);
     try {
-      const res = await fetch(`/api/ulusal-deneme/aktif?cihazId=${cihazIdRef.current}`);
+      const res = await fetch(`https://api.karemux.com/aktif?cihazId=${cihazIdRef.current}`, { credentials: "include" });
       const data = await res.json();
       setUlusalAktif(data.aktifDeneme || null);
       setUlusalGelecek(data.gelecekDeneme || null);
@@ -2097,8 +2097,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!ulusalAktif) return;
     setUlusalGonderiliyor(true); setHata("");
     try {
-      const res = await fetch("/api/ulusal-deneme/gonder", {
-        method: "POST", headers: { "Content-Type": "application/json" },
+      const res = await fetch("https://api.karemux.com/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include",
         body: JSON.stringify({ ulusalDenemeId: ulusalAktif.id, cevaplar: ulusalCevaplar, cihazId: cihazIdRef.current }),
       });
       const data = await res.json();
