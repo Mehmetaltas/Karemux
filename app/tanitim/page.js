@@ -168,12 +168,12 @@ export default function Tanitim() {
       {/* ==== OZEL DERS ==== */}
       <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>1-1 Özel Ders de İstersen</h2>
-        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle birebir ders — öğretmen seviyesine göre saatlik ücret.</p>
+        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle birebir ders — öğretmen seviyesine göre net saatlik ücret.</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
           {[
-            { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "360–600₺/saat" },
-            { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "600–1.080₺/saat" },
-            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "1.080₺+/saat" },
+            { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "600₺/saat" },
+            { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "900₺/saat" },
+            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "1.100₺+/saat" },
           ].map((k) => (
             <div key={k.kademe} style={{ flex: "1 1 180px", maxWidth: 220, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 18, textAlign: "center" }}>
               <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red, marginBottom: 4 }}>{k.kademe} Kademe</p>
@@ -182,7 +182,10 @@ export default function Tanitim() {
             </div>
           ))}
         </div>
-        <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
+        <p style={{ fontSize: 11, color: C.inkSoft, textAlign: "center", marginTop: 14 }}>
+          <strong>Branşlar:</strong> Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce.
+        </p>
+        <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 6, fontStyle: "italic" }}>
           Ders saatlerini öğretmen ekranından seçersin.
         </p>
       </div>
@@ -209,7 +212,7 @@ export default function Tanitim() {
           </div>
         </div>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
-          Örnek programlar ve fiyatlardır; gerçek fiyat seçtiğiniz öğretmene göre değişir.
+          Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce. Örnek programlar ve fiyatlardır; gerçek fiyat seçtiğiniz öğretmene göre değişir.
         </p>
       </div>
 

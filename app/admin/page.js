@@ -857,9 +857,9 @@ export default function YonetimPaneli() {
               Bunlar satılabilir "paket" değil — öğretmen kademesine (A/B/C) göre değişen, otomatik hesaplanan fiyatlardır (bkz. lib/fiyatlandirma.js). Referans amaçlıdır, buradan düzenlenemez.
             </p>
             <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700, marginBottom: 6 }}>1-1 Özel Ders (randevu)</p>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>C Kademe</span><span style={{ fontFamily: T.mono }}>360–600₺/saat</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>B Kademe</span><span style={{ fontFamily: T.mono }}>600–1.080₺/saat</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, marginBottom: 14 }}><span>A Kademe</span><span style={{ fontFamily: T.mono }}>1.080₺+/saat</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>C Kademe</span><span style={{ fontFamily: T.mono }}>600₺/saat</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>B Kademe</span><span style={{ fontFamily: T.mono }}>900₺/saat</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, marginBottom: 14 }}><span>A Kademe</span><span style={{ fontFamily: T.mono }}>1.100₺+/saat</span></div>
             <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700, marginBottom: 6 }}>Canlı Grup Dersi / Kamp / Soru Çözüm (sabit: 5 kişilik grup)</p>
             <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>C Kademe (~480₺/sa)</span><span style={{ fontFamily: T.mono }}>~950₺/ay</span></div>
             <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>B Kademe (~840₺/sa)</span><span style={{ fontFamily: T.mono }}>~1.665₺/ay</span></div>
