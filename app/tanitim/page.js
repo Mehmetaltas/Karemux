@@ -190,11 +190,11 @@ export default function Tanitim() {
       {/* ==== CANLI DERS (GRUP/KAMP/SORU COZUM) ==== */}
       <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>Canlı Grup Dersi, Kamp, Soru Çözüm</h2>
-        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle senın sınıfına özel toplu (grup) ders — katılımcı sayısı arttıkça kişi başı fiyat düşer.</p>
+        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle sabit 5 kişilik gruplarla çalışan, aylık tek paket olarak satılan toplu ders.</p>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div style={{ flex: "1 1 260px", maxWidth: 320, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 22, textAlign: "center" }}>
             <p style={{ fontSize: 11.5, color: C.inkSoft, marginBottom: 8 }}>Toplu Ders (5. sınıftan LGS'ye)</p>
-            <p style={{ fontFamily: C.displayFont, fontSize: 18, fontWeight: 700, color: C.red }}>Aylık paket fiyatı, programına göre hesaplanır</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 18, fontWeight: 700, color: C.red }}>Örnek: ayda 8 ders (haftada 2 gün) → ~1.190₺/ay (kişi başı, sabit)</p>
             <p style={{ fontSize: 10.5, color: C.inkSoft, marginTop: 6 }}>Öğretmen ücreti, hizmet bedeli ve giderler dahil toplam fiyat.</p>
           </div>
         </div>

@@ -5264,7 +5264,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${COLORS.line}` }}>
                     <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>👥 Canlı Grup Dersi / Kamp / Soru Çözüm</p>
                     <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
-                      Aylık, 5 kişilik sabit gruplarla çalışan bir toplu ders paketi — fiyat programına göre hesaplanır.
+                      Aylık, 5 kişilik sabit gruplarla çalışır. Örnek: ayda 8 ders → ~1.190₺/ay (kişi başı, sabit).
                     </p>
                   </div>
                 </div>
