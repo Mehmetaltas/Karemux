@@ -29,6 +29,25 @@ export default function KullanimSartlari() {
         sonuna kadar hizmete erişiminizi etkilemez, sonraki yenilemeyi durdurur.</li>
       </ul>
 
+      <h2>3a. Canlı Ders / Grup Ders Paketleri</h2>
+      <ul>
+        <li>Canlı Grup Dersi, Kamp ve Soru Çözüm Saati paketleri, önceden
+        belirlenmiş bir ders programına (gün/saat) göre, sınırlı katılımcı
+        sayısıyla (paket başına azami 5 kişi) satışa sunulan hizmetlerdir.</li>
+        <li>Bu paketlerin bedeli, satın alma anında peşin olarak tahsil edilir.
+        Hizmetin belirli bir tarih/dönemde ifasının önceden planlanması sebebiyle,
+        6502 sayılı Tüketicinin Korunması Hakkında Kanun'a dayanan Mesafeli
+        Sözleşmeler Yönetmeliği'nin 15. maddesinde düzenlenen istisnalar
+        çerçevesinde, hizmetin ifasına başlanmasından sonra cayma hakkı
+        kullanılamaz.</li>
+        <li>Bir paketteki katılımcı sayısının azami kapasiteye (5 kişi)
+        ulaşmaması, ilgili dersin gerçekleşmesini engellemez; öğretmen ücreti,
+        kesinleşmiş katılımcı sayısından bağımsız olarak Karemux
+        tarafından karşılanır.</li>
+        <li>Satın alınan bir dersin ilgili oturumuna katılmamak (devamsızlık),
+        ödenen tutarın iadesini gerektirmez.</li>
+      </ul>
+
       <h2>4. Kabul Edilemez Kullanım</h2>
       <p>Hizmeti otomatik botlarla aşırı kullanmak, başkasının hesabını izinsiz
       kullanmak veya sistemin güvenliğini ihlal etmeye çalışmak yasaktır.</p>

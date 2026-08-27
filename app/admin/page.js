@@ -116,9 +116,9 @@ export default function YonetimPaneli() {
   const [cdKonu, setCdKonu] = useState("");
   const [cdBaslangic, setCdBaslangic] = useState("");
   const [cdSureDk, setCdSureDk] = useState(60);
-  const [cdOturumSayisi, setCdOturumSayisi] = useState(1);
-  const [cdOturumAraligiGun, setCdOturumAraligiGun] = useState(0);
-  const [cdMaxKapasite, setCdMaxKapasite] = useState(10);
+  const [cdOturumSayisi, setCdOturumSayisi] = useState(8);
+  const [cdOturumAraligiGun, setCdOturumAraligiGun] = useState(3);
+  const [cdMaxKapasite, setCdMaxKapasite] = useState(5);
   const [cdOlusturuluyor, setCdOlusturuluyor] = useState(false);
 
   async function ogretmenleriGetir() {
