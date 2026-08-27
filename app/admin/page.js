@@ -151,7 +151,7 @@ export default function YonetimPaneli() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setBasari(`Oturum olusturuldu (${data.fiyatTl}₺/ogrenci, ogretmene ${data.ogretmenPayiToplam}₺).`);
+      setBasari(`Oturum olusturuldu (${data.fiyatTl}₺/ogrenci).`);
       setCdKonu(""); setCdBaslangic("");
       canliDersleriGetir();
     } catch (e) { setHata(e.message); } finally { setCdOlusturuluyor(false); }
