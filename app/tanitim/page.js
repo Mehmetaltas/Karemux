@@ -228,6 +228,13 @@ export default function Tanitim() {
           {" · "}
           info@karemux.com
         </p>
+        <p style={{ fontSize: 11.5, color: C.inkSoft, marginTop: 10 }}>
+          <a href="https://www.youtube.com/@KAREMUXEGITIMSISTEMLERI" target="_blank" rel="noopener noreferrer" style={{ color: C.inkSoft, textDecoration: "underline" }}>YouTube</a>
+          {" · "}
+          <a href="https://www.instagram.com/karemuxegitim" target="_blank" rel="noopener noreferrer" style={{ color: C.inkSoft, textDecoration: "underline" }}>Instagram</a>
+          {" · "}
+          <a href="https://www.linkedin.com/in/karemux-e%C4%9Fitim-sistemleri-30a6ba431" target="_blank" rel="noopener noreferrer" style={{ color: C.inkSoft, textDecoration: "underline" }}>LinkedIn</a>
+        </p>
       </div>
 
     </div>
