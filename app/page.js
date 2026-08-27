@@ -5267,7 +5267,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       Sabit 5 kişilik gruplar, net paket fiyatı. Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce.
                     </p>
                     <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
-                      <b>Grup Dersi</b> (haftada 2 gün, ayda 8 ders): 1.585₺/ay · <b>Kamp</b> (5 gün yoğun, tek seferlik): 1.980₺ · <b>Soru Çözüm Saati</b> (haftada 1 gün, ayda 4 ders): 790₺/ay
+                      <b>Grup Dersi</b> (haftada 2 gün, ayda 8 ders): 1.190₺/ay · <b>Kamp</b> (5 gün yoğun, tek seferlik): 1.485₺ · <b>Soru Çözüm Saati</b> (haftada 1 gün, ayda 4 ders): 595₺/ay
                     </p>
                   </div>
                 </div>
