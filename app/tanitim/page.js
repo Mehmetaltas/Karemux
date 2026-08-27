@@ -190,16 +190,26 @@ export default function Tanitim() {
       {/* ==== CANLI DERS (GRUP/KAMP/SORU COZUM) ==== */}
       <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>Canlı Grup Dersi, Kamp, Soru Çözüm</h2>
-        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle sabit 5 kişilik gruplarla çalışan, aylık tek paket olarak satılan toplu ders.</p>
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <div style={{ flex: "1 1 260px", maxWidth: 320, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 22, textAlign: "center" }}>
-            <p style={{ fontSize: 11.5, color: C.inkSoft, marginBottom: 8 }}>Toplu Ders (5. sınıftan LGS'ye)</p>
-            <p style={{ fontFamily: C.displayFont, fontSize: 18, fontWeight: 700, color: C.red }}>Örnek: ayda 8 ders (haftada 2 gün) → ~1.190₺/ay (kişi başı, sabit)</p>
-            <p style={{ fontSize: 10.5, color: C.inkSoft, marginTop: 6 }}>Öğretmen ücreti, hizmet bedeli ve giderler dahil toplam fiyat.</p>
+        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle sabit 5 kişilik gruplar, net paket fiyatı.</p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+          <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Grup Dersi</p>
+            <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Haftada 2 gün, 1'er saat<br/>Ayda 8 ders</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>1.585₺/ay</p>
+          </div>
+          <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Kamp</p>
+            <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>5 gün, günde 2 saat<br/>Tek seferlik yoğun program</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>1.980₺</p>
+          </div>
+          <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Soru Çözüm Saati</p>
+            <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Haftada 1 gün, 1 saat<br/>Ayda 4 ders</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>790₺/ay</p>
           </div>
         </div>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
-          Örnek fiyat 5 kişilik sabit kapasiteli, aylık tek paket olarak satılan bir grup dersine göre hesaplanır — kapasite, süre ve sınıf seviyesine göre değişir.
+          Örnek programlar ve fiyatlardır; gerçek fiyat seçtiğiniz öğretmene göre değişir.
         </p>
       </div>
 
