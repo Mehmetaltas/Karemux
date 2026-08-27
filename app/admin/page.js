@@ -861,9 +861,8 @@ export default function YonetimPaneli() {
             <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>B Kademe</span><span style={{ fontFamily: T.mono }}>600–1.080₺/saat</span></div>
             <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, marginBottom: 14 }}><span>A Kademe</span><span style={{ fontFamily: T.mono }}>1.080₺+/saat</span></div>
             <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700, marginBottom: 6 }}>Canlı Grup Dersi / Kamp / Soru Çözüm (örnek: 10 kişilik grup)</p>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>C Kademe</span><span style={{ fontFamily: T.mono }}>~50₺/kişi/saat</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body, borderBottom: `1px solid ${T.border}` }}><span>B Kademe</span><span style={{ fontFamily: T.mono }}>~85₺/kişi/saat</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body }}><span>A Kademe</span><span style={{ fontFamily: T.mono }}>~150₺/kişi/saat</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: TYPO.body }}><span>Toplu Ders (tüm sınıflar)</span><span style={{ fontFamily: T.mono }}>~85₺/kişi/saat</span></div>
+            <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 6 }}>Öğretmen kademesi burada görünmüyor — tek toplam fiyat (öğretmen ücreti + kar + gizli gider dahil).</p>
           </Panel>
 
           <Panel baslik="Satış Paketleri" ikon="💰">

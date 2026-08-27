@@ -5258,6 +5258,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       Özel Ders Öğretmeni Bul →
                     </button>
                   </div>
+
+                  {/* Canli Grup Dersi bilgi karti - tanitim sayfasiyla tutarli (27 Agustos):
+                      ogretmen kademesi gosterilmiyor, tek toplam fiyat. */}
+                  <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${COLORS.line}` }}>
+                    <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>👥 Canlı Grup Dersi / Kamp / Soru Çözüm</p>
+                    <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
+                      Toplu ders (tüm sınıflar): <b>~85₺/kişi/saat</b> — öğretmen ücreti + kar + gizli gider dahil toplam fiyat, katılımcı sayısına göre değişir.
+                    </p>
+                  </div>
                 </div>
                 {odemeHata && <p style={{ color: COLORS.coral, fontSize: 13 }}>{odemeHata}</p>}
                 {checkoutHtml && <div dangerouslySetInnerHTML={{ __html: checkoutHtml }} />}
