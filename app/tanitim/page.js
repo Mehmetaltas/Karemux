@@ -194,12 +194,12 @@ export default function Tanitim() {
         <div style={{ display: "flex", justifyContent: "center" }}>
           <div style={{ flex: "1 1 260px", maxWidth: 320, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 22, textAlign: "center" }}>
             <p style={{ fontSize: 11.5, color: C.inkSoft, marginBottom: 8 }}>Toplu Ders (5. sınıftan LGS'ye)</p>
-            <p style={{ fontFamily: C.displayFont, fontSize: 26, fontWeight: 800, color: C.red }}>~85₺/kişi/saat</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 18, fontWeight: 700, color: C.red }}>Aylık paket fiyatı, programına göre hesaplanır</p>
             <p style={{ fontSize: 10.5, color: C.inkSoft, marginTop: 6 }}>Öğretmen ücreti, hizmet bedeli ve giderler dahil toplam fiyat.</p>
           </div>
         </div>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
-          Örnek fiyat 10 kişilik bir grup dersine göre hesaplanmıştır — kapasite, süre ve sınıf seviyesine göre değişir.
+          Örnek fiyat 5 kişilik sabit kapasiteli, aylık tek paket olarak satılan bir grup dersine göre hesaplanır — kapasite, süre ve sınıf seviyesine göre değişir.
         </p>
       </div>
 
