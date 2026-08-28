@@ -1,5 +1,4 @@
--- Karemux veritabani semasi
--- 26 Agustos 2026'da canli DB'den otomatik cekildi (information_schema.columns)
+-- Karemux DB Semasi - 28 Agustos 2026'da canli DB'den otomatik cekildi
 
 -- abonelikler
 --   id: integer NOT NULL DEFAULT nextval('abonelikler_id_seq'::regclass)
@@ -251,6 +250,7 @@
 --   vergi_no: text
 --   vergi_dairesi: text
 --   yetkili_unvan: text
+--   eposta: text
 
 -- mevcut_okullar
 --   id: integer NOT NULL DEFAULT nextval('mevcut_okullar_id_seq'::regclass)
@@ -488,9 +488,12 @@
 --   acilis: timestamp with time zone NOT NULL
 --   kapanis: timestamp with time zone NOT NULL
 --   olusturulma: timestamp with time zone DEFAULT now()
+--   kapsam: text NOT NULL DEFAULT 'ulusal'::text
+--   il: text
 
 -- veli_ogrenci
 --   id: integer NOT NULL DEFAULT nextval('veli_ogrenci_id_seq'::regclass)
 --   veli_id: integer
 --   ogrenci_id: integer
 --   olusturulma: timestamp with time zone DEFAULT now()
+
