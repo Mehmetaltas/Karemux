@@ -20,7 +20,7 @@ export async function GET(req) {
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
     const kurumlar = await sql`
-      SELECT k.id, k.ad, k.kurum_kodu, k.kisi_basi_fiyat_tl, k.min_kisi_sayisi, k.olusturulma,
+      SELECT k.id, k.ad, k.kurum_kodu, k.kisi_basi_fiyat_tl, k.min_kisi_sayisi, k.olusturulma, k.eposta,
         COUNT(kul.id)::int AS ogrenci_sayisi
       FROM kurumlar k
       LEFT JOIN kullanicilar kul ON kul.kurum_id = k.id
@@ -36,13 +36,13 @@ export async function GET(req) {
 
 export async function PATCH(req) {
   try {
-    const { sifre, kurumId, kisiBasiFiyatTl, minKisiSayisi } = await req.json();
+    const { sifre, kurumId, kisiBasiFiyatTl, minKisiSayisi, eposta } = await req.json();
     const yetki = await yetkiKontrol(req, sifre);
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
     if (!kurumId) return Response.json({ error: "kurumId gerekli" }, { status: 400 });
 
     await sql`
-      UPDATE kurumlar SET kisi_basi_fiyat_tl = ${kisiBasiFiyatTl}, min_kisi_sayisi = ${minKisiSayisi}
+      UPDATE kurumlar SET kisi_basi_fiyat_tl = ${kisiBasiFiyatTl}, min_kisi_sayisi = ${minKisiSayisi}, eposta = ${eposta || null}
       WHERE id = ${kurumId}
     `;
     return Response.json({ ok: true });

@@ -385,6 +385,8 @@ export default function YonetimPaneli() {
   const [udIl, setUdIl] = useState("");
   const [udOlusturuluyor, setUdOlusturuluyor] = useState(false);
   const [duzenlenenKurumFiyat, setDuzenlenenKurumFiyat] = useState({});
+  const [duzenlenenKurumEposta, setDuzenlenenKurumEposta] = useState({});
+  const [raporGonderiliyor, setRaporGonderiliyor] = useState(null);
   const [duzenlenenKurumMin, setDuzenlenenKurumMin] = useState({});
   const [kurumKaydediliyor, setKurumKaydediliyor] = useState(null);
   const [randevuOdemeVeri, setRandevuOdemeVeri] = useState(null);
@@ -631,16 +633,30 @@ export default function YonetimPaneli() {
     } catch (e) { setHata(e.message); } finally { setUdOlusturuluyor(false); }
   }
 
+  async function denemeRaporuGonder(denemeId) {
+    setRaporGonderiliyor(denemeId); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/ulusal-deneme/rapor-gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, denemeId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari(data.gonderilenKurumSayisi > 0 ? `Rapor ${data.gonderilenKurumSayisi} kuruma gonderildi.` : (data.not || "Gonderilecek kurum bulunamadi."));
+    } catch (e) { setHata(e.message); } finally { setRaporGonderiliyor(null); }
+  }
+
   async function kurumFiyatKaydet(kurumId) {
     const fiyat = duzenlenenKurumFiyat[kurumId];
     const min = duzenlenenKurumMin[kurumId];
-    if (fiyat == null && min == null) return;
+    const eposta = duzenlenenKurumEposta[kurumId];
+    if (fiyat == null && min == null && eposta == null) return;
     setKurumKaydediliyor(kurumId); mesajTemizle();
     try {
       const mevcut = kurumlarVeri.find((k) => k.id === kurumId);
       const res = await fetch("/api/admin/kurum", {
         method: "PATCH", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sifre, kurumId, kisiBasiFiyatTl: fiyat != null ? Number(fiyat) : mevcut.kisi_basi_fiyat_tl, minKisiSayisi: min != null ? Number(min) : mevcut.min_kisi_sayisi }),
+        body: JSON.stringify({ sifre, kurumId, kisiBasiFiyatTl: fiyat != null ? Number(fiyat) : mevcut.kisi_basi_fiyat_tl, minKisiSayisi: min != null ? Number(min) : mevcut.min_kisi_sayisi, eposta: eposta != null ? eposta : mevcut.eposta }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -1252,9 +1268,14 @@ export default function YonetimPaneli() {
                 <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz ücretli deneme yok.</p>
               ) : (
                 ucretliDenemelerVeri.denemeler.map((d) => (
-                  <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body }}>
+                  <div key={d.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body, gap: 8 }}>
                     <span>{d.ad} <span style={{ color: T.textMuted, fontSize: TYPO.caption }}>({d.ders}, {d.sinif}. sınıf, {d.kapsam === "yerel" ? `Yerel: ${d.il}` : "Ulusal"})</span></span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{d.fiyat_tl}₺</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{d.fiyat_tl}₺</span>
+                      <button onClick={() => denemeRaporuGonder(d.id)} disabled={raporGonderiliyor === d.id} style={{ ...butonStil(true), padding: "5px 10px", fontSize: TYPO.micro }}>
+                        {raporGonderiliyor === d.id ? "..." : "Raporu Gönder"}
+                      </button>
+                    </span>
                   </div>
                 ))
               )}
@@ -1269,7 +1290,7 @@ export default function YonetimPaneli() {
                   <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{k.ad} <span style={{ color: T.textMuted, fontWeight: 400, fontSize: TYPO.caption }}>({k.kurum_kodu})</span></p>
                   <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{k.ogrenci_sayisi} öğrenci</p>
                 </div>
-                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
                   <div style={{ flex: 1 }}>
                     <label style={etiketStil}>Kişi Başı Fiyat (₺/ay)</label>
                     <input type="number" defaultValue={k.kisi_basi_fiyat_tl} onChange={(e) => setDuzenlenenKurumFiyat((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
@@ -1277,6 +1298,12 @@ export default function YonetimPaneli() {
                   <div style={{ flex: 1 }}>
                     <label style={etiketStil}>Min. Kişi Sayısı</label>
                     <input type="number" defaultValue={k.min_kisi_sayisi} onChange={(e) => setDuzenlenenKurumMin((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <div style={{ flex: 1 }}>
+                    <label style={etiketStil}>Kurum E-posta (rapor için)</label>
+                    <input type="email" defaultValue={k.eposta || ""} placeholder="kurum@ornek.com" onChange={(e) => setDuzenlenenKurumEposta((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
                   </div>
                   <button onClick={() => kurumFiyatKaydet(k.id)} disabled={kurumKaydediliyor === k.id} style={{ ...butonStil(true), padding: "9px 14px", alignSelf: "flex-end" }}>
                     {kurumKaydediliyor === k.id ? "..." : "Kaydet"}
