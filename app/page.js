@@ -1915,6 +1915,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [ulusalSorular, setUlusalSorular] = useState(null);
   const [ulusalCevaplar, setUlusalCevaplar] = useState({});
   const [ulusalSonuc, setUlusalSonuc] = useState(null);
+  const [cevapAnahtariAcik, setCevapAnahtariAcik] = useState(false);
   const [ulusalZatenCozmus, setUlusalZatenCozmus] = useState(false);
   const [ulusalGonderiliyor, setUlusalGonderiliyor] = useState(false);
   const [ulusalYukleniyor, setUlusalYukleniyor] = useState(false);
@@ -5797,6 +5798,43 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ background: "rgba(232,179,57,0.15)", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 12 }}>
                     <p style={{ color: COLORS.mustard, fontSize: 15, fontWeight: 800 }}>Türkiye'de %{ulusalSonuc.yuzdelikDilim}'lik dilimdesin</p>
                     <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>{ulusalSonuc.toplamKatilimci} katılımcı arasında {ulusalSonuc.siram}. sıradasın</p>
+                  </div>
+                )}
+
+                {ulusalSonuc.karne && ulusalSonuc.karne.length > 0 && (
+                  <div style={{ marginTop: 18, textAlign: "left" }}>
+                    <p style={{ color: "#fff", fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>Konu Bazında Karnen</p>
+                    {ulusalSonuc.karne.map((k) => (
+                      <div key={k.altKonu} style={{ marginBottom: 8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                          <span style={{ color: "#C5CBD3", fontSize: 11 }}>{k.altKonu}</span>
+                          <span style={{ color: "#8A968E", fontSize: 10 }}>{k.dogru}D {k.yanlis}Y {k.bos}B</span>
+                        </div>
+                        <div style={{ display: "flex", height: 5, borderRadius: 3, overflow: "hidden", background: "#2A3441" }}>
+                          {k.dogru > 0 && <div style={{ flex: k.dogru, background: RENK_BASARI }} />}
+                          {k.yanlis > 0 && <div style={{ flex: k.yanlis, background: "#FF6B5E" }} />}
+                          {k.bos > 0 && <div style={{ flex: k.bos, background: "#4A5568" }} />}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {ulusalSonuc.cevapAnahtari && ulusalSonuc.cevapAnahtari.length > 0 && (
+                  <div style={{ marginTop: 18 }}>
+                    <button onClick={() => setCevapAnahtariAcik((eski) => !eski)} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1px solid ${COLORS.mustard}`, background: "transparent", color: COLORS.mustard, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
+                      {cevapAnahtariAcik ? "Cevap Anahtarını Gizle ↑" : "Cevap Anahtarını Gör ↓"}
+                    </button>
+                    {cevapAnahtariAcik && (
+                      <div style={{ marginTop: 10, textAlign: "left" }}>
+                        {ulusalSonuc.cevapAnahtari.map((c, i) => (
+                          <div key={i} style={{ padding: "8px 0", borderBottom: "1px solid #2A3441" }}>
+                            <p style={{ color: "#C5CBD3", fontSize: 11, marginBottom: 2 }}>Soru {i + 1}: Doğru cevap <b style={{ color: RENK_BASARI }}>{["A","B","C","D"][c.dogruIndex]}</b></p>
+                            {c.aciklama && <p style={{ color: "#8A968E", fontSize: 10 }}>{c.aciklama}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
