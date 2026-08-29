@@ -192,7 +192,7 @@ export default function Tanitim() {
 
       {/* ==== CANLI DERS (GRUP/KAMP/SORU COZUM) ==== */}
       <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
-        <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>Canlı Grup Dersi, Kamp, Soru Çözüm</h2>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>Canlı Grup Dersi, Kamp, Soru Çözüm, Rehberlik ve Koçluk</h2>
         <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle sabit 5 kişilik gruplar, net paket fiyatı.</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
           <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
@@ -209,6 +209,16 @@ export default function Tanitim() {
             <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Soru Çözüm Saati</p>
             <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Haftada 1 gün, 1 saat<br/>Ayda 4 ders</p>
             <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>600₺/ay</p>
+          </div>
+          <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Grup Rehberliği</p>
+            <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>5 kişilik grup, haftada 1 gün<br/>Ayda 4 görüşme</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>595₺/ay</p>
+          </div>
+          <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Birebir Koçluk</p>
+            <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Kişiye özel, haftada 1 gün<br/>Ayda 4 görüşme</p>
+            <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>2.880₺/ay</p>
           </div>
         </div>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
