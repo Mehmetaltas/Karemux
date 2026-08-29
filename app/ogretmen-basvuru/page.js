@@ -14,14 +14,38 @@ export default function OgretmenBasvuru() {
   const [form, setForm] = useState({
     ad: "", eposta: "", telefon: "", brans: "Matematik", kategori: "branş_ogretmeni",
     istenenKademe: "B", deneyimYili: "", egitimSeviyesi: "Lisans", egitimAlani: "",
-    sertifikalar: "", sinavHazirlikDeneyimi: false, ozgecmisMetni: "",
+    sertifikalar: "", sinavHazirlikDeneyimi: false, ozgecmisMetni: "", cvDosyaUrl: "",
     adliSicilBeyani: false, bilgiDogruluguBeyani: false,
   });
   const [gonderildi, setGonderildi] = useState(false);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState("");
+  const [cvYukleniyor, setCvYukleniyor] = useState(false);
+  const [cvDosyaAdi, setCvDosyaAdi] = useState("");
 
   function alan(k, v) { setForm((f) => ({ ...f, [k]: v })); }
+
+  async function cvSec(e) {
+    const dosya = e.target.files?.[0];
+    if (!dosya) return;
+    setHata("");
+    if (dosya.type !== "application/pdf") { setHata("CV sadece PDF formatinda olmali."); return; }
+    if (dosya.size > 5 * 1024 * 1024) { setHata("CV dosyasi 5MB'i asamaz."); return; }
+    setCvYukleniyor(true);
+    try {
+      const fd = new FormData();
+      fd.append("dosya", dosya);
+      const res = await fetch("/api/kariyer/cv-yukle", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alan("cvDosyaUrl", data.url);
+      setCvDosyaAdi(dosya.name);
+    } catch (err) {
+      setHata(err.message);
+    } finally {
+      setCvYukleniyor(false);
+    }
+  }
 
   async function gonder() {
     setHata("");
@@ -110,6 +134,11 @@ export default function OgretmenBasvuru() {
           <input type="checkbox" checked={form.sinavHazirlikDeneyimi} onChange={(e) => alan("sinavHazirlikDeneyimi", e.target.checked)} />
           LGS/YKS gibi sınav hazırlık deneyimim var
         </label>
+
+        <label style={etiket}>CV (PDF, opsiyonel, maks 5MB)</label>
+        <input type="file" accept="application/pdf" onChange={cvSec} disabled={cvYukleniyor} style={{ ...girdi, padding: "8px 12px" }} />
+        {cvYukleniyor && <p style={{ fontSize: 12, color: C.inkSoft, marginTop: -6, marginBottom: 12 }}>Yukleniyor...</p>}
+        {cvDosyaAdi && !cvYukleniyor && <p style={{ fontSize: 12, color: C.green, marginTop: -6, marginBottom: 12 }}>✓ {cvDosyaAdi} yuklendi</p>}
 
         <label style={etiket}>Kısa Özgeçmiş</label>
         <textarea value={form.ozgecmisMetni} onChange={(e) => alan("ozgecmisMetni", e.target.value)} style={{ ...girdi, minHeight: 90 }} />
