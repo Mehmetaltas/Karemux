@@ -143,6 +143,16 @@ export default function OgretmenBasvuru() {
         <label style={etiket}>Kısa Özgeçmiş</label>
         <textarea value={form.ozgecmisMetni} onChange={(e) => alan("ozgecmisMetni", e.target.value)} style={{ ...girdi, minHeight: 90 }} />
 
+        <div style={{ background: "#EEF2F6", borderRadius: 10, padding: 14, marginBottom: 12, border: `1px solid ${C.line}` }}>
+          <p style={{ fontSize: 12.5, color: C.ink, fontWeight: 700, marginBottom: 4 }}>📄 Sözleşme Bilgilendirmesi</p>
+          <p style={{ fontSize: 12, color: C.inkSoft, lineHeight: 1.5 }}>
+            Başvurunuz onaylandığı takdirde, Karemux ile aranızda 1 (bir) yıl süreli, yıllık yenilenen bir
+            Hizmet Sözleşmesi imzalanacaktır. Bu sözleşme; ücretlendirme, gizlilik, fikri mülkiyet ve
+            fesih/mazeret (hastalık, mazeret bildirimi ve belgelenmesi, gerektiğinde geçici vekil ataması gibi)
+            şartlarını içerir. Sözleşme metni, onay sürecinde tarafınıza ayrıca iletilecektir.
+          </p>
+        </div>
+
         <div style={{ background: C.greenSoft, borderRadius: 10, padding: 14, marginBottom: 12 }}>
           <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 12.5, cursor: "pointer", marginBottom: 10 }}>
             <input type="checkbox" checked={form.adliSicilBeyani} onChange={(e) => alan("adliSicilBeyani", e.target.checked)} style={{ marginTop: 2 }} />
