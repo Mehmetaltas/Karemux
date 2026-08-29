@@ -53,12 +53,22 @@ export async function POST(req) {
       // Ozel Ders (1-1 randevu) - GERCEK ACIK KAPATILDI: eskiden bu odeme
       // adimi hic yoktu, "Katil" butonu odeme durumuna bakmadan calisiyordu.
       await sql`UPDATE randevular SET odendi = true WHERE id = ${randevuId} AND ogrenci_id = ${kullaniciId}`;
+      const randevuTutari = await sql`SELECT ucret_tl FROM randevular WHERE id = ${randevuId}`;
+      await sql`
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
+        VALUES (${kullaniciId}, NULL, ${randevuTutari[0]?.ucret_tl || 0}, ${randevuTutari[0]?.ucret_tl || 0})
+      `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
 
     if (oturumId) {
       // Canli Ders - koltuk checkout baslarken zaten tutulmustu (odendi=false), simdi true yapiliyor.
       await sql`UPDATE canli_ders_katilimcilari SET odendi = true WHERE oturum_id = ${oturumId} AND ogrenci_id = ${kullaniciId}`;
+      const oturumFiyati = await sql`SELECT fiyat_tl FROM canli_ders_oturumlari WHERE id = ${oturumId}`;
+      await sql`
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
+        VALUES (${kullaniciId}, NULL, ${oturumFiyati[0]?.fiyat_tl || 0}, ${oturumFiyati[0]?.fiyat_tl || 0})
+      `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
 
@@ -66,6 +76,11 @@ export async function POST(req) {
       // Kurum toplu lisans satin almasi - koltuklar SATIN ALINDI ama henuz
       // hicbir ogrenciye ATANMADI (atama ayri bir adim, /api/kurum/koltuk-ata).
       await sql`UPDATE kurum_lisans_satin_alma SET odendi = true WHERE id = ${lisansId}`;
+      const lisansTutari = await sql`SELECT tutar_tl FROM kurum_lisans_satin_alma WHERE id = ${lisansId}`;
+      await sql`
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
+        VALUES (${kullaniciId}, NULL, ${lisansTutari[0]?.tutar_tl || 0}, ${lisansTutari[0]?.tutar_tl || 0})
+      `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
 
@@ -77,6 +92,10 @@ export async function POST(req) {
         INSERT INTO kurum_deneme_satin_alma (kurum_id, deneme_id, tutar_tl, odendi)
         VALUES (${kurumId}, ${denemeId}, ${tutar}, true)
         ON CONFLICT (kurum_id, deneme_id) DO UPDATE SET tutar_tl = ${tutar}, odendi = true
+      `;
+      await sql`
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
+        VALUES (${kullaniciId || null}, NULL, ${tutar}, ${tutar})
       `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
