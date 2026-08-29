@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.5",
+    "@vercel/blob": "^2.8.0",
     "bcryptjs": "^2.4.3",
     "iyzipay": "^2.0.53",
     "jsonwebtoken": "^9.0.2",
