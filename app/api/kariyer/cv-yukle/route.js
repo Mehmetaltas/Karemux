@@ -25,8 +25,9 @@ export async function POST(req) {
 
     const dosyaAdi = `cv/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.pdf`;
     // Store PRIVATE olarak olusturuldu (CV kisisel veri icerir, herkese acik URL RISK).
-    // put() cagrisinda access parametresi yok - store'un kendi gizlilik ayari gecerli olur.
-    const sonuc = await put(dosyaAdi, dosya, { addRandomSuffix: false });
+    // access parametresi ZORUNLU (put() otomatik almiyor) - "private" ile dosya
+    // sadece imzali (presignUrl) link ile acilabilir, dogrudan URL calismaz.
+    const sonuc = await put(dosyaAdi, dosya, { access: "private", addRandomSuffix: false });
 
     await denemeKaydet(ip, "cv_yukle", true);
     return Response.json({ ok: true, url: sonuc.url });
