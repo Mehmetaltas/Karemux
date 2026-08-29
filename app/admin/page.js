@@ -288,6 +288,7 @@ export default function YonetimPaneli() {
     } catch {}
   }
   const [ogretmenBasvurulari, setOgretmenBasvurulari] = useState(null);
+  const [cvLinkYukleniyor, setCvLinkYukleniyor] = useState(null);
   const [basvuruIslemDurumu, setBasvuruIslemDurumu] = useState(null);
   const [basvuruOnaySaatlikUcret, setBasvuruOnaySaatlikUcret] = useState({});
 
@@ -297,6 +298,23 @@ export default function YonetimPaneli() {
       const data = await res.json();
       if (res.ok) setOgretmenBasvurulari(data.basvurular);
     } catch {}
+  }
+
+  async function cvGoruntule(basvuruId) {
+    setCvLinkYukleniyor(basvuruId);
+    try {
+      const res = await fetch("/api/admin/kariyer-basvuru/cv-link", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, basvuruId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      window.open(data.url, "_blank");
+    } catch (e) {
+      setHata(e.message);
+    } finally {
+      setCvLinkYukleniyor(null);
+    }
   }
 
   async function basvuruKararVer(id, karar) {
@@ -1535,6 +1553,11 @@ export default function YonetimPaneli() {
                   {b.sinav_hazirlik_deneyimi && <p style={{ fontSize: TYPO.caption, color: T.accent, marginBottom: 2 }}>✓ Sınav hazırlık deneyimi var</p>}
                   {b.ozgecmis_metni && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{b.ozgecmis_metni}</p>}
                   <p style={{ fontSize: TYPO.micro, color: T.accent, marginTop: 6 }}>✓ Adli sicil beyanı · ✓ Bilgi doğruluğu beyanı</p>
+                  {b.cv_dosya_url && (
+                    <button onClick={() => cvGoruntule(b.id)} disabled={cvLinkYukleniyor === b.id} style={{ ...butonStil(true), padding: "6px 12px", fontSize: TYPO.caption, marginTop: 8 }}>
+                      {cvLinkYukleniyor === b.id ? "..." : "📄 CV Görüntüle"}
+                    </button>
+                  )}
                   <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
                     <input type="number" placeholder="Saatlik ücret ₺" value={basvuruOnaySaatlikUcret[b.id] || ""} onChange={(e) => setBasvuruOnaySaatlikUcret((eski) => ({ ...eski, [b.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, width: 120 }} />
                     <button onClick={() => basvuruKararVer(b.id, "onayla")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body }}>
