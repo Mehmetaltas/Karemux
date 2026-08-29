@@ -39,7 +39,7 @@ export async function POST(req) {
       operations: ["get"],
       validUntil: suresi,
     });
-    const { url: imzaliUrl } = await presignUrl(signedToken, {
+    const { presignedUrl: imzaliUrl } = await presignUrl(signedToken, {
       operation: "get",
       pathname: dosyaYolu,
       access: "private",
