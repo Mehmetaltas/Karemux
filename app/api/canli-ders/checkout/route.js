@@ -17,7 +17,7 @@ function iyzipayIstemcisi() {
 export async function POST(req) {
   let katilimciId = null;
   try {
-    const { oturumId, cihazId, iletisim } = await req.json();
+    const { oturumId, cihazId, iletisim, indirimKodu } = await req.json();
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
     if (!oturumId) return Response.json({ error: "oturumId gerekli" }, { status: 400 });
@@ -37,7 +37,35 @@ export async function POST(req) {
     // Yillik_* abonesine %25 indirim
     const abonelik = await sql`SELECT 1 FROM abonelikler WHERE kullanici_id = ${kullaniciId} AND durum = 'aktif' AND plan LIKE 'yillik_%' LIMIT 1`;
     const indirimliMi = abonelik.length > 0;
-    const fiyat = indirimliMi ? Math.round((Number(oturum[0].fiyat_tl) * 0.75) / 5) * 5 : Number(oturum[0].fiyat_tl);
+    let fiyat = indirimliMi ? Math.round((Number(oturum[0].fiyat_tl) * 0.75) / 5) * 5 : Number(oturum[0].fiyat_tl);
+
+    let kuponIndirimTutari = 0;
+    let uygulananKupon = null;
+    if (indirimKodu) {
+      const kodTemiz = String(indirimKodu).trim().toUpperCase();
+      const kodSonuc = await sql`
+        SELECT id, yuzde, sabit_tutar, max_kullanim, kullanim_sayisi
+        FROM indirim_kodlari
+        WHERE kod = ${kodTemiz} AND aktif = true
+          AND (gecerlilik_baslangic IS NULL OR gecerlilik_baslangic <= now())
+          AND (gecerlilik_bitis IS NULL OR gecerlilik_bitis >= now())
+      `;
+      if (kodSonuc.length === 0) {
+        return Response.json({ error: "Geçersiz veya süresi dolmuş indirim kodu" }, { status: 400 });
+      }
+      const kod = kodSonuc[0];
+      if (kod.max_kullanim != null && kod.kullanim_sayisi >= kod.max_kullanim) {
+        return Response.json({ error: "Bu indirim kodu kullanım limitine ulaştı" }, { status: 400 });
+      }
+      if (kod.yuzde) {
+        kuponIndirimTutari = fiyat * (kod.yuzde / 100);
+      } else if (kod.sabit_tutar) {
+        kuponIndirimTutari = Number(kod.sabit_tutar);
+      }
+      kuponIndirimTutari = Math.min(kuponIndirimTutari, fiyat);
+      uygulananKupon = { id: kod.id, kod: kodTemiz };
+      fiyat = Math.max(fiyat - kuponIndirimTutari, 0);
+    }
 
     if (!iletisim?.eposta || !iletisim?.ad || !iletisim?.adres) {
       return Response.json({ error: "Iletisim bilgileri eksik" }, { status: 400 });
@@ -85,9 +113,12 @@ export async function POST(req) {
     }
 
     await sql`
-      INSERT INTO odemeler (kullanici_id, tutar, para_birimi, durum, conversation_id, canli_ders_oturum_id)
-      VALUES (${kullaniciId}, ${fiyat.toFixed(2)}, 'TRY', 'beklemede', ${conversationId}, ${oturumId})
+      INSERT INTO odemeler (kullanici_id, tutar, para_birimi, durum, conversation_id, canli_ders_oturum_id, indirim_kodu, indirim_tutari)
+      VALUES (${kullaniciId}, ${fiyat.toFixed(2)}, 'TRY', 'beklemede', ${conversationId}, ${oturumId}, ${uygulananKupon?.kod || null}, ${kuponIndirimTutari.toFixed(2)})
     `;
+    if (uygulananKupon) {
+      await sql`UPDATE indirim_kodlari SET kullanim_sayisi = kullanim_sayisi + 1 WHERE id = ${uygulananKupon.id}`;
+    }
 
     return Response.json({ checkoutFormContent: sonuc.checkoutFormContent, token: sonuc.token, fiyat, indirimliMi });
   } catch (e) {
