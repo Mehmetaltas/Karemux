@@ -1460,12 +1460,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [canliDersKatilimYukleniyor, setCanliDersKatilimYukleniyor] = useState(null);
   const [canliDersMesaj, setCanliDersMesaj] = useState("");
   const [canliDersCheckoutHtml, setCanliDersCheckoutHtml] = useState("");
+  const [derslerimVeri, setDerslerimVeri] = useState(null);
 
   async function canliDersOturumlariGetir() {
     try {
       const res = await fetch("/api/canli-ders/listele");
       const data = await res.json();
       setCanliDersOturumlari(data.oturumlar || []);
+    } catch (e) {}
+  }
+
+  async function derslerimGetir() {
+    if (!cihazIdRef.current) return;
+    try {
+      const res = await fetch(`/api/canli-ders/katilimlarim?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      if (res.ok) setDerslerimVeri(data.katilimlar || []);
     } catch (e) {}
   }
 
@@ -2638,6 +2648,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       fetch("/api/abonelik/durum").then((r) => r.json()).then((d) => setAktifAbonelik(d.aktifAbonelik)).catch(() => {});
       fetch("/api/paketler").then((r) => r.json()).then((d) => setTumPaketler(d.paketler)).catch(() => {});
       canliDersOturumlariGetir();
+      derslerimGetir();
     }
   }, [hesap]);
 
@@ -5176,6 +5187,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Grup Dersi / Kamp / Soru Cozum</p>
               <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Diger ogrencilerle birlikte, gercek ogretmenle canli oturumlar. Yillik abonelere %25 indirim.</p>
             </div>
+
+            {derslerimVeri && derslerimVeri.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 8 }}>📅 Derslerim</p>
+                {derslerimVeri.map((d) => (
+                  <div key={d.id} style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1.5px solid ${COLORS.mustard}55`, marginBottom: 10 }}>
+                    <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>
+                      {d.tur === "grup" ? "👥 Grup Dersi" : d.tur === "kamp" ? "🏕️ Konu Kampi" : "❓ Soru Cozum Saati"} — {d.ders}{d.konu ? ` (${d.konu})` : ""}
+                    </p>
+                    <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
+                      {d.ogretmen_adi} · {new Date(d.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })} · {d.sure_dk}dk{d.oturum_sayisi > 1 ? ` × ${d.oturum_sayisi} oturum` : ""}
+                    </p>
+                    <a href={d.jitsi_link} target="_blank" rel="noopener noreferrer" style={{ display: "block", textAlign: "center", padding: "9px 0", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12.5, textDecoration: "none" }}>
+                      Derse Katil
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {!canliDersOturumlari ? (
               <p style={{ fontSize: 12.5, color: COLORS.muted }}>Yukleniyor...</p>
