@@ -389,6 +389,15 @@ export default function YonetimPaneli() {
   const [raporGonderiliyor, setRaporGonderiliyor] = useState(null);
   const [duzenlenenKurumMin, setDuzenlenenKurumMin] = useState({});
   const [kurumKaydediliyor, setKurumKaydediliyor] = useState(null);
+  const [indirimKodlariVeri, setIndirimKodlariVeri] = useState(null);
+  const [ikKod, setIkKod] = useState("");
+  const [ikAciklama, setIkAciklama] = useState("");
+  const [ikYuzde, setIkYuzde] = useState("");
+  const [ikSabitTutar, setIkSabitTutar] = useState("");
+  const [ikMaxKullanim, setIkMaxKullanim] = useState("");
+  const [ikGecerlilikBitis, setIkGecerlilikBitis] = useState("");
+  const [ikOlusturuluyor, setIkOlusturuluyor] = useState(false);
+  const [ikDurumDegistiriliyor, setIkDurumDegistiriliyor] = useState(null);
   const [randevuOdemeVeri, setRandevuOdemeVeri] = useState(null);
   const [randevuIsaretleniyor, setRandevuIsaretleniyor] = useState(null);
 
@@ -594,6 +603,7 @@ export default function YonetimPaneli() {
   }
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kurumlar") { if (!kurumlarVeri) kurumlariGetir(); if (!ucretliDenemelerVeri) ucretliDenemeleriGetir(); } }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "indirimkodlari" && !indirimKodlariVeri) indirimKodlariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
@@ -607,6 +617,49 @@ export default function YonetimPaneli() {
       const data = await res.json();
       if (res.ok) setKurumlarVeri(data.kurumlar);
     } catch {}
+  }
+
+  async function indirimKodlariGetir() {
+    try {
+      const res = await fetch(`/api/admin/indirim-kodu?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setIndirimKodlariVeri(data.kodlar);
+    } catch {}
+  }
+
+  async function indirimKoduOlustur() {
+    if (!ikKod || (!ikYuzde && !ikSabitTutar)) return;
+    setIkOlusturuluyor(true); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/indirim-kodu", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sifre, kod: ikKod, aciklama: ikAciklama || null,
+          yuzde: ikYuzde ? Number(ikYuzde) : null,
+          sabitTutar: ikSabitTutar ? Number(ikSabitTutar) : null,
+          maxKullanim: ikMaxKullanim ? Number(ikMaxKullanim) : null,
+          gecerlilikBitis: ikGecerlilikBitis || null,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasari(`"${ikKod.toUpperCase()}" kodu oluşturuldu.`);
+      setIkKod(""); setIkAciklama(""); setIkYuzde(""); setIkSabitTutar(""); setIkMaxKullanim(""); setIkGecerlilikBitis("");
+      indirimKodlariGetir();
+    } catch (e) { setHata(e.message); } finally { setIkOlusturuluyor(false); }
+  }
+
+  async function indirimKoduDurumDegistir(id, yeniDurum) {
+    setIkDurumDegistiriliyor(id); mesajTemizle();
+    try {
+      const res = await fetch("/api/admin/indirim-kodu", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, id, aktif: yeniDurum }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      indirimKodlariGetir();
+    } catch (e) { setHata(e.message); } finally { setIkDurumDegistiriliyor(null); }
   }
 
   async function ucretliDenemeleriGetir() {
@@ -791,6 +844,7 @@ export default function YonetimPaneli() {
     ["talepler", "💡 Kullanıcı Talepleri"],
     ["kariyer", "🧑‍💼 Kariyer Havuzu"],
     ["ik", "🗂️ Personel Yönetimi"],
+    ["indirimkodlari", "🏷️ İndirim Kodları"],
   ];
 
   return (
@@ -1206,6 +1260,58 @@ export default function YonetimPaneli() {
             </>
           );
         })()}
+
+        {sekme === "indirimkodlari" && (
+          <>
+            <Panel baslik="Yeni İndirim Kodu" ikon="🏷️">
+              <label style={etiketStil}>Kod</label>
+              <input value={ikKod} onChange={(e) => setIkKod(e.target.value)} placeholder="Örn: ILKKAYIT25" style={{ ...girdiStil, marginBottom: 10 }} />
+              <label style={etiketStil}>Açıklama (opsiyonel)</label>
+              <input value={ikAciklama} onChange={(e) => setIkAciklama(e.target.value)} placeholder="Örn: İlk 100 kayıt kampanyası" style={{ ...girdiStil, marginBottom: 10 }} />
+              <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={etiketStil}>Yüzde İndirim (%)</label>
+                  <input type="number" value={ikYuzde} onChange={(e) => setIkYuzde(e.target.value)} placeholder="Örn: 25" style={girdiStil} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={etiketStil}>veya Sabit Tutar (₺)</label>
+                  <input type="number" value={ikSabitTutar} onChange={(e) => setIkSabitTutar(e.target.value)} placeholder="Örn: 100" style={girdiStil} />
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={etiketStil}>Maks. Kullanım (opsiyonel)</label>
+                  <input type="number" value={ikMaxKullanim} onChange={(e) => setIkMaxKullanim(e.target.value)} placeholder="Sınırsız" style={girdiStil} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={etiketStil}>Son Geçerlilik (opsiyonel)</label>
+                  <input type="date" value={ikGecerlilikBitis} onChange={(e) => setIkGecerlilikBitis(e.target.value)} style={girdiStil} />
+                </div>
+              </div>
+              <button onClick={indirimKoduOlustur} disabled={ikOlusturuluyor || !ikKod || (!ikYuzde && !ikSabitTutar)} style={{ ...butonStil(!!(ikKod && (ikYuzde || ikSabitTutar))), width: "100%", padding: "10px 0" }}>
+                {ikOlusturuluyor ? "Oluşturuluyor..." : "Kodu Oluştur"}
+              </button>
+            </Panel>
+
+            <Panel baslik="Mevcut İndirim Kodları" ikon="📋">
+              {!indirimKodlariVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : indirimKodlariVeri.length === 0 ? (
+                <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz indirim kodu yok.</p>
+              ) : indirimKodlariVeri.map((k) => (
+                <div key={k.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body, gap: 8 }}>
+                  <span>
+                    <strong>{k.kod}</strong>{" "}
+                    <span style={{ color: T.textMuted, fontSize: TYPO.caption }}>
+                      ({k.yuzde ? `%${k.yuzde}` : `${k.sabit_tutar}₺`} · {k.kullanim_sayisi}{k.max_kullanim ? `/${k.max_kullanim}` : ""} kullanım{k.aciklama ? ` · ${k.aciklama}` : ""})
+                    </span>
+                  </span>
+                  <button onClick={() => indirimKoduDurumDegistir(k.id, !k.aktif)} disabled={ikDurumDegistiriliyor === k.id} style={{ ...butonStil(k.aktif), padding: "5px 10px", fontSize: TYPO.micro }}>
+                    {ikDurumDegistiriliyor === k.id ? "..." : k.aktif ? "Aktif (kapat)" : "Pasif (aç)"}
+                  </button>
+                </div>
+              ))}
+            </Panel>
+          </>
+        )}
 
         {sekme === "kurumlar" && (
           <>
