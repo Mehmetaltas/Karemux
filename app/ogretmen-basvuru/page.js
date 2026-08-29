@@ -105,6 +105,7 @@ export default function OgretmenBasvuru() {
           <option value="akademisyen">Akademisyen</option>
           <option value="branş_ogretmeni">Branş Öğretmeni</option>
           <option value="teknik_temel">Teknik Temelden Dersler</option>
+          <option value="rehber_koc">Rehberlik/Koçluk</option>
         </select>
 
         <label style={etiket}>Başvurmak İstediğin Kademe</label>
