@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
-import { topluDersFiyatiHesapla } from "@/lib/fiyatlandirma";
+import { topluDersFiyatiHesapla, ozelDersFiyatiHesapla } from "@/lib/fiyatlandirma";
 
 // Fiyatlandirma mantigi (26 Agustos'ta degisen is modeline gore - bkz
 // lib/fiyatlandirma.js): Karemux hizmeti ogretmenden satin alip kendi
@@ -10,10 +10,17 @@ import { topluDersFiyatiHesapla } from "@/lib/fiyatlandirma";
 // - Ogrenciye gosterilen fiyat = kisi basi ogretmen payi + kar marji + gizli
 //   giderler (taksit komisyonu/banka - TAHMINI, mali musavir onayina acik),
 //   tek toplam fiyat gosterilir.
-function fiyatHesapla(saatlikUcret, sureDk, oturumSayisi, maxKapasite) {
+function fiyatHesapla(saatlikUcret, sureDk, oturumSayisi, maxKapasite, tur) {
   const ogretmenPayiToplam = Math.round((Number(saatlikUcret) * (sureDk / 60) * oturumSayisi) * 100) / 100;
+  // "kocluk" (birebir rehberlik/koçluk) - risk yok, gizli gider katmani yok,
+  // ozelDersFiyatiHesapla kullanilir (26 Agustos'taki 1-1 formulu).
+  if (tur === "kocluk") {
+    const fiyatTl = Math.round(ozelDersFiyatiHesapla(ogretmenPayiToplam) / 5) * 5;
+    return { ogretmenPayiToplam, fiyatTl };
+  }
+  // "rehberlik" (grup) dahil digerleri - toplu ders formulu (kapasite riski var).
   const ogrenciPayiHam = ogretmenPayiToplam / maxKapasite;
-  const fiyatTl = Math.round(topluDersFiyatiHesapla(ogrenciPayiHam) / 5) * 5; // 5 TL'ye yuvarla, sade gorunsun
+  const fiyatTl = Math.round(topluDersFiyatiHesapla(ogrenciPayiHam) / 5) * 5;
   return { ogretmenPayiToplam, fiyatTl };
 }
 
@@ -52,7 +59,7 @@ export async function POST(req) {
     const yetki = await yetkiKontrol(req, sifre);
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
-    if (!["grup", "kamp", "soru_cozum"].includes(tur)) return Response.json({ error: "Gecersiz tur" }, { status: 400 });
+    if (!["grup", "kamp", "soru_cozum", "rehberlik", "kocluk"].includes(tur)) return Response.json({ error: "Gecersiz tur" }, { status: 400 });
     if (!ogretmenId || !ders || !baslangicISO || !maxKapasite) return Response.json({ error: "Eksik veri" }, { status: 400 });
 
     const ogretmen = await sql`SELECT saatlik_ucret_tl FROM ogretmenler WHERE id = ${ogretmenId} AND aktif = true`;
@@ -63,7 +70,7 @@ export async function POST(req) {
     const gecerliAralik = Math.max(0, Number(oturumAraligiGun) || 0);
     const gecerliKapasite = Math.max(2, Number(maxKapasite));
 
-    const { ogretmenPayiToplam, fiyatTl } = fiyatHesapla(ogretmen[0].saatlik_ucret_tl, gecerliSure, gecerliOturumSayisi, gecerliKapasite);
+    const { ogretmenPayiToplam, fiyatTl } = fiyatHesapla(ogretmen[0].saatlik_ucret_tl, gecerliSure, gecerliOturumSayisi, gecerliKapasite, tur);
 
     const odaId = `karemux-canlidasres-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const jitsiLink = `https://meet.jit.si/${odaId}`;

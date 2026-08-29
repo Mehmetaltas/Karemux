@@ -1,4 +1,5 @@
 import { sql } from "@/lib/db";
+import { ozelDersFiyatiHesapla } from "@/lib/fiyatlandirma";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 
 // GET ?cihazId=X: mevcut kullanicinin yaklasan randevularini dondurur.
