@@ -20,12 +20,40 @@ function iyzipayIstemcisi() {
 // yoktu. 19 Agustos'ta Faz 10 taramasinda bulunup duzeltildi.
 export async function POST(req) {
   try {
-    const { plan, kullanici } = await req.json();
+    const { plan, kullanici, indirimKodu } = await req.json();
     const paketSonuc = await sql`SELECT ad, fiyat_tl FROM paketler WHERE anahtar = ${plan} AND aktif = true`;
     if (paketSonuc.length === 0) {
       return Response.json({ error: "Geçersiz plan" }, { status: 400 });
     }
-    const secilenPlan = { fiyat: Number(paketSonuc[0].fiyat_tl).toFixed(2), ad: `Karemux ${paketSonuc[0].ad}` };
+    const orijinalFiyat = Number(paketSonuc[0].fiyat_tl);
+    let indirimTutari = 0;
+    let uygulananKod = null;
+    if (indirimKodu) {
+      const kodTemiz = String(indirimKodu).trim().toUpperCase();
+      const kodSonuc = await sql`
+        SELECT id, yuzde, sabit_tutar, max_kullanim, kullanim_sayisi
+        FROM indirim_kodlari
+        WHERE kod = ${kodTemiz} AND aktif = true
+          AND (gecerlilik_baslangic IS NULL OR gecerlilik_baslangic <= now())
+          AND (gecerlilik_bitis IS NULL OR gecerlilik_bitis >= now())
+      `;
+      if (kodSonuc.length === 0) {
+        return Response.json({ error: "Geçersiz veya süresi dolmuş indirim kodu" }, { status: 400 });
+      }
+      const kod = kodSonuc[0];
+      if (kod.max_kullanim != null && kod.kullanim_sayisi >= kod.max_kullanim) {
+        return Response.json({ error: "Bu indirim kodu kullanım limitine ulaştı" }, { status: 400 });
+      }
+      if (kod.yuzde) {
+        indirimTutari = orijinalFiyat * (kod.yuzde / 100);
+      } else if (kod.sabit_tutar) {
+        indirimTutari = Number(kod.sabit_tutar);
+      }
+      indirimTutari = Math.min(indirimTutari, orijinalFiyat);
+      uygulananKod = { id: kod.id, kod: kodTemiz };
+    }
+    const finalFiyat = Math.max(orijinalFiyat - indirimTutari, 0);
+    const secilenPlan = { fiyat: finalFiyat.toFixed(2), ad: `Karemux ${paketSonuc[0].ad}` };
     if (!kullanici?.eposta || !kullanici?.ad || !kullanici?.adres) {
       return Response.json({ error: "Kullanıcı bilgileri eksik" }, { status: 400 });
     }
@@ -96,9 +124,12 @@ export async function POST(req) {
     // Bekleyen odeme kaydi - callback'te bu conversationId ile eslestirip
     // hangi kullaniciya hangi paketin verilecegini buluyoruz.
     await sql`
-      INSERT INTO odemeler (kullanici_id, tutar, para_birimi, durum, conversation_id, plan)
-      VALUES (${kullanici.id}, ${secilenPlan.fiyat}, 'TRY', 'beklemede', ${conversationId}, ${plan})
+      INSERT INTO odemeler (kullanici_id, tutar, para_birimi, durum, conversation_id, plan, indirim_kodu, indirim_tutari)
+      VALUES (${kullanici.id}, ${secilenPlan.fiyat}, 'TRY', 'beklemede', ${conversationId}, ${plan}, ${uygulananKod?.kod || null}, ${indirimTutari.toFixed(2)})
     `;
+    if (uygulananKod) {
+      await sql`UPDATE indirim_kodlari SET kullanim_sayisi = kullanim_sayisi + 1 WHERE id = ${uygulananKod.id}`;
+    }
 
     return Response.json({ checkoutFormContent: sonuc.checkoutFormContent, token: sonuc.token });
   } catch (e) {
