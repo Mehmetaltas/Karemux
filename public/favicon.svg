@@ -1,57 +1,19 @@
-<svg width="512" height="512" viewBox="0 0 512 512"
-     xmlns="http://www.w3.org/2000/svg">
-
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="kx" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#FF6B5E"/>
       <stop offset="100%" stop-color="#E8B339"/>
     </linearGradient>
   </defs>
-
-  <!-- Koyu marka zemini -->
   <rect width="512" height="512" rx="110" fill="#1F3D2E"/>
-
-  <!-- X -->
-  <path
-    d="M146 128
-       H206
-       L256 210
-       L356 128
-       H410
-       L286 250
-       L410 384
-       H356
-       L256 290
-       L206 384
-       H146
-       L226 250
-       Z"
-    fill="url(#kx)"
-  />
-
-  <!-- Kep -->
-  <path
-    d="M126 100
-       L266 42
-       L406 100
-       L266 158
-       Z"
-    fill="#E8B339"
-  />
-
-  <!-- Kep püskülü -->
-  <circle cx="406" cy="100" r="14" fill="#FF6B5E"/>
-
-  <!-- Kep alt çizgisi -->
-  <path
-    d="M174 118
-       V154
-       C174 178 218 196 266 196
-       C314 196 358 178 358 154
-       V118"
-    fill="none"
-    stroke="#E8B339"
-    stroke-width="10"
-    stroke-linecap="round"
-  />
+  <path d="M256 268 C256 224 184 202 118 214 V368 C184 356 256 378 256 420
+           C256 378 328 356 394 368 V214 C328 202 256 224 256 268 Z"
+        fill="url(#kx)"/>
+  <line x1="256" y1="268" x2="256" y2="420" stroke="#1F3D2E" stroke-width="7"/>
+  <path d="M148 240 Q195 232 240 250" stroke="#1F3D2E" stroke-width="4" fill="none" opacity="0.35" stroke-linecap="round"/>
+  <path d="M148 280 Q195 270 240 290" stroke="#1F3D2E" stroke-width="4" fill="none" opacity="0.35" stroke-linecap="round"/>
+  <path d="M132 96 L266 40 L400 96 L266 152 Z" fill="#E8B339"/>
+  <circle cx="400" cy="96" r="14" fill="#FF6B5E"/>
+  <path d="M180 114 V148 C180 172 220 190 266 190 C312 190 352 172 352 148 V114"
+        fill="none" stroke="#E8B339" stroke-width="10" stroke-linecap="round"/>
 </svg>
