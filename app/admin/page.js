@@ -409,6 +409,8 @@ export default function YonetimPaneli() {
   const [kurumKaydediliyor, setKurumKaydediliyor] = useState(null);
   const [indirimKodlariVeri, setIndirimKodlariVeri] = useState(null);
   const [mufredatVeri, setMufredatVeri] = useState(null);
+  const [iadeVeri, setIadeVeri] = useState(null);
+  const [iadeIslemDurumu, setIadeIslemDurumu] = useState(null);
   const [ikKod, setIkKod] = useState("");
   const [ikAciklama, setIkAciklama] = useState("");
   const [ikYuzde, setIkYuzde] = useState("");
@@ -624,6 +626,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "kurumlar") { if (!kurumlarVeri) kurumlariGetir(); if (!ucretliDenemelerVeri) ucretliDenemeleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "indirimkodlari" && !indirimKodlariVeri) indirimKodlariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
@@ -637,6 +640,27 @@ export default function YonetimPaneli() {
       const data = await res.json();
       if (res.ok) setKurumlarVeri(data.kurumlar);
     } catch {}
+  }
+
+  async function iadeleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/iade-talepleri?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setIadeVeri(data.talepler);
+    } catch {}
+  }
+
+  async function iadeKararVer(id, durum) {
+    setIadeIslemDurumu(id);
+    try {
+      const res = await fetch("/api/admin/iade-talepleri", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, id, durum }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      iadeleriGetir();
+    } catch (e) { setHata(e.message); } finally { setIadeIslemDurumu(null); }
   }
 
   async function mufredatGetir() {
@@ -874,6 +898,7 @@ export default function YonetimPaneli() {
     ["ik", "🗂️ Personel Yönetimi"],
     ["indirimkodlari", "🏷️ İndirim Kodları"],
     ["mufredat", "📚 Müfredat"],
+    ["iadeler", "🛡️ İade Talepleri"],
   ];
 
   return (
@@ -1289,6 +1314,27 @@ export default function YonetimPaneli() {
             </>
           );
         })()}
+
+        {sekme === "iadeler" && (
+          <Panel baslik="İade Talepleri (İlk Hafta Garantisi)" ikon="🛡️">
+            {!iadeVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : iadeVeri.length === 0 ? (
+              <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz iade talebi yok.</p>
+            ) : iadeVeri.map((t) => (
+              <div key={t.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{t.ad || "?"} <span style={{ color: T.textMuted, fontWeight: 400 }}>({t.eposta})</span></p>
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{t.paket} · {t.tutar_tl}₺ · {new Date(t.talep_tarihi).toLocaleDateString("tr-TR")}</p>
+                {t.sebep && <p style={{ fontSize: TYPO.caption, fontStyle: "italic", marginTop: 4 }}>"{t.sebep}"</p>}
+                <p style={{ fontSize: TYPO.micro, marginTop: 6, color: t.durum === "beklemede" ? T.mustard : t.durum === "onaylandi" ? T.accent : T.danger }}>Durum: {t.durum}</p>
+                {t.durum === "beklemede" && (
+                  <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                    <button onClick={() => iadeKararVer(t.id, "onaylandi")} disabled={iadeIslemDurumu === t.id} style={{ ...butonStil(true), padding: "6px 12px", fontSize: TYPO.caption }}>Onayla</button>
+                    <button onClick={() => iadeKararVer(t.id, "reddedildi")} disabled={iadeIslemDurumu === t.id} style={{ ...butonStil(true, T.danger), padding: "6px 12px", fontSize: TYPO.caption }}>Reddet</button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </Panel>
+        )}
 
         {sekme === "mufredat" && (
           <>

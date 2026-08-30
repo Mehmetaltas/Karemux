@@ -207,8 +207,9 @@ export default function Tanitim() {
           </div>
           <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
             <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Soru Çözüm Saati</p>
-            <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Haftada 1 gün, 1 saat<br/>Ayda 4 ders</p>
+            <p style={{ fontSize: 11, color: C.inkSoft, marginBottom: 10 }}>Canlı öğretmenli, küçük grup<br/>Haftada 1 gün, ayda 4 ders</p>
             <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>610₺/ay</p>
+            <p style={{ fontSize: 9.5, color: C.inkSoft, marginTop: 6 }}>AI ile sınırsız soru çözümü Premium'da zaten dahil (417₺/ay'dan) — bu, gerçek öğretmenle canlı grup deneyimi</p>
           </div>
           <div style={{ flex: "1 1 200px", maxWidth: 230, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 20, textAlign: "center" }}>
             <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Grup Rehberliği</p>
@@ -224,6 +225,10 @@ export default function Tanitim() {
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
           Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce.
         </p>
+        <div style={{ maxWidth: 480, margin: "20px auto 0", background: C.grid ? "#F5F3ED" : "#F5F3ED", borderRadius: 10, padding: "14px 18px", textAlign: "center" }}>
+          <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>🛡️ İlk Hafta Memnuniyet Garantisi</p>
+          <p style={{ fontSize: 10.5, color: C.inkSoft }}>Aylık paketlerde (Grup Dersi, Soru Çözüm, Rehberlik/Koçluk) ilk kez satın alan yeni öğrenciler, ilk 7 gün içinde memnun kalmazsa ücretini iade alır.</p>
+        </div>
       </div>
 
       {/* ==== KAPANIS CTA ==== */}
