@@ -410,6 +410,8 @@ export default function YonetimPaneli() {
   const [indirimKodlariVeri, setIndirimKodlariVeri] = useState(null);
   const [mufredatVeri, setMufredatVeri] = useState(null);
   const [iadeVeri, setIadeVeri] = useState(null);
+  const [ikizVeri, setIkizVeri] = useState(null);
+  const [ikizOneriIslemDurumu, setIkizOneriIslemDurumu] = useState(null);
   const [iadeIslemDurumu, setIadeIslemDurumu] = useState(null);
   const [ikKod, setIkKod] = useState("");
   const [ikAciklama, setIkAciklama] = useState("");
@@ -627,6 +629,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "indirimkodlari" && !indirimKodlariVeri) indirimKodlariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
@@ -640,6 +643,27 @@ export default function YonetimPaneli() {
       const data = await res.json();
       if (res.ok) setKurumlarVeri(data.kurumlar);
     } catch {}
+  }
+
+  async function ikizGetir() {
+    try {
+      const res = await fetch(`/api/admin/sistem-ikizi?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setIkizVeri(data);
+    } catch {}
+  }
+
+  async function ikizOneriKararVer(id, durum) {
+    setIkizOneriIslemDurumu(id);
+    try {
+      const res = await fetch("/api/admin/sistem-ikizi", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, id, durum }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      ikizGetir();
+    } catch (e) { setHata(e.message); } finally { setIkizOneriIslemDurumu(null); }
   }
 
   async function iadeleriGetir() {
@@ -899,6 +923,7 @@ export default function YonetimPaneli() {
     ["indirimkodlari", "🏷️ İndirim Kodları"],
     ["mufredat", "📚 Müfredat"],
     ["iadeler", "🛡️ İade Talepleri"],
+    ["ikiz", "🐋 Sistem İkizi"],
   ];
 
   return (
@@ -1314,6 +1339,53 @@ export default function YonetimPaneli() {
             </>
           );
         })()}
+
+        {sekme === "ikiz" && (
+          <>
+            <Panel baslik="Bekleyen Strateji Önerileri" ikon="🎯">
+              {!ikizVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
+                (ikizVeri.oneriler || []).filter((o) => o.durum === "oneriliyor").length === 0 ? (
+                  <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Bekleyen öneri yok.</p>
+                ) : ikizVeri.oneriler.filter((o) => o.durum === "oneriliyor").map((o) => (
+                  <div key={o.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10, borderLeft: `3px solid ${o.oncelik === "yuksek" ? T.danger : o.oncelik === "orta" ? T.mustard : T.textMuted}` }}>
+                    <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{o.baslik} <span style={{ fontSize: TYPO.micro, color: T.textMuted, fontWeight: 400 }}>({o.oncelik})</span></p>
+                    <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginTop: 4 }}>{o.aciklama}</p>
+                    {o.dayanak && <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 4, fontStyle: "italic" }}>Dayanak: {o.dayanak}</p>}
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <button onClick={() => ikizOneriKararVer(o.id, "onaylandi")} disabled={ikizOneriIslemDurumu === o.id} style={{ ...butonStil(true), padding: "6px 12px", fontSize: TYPO.caption }}>Onayla</button>
+                      <button onClick={() => ikizOneriKararVer(o.id, "reddedildi")} disabled={ikizOneriIslemDurumu === o.id} style={{ ...butonStil(true, T.danger), padding: "6px 12px", fontSize: TYPO.caption }}>Reddet</button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </Panel>
+
+            {ikizVeri?.boyutlar?.map((b) => {
+              const buBoyutunDegiskenleri = (ikizVeri.degiskenler || []).filter((d) => d.boyut_id === b.id);
+              if (buBoyutunDegiskenleri.length === 0) return null;
+              return (
+                <Panel key={b.id} baslik={b.ad} ikon="📊">
+                  {buBoyutunDegiskenleri.map((d, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                      <span style={{ color: T.textMuted }}>{d.ad}</span>
+                      <span style={{ fontFamily: T.mono, fontWeight: 700, color: d.guncel_deger == null ? T.danger : T.text }}>
+                        {d.guncel_deger == null ? "DOĞRULANMADI" : `${d.guncel_deger} ${d.birim || ""}`}
+                      </span>
+                    </div>
+                  ))}
+                </Panel>
+              );
+            })}
+
+            <Panel baslik="Motor Formülleri (Katman 3)" ikon="🧮">
+              {(ikizVeri?.iliskiler || []).map((r, i) => (
+                <p key={i} style={{ fontSize: TYPO.caption, color: T.textMuted, padding: "4px 0", borderBottom: `1px solid ${T.border}` }}>
+                  <strong>{r.ad}:</strong> {r.formul_aciklama}
+                </p>
+              ))}
+            </Panel>
+          </>
+        )}
 
         {sekme === "iadeler" && (
           <Panel baslik="İade Talepleri (İlk Hafta Garantisi)" ikon="🛡️">

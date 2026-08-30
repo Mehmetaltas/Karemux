@@ -31,6 +31,10 @@
     {
       "path": "/api/cron/paket-deneme-otomatik",
       "schedule": "0 7 * * 1"
+    },
+    {
+      "path": "/api/cron/ikiz-guncelle",
+      "schedule": "0 5 * * *"
     }
   ]
 }
