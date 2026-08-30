@@ -54,6 +54,13 @@ export async function GET(req) {
 
   // Aktif Kamp/Grup Dersi/Soru Cozum/Rehberlik oturumlarina kayitli
   // (odenmis) ogrencilerin sinif+il kombinasyonlarini bul.
+  // ONEMLI (30 Agustos duzeltmesi): oturumun HALA AKTIF olup olmadigini
+  // kontrol ediyoruz - eskiden "odendi=true" tek basina yeterliydi, bu da
+  // 6 ay once Kampa katilmis bir ogrenciyi SONSUZA KADAR aktif katilimci
+  // sayiyordu (surekli buyuyen, gercek karsiligi olmayan maliyet riski).
+  // Bir oturumun tahmini bitis tarihi: baslangic + (oturum_sayisi-1) *
+  // oturum_araligi_gun gun + 14 gunluk tampon (kampanya sonrasi kisa sure
+  // daha faydalanabilsin diye).
   const kombinasyonlar = await sql`
     SELECT DISTINCT k.sinif, k.il
     FROM canli_ders_katilimcilari kat
@@ -61,14 +68,19 @@ export async function GET(req) {
     JOIN kullanicilar k ON k.id = kat.ogrenci_id
     WHERE kat.odendi = true AND o.tur IN ('grup', 'kamp', 'soru_cozum', 'rehberlik')
       AND k.sinif IS NOT NULL AND k.il IS NOT NULL AND k.il != ''
+      AND (o.baslangic_zamani + ((GREATEST(o.oturum_sayisi, 1) - 1) * o.oturum_araligi_gun || ' days')::interval + interval '14 days') >= now()
   `;
 
-  // Kocluk (birebir, randevu tablosunda) ogrencilerini de ekle.
+  // Koclur (birebir), artik Randevu sisteminde: brans = 'Rehberlik' olan
+  // ogretmenlerle yapilan, son 35 gun icindeki randevular.
   const kocKombinasyonlari = await sql`
     SELECT DISTINCT k.sinif, k.il
     FROM randevular r
     JOIN kullanicilar k ON k.id = r.ogrenci_id
-    WHERE r.odendi = true AND k.sinif IS NOT NULL AND k.il IS NOT NULL AND k.il != ''
+    JOIN ogretmenler og ON og.id = r.ogretmen_id
+    WHERE r.odendi = true AND og.brans = 'Rehberlik'
+      AND k.sinif IS NOT NULL AND k.il IS NOT NULL AND k.il != ''
+      AND r.baslangic_zamani >= now() - interval '35 days'
   `;
 
   const tumKombinasyonlar = [...kombinasyonlar, ...kocKombinasyonlari]

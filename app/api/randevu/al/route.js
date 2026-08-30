@@ -1,5 +1,10 @@
 import { sql } from "@/lib/db";
 import { ozelDersFiyatiHesapla } from "@/lib/fiyatlandirma";
+
+// Paket Denemesi destek maliyeti (30 Agustos): SADECE Rehberlik/Koclur
+// (brans === "Rehberlik") randevularina uygulanir - Ozel Ders (diger
+// branslar) bu hizmetin kapsaminda degil, fiyati degismez.
+const DENEME_DESTEGI_TL = 10;
 import { kullaniciIdCoz } from "@/lib/kullanici";
 
 // GET ?cihazId=X: mevcut kullanicinin yaklasan randevularini dondurur.
@@ -38,7 +43,7 @@ export async function POST(req) {
 
     const gecerliSure = [30, 45, 60].includes(Number(sureDk)) ? Number(sureDk) : 60;
 
-    const ogretmen = await sql`SELECT ad, saatlik_ucret_tl FROM ogretmenler WHERE id = ${ogretmenId} AND aktif = true`;
+    const ogretmen = await sql`SELECT ad, brans, saatlik_ucret_tl FROM ogretmenler WHERE id = ${ogretmenId} AND aktif = true`;
     if (ogretmen.length === 0) return Response.json({ error: "Ogretmen bulunamadi" }, { status: 404 });
 
     const baslangic = new Date(baslangicISO);
@@ -55,7 +60,8 @@ export async function POST(req) {
     // gosterilen NIHAI fiyat (kar marji + gizli giderler DAHIL, tek fiyat -
     // 26 Agustos'ta degisen is modeline gore, bkz lib/fiyatlandirma.js).
     const ogretmenPayiTl = Math.round(((Number(ogretmen[0].saatlik_ucret_tl) || 0) * gecerliSure / 60) * 100) / 100;
-    const ucretTl = ozelDersFiyatiHesapla(ogretmenPayiTl);
+    const kocMu = ogretmen[0].brans === "Rehberlik";
+    const ucretTl = ozelDersFiyatiHesapla(ogretmenPayiTl) + (kocMu ? DENEME_DESTEGI_TL : 0);
     const odaId = `karemux-ders-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const jitsiLink = `https://meet.jit.si/${odaId}`;
 
