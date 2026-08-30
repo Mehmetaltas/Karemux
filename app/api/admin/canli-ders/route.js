@@ -10,17 +10,25 @@ import { topluDersFiyatiHesapla, ozelDersFiyatiHesapla } from "@/lib/fiyatlandir
 // - Ogrenciye gosterilen fiyat = kisi basi ogretmen payi + kar marji + gizli
 //   giderler (taksit komisyonu/banka - TAHMINI, mali musavir onayina acik),
 //   tek toplam fiyat gosterilir.
+// Paket Denemesi destek maliyeti (30 Agustos): Kamp/Grup/Soru Cozum/Rehberlik/
+// Kocluk katilimcilarina ayda 2 kez il bazli tam deneme (5 ders) acan cron'un
+// (paket-deneme-otomatik) ortalama TL maliyeti, paket fiyatlarina sabit bir
+// ek olarak yansitilir - gercek formul: simulasyon panelindekiyle AYNI
+// sabitler (19 Agustos arastirmasi). Kucuk, sabit bir tutar oldugu icin
+// (~10 TL/ay) her paket turune esit ekleniyor, sade kalsin diye.
+const DENEME_DESTEGI_TL = 10;
+
 function fiyatHesapla(saatlikUcret, sureDk, oturumSayisi, maxKapasite, tur) {
   const ogretmenPayiToplam = Math.round((Number(saatlikUcret) * (sureDk / 60) * oturumSayisi) * 100) / 100;
   // "kocluk" (birebir rehberlik/koçluk) - risk yok, gizli gider katmani yok,
   // ozelDersFiyatiHesapla kullanilir (26 Agustos'taki 1-1 formulu).
   if (tur === "kocluk") {
-    const fiyatTl = Math.round(ozelDersFiyatiHesapla(ogretmenPayiToplam) / 5) * 5;
+    const fiyatTl = Math.round((ozelDersFiyatiHesapla(ogretmenPayiToplam) + DENEME_DESTEGI_TL) / 5) * 5;
     return { ogretmenPayiToplam, fiyatTl };
   }
   // "rehberlik" (grup) dahil digerleri - toplu ders formulu (kapasite riski var).
   const ogrenciPayiHam = ogretmenPayiToplam / maxKapasite;
-  const fiyatTl = Math.round(topluDersFiyatiHesapla(ogrenciPayiHam) / 5) * 5;
+  const fiyatTl = Math.round((topluDersFiyatiHesapla(ogrenciPayiHam) + DENEME_DESTEGI_TL) / 5) * 5;
   return { ogretmenPayiToplam, fiyatTl };
 }
 
