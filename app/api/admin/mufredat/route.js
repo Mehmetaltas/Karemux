@@ -43,6 +43,9 @@ export async function GET(req) {
     SELECT kaynak_turu,
       COUNT(*)::int AS toplam,
       COUNT(*) FILTER (WHERE zorluk IS NOT NULL)::int AS zorluk_etiketli,
+      COUNT(*) FILTER (WHERE zorluk = 'kolay')::int AS kolay,
+      COUNT(*) FILTER (WHERE zorluk = 'orta')::int AS orta,
+      COUNT(*) FILTER (WHERE zorluk = 'zor')::int AS zor,
       COUNT(DISTINCT sinif)::int AS sinif_sayisi,
       COUNT(DISTINCT ders)::int AS ders_sayisi
     FROM soru_bankasi

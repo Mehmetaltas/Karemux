@@ -1384,7 +1384,9 @@ export default function YonetimPaneli() {
                     <tr style={{ borderBottom: `1px solid ${T.border}` }}>
                       <th style={{ textAlign: "left", padding: "6px 4px" }}>Kaynak Türü</th>
                       <th style={{ textAlign: "right", padding: "6px 4px" }}>Toplam</th>
-                      <th style={{ textAlign: "right", padding: "6px 4px", color: T.accent }}>Zorluk Etiketli</th>
+                      <th style={{ textAlign: "right", padding: "6px 4px", color: "#4CAF50" }}>Kolay</th>
+                      <th style={{ textAlign: "right", padding: "6px 4px", color: T.mustard }}>Orta</th>
+                      <th style={{ textAlign: "right", padding: "6px 4px", color: T.danger }}>Zor</th>
                       <th style={{ textAlign: "right", padding: "6px 4px" }}>Sınıf</th>
                       <th style={{ textAlign: "right", padding: "6px 4px" }}>Ders</th>
                     </tr>
@@ -1394,7 +1396,9 @@ export default function YonetimPaneli() {
                       <tr key={i} style={{ borderBottom: `1px solid ${T.border}` }}>
                         <td style={{ padding: "6px 4px", fontWeight: 700 }}>{r.kaynak_turu || "(etiketsiz)"}</td>
                         <td style={{ padding: "6px 4px", textAlign: "right" }}>{r.toplam}</td>
-                        <td style={{ padding: "6px 4px", textAlign: "right", color: r.zorluk_etiketli === r.toplam ? T.accent : T.danger }}>{r.zorluk_etiketli}/{r.toplam}</td>
+                        <td style={{ padding: "6px 4px", textAlign: "right", color: "#4CAF50" }}>{r.kolay}</td>
+                        <td style={{ padding: "6px 4px", textAlign: "right", color: T.mustard }}>{r.orta}</td>
+                        <td style={{ padding: "6px 4px", textAlign: "right", color: T.danger }}>{r.zor}</td>
                         <td style={{ padding: "6px 4px", textAlign: "right" }}>{r.sinif_sayisi}</td>
                         <td style={{ padding: "6px 4px", textAlign: "right" }}>{r.ders_sayisi}</td>
                       </tr>
