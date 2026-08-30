@@ -1330,6 +1330,33 @@ export default function YonetimPaneli() {
                 ))}
               </Panel>
             )}
+
+            {mufredatVeri?.soruBankasiOzet?.length > 0 && (
+              <Panel baslik="Soru Bankası — İçerik Türü Envanteri" ikon="🗂️">
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: TYPO.caption }}>
+                  <thead>
+                    <tr style={{ borderBottom: `1px solid ${T.border}` }}>
+                      <th style={{ textAlign: "left", padding: "6px 4px" }}>Kaynak Türü</th>
+                      <th style={{ textAlign: "right", padding: "6px 4px" }}>Toplam</th>
+                      <th style={{ textAlign: "right", padding: "6px 4px", color: T.accent }}>Zorluk Etiketli</th>
+                      <th style={{ textAlign: "right", padding: "6px 4px" }}>Sınıf</th>
+                      <th style={{ textAlign: "right", padding: "6px 4px" }}>Ders</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {mufredatVeri.soruBankasiOzet.map((r, i) => (
+                      <tr key={i} style={{ borderBottom: `1px solid ${T.border}` }}>
+                        <td style={{ padding: "6px 4px", fontWeight: 700 }}>{r.kaynak_turu || "(etiketsiz)"}</td>
+                        <td style={{ padding: "6px 4px", textAlign: "right" }}>{r.toplam}</td>
+                        <td style={{ padding: "6px 4px", textAlign: "right", color: r.zorluk_etiketli === r.toplam ? T.accent : T.danger }}>{r.zorluk_etiketli}/{r.toplam}</td>
+                        <td style={{ padding: "6px 4px", textAlign: "right" }}>{r.sinif_sayisi}</td>
+                        <td style={{ padding: "6px 4px", textAlign: "right" }}>{r.ders_sayisi}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Panel>
+            )}
           </>
         )}
 

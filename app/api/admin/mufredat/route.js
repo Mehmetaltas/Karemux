@@ -37,5 +37,18 @@ export async function GET(req) {
     ORDER BY sinif, ders, unite
   `;
 
-  return Response.json({ ozet, eksikDetay });
+  // Soru bankasi envanteri - hangi icerik turunden (kaynak_turu) kac soru var,
+  // zorluk etiketi doldurulmus mu (30 Agustos'tan itibaren dolduruluyor).
+  const soruBankasiOzet = await sql`
+    SELECT kaynak_turu,
+      COUNT(*)::int AS toplam,
+      COUNT(*) FILTER (WHERE zorluk IS NOT NULL)::int AS zorluk_etiketli,
+      COUNT(DISTINCT sinif)::int AS sinif_sayisi,
+      COUNT(DISTINCT ders)::int AS ders_sayisi
+    FROM soru_bankasi
+    GROUP BY kaynak_turu
+    ORDER BY toplam DESC
+  `;
+
+  return Response.json({ ozet, eksikDetay, soruBankasiOzet });
 }
