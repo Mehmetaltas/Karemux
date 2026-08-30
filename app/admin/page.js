@@ -408,6 +408,7 @@ export default function YonetimPaneli() {
   const [duzenlenenKurumMin, setDuzenlenenKurumMin] = useState({});
   const [kurumKaydediliyor, setKurumKaydediliyor] = useState(null);
   const [indirimKodlariVeri, setIndirimKodlariVeri] = useState(null);
+  const [mufredatVeri, setMufredatVeri] = useState(null);
   const [ikKod, setIkKod] = useState("");
   const [ikAciklama, setIkAciklama] = useState("");
   const [ikYuzde, setIkYuzde] = useState("");
@@ -622,6 +623,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kurumlar") { if (!kurumlarVeri) kurumlariGetir(); if (!ucretliDenemelerVeri) ucretliDenemeleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "indirimkodlari" && !indirimKodlariVeri) indirimKodlariGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
@@ -634,6 +636,14 @@ export default function YonetimPaneli() {
       const res = await fetch(`/api/admin/kurum?sifre=${encodeURIComponent(sifre)}`);
       const data = await res.json();
       if (res.ok) setKurumlarVeri(data.kurumlar);
+    } catch {}
+  }
+
+  async function mufredatGetir() {
+    try {
+      const res = await fetch(`/api/admin/mufredat?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setMufredatVeri(data);
     } catch {}
   }
 
@@ -863,6 +873,7 @@ export default function YonetimPaneli() {
     ["kariyer", "🧑‍💼 Kariyer Havuzu"],
     ["ik", "🗂️ Personel Yönetimi"],
     ["indirimkodlari", "🏷️ İndirim Kodları"],
+    ["mufredat", "📚 Müfredat"],
   ];
 
   return (
@@ -1278,6 +1289,49 @@ export default function YonetimPaneli() {
             </>
           );
         })()}
+
+        {sekme === "mufredat" && (
+          <>
+            <Panel baslik="Müfredat Kapsamı Özeti" ikon="📚">
+              {!mufredatVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
+                <>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: TYPO.caption }}>
+                    <thead>
+                      <tr style={{ borderBottom: `1px solid ${T.border}` }}>
+                        <th style={{ textAlign: "left", padding: "6px 4px" }}>Sınıf</th>
+                        <th style={{ textAlign: "left", padding: "6px 4px" }}>Ders</th>
+                        <th style={{ textAlign: "right", padding: "6px 4px" }}>Toplam</th>
+                        <th style={{ textAlign: "right", padding: "6px 4px", color: T.accent }}>Doğrulanmış</th>
+                        <th style={{ textAlign: "right", padding: "6px 4px", color: T.danger }}>Eksik</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {mufredatVeri.ozet.map((r, i) => (
+                        <tr key={i} style={{ borderBottom: `1px solid ${T.border}` }}>
+                          <td style={{ padding: "6px 4px" }}>{r.sinif}</td>
+                          <td style={{ padding: "6px 4px" }}>{r.ders}</td>
+                          <td style={{ padding: "6px 4px", textAlign: "right" }}>{r.toplam}</td>
+                          <td style={{ padding: "6px 4px", textAlign: "right", color: T.accent }}>{r.dogrulanmis}</td>
+                          <td style={{ padding: "6px 4px", textAlign: "right", color: r.eksik > 0 ? T.danger : T.textMuted }}>{r.eksik}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </>
+              )}
+            </Panel>
+
+            {mufredatVeri?.eksikDetay?.length > 0 && (
+              <Panel baslik={`Doldurulması Gereken Üniteler (${mufredatVeri.eksikDetay.length})`} ikon="⚠️">
+                {mufredatVeri.eksikDetay.map((e, i) => (
+                  <p key={i} style={{ fontSize: TYPO.caption, color: T.textMuted, padding: "4px 0", borderBottom: `1px solid ${T.border}` }}>
+                    {e.sinif}. Sınıf · {e.ders} · <strong>{e.unite}</strong>
+                  </p>
+                ))}
+              </Panel>
+            )}
+          </>
+        )}
 
         {sekme === "indirimkodlari" && (
           <>
