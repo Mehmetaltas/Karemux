@@ -309,16 +309,13 @@ export default function YonetimPaneli() {
     if (!eposta?.trim()) { setHata("E-posta gerekli"); return; }
     setHesapSifreDurumu(ogretmenId);
     try {
-      // Basit, hatirlanabilir bir gecici sifre uretiyoruz - ogretmen daha sonra
-      // isterse degistirebilir (bu ozellik henuz yok, ileride eklenmeli).
-      const gecici = "kx" + Math.random().toString(36).slice(2, 8);
       const res = await fetch("/api/admin/ogretmen-hesap", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sifre, ogretmenId, eposta: eposta.trim(), yeniSifre: gecici }),
+        body: JSON.stringify({ sifre, ogretmenId, eposta: eposta.trim() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      alert(`Hesap oluşturuldu.\n\nE-posta: ${eposta.trim()}\nGeçici şifre: ${gecici}\n\nBu bilgiyi öğretmene ilet.`);
+      alert(`Hesap oluşturuldu. Öğretmene şifre belirleme e-postası gönderildi: ${eposta.trim()}`);
       setHesapFormAcik(null);
     } catch (e) { setHata(e.message); } finally { setHesapSifreDurumu(null); }
   }
