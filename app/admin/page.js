@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -921,7 +922,7 @@ export default function YonetimPaneli() {
           </div>
           <input type="email" value={personelEposta} onChange={(e) => setPersonelEposta(e.target.value)}
             placeholder="Eposta" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} autoFocus />
-          <input type="password" value={personelSifre} onChange={(e) => setPersonelSifre(e.target.value)} onKeyDown={(e) => e.key === "Enter" && girisDene()}
+          <GosterGizleInput value={personelSifre} onChange={(e) => setPersonelSifre(e.target.value)} onKeyDown={(e) => e.key === "Enter" && girisDene()}
             placeholder="Şifre" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} />
           <button onClick={girisDene} disabled={yukleniyor || !personelEposta || !personelSifre} style={{ ...butonStil(!!(personelEposta && personelSifre)), width: "100%", padding: "12px 0", fontSize: TYPO.bodyStrong }}>
             {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap"}

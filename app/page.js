@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 
 const DUYURULAR = [
@@ -5058,7 +5059,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${COLORS.line}` }}>
                     <p style={{ fontSize: 12.5, color: COLORS.coral, fontWeight: 700, marginBottom: 6 }}>Bu islem geri alinamaz</p>
                     <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 10, lineHeight: 1.5 }}>Ogrenme gecmisin, sorularin, tum ilerlemen kalici olarak silinecek. Onaylamak icin sifreni gir.</p>
-                    <input type="password" value={hesapSilSifre} onChange={(e) => setHesapSilSifre(e.target.value)} placeholder="Sifren" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                    <GosterGizleInput value={hesapSilSifre} onChange={(e) => setHesapSilSifre(e.target.value)} placeholder="Sifren" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                     <div style={{ display: "flex", gap: 8 }}>
                       <button onClick={hesabimiSil} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Evet, Hesabimi Sil</button>
                       <button onClick={() => { setHesapSilAcik(false); setHesapSilSifre(""); setHesapSilMesaj(""); }} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>Vazgec</button>
@@ -5089,7 +5090,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </>
                 )}
                 <input value={epostaGir} onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
-                <input value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" type="password" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 10 }} />
+                <GosterGizleInput value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 10 }} />
                 {hesapHata && <p style={{ color: COLORS.coral, fontSize: 13, marginBottom: 8 }}>{hesapHata}</p>}
                 <button onClick={hesapGonder} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   {hesapModu === "giris" ? "Giris Yap" : "Hesap Olustur"}
@@ -5114,7 +5115,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     ) : (
                       <>
                         <input value={sifreUnutKod} onChange={(e) => setSifreUnutKod(e.target.value)} placeholder="6 haneli kod" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
-                        <input value={sifreUnutYeniSifre} onChange={(e) => setSifreUnutYeniSifre(e.target.value)} placeholder="Yeni sifre (en az 6 karakter)" type="password" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <GosterGizleInput value={sifreUnutYeniSifre} onChange={(e) => setSifreUnutYeniSifre(e.target.value)} placeholder="Yeni sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                         <button onClick={sifreSifirlamayiTamamla} disabled={sifreUnutYukleniyor || !sifreUnutKod || !sifreUnutYeniSifre} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                           {sifreUnutYukleniyor ? "Gonderiliyor..." : "Sifreyi Degistir"}
                         </button>
@@ -6049,7 +6050,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
                       <input type="email" value={kurumOlusturEposta} onChange={(e) => setKurumOlusturEposta(e.target.value)} placeholder="E-posta"
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
-                      <input type="password" value={kurumOlusturSifre} onChange={(e) => setKurumOlusturSifre(e.target.value)} placeholder="Şifre (en az 6 karakter)"
+                      <GosterGizleInput value={kurumOlusturSifre} onChange={(e) => setKurumOlusturSifre(e.target.value)} placeholder="Şifre (en az 6 karakter)"
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
                       <button className="kx-btn" onClick={kurumOlustur} disabled={kurumOlusturYukleniyor || !kurumOlusturAdi.trim() || !kurumOlusturEposta.trim() || kurumOlusturSifre.length < 6}
                         style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>

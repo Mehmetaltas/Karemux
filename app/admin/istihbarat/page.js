@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 
 export default function IstihbaratPaneli() {
   const [sifre, setSifre] = useState("");
@@ -32,7 +33,7 @@ export default function IstihbaratPaneli() {
 
       {!veri && (
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
-          <input type="password" value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Yönetici şifresi" style={{ flex: 1, padding: "10px 12px", borderRadius: 8, border: "1.5px solid #ccc" }} />
+          <GosterGizleInput value={sifre} onChange={(e) => setSifre(e.target.value)} placeholder="Yönetici şifresi" style={{ padding: "10px 12px", borderRadius: 8, border: "1.5px solid #ccc" }} />
           <button onClick={verileriGetir} disabled={yukleniyor} style={{ padding: "10px 20px", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
             {yukleniyor ? "..." : "Getir"}
           </button>

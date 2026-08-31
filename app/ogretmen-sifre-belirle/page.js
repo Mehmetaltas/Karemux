@@ -1,6 +1,7 @@
 "use client";
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 
 const C = { yesil: "#1F3D2E", turuncu: "#FF6B5E", metin: "#2A2A2A", muted: "#8A8A8A" };
 
@@ -42,9 +43,9 @@ function SifreBelirleIcerik() {
           <p style={{ textAlign: "center", color: C.yesil, fontWeight: 600 }}>✓ Şifren belirlendi, giriş sayfasına yönlendiriliyorsun...</p>
         ) : (
           <>
-            <input type="password" placeholder="Yeni şifre" value={sifre} onChange={(e) => setSifre(e.target.value)}
+            <GosterGizleInput placeholder="Yeni şifre" value={sifre} onChange={(e) => setSifre(e.target.value)}
               style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 14, boxSizing: "border-box" }} />
-            <input type="password" placeholder="Şifreyi tekrar gir" value={sifreTekrar} onChange={(e) => setSifreTekrar(e.target.value)}
+            <GosterGizleInput placeholder="Şifreyi tekrar gir" value={sifreTekrar} onChange={(e) => setSifreTekrar(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && belirle()}
               style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 14, fontSize: 14, boxSizing: "border-box" }} />
             {hata && <p style={{ color: C.turuncu, fontSize: 12.5, marginBottom: 10 }}>{hata}</p>}
