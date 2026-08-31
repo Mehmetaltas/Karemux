@@ -25,7 +25,10 @@ const TUR_TANIMLARI = {
 
 export async function POST(req) {
   try {
-    const ogretmen = await ogretmenCoz(req);
+    // GECICI TEST KAPISI (31 Agustos) - is bitince KALDIRILACAK, kalici degil.
+    const testAnahtari = req.headers.get("x-gecici-test");
+    const testGecerliMi = testAnahtari && testAnahtari === process.env.GECICI_TEST_ANAHTARI;
+    const ogretmen = testGecerliMi ? { ad: "Test (Gecici)" } : await ogretmenCoz(req);
     if (!ogretmen) return Response.json({ error: "Oturum yok" }, { status: 401 });
 
     const { tur, sinif, ders, konu } = await req.json();
