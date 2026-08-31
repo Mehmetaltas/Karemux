@@ -82,6 +82,8 @@ export default function YonetimPaneli() {
   const [sifre, setSifre] = useState("");
   const [personelEposta, setPersonelEposta] = useState("");
   const [personelSifre, setPersonelSifre] = useState("");
+  const [unutumModuAdmin, setUnutumModuAdmin] = useState(false);
+  const [unutumMesajAdmin, setUnutumMesajAdmin] = useState("");
   const [personelAd, setPersonelAd] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [sekme, setSekme] = useState("genel");
@@ -475,6 +477,17 @@ export default function YonetimPaneli() {
   }
 
   function mesajTemizle() { setHata(""); setBasari(""); }
+
+  async function personelSifremiUnuttum() {
+    setUnutumMesajAdmin("Gönderiliyor...");
+    try {
+      await fetch("/api/personel/sifre-sifirlama-iste", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: personelEposta }),
+      });
+      setUnutumMesajAdmin("E-postan varsa, sıfırlama linki gönderildi. Gelen kutunu kontrol et.");
+    } catch { setUnutumMesajAdmin("Bir hata oluştu, tekrar dene."); }
+  }
 
   async function girisDene() {
     mesajTemizle();
@@ -928,6 +941,13 @@ export default function YonetimPaneli() {
             {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap"}
           </button>
           {hata && <p style={{ color: T.danger, fontSize: TYPO.body, marginTop: 12, textAlign: "center" }}>{hata}</p>}
+          <button onClick={() => setUnutumModuAdmin(!unutumModuAdmin)} style={{ display: "block", width: "100%", textAlign: "center", background: "none", border: "none", color: T.textMuted, fontSize: 12, marginTop: 12, cursor: "pointer", textDecoration: "underline" }}>Şifremi unuttum</button>
+          {unutumModuAdmin && (
+            <div style={{ marginTop: 8, textAlign: "center" }}>
+              <button onClick={personelSifremiUnuttum} disabled={!personelEposta} style={{ fontSize: 12, padding: "8px 14px", borderRadius: 6, border: `1px solid ${T.accent}`, background: "none", color: T.accent, cursor: "pointer" }}>E-postama sıfırlama linki gönder</button>
+              {unutumMesajAdmin && <p style={{ fontSize: 11.5, color: T.textMuted, marginTop: 6 }}>{unutumMesajAdmin}</p>}
+            </div>
+          )}
         </div>
       </div>
     );
