@@ -1184,6 +1184,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setGecenYilRaporu(null); setGecenYilTamamlandiMi(false); setGecenYilSorulari(null); setGecenYilGonderildi(false);
   }
 
+  async function teknikleriGetir(dersAdi) {
+    setTeknikPaneliAcik(true);
+    if (teknikler && teknikler.ders === dersAdi) return; // zaten yuklu
+    setTeknikYukleniyor(true);
+    try {
+      const res = await fetch(`/api/ogrenme-teknikleri?ders=${encodeURIComponent(dersAdi)}`);
+      const data = await res.json();
+      setTeknikler({ ders: dersAdi, liste: data.teknikler || [] });
+    } catch { setTeknikler({ ders: dersAdi, liste: [] }); }
+    finally { setTeknikYukleniyor(false); }
+  }
+
   async function oneriliUniteAnlat() {
     const dersAtCagri = secilenDers;
     const unite = dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers);
@@ -1491,6 +1503,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [denemeGonderildi, setDenemeGonderildi] = useState(false);
   const [aciklama, setAciklama] = useState("");
   const [acikKatman, setAcikKatman] = useState(null); // Katmanli Konu Anlatimi (31 Agustos) - akordiyonda hangi katman acik
+  const [teknikPaneliAcik, setTeknikPaneliAcik] = useState(false); // Ogrenme Teknikleri Kutuphanesi (31 Agustos)
+  const [teknikler, setTeknikler] = useState(null);
+  const [teknikYukleniyor, setTeknikYukleniyor] = useState(false);
   const [quiz, setQuiz] = useState(null);
   const [cevaplar, setCevaplar] = useState({});
   const [gonderildi, setGonderildi] = useState(false);
@@ -4013,7 +4028,32 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ 5 Soru Coz"}
                       </button>
                     </div>
+                    <button onClick={() => teknikleriGetir(secilenDers)} style={{ width: "100%", marginTop: 8, padding: "8px 0", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.15)", color: COLORS.page, fontWeight: 600, fontSize: 11.5, cursor: "pointer" }}>
+                      🧠 Bu dersi nasıl çalışmalıyım?
+                    </button>
                   </div>
+                  )}
+
+                  {teknikPaneliAcik && (
+                    <div style={{ background: "#FDFBF6", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 14 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                        <p style={{ fontSize: 14, fontWeight: 700 }}>🧠 {secilenDers} — Nasıl Çalışmalıyım?</p>
+                        <button onClick={() => setTeknikPaneliAcik(false)} style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: "#8A8A8A" }}>✕</button>
+                      </div>
+                      {teknikYukleniyor ? (
+                        <p style={{ fontSize: 12.5, color: "#8A8A8A" }}>Yükleniyor...</p>
+                      ) : (teknikler?.liste?.length > 0 ? (
+                        teknikler.liste.map((t, i) => (
+                          <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: i < teknikler.liste.length - 1 ? `1px solid ${COLORS.line}` : "none" }}>
+                            <p style={{ fontSize: 13, fontWeight: 700, color: COLORS.coral, marginBottom: 3 }}>{t.teknik_adi}</p>
+                            <p style={{ fontSize: 12.5, lineHeight: 1.6, color: "#2A2A2A", marginBottom: 4 }}>{t.aciklama}</p>
+                            <p style={{ fontSize: 12, lineHeight: 1.6, color: "#8A8A8A", fontStyle: "italic" }}>💡 {t.nasil_uygulanir}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p style={{ fontSize: 12.5, color: "#8A8A8A" }}>Bu ders için henüz teknik eklenmedi.</p>
+                      ))}
+                    </div>
                   )}
 
                   {aciklama && (() => {
