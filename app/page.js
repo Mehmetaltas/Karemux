@@ -596,6 +596,82 @@ function konuMetniBloklaraAyir(govde) {
   return bloklar;
 }
 
+// Katmanli Konu Anlatimi (31 Agustos): oneriliUniteAnlat'in yeni 6-baslikli
+// ciktisini katmanlara ayirir. SAF fonksiyon - baska hicbir akisi etkilemez.
+// Basliklar bulunamazsa null doner, JSX o zaman ESKI tek-blok gorunume
+// (konuMetniAyir+konuMetniBloklaraAyir) geri duser - capraz-akis riski YOK.
+const KATMAN_BASLIKLARI = ["HIZLI OGREN", "TEMEL ANLATIM", "DERIN ANLATIM", "PUF NOKTALARI", "SIK YAPILAN HATALAR", "YENI NESIL UYGULAMA"];
+const KATMAN_ANAHTAR = { "HIZLI OGREN": "hizliOgren", "TEMEL ANLATIM": "temelAnlatim", "DERIN ANLATIM": "derinAnlatim", "PUF NOKTALARI": "pufNoktalari", "SIK YAPILAN HATALAR": "sikHatalar", "YENI NESIL UYGULAMA": "yeniNesilUygulama" };
+
+function konuKatmanlaraAyir(metin) {
+  if (!metin) return null;
+  const upper = metin.toUpperCase().replace(/İ/g, "I").replace(/Ğ/g, "G").replace(/Ü/g, "U").replace(/Ş/g, "S").replace(/Ö/g, "O").replace(/Ç/g, "C");
+  const konumlar = [];
+  for (const baslik of KATMAN_BASLIKLARI) {
+    const idx = upper.indexOf(baslik);
+    if (idx !== -1) konumlar.push({ baslik, idx });
+  }
+  if (konumlar.length < 4) return null; // yetersiz baslik bulundu - eski format say
+  konumlar.sort((a, b) => a.idx - b.idx);
+  const katmanlar = {};
+  for (let i = 0; i < konumlar.length; i++) {
+    const baslangic = konumlar[i].idx + konumlar[i].baslik.length;
+    const bitis = i + 1 < konumlar.length ? konumlar[i + 1].idx : metin.length;
+    katmanlar[KATMAN_ANAHTAR[konumlar[i].baslik]] = metin.slice(baslangic, bitis).trim();
+  }
+  return katmanlar;
+}
+
+// Katmanli Konu Anlatimi akordiyonu (31 Agustos). katmanlar objesi
+// konuKatmanlaraAyir()'dan gelir - varsa bu bileseni goster, yoksa (null ise)
+// cagiran taraf eski tek-blok gorunume geri duser (JSX'te "if (katmanlar) return"
+// ile - bu bilesen ESKI kodu DEGISTIRMEZ, ona ek bir yeni yol acar).
+function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, sorulariGoster, sorularAcikMi, onMiniTestTikla }) {
+  const KATMANLAR_META = [
+    { anahtar: "hizliOgren", baslik: "⚡ Hızlı Öğren", altbaslik: "30 saniyede özet" },
+    { anahtar: "temelAnlatim", baslik: "📘 Temel Anlatım", altbaslik: "Ana kavramlar" },
+    { anahtar: "derinAnlatim", baslik: "🔍 Derin Anlatım", altbaslik: "Neden ve nasıl" },
+    { anahtar: "pufNoktalari", baslik: "💡 Püf Noktaları", altbaslik: "Sınavda zaman kazandır" },
+    { anahtar: "sikHatalar", baslik: "⚠️ Sık Yapılan Hatalar", altbaslik: "Dikkat et" },
+    { anahtar: "yeniNesilUygulama", baslik: "🎯 Yeni Nesil Uygulama", altbaslik: "Gerçek problemde kullan" },
+  ];
+  return (
+    <div style={{ marginBottom: 16 }}>
+      {KATMANLAR_META.map((k) => {
+        const acik = acikKatman === k.anahtar;
+        const icerik = katmanlar[k.anahtar];
+        if (!icerik) return null;
+        const maddeler = Array.isArray(icerik) ? icerik : icerik.split("\n").map((s) => s.replace(/^[-•*]\s*/, "").trim()).filter((s) => s.length > 2);
+        const listeMi = k.anahtar === "pufNoktalari" || k.anahtar === "sikHatalar";
+        return (
+          <div key={k.anahtar} style={{ background: "#FDFBF6", borderRadius: 12, border: "1px solid #E5DFD3", marginBottom: 8, overflow: "hidden" }}>
+            <button onClick={() => setAcikKatman(acik ? null : k.anahtar)} style={{ width: "100%", textAlign: "left", padding: "14px 16px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <p style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>{k.baslik}</p>
+                <p style={{ fontSize: 11, color: "#8A8A8A", margin: "2px 0 0" }}>{k.altbaslik}</p>
+              </div>
+              <span style={{ fontSize: 18, color: "#8A8A8A" }}>{acik ? "−" : "+"}</span>
+            </button>
+            {acik && (
+              <div style={{ padding: "0 16px 16px" }}>
+                {listeMi ? (
+                  maddeler.map((m, i) => <p key={i} style={{ fontSize: 13.5, lineHeight: 1.7, margin: "4px 0" }}>• {m}</p>)
+                ) : (
+                  <p style={{ fontSize: 13.5, lineHeight: 1.8, margin: 0 }}>{icerik}</p>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      <button onClick={onMiniTestTikla} style={{ width: "100%", textAlign: "left", padding: "14px 16px", background: "#FEF8E8", border: "1px solid #E8B339", borderRadius: 12, cursor: "pointer" }}>
+        <p style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>✏️ Mini Test</p>
+        <p style={{ fontSize: 11, color: "#8A8A8A", margin: "2px 0 0" }}>Hemen ölç, ne kadar öğrendin</p>
+      </button>
+    </div>
+  );
+}
+
 function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
   if (!sorular || sorular.length === 0) return;
   fetch("/api/soru-bankasi", {
@@ -1116,8 +1192,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik.length > 0)
         ? ` SADECE su alt basliklara odaklan: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarina girme.`
         : "";
-      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, piyasadaki en iyi LGS yayinlarindan daha derin ve daha kullanisli bir sekilde anlat.${temelUyarisi}${kapsamSiniri} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Su yapida yaz: (1) Once kisa bir GIRIS - konunun ne oldugu ve neden onemli oldugu. (2) Her ana kavram icin: TANIM, en az bir SOMUT ORNEK, varsa FORMUL/KURAL. (3) "HIZLI COZUM IPUCLARI" basligiyla, sinavda zaman kazandiran 2-3 pratik kisayol/teknik (piyasa yayinlarinin en degerli ozelligi budur, mutlaka ekle). (4) Eger konu birden fazla cozum yontemine uygunsa, "FARKLI COZUM YOLLARI" basligiyla ayni ornegi EN AZ IKI farkli yontemle coz (orn. cebirsel ve gorsel/sekilsel yontem gibi) - degilse bu basligi atla. (5) En sonda "DIKKAT EDILECEK NOKTALAR / SIK YAPILAN HATALAR" basligiyla 2-3 maddelik kisa liste. Toplamda 500-650 kelime olsun, yuzeysel gecme, gercekten ogretici ol. SADECE duz metin yaz: markdown (yildiz, dis) LaTeX kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
-      const cevap = await aiIstek(p, 4200, cihazIdRef.current, false, secilenDers);
+      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, piyasadaki en iyi LGS yayinlarindan daha derin ve daha kullanisli bir sekilde anlat.${temelUyarisi}${kapsamSiniri} ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Anlatimi ASAGIDAKI 6 BASLIK ALTINDA yaz - HER BASLIK BUYUK HARFLERLE, KENDI SATIRINDA, BASKA HICBIR KELIME OLMADAN yazilmali: HIZLI OGREN (2-3 cumlelik cok kisa ozet, ana fikri 30 saniyede yakalatir), TEMEL ANLATIM (konunun temel mantigi, ana kavramlar, TANIM+SOMUT ORNEK ile, 150-200 kelime), DERIN ANLATIM (konunun NEDEN ve NASIL calistigi, daha derin bakisla, birden fazla cozum yontemi varsa dahil et, 200-250 kelime), PUF NOKTALARI (sinavda zaman kazandiran 3-4 pratik kisayol/teknik, her biri "- " ile baslayan ayri satir), SIK YAPILAN HATALAR (ogrencilerin bu konuda sik yaptigi 3-4 hata, her biri "- " ile baslayan ayri satir), YENI NESIL UYGULAMA (bu bilgiyi gercek bir yeni nesil LGS tarzi problemde nasil kullanacagini gosteren somut bir ornek, 120-150 kelime). SADECE bu 6 baslik ve icerikleriyle yaz, baska hicbir aciklama/giris cumlesi ekleme, markdown kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
+      const cevap = await aiIstek(p, 5500, cihazIdRef.current, false, secilenDers);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = cevap
         .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
@@ -1408,6 +1484,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [denemeGonderildi, setDenemeGonderildi] = useState(false);
   const [aciklama, setAciklama] = useState("");
+  const [acikKatman, setAcikKatman] = useState(null); // Katmanli Konu Anlatimi (31 Agustos) - akordiyonda hangi katman acik
   const [quiz, setQuiz] = useState(null);
   const [cevaplar, setCevaplar] = useState({});
   const [gonderildi, setGonderildi] = useState(false);
@@ -3934,6 +4011,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   )}
 
                   {aciklama && (() => {
+                    const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
                     const bloklar = konuMetniBloklaraAyir(govde);
                     return (
@@ -4046,6 +4124,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </div>
 
                   {aciklama && (() => {
+                    const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
                     const bloklar = konuMetniBloklaraAyir(govde);
                     return (
@@ -6915,6 +6994,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
             {aciklama && (() => {
+              const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
               const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
               const bloklar = konuMetniBloklaraAyir(govde);
               return (
