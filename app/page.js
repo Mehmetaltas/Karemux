@@ -569,7 +569,7 @@ function soruJsonAyikla(temizMetin) {
 // hem de paragraf icinde HERHANGI BIR YERDE gecen etiketleri ayiklar.
 function konuMetniBloklaraAyir(govde) {
   if (!govde) return [];
-  const rezerveEtiket = "Tanim|Tanım|Ornek|Örnek|Kural|Giris|Giriş|Not";
+  const rezerveEtiket = "Tanim|Tanım|Ornek|Örnek|Kural|Giris|Giriş|Not|Soru|Cozum|Çözüm";
   const paragraflar = govde.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
   const bloklar = [];
   paragraflar.forEach((p) => {
@@ -653,11 +653,17 @@ function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, sorulariGoster,
               <span style={{ fontSize: 18, color: "#8A8A8A" }}>{acik ? "−" : "+"}</span>
             </button>
             {acik && (
-              <div style={{ padding: "0 16px 16px" }}>
+              <div style={{ padding: "0 16px 16px", fontFamily: "Georgia, 'Times New Roman', serif" }}>
                 {listeMi ? (
-                  maddeler.map((m, i) => <p key={i} style={{ fontSize: 13.5, lineHeight: 1.7, margin: "4px 0" }}>• {m}</p>)
+                  maddeler.map((m, i) => <p key={i} style={{ fontSize: 13.5, lineHeight: 1.7, margin: "4px 0", color: "#2A2A2A" }}>• {m}</p>)
                 ) : (
-                  <p style={{ fontSize: 13.5, lineHeight: 1.8, margin: 0 }}>{icerik}</p>
+                  konuMetniBloklaraAyir(icerik).map((b, i) => b.tur === "baslik" ? (
+                    <p key={i} style={{ fontSize: 14.5, fontWeight: 700, color: "#E8503F", marginTop: i === 0 ? 0 : 14, marginBottom: 6, borderBottom: "1px solid #E5DFD3", paddingBottom: 4 }}>{b.metin}</p>
+                  ) : b.tur === "etiketli" ? (
+                    <p key={i} style={{ fontSize: 13.5, lineHeight: 1.8, color: "#2A2A2A", margin: "0 0 10px" }}><span style={{ fontWeight: 700, color: "#E8B339", fontStyle: "italic" }}>{b.etiket}: </span>{b.metin}</p>
+                  ) : (
+                    <p key={i} style={{ fontSize: 13.5, lineHeight: 1.8, color: "#2A2A2A", margin: "0 0 10px" }}>{b.metin}</p>
+                  ))
                 )}
               </div>
             )}
