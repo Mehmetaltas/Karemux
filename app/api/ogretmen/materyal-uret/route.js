@@ -1,5 +1,7 @@
 import { aiCagir } from "@/lib/ai";
 import { ogretmenCoz } from "@/lib/ogretmen";
+import { personelAdminMi } from "@/lib/personel";
+import { sql } from "@/lib/db";
 
 // Ogretmen Materyal Ureticisi (31 Agustos) - "Metadata-Driven Icerik" fikrinin
 // gercek karsiligi: TEK esnek motor, 4 farkli cikti turunu (calisma_kagidi/
@@ -25,13 +27,16 @@ const TUR_TANIMLARI = {
 
 export async function POST(req) {
   try {
-    // GECICI TEST KAPISI (31 Agustos) - is bitince KALDIRILACAK, kalici degil.
-    const testAnahtari = req.headers.get("x-gecici-test");
-    const testGecerliMi = testAnahtari && testAnahtari === process.env.GECICI_TEST_ANAHTARI;
-    const ogretmen = testGecerliMi ? { ad: "Test (Gecici)" } : await ogretmenCoz(req);
+    const govde = await req.json();
+    // Ogretmen oturumu YETERLI. Admin de ADMIN SIFRESIYLE kalite kontrolu
+    // amaciyla ayni motoru kullanabilir (kalici, guvenli - diger admin
+    // uc noktalariyla ayni desen).
+    const ogretmenOturum = await ogretmenCoz(req);
+    const adminYetkili = govde.adminSifre === process.env.ULUSAL_DENEME_YONETICI_SIFRESI && (await personelAdminMi(req));
+    const ogretmen = ogretmenOturum || (adminYetkili ? { ad: "Admin (Kalite Kontrol)" } : null);
     if (!ogretmen) return Response.json({ error: "Oturum yok" }, { status: 401 });
 
-    const { tur, sinif, ders, konu } = await req.json();
+    const { tur, sinif, ders, konu } = govde;
     const tanim = TUR_TANIMLARI[tur];
     if (!tanim || !sinif || !ders || !konu?.trim()) return Response.json({ error: "Eksik veya gecersiz bilgi" }, { status: 400 });
 
@@ -46,6 +51,19 @@ export async function POST(req) {
     if (!veri.sorular || !Array.isArray(veri.sorular) || veri.sorular.length === 0) {
       return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
     }
+
+    // Uretilen sorular soru_bankasina kaydediliyor - hem gelecekte yeniden
+    // kullanilabilir (AI maliyeti tekrarlanmaz) hem de kaynak_turu ile
+    // net gruplanmis oluyor, digerleriyle karismiyor (ogretmen_ONEKI).
+    try {
+      for (const s of veri.sorular) {
+        if (!s.soru || !Array.isArray(s.secenekler) || s.dogruIndex == null) continue;
+        await sql`
+          INSERT INTO soru_bankasi (ders, sinif, unite, zorluk, soru, secenekler, dogru_index, kaynak_turu)
+          VALUES (${ders}, ${sinif}, ${konu.trim()}, ${s.zorluk || null}, ${s.soru}, ${JSON.stringify(s.secenekler)}, ${s.dogruIndex}, ${"ogretmen_" + tur})
+        `;
+      }
+    } catch (e) { console.error("Ogretmen materyali soru bankasina kaydedilemedi:", e); }
 
     return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
   } catch (e) {
