@@ -1,10 +1,10 @@
 "use client";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const C = { yesil: "#1F3D2E", turuncu: "#FF6B5E", metin: "#2A2A2A", muted: "#8A8A8A" };
 
-export default function SifreBelirle() {
+function SifreBelirleIcerik() {
   const [sifre, setSifre] = useState("");
   const [sifreTekrar, setSifreTekrar] = useState("");
   const [hata, setHata] = useState("");
@@ -56,5 +56,13 @@ export default function SifreBelirle() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function SifreBelirle() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.muted }}>Yükleniyor...</div>}>
+      <SifreBelirleIcerik />
+    </Suspense>
   );
 }
