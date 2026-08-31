@@ -237,6 +237,7 @@ export default function Tanitim() {
         <p style={{ fontSize: 13.5, color: C.inkSoft, marginBottom: 22 }}>Kayıt ücretsiz, kredi kartı gerekmez.</p>
         <a href="https://karemux-nu.vercel.app/" style={{ background: C.red, color: "#fff", padding: "14px 30px", borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Karemux'a Git →</a>
         <p style={{ marginTop: 28, fontSize: 11, color: C.inkSoft }}>Web · PC · Tablet · Mobil — tüm cihazlarda aynı hesapla çalışır.</p>
+        <p style={{ marginTop: 14, fontSize: 12 }}><a href="/ogretmen-giris" style={{ color: C.inkSoft, textDecoration: "underline" }}>Öğretmen misiniz? Buradan giriş yapın →</a></p>
       </div>
 
       {/* ==== FOOTER ==== */}
