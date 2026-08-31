@@ -6,12 +6,73 @@ const C = { yesil: "#1F3D2E", turuncu: "#FF6B5E", altin: "#E8B339", metin: "#2A2
 
 const MENU = [
   { kod: "ozet", ad: "📊 Genel Bakış", hazir: true },
-  { kod: "calisma-kagidi", ad: "📄 Çalışma Kağıdı Üret", hazir: false },
-  { kod: "soru-seti", ad: "✏️ Soru Seti Üret", hazir: false },
-  { kod: "yazili", ad: "🏫 Yazılı Üret (A/B)", hazir: false },
-  { kod: "fasikul", ad: "📖 Fasikül Üret", hazir: false },
+  { kod: "calisma-kagidi", ad: "📄 Çalışma Kağıdı Üret", hazir: true, tur: "calisma_kagidi" },
+  { kod: "soru-seti", ad: "✏️ Soru Seti Üret", hazir: true, tur: "soru_seti" },
+  { kod: "yazili", ad: "🏫 Yazılı Üret (A/B)", hazir: true, tur: "yazili" },
+  { kod: "fasikul", ad: "📖 Fasikül Üret", hazir: true, tur: "fasikul" },
   { kod: "ogrenme-teknikleri", ad: "🧠 Öğrenme Teknikleri", hazir: true },
 ];
+
+const MATERYAL_DERSLER = ["Matematik", "Turkce", "Fen Bilimleri", "Ingilizce", "Sosyal Bilgiler", "T.C. Inkilap Tarihi", "Din Kulturu"];
+
+function MateryalUreticisi({ tur, dersVarsayilan }) {
+  const [sinif, setSinif] = useState(8);
+  const [ders, setDers] = useState(dersVarsayilan || "Matematik");
+  const [konu, setKonu] = useState("");
+  const [yukleniyor, setYukleniyor] = useState(false);
+  const [sonuc, setSonuc] = useState(null);
+  const [hata, setHata] = useState("");
+
+  async function uret() {
+    if (!konu.trim()) { setHata("Konu gerekli"); return; }
+    setYukleniyor(true); setHata(""); setSonuc(null);
+    try {
+      const res = await fetch("/api/ogretmen/materyal-uret", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tur, sinif, ders, konu: konu.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSonuc(data.materyal);
+    } catch (e) { setHata(e.message); } finally { setYukleniyor(false); }
+  }
+
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+        <select value={sinif} onChange={(e) => setSinif(Number(e.target.value))} style={{ padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
+          {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
+        </select>
+        <select value={ders} onChange={(e) => setDers(e.target.value)} style={{ flex: 1, padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
+          {MATERYAL_DERSLER.map((d) => <option key={d} value={d}>{d}</option>)}
+        </select>
+      </div>
+      <input placeholder="Konu (örn: Üslü Sayılar)" value={konu} onChange={(e) => setKonu(e.target.value)}
+        style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }} />
+      {hata && <p style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
+      <button onClick={uret} disabled={yukleniyor || !konu.trim()} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 16 }}>
+        {yukleniyor ? "Üretiliyor... (~20 sn)" : "Üret"}
+      </button>
+
+      {sonuc && (
+        <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16 }}>
+          <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{sonuc.baslik}</p>
+          {sonuc.ozet && <p style={{ fontSize: 13, lineHeight: 1.6, color: "#555", marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid #eee" }}>{sonuc.ozet}</p>}
+          {sonuc.sorular.map((s, i) => (
+            <div key={i} style={{ marginBottom: 14 }}>
+              <p style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 6 }}>{i + 1}. {s.soru}</p>
+              {(s.secenekler || []).map((sec, j) => (
+                <p key={j} style={{ fontSize: 13, margin: "3px 0 3px 10px", fontWeight: j === s.dogruIndex ? 700 : 400, color: j === s.dogruIndex ? "#1F3D2E" : "#333" }}>
+                  {sec}{j === s.dogruIndex ? " ✓" : ""}
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function OgretmenPanel() {
   const [ogretmen, setOgretmen] = useState(null);
@@ -70,6 +131,9 @@ export default function OgretmenPanel() {
           </div>
         )}
         {sekme === "ogrenme-teknikleri" && <OgretmenTeknikGorunumu />}
+        {["calisma-kagidi", "soru-seti", "yazili", "fasikul"].includes(sekme) && (
+          <MateryalUreticisi tur={MENU.find((m) => m.kod === sekme)?.tur} dersVarsayilan={ogretmen.brans} />
+        )}
         {!MENU.find((m) => m.kod === sekme)?.hazir && sekme !== "ozet" && (
           <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E5DFD3", padding: 20, textAlign: "center" }}>
             <p style={{ fontSize: 14, color: C.muted }}>Bu araç yakında eklenecek.</p>
