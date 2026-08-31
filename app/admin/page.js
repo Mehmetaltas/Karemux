@@ -288,9 +288,40 @@ export default function YonetimPaneli() {
     } catch {}
   }
   const [ogretmenBasvurulari, setOgretmenBasvurulari] = useState(null);
+  const [ogretmenListesi, setOgretmenListesi] = useState(null);
+  const [hesapFormAcik, setHesapFormAcik] = useState(null); // hangi ogretmen icin form acik
+  const [hesapEposta, setHesapEposta] = useState({});
+  const [hesapSifreDurumu, setHesapSifreDurumu] = useState(null);
   const [cvLinkYukleniyor, setCvLinkYukleniyor] = useState(null);
   const [basvuruIslemDurumu, setBasvuruIslemDurumu] = useState(null);
   const [basvuruOnaySaatlikUcret, setBasvuruOnaySaatlikUcret] = useState({});
+
+  async function aktifOgretmenleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/ogretmen?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setOgretmenListesi(data.ogretmenler);
+    } catch {}
+  }
+
+  async function hesapOlustur(ogretmenId) {
+    const eposta = hesapEposta[ogretmenId];
+    if (!eposta?.trim()) { setHata("E-posta gerekli"); return; }
+    setHesapSifreDurumu(ogretmenId);
+    try {
+      // Basit, hatirlanabilir bir gecici sifre uretiyoruz - ogretmen daha sonra
+      // isterse degistirebilir (bu ozellik henuz yok, ileride eklenmeli).
+      const gecici = "kx" + Math.random().toString(36).slice(2, 8);
+      const res = await fetch("/api/admin/ogretmen-hesap", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, ogretmenId, eposta: eposta.trim(), yeniSifre: gecici }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert(`Hesap oluşturuldu.\n\nE-posta: ${eposta.trim()}\nGeçici şifre: ${gecici}\n\nBu bilgiyi öğretmene ilet.`);
+      setHesapFormAcik(null);
+    } catch (e) { setHata(e.message); } finally { setHesapSifreDurumu(null); }
+  }
 
   async function basvurulariGetir() {
     try {
@@ -633,6 +664,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenListesi) aktifOgretmenleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kariyer" && !kariyerBasvurulari) kariyerBasvurulariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ik") { if (!mesaiVeri) mesaiGetir(); if (!izinlerim) izinleriGetir(); if (!gorevlerim) gorevleriGetir(); if (!ikYonetimVeri) ikYonetimGetir(); } }, [girisYapildi, sekme]);
@@ -1773,6 +1805,31 @@ export default function YonetimPaneli() {
                 </div>
               ))
             )}
+          </Panel>
+        )}
+
+        {sekme === "ogretmen" && (
+          <Panel baslik="Öğretmen Hesapları (Materyal Aracı Girişi)" ikon="🔑">
+            {!ogretmenListesi ? (
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
+            ) : ogretmenListesi.length === 0 ? (
+              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Henüz onaylı öğretmen yok.</p>
+            ) : ogretmenListesi.map((o) => (
+              <div key={o.id} style={{ borderBottom: `1px solid ${T.border}`, padding: "10px 0" }}>
+                <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{o.ad} <span style={{ color: T.textMuted, fontWeight: 400 }}>· {o.brans}</span></p>
+                {hesapFormAcik === o.id ? (
+                  <div style={{ display: "flex", gap: 8, marginTop: 6, alignItems: "center" }}>
+                    <input type="email" placeholder="E-posta" value={hesapEposta[o.id] || ""} onChange={(e) => setHesapEposta((eski) => ({ ...eski, [o.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, flex: 1 }} />
+                    <button onClick={() => hesapOlustur(o.id)} disabled={hesapSifreDurumu === o.id} style={{ ...butonStil(true), padding: "9px 12px", fontSize: TYPO.caption }}>
+                      {hesapSifreDurumu === o.id ? "..." : "Oluştur"}
+                    </button>
+                    <button onClick={() => setHesapFormAcik(null)} style={{ ...butonStil(true, T.textMuted), padding: "9px 12px", fontSize: TYPO.caption }}>İptal</button>
+                  </div>
+                ) : (
+                  <button onClick={() => setHesapFormAcik(o.id)} style={{ ...butonStil(true), padding: "6px 12px", fontSize: TYPO.caption, marginTop: 6 }}>🔑 Öğretmen Girişi Hesabı Oluştur</button>
+                )}
+              </div>
+            ))}
           </Panel>
         )}
 
