@@ -272,7 +272,7 @@ export default function Tanitim() {
           {" · "}
           <a href="/kariyer" style={{ color: C.inkSoft, textDecoration: "underline" }}>Kariyer</a>
           {" · "}
-          info@karemux.com
+          <a href="mailto:info@karemux.com" style={{ color: C.inkSoft, textDecoration: "underline" }}>📧 info@karemux.com</a>
         </p>
         <p style={{ fontSize: 11.5, color: C.inkSoft, marginTop: 10 }}>
           <a href="https://www.youtube.com/@KAREMUXEGITIMSISTEMLERI" target="_blank" rel="noopener noreferrer" style={{ color: C.inkSoft, textDecoration: "underline" }}>YouTube</a>
