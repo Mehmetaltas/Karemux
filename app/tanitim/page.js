@@ -231,13 +231,36 @@ export default function Tanitim() {
         </div>
       </div>
 
+      {/* ==== OGRETMENLER ICIN ==== */}
+      <div style={{ padding: "44px 20px", background: "#1F3D2E", textAlign: "center" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5.5vw, 26px)", color: "#fff", marginBottom: 8 }}>Öğretmenler İçin</h2>
+        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.75)", marginBottom: 24, maxWidth: 480, marginLeft: "auto", marginRight: "auto" }}>
+          Karemux'un materyal üretim araçlarıyla saniyeler içinde çalışma kağıdı, soru seti, yazılı ve fasikül hazırlayın.
+        </p>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 12, justifyContent: "center", maxWidth: 520, margin: "0 auto 24px" }}>
+          {[
+            { ikon: "📄", ad: "Çalışma Kağıdı" },
+            { ikon: "✏️", ad: "Soru Seti" },
+            { ikon: "🏫", ad: "Yazılı (A/B)" },
+            { ikon: "📖", ad: "Fasikül" },
+            { ikon: "🧠", ad: "Öğrenme Teknikleri" },
+          ].map((ozellik) => (
+            <div key={ozellik.ad} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 16px", minWidth: 100 }}>
+              <p style={{ fontSize: 20, marginBottom: 4 }}>{ozellik.ikon}</p>
+              <p style={{ fontSize: 11.5, color: "#fff", fontWeight: 600 }}>{ozellik.ad}</p>
+            </div>
+          ))}
+        </div>
+        <a href="/ogretmen-giris" style={{ background: "#FF6B5E", color: "#fff", padding: "12px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14, textDecoration: "none", display: "inline-block" }}>Öğretmen Paneline Git →</a>
+        <p style={{ marginTop: 12, fontSize: 11, color: "rgba(255,255,255,0.6)" }}>Ücretsiz kaydol, admin onayından sonra kullanmaya başla.</p>
+      </div>
+
       {/* ==== KAPANIS CTA ==== */}
       <div style={{ padding: "48px 20px 60px", textAlign: "center" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(22px, 6vw, 30px)", marginBottom: 14 }}>Kalemini al, başla.</h2>
         <p style={{ fontSize: 13.5, color: C.inkSoft, marginBottom: 22 }}>Kayıt ücretsiz, kredi kartı gerekmez.</p>
         <a href="https://karemux-nu.vercel.app/" style={{ background: C.red, color: "#fff", padding: "14px 30px", borderRadius: 10, fontWeight: 700, fontSize: 15, textDecoration: "none", display: "inline-block" }}>Karemux'a Git →</a>
         <p style={{ marginTop: 28, fontSize: 11, color: C.inkSoft }}>Web · PC · Tablet · Mobil — tüm cihazlarda aynı hesapla çalışır.</p>
-        <p style={{ marginTop: 14, fontSize: 12 }}><a href="/ogretmen-giris" style={{ color: C.inkSoft, textDecoration: "underline" }}>Öğretmen misiniz? Buradan giriş yapın →</a></p>
       </div>
 
       {/* ==== FOOTER ==== */}
