@@ -62,12 +62,19 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
   const [sinif, setSinif] = useState(8);
   const [ders, setDers] = useState(dersVarsayilan || "Matematik");
   const [konu, setKonu] = useState("");
+  const [uniteler, setUniteler] = useState(null);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [sonuc, setSonuc] = useState(null);
   const [bKitapcik, setBKitapcik] = useState(null);
   const [hata, setHata] = useState("");
   const [cevapGoster, setCevapGoster] = useState(true);
   const [aktifGorunum, setAktifGorunum] = useState("A"); // "A" | "B"
+
+  useEffect(() => {
+    setKonu(""); setUniteler(null);
+    fetch(`/api/ogretmen/uniteler?sinif=${sinif}&ders=${encodeURIComponent(ders)}`)
+      .then((r) => r.json()).then((d) => setUniteler(d.uniteler || []));
+  }, [sinif, ders]);
 
   async function uret() {
     if (!konu.trim()) { setHata("Konu gerekli"); return; }
@@ -100,8 +107,21 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
           {MATERYAL_DERSLER.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
       </div>
-      <input placeholder="Konu (örn: Üslü Sayılar)" value={konu} onChange={(e) => setKonu(e.target.value)}
-        style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }} />
+      {uniteler === null ? (
+        <p style={{ fontSize: 12.5, color: "#999", marginBottom: 10 }}>Üniteler yükleniyor...</p>
+      ) : uniteler.length > 0 ? (
+        <select value={konu} onChange={(e) => setKonu(e.target.value)}
+          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }}>
+          <option value="">Ünite seç...</option>
+          {uniteler.map((u) => <option key={u} value={u}>{u}</option>)}
+        </select>
+      ) : (
+        <>
+          <input placeholder="Konu (örn: Üslü Sayılar)" value={konu} onChange={(e) => setKonu(e.target.value)}
+            style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 4, fontSize: 13.5, boxSizing: "border-box" }} />
+          <p style={{ fontSize: 11, color: "#999", marginBottom: 10 }}>Bu ders/sınıf için hazır ünite listesi yok, serbest yazabilirsin.</p>
+        </>
+      )}
       {hata && <p style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
       <button onClick={uret} disabled={yukleniyor || !konu.trim()} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 16 }}>
         {yukleniyor ? "Üretiliyor... (~20 sn)" : "Üret"}
