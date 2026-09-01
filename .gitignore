@@ -4,3 +4,9 @@ node_modules
 .env.local
 .vercel
 .env*
+
+# Ogretmen Android projesi - build ciktilari ve anahtar asla commit edilmez
+android-ogretmen/.gradle/
+android-ogretmen/build/
+android-ogretmen/app/build/
+android-ogretmen/*.keystore

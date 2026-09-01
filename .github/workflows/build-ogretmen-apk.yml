@@ -1,0 +1,51 @@
+name: Ogretmen APK Build
+
+on:
+  push:
+    paths:
+      - 'android-ogretmen/**'
+      - '.github/workflows/build-ogretmen-apk.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-ogretmen
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 17 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Android SDK kur
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle ile derle (imzasiz APK)
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Keystore'u geri yukle
+        run: echo "${{ secrets.OGRETMEN_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
+
+      - name: Zipalign + Imzala
+        run: |
+          BUILD_TOOLS=$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/zipalign -v -p 4 \
+            app/build/outputs/apk/release/app-release-unsigned.apk karemux-ogretmen-aligned.apk
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner sign \
+            --ks android.keystore --ks-key-alias android \
+            --ks-pass "pass:${{ secrets.OGRETMEN_KEYSTORE_SIFRE }}" \
+            --out karemux-ogretmen-imzali.apk karemux-ogretmen-aligned.apk
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner verify karemux-ogretmen-imzali.apk
+
+      - name: APK'yi yukle (indirilebilir cikti)
+        uses: actions/upload-artifact@v4
+        with:
+          name: karemux-ogretmen-apk
+          path: android-ogretmen/karemux-ogretmen-imzali.apk
