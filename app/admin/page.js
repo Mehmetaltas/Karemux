@@ -292,12 +292,36 @@ export default function YonetimPaneli() {
   }
   const [ogretmenBasvurulari, setOgretmenBasvurulari] = useState(null);
   const [ogretmenListesi, setOgretmenListesi] = useState(null);
+  const [ogretmenBekleyenler, setOgretmenBekleyenler] = useState(null);
+  const [ogretmenOnayDurumu, setOgretmenOnayDurumu] = useState(null);
   const [hesapFormAcik, setHesapFormAcik] = useState(null); // hangi ogretmen icin form acik
   const [hesapEposta, setHesapEposta] = useState({});
   const [hesapSifreDurumu, setHesapSifreDurumu] = useState(null);
   const [cvLinkYukleniyor, setCvLinkYukleniyor] = useState(null);
   const [basvuruIslemDurumu, setBasvuruIslemDurumu] = useState(null);
   const [basvuruOnaySaatlikUcret, setBasvuruOnaySaatlikUcret] = useState({});
+
+  async function bekleyenOgretmenleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/ogretmen-bekleyen?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setOgretmenBekleyenler(data.bekleyenler);
+    } catch {}
+  }
+
+  async function ogretmenOnaylaVeyaReddet(ogretmenId, karar) {
+    setOgretmenOnayDurumu(ogretmenId);
+    try {
+      const res = await fetch("/api/admin/ogretmen-onayla", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, ogretmenId, karar }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setOgretmenBekleyenler((eski) => eski.filter((o) => o.id !== ogretmenId));
+      if (karar === "onayla") setOgretmenListesi(null); // aktif listeyi yenile
+    } catch (e) { setHata(e.message); } finally { setOgretmenOnayDurumu(null); }
+  }
 
   async function aktifOgretmenleriGetir() {
     try {
@@ -676,6 +700,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenListesi) aktifOgretmenleriGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBekleyenler) bekleyenOgretmenleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "kariyer" && !kariyerBasvurulari) kariyerBasvurulariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ik") { if (!mesaiVeri) mesaiGetir(); if (!izinlerim) izinleriGetir(); if (!gorevlerim) gorevleriGetir(); if (!ikYonetimVeri) ikYonetimGetir(); } }, [girisYapildi, sekme]);
@@ -1823,6 +1848,25 @@ export default function YonetimPaneli() {
                 </div>
               ))
             )}
+          </Panel>
+        )}
+
+        {sekme === "ogretmen" && ogretmenBekleyenler?.length > 0 && (
+          <Panel baslik={`Bekleyen Kayıtlar (${ogretmenBekleyenler.length})`} ikon="⏳">
+            {ogretmenBekleyenler.map((o) => (
+              <div key={o.id} style={{ background: T.surfaceHover, border: `1px solid ${T.border}`, borderRadius: 10, padding: 14, marginBottom: 10 }}>
+                <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, marginBottom: 2 }}>{o.ad} <span style={{ color: T.textMuted, fontWeight: 500 }}>· {o.brans}</span></p>
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 8 }}>{o.eposta} · {new Date(o.olusturulma).toLocaleDateString("tr-TR")}</p>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => ogretmenOnaylaVeyaReddet(o.id, "onayla")} disabled={ogretmenOnayDurumu === o.id} style={{ ...butonStil(true), padding: "8px 14px", fontSize: TYPO.body }}>
+                    {ogretmenOnayDurumu === o.id ? "..." : "Onayla"}
+                  </button>
+                  <button onClick={() => ogretmenOnaylaVeyaReddet(o.id, "reddet")} disabled={ogretmenOnayDurumu === o.id} style={{ ...butonStil(true, T.danger), padding: "8px 14px", fontSize: TYPO.body }}>
+                    Reddet
+                  </button>
+                </div>
+              </div>
+            ))}
           </Panel>
         )}
 
