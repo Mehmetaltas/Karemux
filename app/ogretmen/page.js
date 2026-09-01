@@ -11,6 +11,7 @@ const MENU = [
   { kod: "yazili", ad: "🏫 Yazılı Üret (A/B)", hazir: true, tur: "yazili" },
   { kod: "fasikul", ad: "📖 Fasikül Üret", hazir: true, tur: "fasikul" },
   { kod: "ogrenme-teknikleri", ad: "🧠 Öğrenme Teknikleri", hazir: true },
+  { kod: "is-basvuru", ad: "💼 İş Başvurusu Yap", hazir: true, dis: true, link: "/ogretmen-basvuru" },
 ];
 
 const MATERYAL_DERSLER = ["Matematik", "Turkce", "Fen Bilimleri", "Ingilizce", "Sosyal Bilgiler", "T.C. Inkilap Tarihi", "Din Kulturu"];
@@ -108,7 +109,7 @@ export default function OgretmenPanel() {
             <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{ogretmen.ad}</p>
             <p style={{ fontSize: 12, color: C.muted, marginBottom: 20 }}>{ogretmen.brans}</p>
             {MENU.map((m) => (
-              <button key={m.kod} onClick={() => { setSekme(m.kod); setMenuAcik(false); }}
+              <button key={m.kod} onClick={() => { if (m.dis) { window.open(m.link, "_blank"); setMenuAcik(false); return; } setSekme(m.kod); setMenuAcik(false); }}
                 style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 10px", borderRadius: 8, border: "none", background: sekme === m.kod ? "#FEF8E8" : "transparent", color: m.hazir ? C.metin : C.muted, fontSize: 13.5, fontWeight: sekme === m.kod ? 700 : 500, cursor: "pointer", marginBottom: 2 }}>
                 {m.ad}{!m.hazir && <span style={{ fontSize: 10, marginLeft: 6, color: C.turuncu }}>(yakında)</span>}
               </button>
