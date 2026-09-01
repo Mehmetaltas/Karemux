@@ -10,7 +10,6 @@ const MENU = [
   { kod: "soru-seti", ad: "✏️ Soru Seti Üret", hazir: true, tur: "soru_seti" },
   { kod: "yazili", ad: "🏫 Yazılı Üret (A/B)", hazir: true, tur: "yazili" },
   { kod: "fasikul", ad: "📖 Fasikül Üret", hazir: true, tur: "fasikul" },
-  { kod: "ogrenme-teknikleri", ad: "🧠 Öğrenme Teknikleri", hazir: true },
   { kod: "is-basvuru", ad: "💼 İş Başvurusu Yap", hazir: true, dis: true, link: "/ogretmen-basvuru" },
 ];
 
@@ -217,7 +216,6 @@ export default function OgretmenPanel() {
             </div>
           </div>
         )}
-        {sekme === "ogrenme-teknikleri" && <OgretmenTeknikGorunumu />}
         {["calisma-kagidi", "soru-seti", "yazili", "fasikul"].includes(sekme) && (
           <MateryalUreticisi tur={MENU.find((m) => m.kod === sekme)?.tur} dersVarsayilan={ogretmen.brans} />
         )}
@@ -231,28 +229,3 @@ export default function OgretmenPanel() {
   );
 }
 
-const DERSLER = ["Matematik", "Turkce", "Fen Bilimleri", "Ingilizce", "Sosyal Bilgiler", "T.C. Inkilap Tarihi", "Din Kulturu"];
-
-function OgretmenTeknikGorunumu() {
-  const [ders, setDers] = useState("Matematik");
-  const [liste, setListe] = useState(null);
-  useEffect(() => {
-    fetch(`/api/ogrenme-teknikleri?ders=${encodeURIComponent(ders)}`).then((r) => r.json()).then((d) => setListe(d.teknikler || []));
-  }, [ders]);
-  return (
-    <div>
-      <select value={ders} onChange={(e) => setDers(e.target.value)} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 14, fontSize: 13.5 }}>
-        {DERSLER.map((d) => <option key={d} value={d}>{d}</option>)}
-      </select>
-      {liste === null ? <p style={{ fontSize: 13, color: C.muted }}>Yükleniyor...</p> : liste.length === 0 ? (
-        <p style={{ fontSize: 13, color: C.muted }}>Bu ders için henüz teknik eklenmedi.</p>
-      ) : liste.map((t, i) => (
-        <div key={i} style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 14, marginBottom: 10 }}>
-          <p style={{ fontSize: 13.5, fontWeight: 700, color: C.turuncu, marginBottom: 4 }}>{t.teknik_adi}</p>
-          <p style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 4 }}>{t.aciklama}</p>
-          <p style={{ fontSize: 12, lineHeight: 1.6, color: C.muted, fontStyle: "italic" }}>{t.nasil_uygulanir}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
