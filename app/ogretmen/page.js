@@ -10,6 +10,13 @@ const MENU = [
   { kod: "soru-seti", ad: "✏️ Soru Seti Üret", hazir: true, tur: "soru_seti" },
   { kod: "yazili", ad: "🏫 Yazılı Üret (A/B)", hazir: true, tur: "yazili" },
   { kod: "fasikul", ad: "📖 Fasikül Üret", hazir: true, tur: "fasikul" },
+  { kod: "kazanim-testi", ad: "🎯 Kazanım Testi", hazir: true, tur: "kazanim_testi" },
+  { kod: "tekrar-paketi", ad: "🔄 Tekrar Paketi", hazir: true, tur: "tekrar_paketi" },
+  { kod: "odev-paketi", ad: "📚 Ödev Paketi", hazir: true, tur: "odev_paketi" },
+  { kod: "brans-denemesi", ad: "🏆 Branş Denemesi", hazir: true, tur: "brans_denemesi" },
+  { kod: "eksik-konu-paketi", ad: "🧩 Eksik Konu Paketi", hazir: true, tur: "eksik_konu_paketi" },
+  { kod: "veli-ozeti", ad: "👨‍👩‍👧 Veli Bilgilendirme Özeti", hazir: true, tur: "veli_ozeti" },
+  { kod: "sinif-analizi", ad: "📈 Sınıf Başarı Analizi", hazir: true, tur: "sinif_analizi" },
   { kod: "is-basvuru", ad: "💼 İş Başvurusu Yap", hazir: true, dis: true, link: "/ogretmen-basvuru" },
 ];
 
@@ -57,10 +64,14 @@ function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster }) {
   );
 }
 
+const NOT_GEREKLI_TURLER = ["eksik_konu_paketi", "veli_ozeti", "sinif_analizi"];
+const METIN_TURLER = ["veli_ozeti", "sinif_analizi"];
+
 function MateryalUreticisi({ tur, dersVarsayilan }) {
   const [sinif, setSinif] = useState(8);
   const [ders, setDers] = useState(dersVarsayilan || "Matematik");
   const [konu, setKonu] = useState("");
+  const [ogretmenNotu, setOgretmenNotu] = useState("");
   const [uniteler, setUniteler] = useState(null);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [sonuc, setSonuc] = useState(null);
@@ -68,6 +79,8 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
   const [hata, setHata] = useState("");
   const [cevapGoster, setCevapGoster] = useState(true);
   const [aktifGorunum, setAktifGorunum] = useState("A"); // "A" | "B"
+  const notGerekli = NOT_GEREKLI_TURLER.includes(tur);
+  const metinTipi = METIN_TURLER.includes(tur);
 
   useEffect(() => {
     setKonu(""); setUniteler(null);
@@ -77,11 +90,12 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
 
   async function uret() {
     if (!konu.trim()) { setHata("Konu gerekli"); return; }
+    if (notGerekli && !ogretmenNotu.trim()) { setHata("Öğretmen notu gerekli"); return; }
     setYukleniyor(true); setHata(""); setSonuc(null); setBKitapcik(null); setAktifGorunum("A");
     try {
       const res = await fetch("/api/ogretmen/materyal-uret", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tur, sinif, ders, konu: konu.trim() }),
+        body: JSON.stringify({ tur, sinif, ders, konu: konu.trim(), ogretmenNotu: ogretmenNotu.trim() }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -121,12 +135,25 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
           <p style={{ fontSize: 11, color: "#999", marginBottom: 10 }}>Bu ders/sınıf için hazır ünite listesi yok, serbest yazabilirsin.</p>
         </>
       )}
+      {notGerekli && (
+        <textarea placeholder={tur === "eksik_konu_paketi" ? "Öğrencinin zayıf olduğu konular/hatalar (örn: negatif sayılarda işlem hatası, üslü ifadelerde kural karışıklığı)" : tur === "veli_ozeti" ? "Öğrenci hakkında gözlem notların (örn: son 2 haftada derse katılımı arttı, ödevlerini düzenli yapıyor ama sınavlarda dikkat hatası yapıyor)" : "Sınıfın genel durumu hakkında notların (örn: sınıf ortalaması %65, en çok zorlanılan konu üslü sayılar, 3 öğrenci temel eksikleriyle geride)"}
+          value={ogretmenNotu} onChange={(e) => setOgretmenNotu(e.target.value)} rows={4}
+          style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13, boxSizing: "border-box", fontFamily: "inherit", resize: "vertical" }} />
+      )}
       {hata && <p style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
-      <button onClick={uret} disabled={yukleniyor || !konu.trim()} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 16 }}>
+      <button onClick={uret} disabled={yukleniyor || !konu.trim() || (notGerekli && !ogretmenNotu.trim())} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 16 }}>
         {yukleniyor ? "Üretiliyor... (~20 sn)" : "Üret"}
       </button>
 
-      {sonuc && (
+      {sonuc && metinTipi && (
+        <div className="yazdir-alani" style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16 }}>
+          <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{sonuc.baslik}</p>
+          <p style={{ fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{sonuc.icerik}</p>
+          <button className="yazdirma-disi" onClick={() => window.print()} style={{ marginTop: 12, padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>🖨️ Yazdır</button>
+        </div>
+      )}
+
+      {sonuc && !metinTipi && (
         <>
           <div className="yazdirma-disi" style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
             <button onClick={() => setCevapGoster(!cevapGoster)} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: cevapGoster ? "#FEF8E8" : "#fff", fontSize: 12, cursor: "pointer" }}>
