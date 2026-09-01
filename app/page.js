@@ -723,6 +723,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
   const [dersTekrarSonuclari, setDersTekrarSonuclari] = useState({}); // { [ders]: [{tur, dogru, toplam}, ...] }
   const [tekrarAnlatimOnbellek, setTekrarAnlatimOnbellek] = useState({}); // { "ders::tur": metin } - ayni turda tekrar uretmemek icin
+  const [teknikOnerisi, setTeknikOnerisi] = useState(null); // { teknik_adi, aciklama, nasil_uygulanir } - sadece tekrar anlatiminda gosterilir
 
   const [dersTekrarKontrolYukleniyor, setDersTekrarKontrolYukleniyor] = useState(false);
 
@@ -841,10 +842,21 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     });
   }
 
+  async function teknikOnerisiGetir(dersAdi) {
+    try {
+      const res = await fetch(`/api/ogrenme-teknikleri?ders=${encodeURIComponent(dersAdi)}`);
+      const data = await res.json();
+      const liste = data.teknikler || [];
+      if (liste.length > 0) setTeknikOnerisi(liste[Math.floor(Math.random() * liste.length)]);
+      else setTeknikOnerisi(null);
+    } catch { setTeknikOnerisi(null); }
+  }
+
   async function dersKonuTekrariAnlat(dersAdi) {
     const oncekiSinif = Math.max(1, sinif - 1);
     const durum = dersTekrarDurumuHesapla(dersAdi);
     const onbellekAnahtari = `${dersAdi}::${durum.tur}`;
+    teknikOnerisiGetir(dersAdi); // konuda zorlanan ogrenciye ilgili teknigi de goster (Faz 31.2)
 
     // Bu tur icin daha once anlatim uretildiyse, TEKRAR URETME - ayniyi goster.
     // Boylece ogrenci butona tekrar tekrar basinca her seferinde farkli bir
@@ -1168,7 +1180,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function gecmisYilTakviyesiAnlat() {
     const oncekiSinif = Math.max(1, sinif - 1);
-    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
+    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
     try {
       const p = `Sen deneyimli, alaninda uzman bir "${kocPaneliDers}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${kocPaneliDers}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille OZETLE - once tanim, sonra somut ornek. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
       const cevap = await aiIstek(p, 3000, cihazIdRef.current);
@@ -1202,7 +1214,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const unite = dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers);
     if (!unite) return;
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
-    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
+    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
     try {
       const zorlukMetni = { basit: "cok basit ve yavas", orta: "orta seviyede", zor: "ileri seviyede" }[zorlukSec] || "orta seviyede";
       const temelUyarisi = gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"
@@ -2963,7 +2975,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function konuAnlat() {
     if (!ders || !konu.trim()) return;
-    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
+    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
     try {
       const uniteMetni = uniteSec ? ` (${uniteSec} unitesinden)` : "";
       const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
@@ -4057,6 +4069,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   )}
 
+                  {teknikOnerisi && (
+                    <div style={{ background: "#FEF8E8", border: "1px solid #E8B339", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 700, color: "#E8B339", marginBottom: 4 }}>💡 Bu konuda böyle çalışabilirsin: {teknikOnerisi.teknik_adi}</p>
+                      <p style={{ fontSize: 12, lineHeight: 1.6, color: "#2A2A2A" }}>{teknikOnerisi.nasil_uygulanir}</p>
+                    </div>
+                  )}
                   {aciklama && (() => {
                     const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
@@ -4170,6 +4188,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   </div>
 
+                  {teknikOnerisi && (
+                    <div style={{ background: "#FEF8E8", border: "1px solid #E8B339", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 700, color: "#E8B339", marginBottom: 4 }}>💡 Bu konuda böyle çalışabilirsin: {teknikOnerisi.teknik_adi}</p>
+                      <p style={{ fontSize: 12, lineHeight: 1.6, color: "#2A2A2A" }}>{teknikOnerisi.nasil_uygulanir}</p>
+                    </div>
+                  )}
                   {aciklama && (() => {
                     const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
@@ -7038,6 +7062,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     {paragrafPufNoktalari}
                   </>
                 )}
+              </div>
+            )}
+            {teknikOnerisi && (
+              <div style={{ background: "#FEF8E8", border: "1px solid #E8B339", borderRadius: 10, padding: 14, marginBottom: 12 }}>
+                <p style={{ fontSize: 12.5, fontWeight: 700, color: "#E8B339", marginBottom: 4 }}>💡 Bu konuda böyle çalışabilirsin: {teknikOnerisi.teknik_adi}</p>
+                <p style={{ fontSize: 12, lineHeight: 1.6, color: "#2A2A2A" }}>{teknikOnerisi.nasil_uygulanir}</p>
               </div>
             )}
             {aciklama && (() => {
