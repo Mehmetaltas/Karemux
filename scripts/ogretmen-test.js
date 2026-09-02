@@ -60,6 +60,7 @@ async function calistir() {
     const sonuc = await aracTestEt(cookie, tanim);
     sonuclar.push(sonuc);
     console.log(sonuc.basarili ? `  OK` : `  BASARISIZ: ${sonuc.hata}`);
+    await new Promise((r) => setTimeout(r, 8000)); // ucretsiz AI kotalarini zorlamamak icin araclar arasi bekleme
   }
 
   await fetch(`${SITE_URL}/api/cron/ogretmen-test-sonuc`, {
