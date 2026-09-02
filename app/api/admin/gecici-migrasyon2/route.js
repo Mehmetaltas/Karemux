@@ -9,6 +9,15 @@ export async function POST(req) {
       return Response.json({ error: "Yetkisiz" }, { status: 401 });
     }
     await sql`
+      CREATE TABLE IF NOT EXISTS ogretmen_test_sonuclari (
+        id SERIAL PRIMARY KEY,
+        tur TEXT NOT NULL,
+        basarili BOOLEAN NOT NULL,
+        hata_mesaji TEXT,
+        calisma_zamani TIMESTAMPTZ DEFAULT now()
+      )
+    `;
+    await sql`
       CREATE TABLE IF NOT EXISTS ogretmen_materyalleri (
         id SERIAL PRIMARY KEY,
         ogretmen_id INTEGER NOT NULL REFERENCES ogretmenler(id),
