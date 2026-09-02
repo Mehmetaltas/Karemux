@@ -1,18 +1,38 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "app.vercel.karemux_nu.twa",
-      "sha256_cert_fingerprints": ["24889564f5b92ccc0c5d6e32eb7e9917e7447a66f11db46a908b6d703d9c9bb7"]
+      "sha256_cert_fingerprints": [
+        "24889564f5b92ccc0c5d6e32eb7e9917e7447a66f11db46a908b6d703d9c9bb7"
+      ]
     }
   },
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "app.vercel.karemux_nu.admin.twa",
-      "sha256_cert_fingerprints": ["df64287aa506bf9db11773a372ae5967e09cd7a3e1c7c61deef27996225830d2"]
+      "sha256_cert_fingerprints": [
+        "df64287aa506bf9db11773a372ae5967e09cd7a3e1c7c61deef27996225830d2"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.karemux_nu.ogretmen.twa",
+      "sha256_cert_fingerprints": [
+        "fbe542f5c2242a7e41a29bb5d4839324783ec902058cd2556ba10dd7d0248e91"
+      ]
     }
   }
 ]
