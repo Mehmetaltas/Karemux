@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 
 const C = { yesil: "#1F3D2E", turuncu: "#FF6B5E", altin: "#E8B339", metin: "#2A2A2A", muted: "#8A8A8A", bg: "#FDFBF6" };
 
@@ -250,7 +251,7 @@ export default function OgretmenPanel() {
           </div>
         )}
         {["calisma-kagidi", "soru-seti", "yazili", "fasikul", "kazanim-testi", "tekrar-paketi", "odev-paketi", "brans-denemesi", "eksik-konu-paketi", "veli-ozeti", "sinif-analizi"].includes(sekme) && (
-          <MateryalUreticisi tur={MENU.find((m) => m.kod === sekme)?.tur} dersVarsayilan={ogretmen.brans} />
+          <MateryalUreticisi key={sekme} tur={MENU.find((m) => m.kod === sekme)?.tur} dersVarsayilan={ogretmen.brans} />
         )}
         {sekme === "materyallerim" && <Materyallerim />}
         {sekme === "profil" && <ProfilSifreDegistir />}

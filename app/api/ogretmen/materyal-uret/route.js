@@ -3,6 +3,8 @@ import { ogretmenCoz } from "@/lib/ogretmen";
 import { personelAdminMi } from "@/lib/personel";
 import { sql } from "@/lib/db";
 
+export const maxDuration = 60; // Vercel fonksiyon zaman asimini uzat (buyuk uretimler icin)
+
 const BAGLAM_TEMELLI_SORU_TALIMATI = `Sorulari "Baglam Temelli Soru" yaklasimiyla yaz: her soru gercekci bir senaryo, veri veya durum icinde kurulsun. Celdiriciler rastgele olmamali, spesifik bir kavram yanilgisini yansitmali. Turkce'ye ozgu karakterleri DOGRU ve EKSIKSIZ kullan.`;
 
 const KALITE_REFERANSLARI = {
@@ -47,7 +49,9 @@ export async function POST(req) {
       const p = `Sen deneyimli bir ${ders} ogretmenisin. Ogretmenin sundugu su notlardan, "${tanim.baslik}" hazirla: "${ogretmenNotu.trim()}". ${tanim.aciklama}. Profesyonel, nazik ve yapici bir dille yaz, sadece ogretmenin belirttigi bilgileri kullan, uydurma detay ekleme. SADECE JSON dondur: {"baslik":"...","icerik":"..."}. Tum metinler SADECE Turkce olmali.`;
       const cevap = await aiCagir({ prompt: p, maxTokens: 2000, jsonModu: true });
       const temiz = cevap.replace(/```json|```/g, "").trim();
-      const veri = JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
+      const parcaTemiz = temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1)
+        .replace(/"dogruIndex"\s*:\s*"?([A-D])"?/gi, (_, harf) => `"dogruIndex":${harf.toUpperCase().charCodeAt(0) - 65}`);
+      const veri = JSON.parse(parcaTemiz);
       if (!veri.icerik) return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
       if (ogretmenOturum?.id) {
       try {
@@ -66,7 +70,9 @@ export async function POST(req) {
 
     const cevap = await aiCagir({ prompt: p, maxTokens: 7000, jsonModu: true });
     const temiz = cevap.replace(/```json|```/g, "").trim();
-    const veri = JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
+    const parcaTemiz = temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1)
+      .replace(/"dogruIndex"\s*:\s*"?([A-D])"?/gi, (_, harf) => `"dogruIndex":${harf.toUpperCase().charCodeAt(0) - 65}`);
+    const veri = JSON.parse(parcaTemiz);
 
     if (!veri.sorular || !Array.isArray(veri.sorular) || veri.sorular.length === 0) {
       return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
