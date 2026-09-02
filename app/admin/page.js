@@ -1038,6 +1038,22 @@ export default function YonetimPaneli() {
           </div>
         )}
 
+        {sekme === "genel" && (
+          <div style={{ background: "#FFF3CD", border: "1px solid #E8B339", borderRadius: 10, padding: 14, marginBottom: 16 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>⚠️ Geçici: ogretmen_materyalleri migrasyonu</p>
+            <button onClick={async () => {
+              const res = await fetch("/api/admin/gecici-migrasyon2", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sifre }),
+              });
+              const data = await res.json();
+              alert(JSON.stringify(data));
+            }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body }}>
+              Migrasyonu Çalıştır
+            </button>
+          </div>
+        )}
+
         {sekme === "genel" && muhasebeVeri && (
           <>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
