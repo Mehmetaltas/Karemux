@@ -92,6 +92,7 @@ export default function YonetimPaneli() {
   const [basari, setBasari] = useState("");
 
   const [muhasebeVeri, setMuhasebeVeri] = useState(null);
+  const [ogretmenTestSonuclari, setOgretmenTestSonuclari] = useState(null);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [duzenlenenFiyatlar, setDuzenlenenFiyatlar] = useState({});
   const [fiyatKaydediliyor, setFiyatKaydediliyor] = useState(null);
@@ -680,6 +681,11 @@ export default function YonetimPaneli() {
 
   useEffect(() => { if (basari) { const t = setTimeout(() => setBasari(""), 4000); return () => clearTimeout(t); } }, [basari]);
   useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => {
+    if (girisYapildi && sekme === "genel" && !ogretmenTestSonuclari) {
+      fetch("/api/cron/ogretmen-test-sonuc").then((r) => r.json()).then((d) => setOgretmenTestSonuclari(d.sonuclar || []));
+    }
+  }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && (sekme === "kasa" || sekme === "cari" || sekme === "giderler") && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "maliyet" && !maliyetVeri) maliyetGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "simulasyon" && !simulasyonVeri) simulasyonGetir(); }, [girisYapildi, sekme]);
@@ -1038,29 +1044,12 @@ export default function YonetimPaneli() {
           </div>
         )}
 
-        {sekme === "genel" && (
-          <div style={{ background: "#FFF3CD", border: "1px solid #E8B339", borderRadius: 10, padding: 14, marginBottom: 16 }}>
-            <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>⚠️ Geçici: ogretmen_materyalleri migrasyonu</p>
-            <button onClick={async () => {
-              const res = await fetch("/api/admin/gecici-migrasyon2", {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sifre }),
-              });
-              const data = await res.json();
-              alert(JSON.stringify(data));
-            }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body, marginRight: 8 }}>
-              Migrasyonu Çalıştır
-            </button>
-            <button onClick={async () => {
-              const res = await fetch("/api/admin/gecici-test-hesap", {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sifre }),
-              });
-              const data = await res.json();
-              alert(JSON.stringify(data));
-            }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body }}>
-              Test Hesabı Oluştur
-            </button>
+        {sekme === "genel" && ogretmenTestSonuclari?.some((s) => !s.basarili) && (
+          <div style={{ background: "#FDECEA", border: `1px solid ${T.danger}`, borderRadius: 10, padding: 14, marginBottom: 16 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6, color: T.danger }}>⚠️ Öğretmen Materyal Araçları — Bazı Araçlar Başarısız</p>
+            {ogretmenTestSonuclari.filter((s) => !s.basarili).map((s) => (
+              <p key={s.tur} style={{ fontSize: 11.5, color: T.textMuted, margin: "2px 0" }}>{s.tur}: {s.hata_mesaji}</p>
+            ))}
           </div>
         )}
 
