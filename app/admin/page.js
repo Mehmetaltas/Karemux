@@ -1048,8 +1048,18 @@ export default function YonetimPaneli() {
               });
               const data = await res.json();
               alert(JSON.stringify(data));
-            }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body }}>
+            }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body, marginRight: 8 }}>
               Migrasyonu Çalıştır
+            </button>
+            <button onClick={async () => {
+              const res = await fetch("/api/admin/gecici-test-hesap", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sifre }),
+              });
+              const data = await res.json();
+              alert(JSON.stringify(data));
+            }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body }}>
+              Test Hesabı Oluştur
             </button>
           </div>
         )}
