@@ -2,6 +2,7 @@ import { aiCagir } from "@/lib/ai";
 import { ogretmenCoz } from "@/lib/ogretmen";
 import { personelAdminMi } from "@/lib/personel";
 import { sql } from "@/lib/db";
+import { ogretmenGunlukLimitKontrolEt } from "@/lib/ratelimit";
 
 export const maxDuration = 60; // Vercel fonksiyon zaman asimini uzat (buyuk uretimler icin)
 
@@ -41,6 +42,13 @@ export async function POST(req) {
     const { tur, sinif, ders, konu, ogretmenNotu } = govde;
     const tanim = TUR_TANIMLARI[tur];
     if (!tanim || !sinif || !ders || !konu?.trim()) return Response.json({ error: "Eksik veya gecersiz bilgi" }, { status: 400 });
+
+    if (ogretmenOturum?.id) {
+      const limit = await ogretmenGunlukLimitKontrolEt(ogretmenOturum.id);
+      if (!limit.izinVar) {
+        return Response.json({ error: `Gunluk uretim sinirina ulastin (${limit.limit}/gun). Yarin devam edebilirsin.` }, { status: 429 });
+      }
+    }
     if (tanim.notGerekli && !ogretmenNotu?.trim()) return Response.json({ error: "Bu arac icin ogretmen notu gerekli" }, { status: 400 });
 
     const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
