@@ -17,6 +17,8 @@ const MENU = [
   { kod: "eksik-konu-paketi", ad: "🧩 Eksik Konu Paketi", hazir: true, tur: "eksik_konu_paketi" },
   { kod: "veli-ozeti", ad: "👨‍👩‍👧 Veli Bilgilendirme Özeti", hazir: true, tur: "veli_ozeti" },
   { kod: "sinif-analizi", ad: "📈 Sınıf Başarı Analizi", hazir: true, tur: "sinif_analizi" },
+  { kod: "materyallerim", ad: "🗂️ Materyallerim", hazir: true },
+  { kod: "profil", ad: "⚙️ Profil / Şifre", hazir: true },
   { kod: "is-basvuru", ad: "💼 İş Başvurusu Yap", hazir: true, dis: true, link: "/ogretmen-basvuru" },
 ];
 
@@ -237,21 +239,105 @@ export default function OgretmenPanel() {
         {sekme === "ozet" && (
           <div>
             <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Hoş geldin, {ogretmen.ad}</p>
-            <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 20 }}>{ogretmen.brans} branşında Karemux materyal araçlarına erişimin var.</p>
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E5DFD3", padding: 16 }}>
-              <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>Çalışma kağıdı, soru seti, yazılı ve fasikül üretim araçları yakında burada olacak. Şimdilik Öğrenme Teknikleri Kütüphanesi'ne göz atabilirsin.</p>
+            <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 20 }}>{ogretmen.brans} branşında Karemux'un 11 materyal üretim aracına erişimin var.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+              {MENU.filter((m) => m.tur).map((m) => (
+                <button key={m.kod} onClick={() => setSekme(m.kod)} style={{ textAlign: "left", background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 12, cursor: "pointer" }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>{m.ad}</p>
+                </button>
+              ))}
             </div>
           </div>
         )}
-        {["calisma-kagidi", "soru-seti", "yazili", "fasikul"].includes(sekme) && (
+        {["calisma-kagidi", "soru-seti", "yazili", "fasikul", "kazanim-testi", "tekrar-paketi", "odev-paketi", "brans-denemesi", "eksik-konu-paketi", "veli-ozeti", "sinif-analizi"].includes(sekme) && (
           <MateryalUreticisi tur={MENU.find((m) => m.kod === sekme)?.tur} dersVarsayilan={ogretmen.brans} />
         )}
-        {!MENU.find((m) => m.kod === sekme)?.hazir && sekme !== "ozet" && (
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #E5DFD3", padding: 20, textAlign: "center" }}>
-            <p style={{ fontSize: 14, color: C.muted }}>Bu araç yakında eklenecek.</p>
+        {sekme === "materyallerim" && <Materyallerim />}
+        {sekme === "profil" && <ProfilSifreDegistir />}
+      </div>
+    </div>
+  );
+}
+
+function Materyallerim() {
+  const [liste, setListe] = useState(null);
+  const [acikMateryal, setAcikMateryal] = useState(null);
+  useEffect(() => {
+    fetch("/api/ogretmen/materyallerim").then((r) => r.json()).then((d) => setListe(d.materyaller || []));
+  }, []);
+
+  async function sil(id) {
+    await fetch("/api/ogretmen/materyallerim", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    setListe((eski) => eski.filter((m) => m.id !== id));
+  }
+
+  if (acikMateryal) {
+    return (
+      <div>
+        <button onClick={() => setAcikMateryal(null)} className="yazdirma-disi" style={{ marginBottom: 10, padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>← Geri</button>
+        <button onClick={() => window.print()} className="yazdirma-disi" style={{ marginBottom: 10, marginLeft: 8, padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>🖨️ Yazdır</button>
+        {acikMateryal.materyal.icerik ? (
+          <div className="yazdir-alani" style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16 }}>
+            <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>{acikMateryal.materyal.baslik}</p>
+            <p style={{ fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{acikMateryal.materyal.icerik}</p>
           </div>
+        ) : (
+          <MateryalGorunumu baslik={acikMateryal.materyal.baslik} ozet={acikMateryal.materyal.ozet} sorular={acikMateryal.materyal.sorular} cevapGoster={true} />
         )}
       </div>
+    );
+  }
+
+  return (
+    <div>
+      {liste === null ? <p style={{ fontSize: 13, color: "#999" }}>Yükleniyor...</p> : liste.length === 0 ? (
+        <p style={{ fontSize: 13, color: "#999" }}>Henüz materyal üretmedin.</p>
+      ) : liste.map((m) => (
+        <div key={m.id} style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 14, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div onClick={() => setAcikMateryal(m)} style={{ cursor: "pointer", flex: 1 }}>
+            <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0 }}>{m.materyal.baslik}</p>
+            <p style={{ fontSize: 11.5, color: "#999", margin: "2px 0 0" }}>{m.ders} · {m.sinif}. Sınıf · {new Date(m.olusturulma).toLocaleDateString("tr-TR")}</p>
+          </div>
+          <button onClick={() => sil(m.id)} style={{ background: "none", border: "none", color: "#FF6B5E", fontSize: 16, cursor: "pointer" }}>🗑️</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProfilSifreDegistir() {
+  const [mevcutSifre, setMevcutSifre] = useState("");
+  const [yeniSifre, setYeniSifre] = useState("");
+  const [hata, setHata] = useState("");
+  const [basarili, setBasarili] = useState("");
+  const [yukleniyor, setYukleniyor] = useState(false);
+
+  async function degistir() {
+    setHata(""); setBasarili(""); setYukleniyor(true);
+    try {
+      const res = await fetch("/api/ogretmen/sifre-degistir", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mevcutSifre, yeniSifre }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setBasarili("Şifren güncellendi.");
+      setMevcutSifre(""); setYeniSifre("");
+    } catch (e) { setHata(e.message); } finally { setYukleniyor(false); }
+  }
+
+  return (
+    <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16, maxWidth: 360 }}>
+      <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 12 }}>Şifre Değiştir</p>
+      <GosterGizleInput placeholder="Mevcut şifre" value={mevcutSifre} onChange={(e) => setMevcutSifre(e.target.value)}
+        style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }} />
+      <GosterGizleInput placeholder="Yeni şifre (en az 6 karakter)" value={yeniSifre} onChange={(e) => setYeniSifre(e.target.value)}
+        style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }} />
+      {hata && <p style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
+      {basarili && <p style={{ color: "#1F3D2E", fontSize: 12.5, marginBottom: 8, fontWeight: 600 }}>{basarili}</p>}
+      <button onClick={degistir} disabled={yukleniyor || !mevcutSifre || !yeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}>
+        {yukleniyor ? "Kaydediliyor..." : "Şifreyi Güncelle"}
+      </button>
     </div>
   );
 }

@@ -49,7 +49,15 @@ export async function POST(req) {
       const temiz = cevap.replace(/```json|```/g, "").trim();
       const veri = JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
       if (!veri.icerik) return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
-      return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
+      if (ogretmenOturum?.id) {
+      try {
+        await sql`
+          INSERT INTO ogretmen_materyalleri (ogretmen_id, tur, sinif, ders, konu, materyal)
+          VALUES (${ogretmenOturum.id}, ${tur}, ${sinif}, ${ders}, ${konu?.trim() || null}, ${JSON.stringify(veri)})
+        `;
+      } catch (e) { console.error("Materyal gecmise kaydedilemedi:", e); }
+    }
+    return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
     }
 
     const notMetni = tanim.notGerekli ? ` Ogretmenin belirttigi hedef: "${ogretmenNotu.trim()}" - sorulari BUNA GORE hedefle.` : "";
@@ -74,6 +82,14 @@ export async function POST(req) {
       }
     } catch (e) { console.error("Ogretmen materyali soru bankasina kaydedilemedi:", e); }
 
+    if (ogretmenOturum?.id) {
+      try {
+        await sql`
+          INSERT INTO ogretmen_materyalleri (ogretmen_id, tur, sinif, ders, konu, materyal)
+          VALUES (${ogretmenOturum.id}, ${tur}, ${sinif}, ${ders}, ${konu?.trim() || null}, ${JSON.stringify(veri)})
+        `;
+      } catch (e) { console.error("Materyal gecmise kaydedilemedi:", e); }
+    }
     return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
   } catch (e) {
     console.error(e);
