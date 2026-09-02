@@ -9,7 +9,7 @@ export async function POST(req) {
     const kontrol = await denemeSiniriKontrolEt(ip, "personel_giris", 5, 15);
     if (!kontrol.izinVar) return Response.json({ error: "Cok fazla deneme. 15 dakika sonra tekrar dene." }, { status: 429 });
 
-    const { eposta, sifre } = await req.json();
+    const { eposta, sifre, beniHatirla } = await req.json();
     if (!eposta?.trim() || !sifre) return Response.json({ error: "Eposta ve sifre gerekli" }, { status: 400 });
 
     const personel = await sql`SELECT id, ad, sifre_hash, rol FROM personel WHERE eposta = ${eposta.trim().toLowerCase()} AND aktif = true`;
@@ -36,7 +36,7 @@ export async function POST(req) {
     // oturumuna tasinmali, bu koprunun kaldirilmasi gerekiyor.
     return new Response(JSON.stringify({ ok: true, ad: personel[0].ad, rol: personel[0].rol, sifre: process.env.ULUSAL_DENEME_YONETICI_SIFRESI }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": personelOturumCookieBaslik(token) },
+      headers: { "Content-Type": "application/json", "Set-Cookie": personelOturumCookieBaslik(token, beniHatirla !== false) },
     });
   } catch (e) {
     console.error(e);

@@ -82,6 +82,7 @@ export default function YonetimPaneli() {
   const [sifre, setSifre] = useState("");
   const [personelEposta, setPersonelEposta] = useState("");
   const [personelSifre, setPersonelSifre] = useState("");
+  const [personelBeniHatirla, setPersonelBeniHatirla] = useState(true);
   const [unutumModuAdmin, setUnutumModuAdmin] = useState(false);
   const [unutumMesajAdmin, setUnutumMesajAdmin] = useState("");
   const [personelAd, setPersonelAd] = useState("");
@@ -520,7 +521,7 @@ export default function YonetimPaneli() {
       // GERCEK kisisel giris - personel tablosuyla dogrulanir (24 Agustos).
       const girisRes = await fetch("/api/personel/giris", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eposta: personelEposta, sifre: personelSifre }),
+        body: JSON.stringify({ eposta: personelEposta, sifre: personelSifre, beniHatirla: personelBeniHatirla }),
       });
       const girisData = await girisRes.json();
       if (!girisRes.ok) throw new Error(girisData.error || "Giris basarisiz");
@@ -962,6 +963,10 @@ export default function YonetimPaneli() {
             placeholder="Eposta" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} autoFocus />
           <GosterGizleInput value={personelSifre} onChange={(e) => setPersonelSifre(e.target.value)} onKeyDown={(e) => e.key === "Enter" && girisDene()}
             placeholder="Şifre" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} />
+          <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, fontSize: TYPO.caption, color: T.textMuted, cursor: "pointer" }}>
+            <input type="checkbox" checked={personelBeniHatirla} onChange={(e) => setPersonelBeniHatirla(e.target.checked)} />
+            Beni hatırla (bu cihazda oturumu açık tut)
+          </label>
           <button onClick={girisDene} disabled={yukleniyor || !personelEposta || !personelSifre} style={{ ...butonStil(!!(personelEposta && personelSifre)), width: "100%", padding: "12px 0", fontSize: TYPO.bodyStrong }}>
             {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap"}
           </button>

@@ -9,7 +9,7 @@ export async function POST(req) {
     const kontrol = await denemeSiniriKontrolEt(ip, "ogretmen_giris", 5, 15);
     if (!kontrol.izinVar) return Response.json({ error: "Cok fazla deneme. 15 dakika sonra tekrar dene." }, { status: 429 });
 
-    const { eposta, sifre } = await req.json();
+    const { eposta, sifre, beniHatirla } = await req.json();
     if (!eposta?.trim() || !sifre) return Response.json({ error: "Eposta ve sifre gerekli" }, { status: 400 });
 
     const ogretmen = await sql`SELECT id, ad, sifre_hash, brans FROM ogretmenler WHERE eposta = ${eposta.trim().toLowerCase()} AND aktif = true`;
@@ -30,7 +30,7 @@ export async function POST(req) {
     const token = ogretmenTokenUret(ogretmen[0].id);
     return new Response(JSON.stringify({ ok: true, ad: ogretmen[0].ad, brans: ogretmen[0].brans }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": ogretmenOturumCookieBaslik(token) },
+      headers: { "Content-Type": "application/json", "Set-Cookie": ogretmenOturumCookieBaslik(token, beniHatirla !== false) },
     });
   } catch (e) {
     console.error(e);

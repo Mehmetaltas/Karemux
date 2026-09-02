@@ -2540,6 +2540,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [hesapModu, setHesapModu] = useState("giris"); // "giris" | "kayit"
   const [epostaGir, setEpostaGir] = useState("");
   const [sifreGir, setSifreGir] = useState("");
+  const [beniHatirlaOgrenci, setBeniHatirlaOgrenci] = useState(true);
   const [adGir, setAdGir] = useState("");
   const [rolSec, setRolSec] = useState("ogrenci"); // "ogrenci" | "veli"
   const [veliEpostaGir, setVeliEpostaGir] = useState("");
@@ -2845,7 +2846,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eposta: epostaGir, sifre: sifreGir, ad: adGir, rol: rolSec, veliEposta: veliEpostaGir }),
+        body: JSON.stringify({ eposta: epostaGir, sifre: sifreGir, ad: adGir, rol: rolSec, veliEposta: veliEpostaGir, beniHatirla: beniHatirlaOgrenci }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -5114,7 +5115,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </>
                 )}
                 <input value={epostaGir} onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
-                <GosterGizleInput value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 10 }} />
+                <GosterGizleInput value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 6 }} />
+                {hesapModu === "giris" && (
+                  <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, fontSize: 11.5, color: COLORS.muted, cursor: "pointer" }}>
+                    <input type="checkbox" checked={beniHatirlaOgrenci} onChange={(e) => setBeniHatirlaOgrenci(e.target.checked)} />
+                    Beni hatırla (bu cihazda oturumu açık tut)
+                  </label>
+                )}
                 {hesapHata && <p style={{ color: COLORS.coral, fontSize: 13, marginBottom: 8 }}>{hesapHata}</p>}
                 <button onClick={hesapGonder} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   {hesapModu === "giris" ? "Giris Yap" : "Hesap Olustur"}

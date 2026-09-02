@@ -30,6 +30,7 @@ function KareliArkaplan({ children, style }) {
 
 export default function OgretmenGiris() {
   const [sekme, setSekme] = useState("giris");
+  const [beniHatirla, setBeniHatirla] = useState(true);
   const [eposta, setEposta] = useState("");
   const [sifre, setSifre] = useState("");
   const [ad, setAd] = useState("");
@@ -46,7 +47,7 @@ export default function OgretmenGiris() {
     try {
       const res = await fetch("/api/ogretmen/giris", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eposta, sifre }),
+        body: JSON.stringify({ eposta, sifre, beniHatirla }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Giris basarisiz");
@@ -107,7 +108,14 @@ export default function OgretmenGiris() {
 
         <GosterGizleInput placeholder="Şifre" value={sifre} onChange={(e) => setSifre(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (sekme === "giris" ? girisYap() : kaydolYap())}
-          style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: `1px solid ${C.grid}`, marginBottom: 14, fontSize: 14, boxSizing: "border-box", fontFamily: C.bodyFont }} />
+          style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: `1px solid ${C.grid}`, marginBottom: 10, fontSize: 14, boxSizing: "border-box", fontFamily: C.bodyFont }} />
+
+        {sekme === "giris" && (
+          <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 14, fontSize: 12.5, color: C.inkSoft, cursor: "pointer" }}>
+            <input type="checkbox" checked={beniHatirla} onChange={(e) => setBeniHatirla(e.target.checked)} />
+            Beni hatırla (bu cihazda oturumu açık tut)
+          </label>
+        )}
 
         {hata && <p style={{ color: C.red, fontSize: 12.5, marginBottom: 10 }}>{hata}</p>}
         {basarili && <p style={{ color: C.green, fontSize: 12.5, marginBottom: 10, fontWeight: 600 }}>{basarili}</p>}

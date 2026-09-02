@@ -4,7 +4,7 @@ import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenl
 
 export async function POST(req) {
   try {
-    const { eposta, sifre } = await req.json();
+    const { eposta, sifre, beniHatirla } = await req.json();
     if (!eposta || !sifre) {
       return Response.json({ error: "E-posta ve şifre gerekli" }, { status: 400 });
     }
@@ -39,7 +39,7 @@ export async function POST(req) {
     const token = tokenUret(kullanici.id);
     return new Response(JSON.stringify({ ok: true, ad: kullanici.ad }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(token) },
+      headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(token, beniHatirla !== false) },
     });
   } catch (e) {
     console.error(e);
