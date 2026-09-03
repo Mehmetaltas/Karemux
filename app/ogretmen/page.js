@@ -293,7 +293,7 @@ export default function OgretmenPanel() {
         )}
       </div>
       <CerezBildirimi renkler={{ bg: C.yesil, metin: "#fff", buton: C.turuncu }} />
-    </div>
+    </main>
   );
 }
 
@@ -397,7 +397,7 @@ function ProfilSifreDegistir() {
       <button onClick={degistir} disabled={yukleniyor || !mevcutSifre || !yeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}>
         {yukleniyor ? "Kaydediliyor..." : "Şifreyi Güncelle"}
       </button>
-    </main>
+    </div>
   );
 }
 
