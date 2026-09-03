@@ -4553,7 +4553,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
             {kapsamTuru === "konu" && (
-              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu aria-label="Alt konu" (isteğe bağlı)" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
+              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu (isteğe bağlı)" aria-label="Alt konu" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
             )}
             {kapsamTuru === "donem" && (
               <div style={{ display: "flex", gap: 6 }}>
@@ -5028,7 +5028,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ margin: "14px 0" }}>
                     <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>OGRENCI BAGLA</label>
                     <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Ogrencinin aria-label="Ogrencinin baglanti kodu" baglanti kodu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+                      <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Ogrencinin baglanti kodu" aria-label="Ogrencinin baglanti kodu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
                       <button onClick={veliBaglan} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Bagla</button>
                     </div>
                     {veliMesaj && <p style={{ fontSize: 12, marginBottom: 10 }}>{veliMesaj}</p>}
@@ -5429,7 +5429,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <div style={{ marginBottom: 12 }}>
                   <input type="text" placeholder="Fatura adresi" aria-label="Fatura adresi" value={odemeAdres} onChange={(e) => setOdemeAdres(e.target.value)}
                     style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 6, fontSize: 13 }} />
-                  <input type="text" placeholder="TC Kimlik No aria-label="TC Kimlik No" (11 hane)" value={odemeTcKimlikNo}
+                  <input type="text" placeholder="TC Kimlik No (11 hane)" aria-label="TC Kimlik No" value={odemeTcKimlikNo}
                     onChange={(e) => setOdemeTcKimlikNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
                     style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, fontSize: 13 }} />
                 </div>
@@ -5807,7 +5807,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
                 <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>YENİ ÖĞRENCİ BAĞLA</label>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Öğrencinin aria-label="Ogrencinin baglanti kodu" bağlantı kodu"
+                  <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Öğrencinin bağlantı kodu" aria-label="Ogrencinin baglanti kodu"
                     style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
                   <button onClick={veliBaglan} style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Bağla</button>
                 </div>
