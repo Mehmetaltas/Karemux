@@ -133,7 +133,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
         <select value={sinif} onChange={(e) => setSinif(Number(e.target.value))} aria-label="Sinif" style={{ padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
           {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
         </select>
-        <select value={ders} onChange={(e) => setDers(e.target.value)} style={{ flex: 1, aria-label="Ders" style={{ flex: 1, padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
+        <select value={ders} onChange={(e) => setDers(e.target.value)} aria-label="Ders" style={{ flex: 1, padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
           {MATERYAL_DERSLER.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
       </div>
