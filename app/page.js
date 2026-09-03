@@ -3574,7 +3574,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
             <div style={{ display: "flex", gap: 5, justifyContent: "center", marginTop: 12 }}>
               {DUYURULAR.map((_, i) => (
-                <div key={i} onClick={() => setDuyuruIndex(i)} style={{
+                <div key={i} onClick={() => setDuyuruIndex(i)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setDuyuruIndex(i); } }} aria-label={`Duyuru ${i + 1}`} style={{
                   width: i === duyuruIndex ? 16 : 6, height: 6, borderRadius: 999, cursor: "pointer",
                   background: i === duyuruIndex ? COLORS.coral : COLORS.line, transition: "width 0.3s ease",
                 }} />
@@ -6261,7 +6261,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               return (
                 <div className="kx-fadein">
                   <p style={{ textAlign: "center", fontSize: 11.5, color: COLORS.muted, marginBottom: 12 }}>{kelimeKartiIndex + 1} / {kelimeKartlari.length}</p>
-                  <div onClick={() => setKelimeKartiCevrildi(!kelimeKartiCevrildi)} style={{
+                  <div onClick={() => setKelimeKartiCevrildi(!kelimeKartiCevrildi)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setKelimeKartiCevrildi(!kelimeKartiCevrildi); } }} aria-label="Karti cevir" style={{
                     background: kelimeKartiCevrildi ? "#1B2430" : "#FDFBF6", borderRadius: 20, padding: "50px 24px", minHeight: 200,
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center",
                     cursor: "pointer", boxShadow: "0 4px 16px rgba(0,0,0,0.1)", border: `1px solid ${COLORS.line}`,

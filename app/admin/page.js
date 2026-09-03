@@ -1277,7 +1277,7 @@ export default function YonetimPaneli() {
               {!cariler ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : cariler.length === 0 ? (
                 <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz cari yok.</p>
               ) : cariler.map((c) => (
-                <div key={c.id} onClick={() => cariSec(c.id)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenCariId === c.id ? T.surfaceHover : "transparent" }}>
+                <div key={c.id} onClick={() => cariSec(c.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); cariSec(c.id); } }} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenCariId === c.id ? T.surfaceHover : "transparent" }}>
                   <div>
                     <p style={{ fontSize: TYPO.body, fontWeight: 600 }}>{c.ad}</p>
                     <p style={{ fontSize: TYPO.micro, color: T.textMuted, textTransform: "capitalize" }}>{c.tur}</p>
@@ -1357,7 +1357,7 @@ export default function YonetimPaneli() {
               {!kasaHesaplari ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kasaHesaplari.length === 0 ? (
                 <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz hesap yok.</p>
               ) : kasaHesaplari.map((h) => (
-                <div key={h.id} onClick={() => hesapSec(h.id)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenHesapId === h.id ? T.surfaceHover : "transparent" }}>
+                <div key={h.id} onClick={() => hesapSec(h.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); hesapSec(h.id); } }} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenHesapId === h.id ? T.surfaceHover : "transparent" }}>
                   <div>
                     <p style={{ fontSize: TYPO.body, fontWeight: 600 }}>{h.tur === "nakit" ? "💵" : "🏦"} {h.hesap_adi}</p>
                     {h.banka_adi && <p style={{ fontSize: TYPO.micro, color: T.textMuted }}>{h.banka_adi}</p>}

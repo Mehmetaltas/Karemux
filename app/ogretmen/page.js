@@ -353,7 +353,7 @@ function Materyallerim() {
         <p style={{ fontSize: 13, color: "#999" }}>Aramaya uyan materyal yok.</p>
       ) : filtreliListe.map((m) => (
         <div key={m.id} style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 14, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <div onClick={() => setAcikMateryal(m)} style={{ cursor: "pointer", flex: 1 }}>
+          <div onClick={() => setAcikMateryal(m)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setAcikMateryal(m); } }} style={{ cursor: "pointer", flex: 1 }}>
             <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0 }}>{m.materyal.baslik}</p>
             <p style={{ fontSize: 11.5, color: "#999", margin: "2px 0 0" }}>{m.ders} · {m.sinif}. Sınıf · {new Date(m.olusturulma).toLocaleDateString("tr-TR")}</p>
           </div>
