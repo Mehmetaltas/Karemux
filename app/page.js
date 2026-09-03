@@ -2640,16 +2640,33 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   function MikrofonButonu({ alanAdi, metinAyarla }) {
     const aktifMi = dinleniyor === alanAdi;
     return (
-      <button type="button" onClick={() => mikrofonlaDinle(alanAdi, metinAyarla)} aria-label={aktifMi ? "Dinlemeyi durdur" : "Sesli soyle"} disabled={dinleniyor !== null && !aktifMi} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: aktifMi ? 1 : 0.6 }}>
+      <button type="button" onClick={() => mikrofonlaDinle(alanAdi, metinAyarla)} aria-label={aktifMi ? "Dinleniyor, durdurmak icin dokun" : "Sesli soyle"} aria-pressed={aktifMi} disabled={dinleniyor !== null && !aktifMi} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: aktifMi ? 1 : 0.6 }}>
         {aktifMi ? "🔴" : "🎤"}
       </button>
     );
   }
 
   function SesliOkuButonu({ metin }) {
+    const [okunuyor, setOkunuyor] = useState(false);
+    function tikla() {
+      if (!window.speechSynthesis) return;
+      if (okunuyor) {
+        window.speechSynthesis.cancel();
+        setOkunuyor(false);
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const konusma = new SpeechSynthesisUtterance(metin);
+      konusma.lang = "tr-TR";
+      konusma.rate = 0.95;
+      konusma.onend = () => setOkunuyor(false);
+      konusma.onerror = () => setOkunuyor(false);
+      window.speechSynthesis.speak(konusma);
+      setOkunuyor(true);
+    }
     return (
-      <button type="button" onClick={() => sesliOku(metin)} aria-label="Metni sesli oku" style={{ border: "none", background: "none", cursor: "pointer", fontSize: 13, color: COLORS.muted, marginLeft: 6 }}>
-        🔊
+      <button type="button" onClick={tikla} aria-label={okunuyor ? "Okumayi durdur" : "Metni sesli oku"} aria-pressed={okunuyor} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 13, color: COLORS.muted, marginLeft: 6 }}>
+        {okunuyor ? "⏹️" : "🔊"}
       </button>
     );
   }
