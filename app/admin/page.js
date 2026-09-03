@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
+import CerezBildirimi from "@/lib/CerezBildirimi";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -2179,6 +2180,7 @@ export default function YonetimPaneli() {
         )}
 
       </div>
+      <CerezBildirimi renkler={{ bg: T.text, metin: "#fff", buton: T.accent }} />
     </div>
   );
 }

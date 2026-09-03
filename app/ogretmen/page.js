@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
+import CerezBildirimi from "@/lib/CerezBildirimi";
 
 // C artik MUTABLE - tema degisince Object.assign ile ayni referans uzerinde
 // guncelleniyor. Boylece modul-seviyesinde C.xxx kullanan alt bilesenler
@@ -291,6 +292,7 @@ export default function OgretmenPanel() {
           </div>
         )}
       </div>
+      <CerezBildirimi renkler={{ bg: C.yesil, metin: "#fff", buton: C.turuncu }} />
     </div>
   );
 }
