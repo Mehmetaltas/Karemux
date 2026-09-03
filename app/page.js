@@ -2726,7 +2726,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (sorunModu) {
       return (
         <div style={{ marginTop: 10 }}>
-          <input value={sorunMetni} onChange={(e) => setSorunMetni(e.target.value)} placeholder="Ne sorun vardi? (istege bagli)" style={{ width: "100%", boxSizing: "border-box", padding: "6px 8px", borderRadius: 6, border: `1.5px solid ${COLORS.line}`, fontSize: 11.5, marginBottom: 6 }} />
+          <input value={sorunMetni} aria-label="Sorun aciklamasi" onChange={(e) => setSorunMetni(e.target.value)} placeholder="Ne sorun vardi? (istege bagli)" style={{ width: "100%", boxSizing: "border-box", padding: "6px 8px", borderRadius: 6, border: `1.5px solid ${COLORS.line}`, fontSize: 11.5, marginBottom: 6 }} />
           <button onClick={() => geriBildirimGonder(ozellik, "sorun", sorunMetni)} style={{ padding: "5px 10px", borderRadius: 6, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }}>Gonder</button>
         </div>
       );
@@ -4418,7 +4418,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               const altBasliklar = altKonuCache[anahtar] || [];
               if (altBasliklar.length === 0) {
                 return (
-                  <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder={altKonuYukleniyor ? "Alt başlıklar hazırlanıyor..." : "Alt konu (isteğe bağlı, spesifik bir başlık yaz)"} style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
+                  <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder={altKonuYukleniyor aria-label="Alt konu" ? "Alt başlıklar hazırlanıyor..." : "Alt konu (isteğe bağlı, spesifik bir başlık yaz)"} style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
                 );
               }
               return (
@@ -4468,7 +4468,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Soru Sayısı</p>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <input type="range" min={3} max={20} value={sinavSoruSayisi} onChange={(e) => setSinavSoruSayisi(Number(e.target.value))} style={{ flex: 1, accentColor: COLORS.coral }} />
+                <input type="range" min={3} max={20} value={sinavSoruSayisi} onChange={(e) => setSinavSoruSayisi(Number(e.target.value))} style={{ flex: 1, accentColor: COLORS.coral }} aria-label="Sinav soru sayisi" />
                 <div style={{ width: 44, height: 34, borderRadius: 10, background: "#FAF6EE", border: `1.5px solid ${COLORS.line}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>{sinavSoruSayisi}</div>
               </div>
             </div>
@@ -4553,7 +4553,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
             {kapsamTuru === "konu" && (
-              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu (isteğe bağlı)" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
+              <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder="Alt konu aria-label="Alt konu" (isteğe bağlı)" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
             )}
             {kapsamTuru === "donem" && (
               <div style={{ display: "flex", gap: 6 }}>
@@ -4570,7 +4570,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 13, fontWeight: 700, margin: 0 }}>Soru Sayısı</p>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <input type="range" min={3} max={20} value={sinavSoruSayisi} onChange={(e) => setSinavSoruSayisi(Number(e.target.value))} style={{ flex: 1, accentColor: COLORS.mustard }} />
+                <input type="range" min={3} max={20} value={sinavSoruSayisi} onChange={(e) => setSinavSoruSayisi(Number(e.target.value))} style={{ flex: 1, accentColor: COLORS.mustard }} aria-label="Sinav soru sayisi" />
                 <div style={{ width: 44, height: 34, borderRadius: 10, background: "#FAF6EE", border: `1.5px solid ${COLORS.line}`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>{sinavSoruSayisi}</div>
               </div>
             </div>
@@ -4589,7 +4589,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             {!denemeGonderildi && (
               <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
                 <label style={{ cursor: "pointer" }}>
-                  <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+                  <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} aria-label="Fotograf yukle"
                     onChange={(e) => { const f = e.target.files[0]; if (f) optikOkumaYap(f); }} />
                   <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
                     {optikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
@@ -4772,7 +4772,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 8, padding: 12, margin: "10px 0" }}>
                     <p style={{ fontSize: 13, marginBottom: 8 }}>E-postan henuz dogrulanmadi. Gelen kutunu kontrol et.</p>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <input value={dogrulamaKoduGir} onChange={(e) => setDogrulamaKoduGir(e.target.value)} placeholder="6 haneli kod" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+                      <input value={dogrulamaKoduGir} aria-label="Dogrulama kodu" onChange={(e) => setDogrulamaKoduGir(e.target.value)} placeholder="6 haneli kod" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
                       <button onClick={dogrulaGonder} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Dogrula</button>
                     </div>
                     <button onClick={kodTekrarGonder} style={{ marginTop: 8, padding: 0, border: "none", background: "none", color: COLORS.muted, fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>Kodu tekrar gonder</button>
@@ -4807,7 +4807,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ background: "#F4F0E4", borderRadius: 8, padding: 12, margin: "10px 0" }}>
                     <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>🏢 Okulunun/Dershanenin Kurum Kodu Var mı?</p>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <input value={kurumBaglanKodu} onChange={(e) => setKurumBaglanKodu(e.target.value.toUpperCase())} placeholder="Kurum kodu"
+                      <input value={kurumBaglanKodu} aria-label="Kurum kodu" onChange={(e) => setKurumBaglanKodu(e.target.value.toUpperCase())} placeholder="Kurum kodu"
                         style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5, letterSpacing: 1 }} />
                       <button className="kx-btn" onClick={kurumaOgrenciOlarakBaglan} disabled={kurumBaglaniyor || !kurumBaglanKodu.trim()}
                         style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>
@@ -4851,7 +4851,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <option value="8">8. Sınıf</option>
                       </select>
                       <div style={{ position: "relative", marginBottom: 8 }}>
-                        <input value={profilOkul}
+                        <input value={profilOkul} aria-label="Okul adi"
                           onChange={(e) => { setProfilOkul(e.target.value); setOkulOnerileriAcik(true); }}
                           onFocus={() => setOkulOnerileriAcik(true)}
                           onBlur={() => setTimeout(() => setOkulOnerileriAcik(false), 150)}
@@ -4874,7 +4874,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <option value="">İl seç (opsiyonel)</option>
                         {TURKIYE_IL_ILCE.map((i) => <option key={i.plaka} value={i.il}>{i.il}</option>)}
                       </select>
-                      <input value={profilTelefon} onChange={(e) => setProfilTelefon(e.target.value)} placeholder="Telefon" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                      <input value={profilTelefon} aria-label="Telefon" onChange={(e) => setProfilTelefon(e.target.value)} placeholder="Telefon" style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                       <button onClick={profilKaydet} disabled={profilKaydediliyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                         {profilKaydediliyor ? "Kaydediliyor..." : "Kaydet"}
                       </button>
@@ -5028,7 +5028,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ margin: "14px 0" }}>
                     <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>OGRENCI BAGLA</label>
                     <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Ogrencinin baglanti kodu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+                      <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Ogrencinin aria-label="Ogrencinin baglanti kodu" baglanti kodu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
                       <button onClick={veliBaglan} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Bagla</button>
                     </div>
                     {veliMesaj && <p style={{ fontSize: 12, marginBottom: 10 }}>{veliMesaj}</p>}
@@ -5086,7 +5086,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <button onClick={() => setTalepTur("ozellik")} style={{ flex: 1, padding: "6px 0", borderRadius: 6, border: `1.5px solid ${talepTur === "ozellik" ? COLORS.coral : COLORS.line}`, background: talepTur === "ozellik" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 11, cursor: "pointer" }}>Ozellik</button>
                   </div>
                   <div style={{ display: "flex", gap: 6 }}>
-                    <input value={talepBaslik} onChange={(e) => setTalepBaslik(e.target.value)} placeholder="Orn: Basinc konusu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
+                    <input value={talepBaslik} aria-label="Talep basligi" onChange={(e) => setTalepBaslik(e.target.value)} placeholder="Orn: Basinc konusu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
                     <button onClick={talepGonder} style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Talep Et</button>
                   </div>
                   {talepMesaj && <p style={{ fontSize: 11.5, marginTop: 8, color: COLORS.muted }}>{talepMesaj}</p>}
@@ -5119,24 +5119,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
                 {hesapModu === "kayit" && (
                   <>
-                    <input value={adGir} onChange={(e) => setAdGir(e.target.value)} placeholder="Adin" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                    <input value={adGir} aria-label="Adin" onChange={(e) => setAdGir(e.target.value)} placeholder="Adin" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                     <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                       <button onClick={() => setRolSec("ogrenci")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "ogrenci" ? COLORS.coral : COLORS.line}`, background: rolSec === "ogrenci" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🎓 Öğrenciyim</button>
                       <button onClick={() => setRolSec("veli")} style={{ flex: 1, padding: "7px 0", borderRadius: 8, border: `1.5px solid ${rolSec === "veli" ? COLORS.coral : COLORS.line}`, background: rolSec === "veli" ? "#FFF1EF" : "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>👪 Veliyim</button>
                     </div>
                     {rolSec === "ogrenci" && (
                       <>
-                        <input value={veliEpostaGir} onChange={(e) => setVeliEpostaGir(e.target.value)} placeholder="Veli/ebeveyn e-postasi" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <input value={veliEpostaGir} aria-label="Veli eposta" onChange={(e) => setVeliEpostaGir(e.target.value)} placeholder="Veli/ebeveyn e-postasi" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                         <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8, lineHeight: 1.5 }}>Hesabinin aktif olabilmesi icin veline/ebeveynine bir onay e-postasi gonderecegiz.</p>
                       </>
                     )}
                   </>
                 )}
-                <input value={epostaGir} onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                <input value={epostaGir} aria-label="E-posta" onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                 <GosterGizleInput value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 6 }} />
                 {hesapModu === "giris" && (
                   <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, fontSize: 11.5, color: COLORS.muted, cursor: "pointer" }}>
-                    <input type="checkbox" checked={beniHatirlaOgrenci} onChange={(e) => setBeniHatirlaOgrenci(e.target.checked)} />
+                    <input type="checkbox" checked={beniHatirlaOgrenci} aria-label="Beni hatirla" onChange={(e) => setBeniHatirlaOgrenci(e.target.checked)} />
                     Beni hatırla (bu cihazda oturumu açık tut)
                   </label>
                 )}
@@ -5156,14 +5156,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Şifre Sıfırlama</p>
                     {sifreUnutAsama === "eposta" ? (
                       <>
-                        <input value={sifreUnutEposta} onChange={(e) => setSifreUnutEposta(e.target.value)} placeholder="Kayitli e-postan" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <input value={sifreUnutEposta} aria-label="Kayitli eposta" onChange={(e) => setSifreUnutEposta(e.target.value)} placeholder="Kayitli e-postan" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                         <button onClick={sifreSifirlamaKoduGonder} disabled={sifreUnutYukleniyor || !sifreUnutEposta} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                           {sifreUnutYukleniyor ? "Gonderiliyor..." : "Kod Gonder"}
                         </button>
                       </>
                     ) : (
                       <>
-                        <input value={sifreUnutKod} onChange={(e) => setSifreUnutKod(e.target.value)} placeholder="6 haneli kod" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                        <input value={sifreUnutKod} aria-label="Dogrulama kodu" onChange={(e) => setSifreUnutKod(e.target.value)} placeholder="6 haneli kod" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                         <GosterGizleInput value={sifreUnutYeniSifre} onChange={(e) => setSifreUnutYeniSifre(e.target.value)} placeholder="Yeni sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
                         <button onClick={sifreSifirlamayiTamamla} disabled={sifreUnutYukleniyor || !sifreUnutKod || !sifreUnutYeniSifre} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                           {sifreUnutYukleniyor ? "Gonderiliyor..." : "Sifreyi Degistir"}
@@ -5427,9 +5427,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <br /><em>Istedigin an, tek tikla, hic ugrasmadan iptal edebilirsin.</em>
                 </p>
                 <div style={{ marginBottom: 12 }}>
-                  <input type="text" placeholder="Fatura adresi" value={odemeAdres} onChange={(e) => setOdemeAdres(e.target.value)}
+                  <input type="text" placeholder="Fatura adresi" aria-label="Fatura adresi" value={odemeAdres} onChange={(e) => setOdemeAdres(e.target.value)}
                     style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 6, fontSize: 13 }} />
-                  <input type="text" placeholder="TC Kimlik No (11 hane)" value={odemeTcKimlikNo}
+                  <input type="text" placeholder="TC Kimlik No aria-label="TC Kimlik No" (11 hane)" value={odemeTcKimlikNo}
                     onChange={(e) => setOdemeTcKimlikNo(e.target.value.replace(/\D/g, "").slice(0, 11))}
                     style={{ width: "100%", padding: 8, borderRadius: 8, border: `1px solid ${COLORS.line}`, fontSize: 13 }} />
                 </div>
@@ -5503,6 +5503,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <input
                   type="file" accept="image/*" capture="environment"
                   onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
+                  aria-label="Soru fotografi yukle"
                   style={{ display: "none" }}
                 />
                 <span className="kx-btn" style={{ display: "inline-block", padding: "9px 20px", borderRadius: 10, background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5 }}>Dosya Seç</span>
@@ -5584,7 +5585,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 )}
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <MikrofonButonu alanAdi="soru-sohbet" metinAyarla={setSoruSohbetMetni} />
-                  <input value={soruSohbetMetni} onChange={(e) => setSoruSohbetMetni(e.target.value)}
+                  <input value={soruSohbetMetni} aria-label="Soru hakkinda mesaj" onChange={(e) => setSoruSohbetMetni(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") soruSohbetGonder(); }}
                     placeholder="Örn: 3. adımı anlamadım, tekrar açıklar mısın?"
                     style={{ flex: 1, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
@@ -5806,7 +5807,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
                 <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>YENİ ÖĞRENCİ BAĞLA</label>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Öğrencinin bağlantı kodu"
+                  <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Öğrencinin aria-label="Ogrencinin baglanti kodu" bağlantı kodu"
                     style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
                   <button onClick={veliBaglan} style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Bağla</button>
                 </div>
@@ -5860,6 +5861,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                           value={veliSoruMetni[o.ogrenci.id] || ""}
                           onChange={(e) => setVeliSoruMetni((eski) => ({ ...eski, [o.ogrenci.id]: e.target.value }))}
                           placeholder="Orn: Bu hafta neden dustu?"
+                          aria-label="Ogretmene soru"
                           style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }}
                         />
                         <button
@@ -5963,7 +5965,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
                 <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
                   <label style={{ cursor: "pointer" }}>
-                    <input type="file" accept="image/*" capture="environment" style={{ display: "none" }}
+                    <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} aria-label="Fotograf yukle"
                       onChange={(e) => { const f = e.target.files[0]; if (f) ulusalOptikOkumaYap(f); }} />
                     <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
                       {ulusalOptikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
@@ -6093,11 +6095,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10 }}>Gerçek bir kurum yöneticisi hesabı oluşturur - giriş bilgilerin bu olacak.</p>
                   {!kurumOlusturSonuc ? (
                     <>
-                      <input value={kurumOlusturAdi} onChange={(e) => setKurumOlusturAdi(e.target.value)} placeholder="Okul / Dershane Adı"
+                      <input value={kurumOlusturAdi} aria-label="Okul veya dershane adi" onChange={(e) => setKurumOlusturAdi(e.target.value)} placeholder="Okul / Dershane Adı"
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
-                      <input value={kurumOlusturYoneticiAdi} onChange={(e) => setKurumOlusturYoneticiAdi(e.target.value)} placeholder="Yönetici Adı Soyadı"
+                      <input value={kurumOlusturYoneticiAdi} aria-label="Yonetici adi soyadi" onChange={(e) => setKurumOlusturYoneticiAdi(e.target.value)} placeholder="Yönetici Adı Soyadı"
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
-                      <input type="email" value={kurumOlusturEposta} onChange={(e) => setKurumOlusturEposta(e.target.value)} placeholder="E-posta"
+                      <input type="email" value={kurumOlusturEposta} aria-label="E-posta" onChange={(e) => setKurumOlusturEposta(e.target.value)} placeholder="E-posta"
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
                       <GosterGizleInput value={kurumOlusturSifre} onChange={(e) => setKurumOlusturSifre(e.target.value)} placeholder="Şifre (en az 6 karakter)"
                         style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
@@ -6737,11 +6739,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               )}
 
               <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF OKUL ADI</label>
-              <input value={hedefOkulAdi} onChange={(e) => setHedefOkulAdi(e.target.value)} placeholder="Örn: XYZ Fen Lisesi"
+              <input value={hedefOkulAdi} aria-label="Hedef okul adi" onChange={(e) => setHedefOkulAdi(e.target.value)} placeholder="Örn: XYZ Fen Lisesi"
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }} />
 
               <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF PUAN (100-500 arası, kendi araştırdığın)</label>
-              <input type="number" min="100" max="500" value={hedefPuanDeger} onChange={(e) => setHedefPuanDeger(e.target.value)} placeholder="Örn: 470"
+              <input type="number" min="100" max="500" value={hedefPuanDeger} aria-label="Hedef puan" onChange={(e) => setHedefPuanDeger(e.target.value)} placeholder="Örn: 470"
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 16, background: "#FAF6EE" }} />
 
               <button className="kx-btn" onClick={hedefOkuluKaydet} disabled={hedefKaydediliyor} style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
@@ -6885,10 +6887,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <span style={{ fontSize: 10.5, color: COLORS.muted }}>{MAX_SORU[ders]} soru · Katsayı ×{KATSAYILAR[ders]}</span>
                     </div>
                     <div style={{ display: "flex", gap: 8 }}>
-                      <input type="number" min="0" max={MAX_SORU[ders]} value={puanGirdi[ders].d} placeholder="Doğru"
+                      <input type="number" min="0" max={MAX_SORU[ders]} value={puanGirdi[ders].d} placeholder="Doğru" aria-label="Dogru sayisi"
                         onChange={(e) => setPuanGirdi((eski) => ({ ...eski, [ders]: { ...eski[ders], d: e.target.value } }))}
                         style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
-                      <input type="number" min="0" max={MAX_SORU[ders]} value={puanGirdi[ders].y} placeholder="Yanlış"
+                      <input type="number" min="0" max={MAX_SORU[ders]} value={puanGirdi[ders].y} placeholder="Yanlış" aria-label="Yanlis sayisi"
                         onChange={(e) => setPuanGirdi((eski) => ({ ...eski, [ders]: { ...eski[ders], y: e.target.value } }))}
                         style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, background: "#FAF6EE" }} />
                       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12.5, fontWeight: 700, color: COLORS.coral }}>
@@ -6952,11 +6954,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ display: "flex", gap: 12 }}>
                 <div style={{ flex: 1, background: "#FAF6EE", borderRadius: 10, padding: 12, textAlign: "center" }}>
                   <p style={{ fontSize: 10, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>HAFTALIK SAAT</p>
-                  <input type="number" value={haftalikSaat} onChange={(e) => setHaftalikSaat(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", textAlign: "center", padding: "6px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 16, fontWeight: 700, background: "#fff" }} />
+                  <input type="number" value={haftalikSaat} aria-label="Haftalik calisma saati" onChange={(e) => setHaftalikSaat(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", textAlign: "center", padding: "6px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 16, fontWeight: 700, background: "#fff" }} />
                 </div>
                 <div style={{ flex: 1, background: "#FAF6EE", borderRadius: 10, padding: 12, textAlign: "center" }}>
                   <p style={{ fontSize: 10, fontWeight: 700, color: COLORS.muted, marginBottom: 6 }}>KALAN HAFTA</p>
-                  <input type="number" value={kalanHafta} onChange={(e) => setKalanHafta(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", textAlign: "center", padding: "6px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 16, fontWeight: 700, background: "#fff" }} />
+                  <input type="number" value={kalanHafta} aria-label="Kalan hafta sayisi" onChange={(e) => setKalanHafta(Number(e.target.value))} style={{ width: "100%", boxSizing: "border-box", textAlign: "center", padding: "6px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 16, fontWeight: 700, background: "#fff" }} />
                 </div>
               </div>
             </div>
@@ -7067,7 +7069,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </button>
                 ))}
               </div>
-              <input value={konu} onChange={(e) => setKonu(e.target.value)} placeholder="orn. Uslu Sayilar..." style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 14, marginBottom: 10 }} />
+              <input value={konu} aria-label="Konu" onChange={(e) => setKonu(e.target.value)} placeholder="orn. Uslu Sayilar..." style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 14, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
                 <button onClick={konuAnlat} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600 }}>{yukleniyor === "aciklama" ? "Hazirlaniyor…" : "Konuyu Anlat"}</button>
                 <button onClick={() => soruUret(false)} disabled={!ders || !konu.trim() || yukleniyor} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600 }}>{yukleniyor === "quiz" ? "Uretiliyor…" : "5 Soru"}</button>

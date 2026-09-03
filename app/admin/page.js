@@ -981,12 +981,12 @@ export default function YonetimPaneli() {
             <p style={{ color: T.text, fontSize: TYPO.title, fontWeight: 700 }}>Karemux Yönetim</p>
             <p style={{ color: T.textMuted, fontSize: TYPO.body, marginTop: 3 }}>Bu alan sadece yöneticiye açıktır</p>
           </div>
-          <input type="email" value={personelEposta} onChange={(e) => setPersonelEposta(e.target.value)}
+          <input type="email" value={personelEposta} onChange={(e) => setPersonelEposta(e.target.value)} aria-label="Personel eposta"
             placeholder="Eposta" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} autoFocus />
           <GosterGizleInput value={personelSifre} onChange={(e) => setPersonelSifre(e.target.value)} onKeyDown={(e) => e.key === "Enter" && girisDene()}
             placeholder="Şifre" style={{ ...girdiStil, padding: "12px 14px", fontSize: TYPO.bodyStrong, marginBottom: 10 }} />
           <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12, fontSize: TYPO.caption, color: T.textMuted, cursor: "pointer" }}>
-            <input type="checkbox" checked={personelBeniHatirla} onChange={(e) => setPersonelBeniHatirla(e.target.checked)} />
+            <input type="checkbox" checked={personelBeniHatirla} aria-label="Beni hatirla" onChange={(e) => setPersonelBeniHatirla(e.target.checked)} />
             Beni hatırla (bu cihazda oturumu açık tut)
           </label>
           <button onClick={girisDene} disabled={yukleniyor || !personelEposta || !personelSifre} style={{ ...butonStil(!!(personelEposta && personelSifre)), width: "100%", padding: "12px 0", fontSize: TYPO.bodyStrong }}>
@@ -1188,7 +1188,7 @@ export default function YonetimPaneli() {
                   <p style={{ fontSize: TYPO.body, fontWeight: 600 }}>{p.ad}</p>
                   <p style={{ fontSize: TYPO.micro, color: T.textMuted }}>{p.sure_gun ? `${p.sure_gun} gün erişim` : `${p.kredi_miktari} kredi`}</p>
                 </div>
-                <input type="number" defaultValue={p.fiyat_tl} onChange={(e) => setDuzenlenenFiyatlar((eski) => ({ ...eski, [p.id]: e.target.value }))}
+                <input type="number" defaultValue={p.fiyat_tl} aria-label="Fiyat" onChange={(e) => setDuzenlenenFiyatlar((eski) => ({ ...eski, [p.id]: e.target.value }))}
                   style={{ ...girdiStil, width: 80, textAlign: "right", padding: "7px 9px" }} />
                 <span style={{ color: T.textMuted, fontSize: TYPO.caption }}>₺</span>
                 <button onClick={() => fiyatKaydet(p.id)} disabled={fiyatKaydediliyor === p.id || duzenlenenFiyatlar[p.id] == null}
@@ -1209,11 +1209,11 @@ export default function YonetimPaneli() {
                 {["muhasebe", "bagkur", "vergi", "ai_maliyeti", "domain", "sunucu", "hosting", "odeme_komisyonu", "pazarlama", "diger"].map((k) => <option key={k} value={k}>{k}</option>)}
               </select>
               <label style={etiketStil}>Tutar (₺)</label>
-              <input type="number" value={giderTutar} onChange={(e) => setGiderTutar(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <input type="number" value={giderTutar} aria-label="Gider tutari" onChange={(e) => setGiderTutar(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <label style={etiketStil}>Açıklama (opsiyonel)</label>
-              <input value={giderAciklama} onChange={(e) => setGiderAciklama(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={giderAciklama} aria-label="Gider aciklamasi" onChange={(e) => setGiderAciklama(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <label style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 12, fontSize: TYPO.body, color: T.textMuted }}>
-                <input type="checkbox" checked={giderTekrarlayan} onChange={(e) => setGiderTekrarlayan(e.target.checked)} />
+                <input type="checkbox" checked={giderTekrarlayan} aria-label="Tekrarlayan gider" onChange={(e) => setGiderTekrarlayan(e.target.checked)} />
                 Her ay otomatik tekrarla
               </label>
               <label style={etiketStil}>Hangi Kasa/Banka Hesabından? (opsiyonel, seçilirse otomatik yansır)</label>
@@ -1242,7 +1242,7 @@ export default function YonetimPaneli() {
 
             <Panel baslik="Taksit Komisyon Hesaplayıcı" ikon="📐" sagUst={<span style={{ fontSize: TYPO.micro, color: T.textMuted }}>tahmini</span>}>
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                <input type="number" value={taksitTutar} onChange={(e) => setTaksitTutar(e.target.value)} placeholder="Satış tutarı" style={girdiStil} />
+                <input type="number" value={taksitTutar} aria-label="Satis tutari" onChange={(e) => setTaksitTutar(e.target.value)} placeholder="Satış tutarı" style={girdiStil} />
                 <select value={taksitSayisi} onChange={(e) => setTaksitSayisi(Number(e.target.value))} style={girdiStil}>
                   {[1, 2, 3, 6, 9, 12].map((t) => <option key={t} value={t}>{t} Taksit</option>)}
                 </select>
@@ -1259,14 +1259,14 @@ export default function YonetimPaneli() {
           <>
             <Panel baslik="Yeni Cari Ekle" ikon="➕">
               <label style={etiketStil}>Ad / Unvan</label>
-              <input value={yeniCariAd} onChange={(e) => setYeniCariAd(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={yeniCariAd} aria-label="Cari adi" onChange={(e) => setYeniCariAd(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <select value={yeniCariTur} onChange={(e) => setYeniCariTur(e.target.value)} style={girdiStil}>
                   <option value="musteri">Müşteri (Kurum/Bireysel)</option>
                   <option value="tedarikci">Tedarikçi</option>
                   <option value="diger">Diğer</option>
                 </select>
-                <input value={yeniCariTelefon} onChange={(e) => setYeniCariTelefon(e.target.value)} placeholder="Telefon (opsiyonel)" style={girdiStil} />
+                <input value={yeniCariTelefon} aria-label="Telefon" onChange={(e) => setYeniCariTelefon(e.target.value)} placeholder="Telefon (opsiyonel)" style={girdiStil} />
               </div>
               <button onClick={cariEkle} disabled={cariEkleniyor || !yeniCariAd} style={{ ...butonStil(!!yeniCariAd), width: "100%", padding: "10px 0" }}>
                 {cariEkleniyor ? "Ekleniyor..." : "Cari Ekle"}
@@ -1298,9 +1298,9 @@ export default function YonetimPaneli() {
                     <option value="tedarik_borcu">Tedarik Borcu (biz borçlandık)</option>
                     <option value="odeme">Ödeme Yaptık</option>
                   </select>
-                  <input type="number" value={hareketTutar} onChange={(e) => setHareketTutar(e.target.value)} placeholder="Tutar ₺" style={girdiStil} />
+                  <input type="number" value={hareketTutar} aria-label="Hareket tutari" onChange={(e) => setHareketTutar(e.target.value)} placeholder="Tutar ₺" style={girdiStil} />
                 </div>
-                <input value={hareketAciklama} onChange={(e) => setHareketAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+                <input value={hareketAciklama} aria-label="Hareket aciklamasi" onChange={(e) => setHareketAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
                 {(hareketTur === "tahsilat" || hareketTur === "odeme") && (
                   <div style={{ marginBottom: 10 }}>
                     <label style={etiketStil}>Hangi Kasa/Banka Hesabı? (opsiyonel, seçilirse otomatik yansır)</label>
@@ -1338,16 +1338,16 @@ export default function YonetimPaneli() {
 
             <Panel baslik="Yeni Hesap Ekle" ikon="➕">
               <label style={etiketStil}>Hesap Adı</label>
-              <input value={yeniHesapAdi} onChange={(e) => setYeniHesapAdi(e.target.value)} placeholder="Örn: İş Bankası Şirket Hesabı" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={yeniHesapAdi} aria-label="Hesap adi" onChange={(e) => setYeniHesapAdi(e.target.value)} placeholder="Örn: İş Bankası Şirket Hesabı" style={{ ...girdiStil, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <select value={yeniHesapTur} onChange={(e) => setYeniHesapTur(e.target.value)} style={girdiStil}>
                   <option value="banka">Banka Hesabı</option>
                   <option value="nakit">Nakit (Kasa)</option>
                 </select>
-                <input value={yeniHesapBanka} onChange={(e) => setYeniHesapBanka(e.target.value)} placeholder="Banka adı (opsiyonel)" style={girdiStil} />
+                <input value={yeniHesapBanka} aria-label="Banka adi" onChange={(e) => setYeniHesapBanka(e.target.value)} placeholder="Banka adı (opsiyonel)" style={girdiStil} />
               </div>
               <label style={etiketStil}>Başlangıç Bakiyesi (₺)</label>
-              <input type="number" value={yeniHesapBaslangic} onChange={(e) => setYeniHesapBaslangic(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <input type="number" value={yeniHesapBaslangic} aria-label="Baslangic bakiyesi" onChange={(e) => setYeniHesapBaslangic(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
               <button onClick={hesapEkle} disabled={hesapEkleniyor || !yeniHesapAdi} style={{ ...butonStil(!!yeniHesapAdi), width: "100%", padding: "10px 0" }}>
                 {hesapEkleniyor ? "Ekleniyor..." : "Hesap Ekle"}
               </button>
@@ -1374,9 +1374,9 @@ export default function YonetimPaneli() {
                     <option value="giris">Giriş (Para Girdi)</option>
                     <option value="cikis">Çıkış (Para Çıktı)</option>
                   </select>
-                  <input type="number" value={kasaHareketTutar} onChange={(e) => setKasaHareketTutar(e.target.value)} placeholder="Tutar ₺" style={girdiStil} />
+                  <input type="number" value={kasaHareketTutar} aria-label="Kasa hareket tutari" onChange={(e) => setKasaHareketTutar(e.target.value)} placeholder="Tutar ₺" style={girdiStil} />
                 </div>
-                <input value={kasaHareketAciklama} onChange={(e) => setKasaHareketAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+                <input value={kasaHareketAciklama} aria-label="Kasa hareket aciklamasi" onChange={(e) => setKasaHareketAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
                 <button onClick={kasaHareketEkle} disabled={kasaHareketEkleniyor || !kasaHareketTutar} style={{ ...butonStil(!!kasaHareketTutar), width: "100%", padding: "10px 0", marginBottom: 14 }}>
                   {kasaHareketEkleniyor ? "Ekleniyor..." : "Hareket Ekle"}
                 </button>
@@ -1436,11 +1436,11 @@ export default function YonetimPaneli() {
           <>
             <Panel baslik={`Bu Ay Hedef (${planlamaVeri.ay}/${planlamaVeri.yil})`} ikon="🎯">
               <label style={etiketStil}>Gelir Hedefi (₺)</label>
-              <input type="number" value={hedefGelir} onChange={(e) => setHedefGelir(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <input type="number" value={hedefGelir} aria-label="Hedef gelir" onChange={(e) => setHedefGelir(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <label style={etiketStil}>Gider Hedefi (₺)</label>
-              <input type="number" value={hedefGider} onChange={(e) => setHedefGider(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <input type="number" value={hedefGider} aria-label="Hedef gider" onChange={(e) => setHedefGider(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <label style={etiketStil}>Not (opsiyonel)</label>
-              <input value={hedefNot} onChange={(e) => setHedefNot(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <input value={hedefNot} aria-label="Hedef notu" onChange={(e) => setHedefNot(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
               <button onClick={hedefKaydet} disabled={hedefKaydediliyor} style={{ ...butonStil(true), width: "100%", padding: "10px 0" }}>
                 {hedefKaydediliyor ? "Kaydediliyor..." : "Hedefi Kaydet"}
               </button>
@@ -1477,15 +1477,15 @@ export default function YonetimPaneli() {
               </div>
               <Panel baslik="Bir Ayda Senaryo (Kisi Basi)" ikon="👤">
                 <label style={etiketStil}>Konu Anlatimi (adet)</label>
-                <input type="number" value={senaryoKonuAnlatimi} onChange={(e) => setSenaryoKonuAnlatimi(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <input type="number" value={senaryoKonuAnlatimi} aria-label="Konu anlatimi maliyeti" onChange={(e) => setSenaryoKonuAnlatimi(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
                 <label style={etiketStil}>Soru Cozumu (adet)</label>
-                <input type="number" value={senaryoSoruCozumu} onChange={(e) => setSenaryoSoruCozumu(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <input type="number" value={senaryoSoruCozumu} aria-label="Soru cozumu maliyeti" onChange={(e) => setSenaryoSoruCozumu(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
                 <label style={etiketStil}>Tekrar Testi (adet)</label>
-                <input type="number" value={senaryoTekrarTesti} onChange={(e) => setSenaryoTekrarTesti(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <input type="number" value={senaryoTekrarTesti} aria-label="Tekrar testi maliyeti" onChange={(e) => setSenaryoTekrarTesti(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
                 <label style={etiketStil}>Deneme/Yazili (adet)</label>
-                <input type="number" value={senaryoDeneme} onChange={(e) => setSenaryoDeneme(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
+                <input type="number" value={senaryoDeneme} aria-label="Deneme maliyeti" onChange={(e) => setSenaryoDeneme(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
                 <label style={etiketStil}>Toplu Hesap Icin Kisi Sayisi</label>
-                <input type="number" value={senaryoKisiSayisi} onChange={(e) => setSenaryoKisiSayisi(Number(e.target.value))} style={girdiStil} />
+                <input type="number" value={senaryoKisiSayisi} aria-label="Kisi sayisi" onChange={(e) => setSenaryoKisiSayisi(Number(e.target.value))} style={girdiStil} />
               </Panel>
 
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
@@ -1671,27 +1671,27 @@ export default function YonetimPaneli() {
           <>
             <Panel baslik="Yeni İndirim Kodu" ikon="🏷️">
               <label style={etiketStil}>Kod</label>
-              <input value={ikKod} onChange={(e) => setIkKod(e.target.value)} placeholder="Örn: ILKKAYIT25" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={ikKod} aria-label="Indirim kodu" onChange={(e) => setIkKod(e.target.value)} placeholder="Örn: ILKKAYIT25" style={{ ...girdiStil, marginBottom: 10 }} />
               <label style={etiketStil}>Açıklama (opsiyonel)</label>
-              <input value={ikAciklama} onChange={(e) => setIkAciklama(e.target.value)} placeholder="Örn: İlk 100 kayıt kampanyası" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={ikAciklama} aria-label="Indirim aciklamasi" onChange={(e) => setIkAciklama(e.target.value)} placeholder="Örn: İlk 100 kayıt kampanyası" style={{ ...girdiStil, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <div style={{ flex: 1 }}>
                   <label style={etiketStil}>Yüzde İndirim (%)</label>
-                  <input type="number" value={ikYuzde} onChange={(e) => setIkYuzde(e.target.value)} placeholder="Örn: 25" style={girdiStil} />
+                  <input type="number" value={ikYuzde} aria-label="Indirim yuzdesi" onChange={(e) => setIkYuzde(e.target.value)} placeholder="Örn: 25" style={girdiStil} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={etiketStil}>veya Sabit Tutar (₺)</label>
-                  <input type="number" value={ikSabitTutar} onChange={(e) => setIkSabitTutar(e.target.value)} placeholder="Örn: 100" style={girdiStil} />
+                  <input type="number" value={ikSabitTutar} aria-label="Sabit indirim tutari" onChange={(e) => setIkSabitTutar(e.target.value)} placeholder="Örn: 100" style={girdiStil} />
                 </div>
               </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
                 <div style={{ flex: 1 }}>
                   <label style={etiketStil}>Maks. Kullanım (opsiyonel)</label>
-                  <input type="number" value={ikMaxKullanim} onChange={(e) => setIkMaxKullanim(e.target.value)} placeholder="Sınırsız" style={girdiStil} />
+                  <input type="number" value={ikMaxKullanim} aria-label="Maksimum kullanim" onChange={(e) => setIkMaxKullanim(e.target.value)} placeholder="Sınırsız" style={girdiStil} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={etiketStil}>Son Geçerlilik (opsiyonel)</label>
-                  <input type="date" value={ikGecerlilikBitis} onChange={(e) => setIkGecerlilikBitis(e.target.value)} style={girdiStil} />
+                  <input type="date" value={ikGecerlilikBitis} aria-label="Gecerlilik bitis tarihi" onChange={(e) => setIkGecerlilikBitis(e.target.value)} style={girdiStil} />
                 </div>
               </div>
               <button onClick={indirimKoduOlustur} disabled={ikOlusturuluyor || !ikKod || (!ikYuzde && !ikSabitTutar)} style={{ ...butonStil(!!(ikKod && (ikYuzde || ikSabitTutar))), width: "100%", padding: "10px 0" }}>
@@ -1723,7 +1723,7 @@ export default function YonetimPaneli() {
           <>
             <Panel baslik="Ücretsiz Deneme Oluştur (Karemux)" ikon="🇹🇷">
               <label style={etiketStil}>Deneme Adı</label>
-              <input value={ulusalAd} onChange={(e) => setUlusalAd(e.target.value)} placeholder="Örn: 15. Hafta Türkiye Denemesi" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={ulusalAd} aria-label="Deneme adi" onChange={(e) => setUlusalAd(e.target.value)} placeholder="Örn: 15. Hafta Türkiye Denemesi" style={{ ...girdiStil, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <select value={ulusalSinif} onChange={(e) => setUlusalSinif(e.target.value)} style={girdiStil}>
                   {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
@@ -1738,11 +1738,11 @@ export default function YonetimPaneli() {
                   <option value="yerel">Yerel (İl Bazlı)</option>
                 </select>
                 {ulusalKapsam === "yerel" && (
-                  <input value={ulusalIl} onChange={(e) => setUlusalIl(e.target.value)} placeholder="İl (örn: İstanbul)" style={girdiStil} />
+                  <input value={ulusalIl} aria-label="Il" onChange={(e) => setUlusalIl(e.target.value)} placeholder="İl (örn: İstanbul)" style={girdiStil} />
                 )}
               </div>
               <label style={etiketStil}>Açık Kalma Süresi (saat)</label>
-              <input type="number" value={ulusalSaat} onChange={(e) => setUlusalSaat(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 14 }} />
+              <input type="number" value={ulusalSaat} aria-label="Saat" onChange={(e) => setUlusalSaat(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 14 }} />
               <button onClick={ulusalOlustur} disabled={ulusalOlusturuluyor || !ulusalAd} style={{ ...butonStil(!!ulusalAd), width: "100%", padding: "10px 0" }}>
                 {ulusalOlusturuluyor ? "Oluşturuluyor..." : "Şimdi Başlat"}
               </button>
@@ -1750,7 +1750,7 @@ export default function YonetimPaneli() {
 
             <Panel baslik="Ücretli Deneme Oluştur" ikon="🎲">
               <label style={etiketStil}>Deneme Adı</label>
-              <input value={udAd} onChange={(e) => setUdAd(e.target.value)} placeholder="Örn: İstanbul Yerel Deneme #1" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={udAd} aria-label="Deneme adi" onChange={(e) => setUdAd(e.target.value)} placeholder="Örn: İstanbul Yerel Deneme #1" style={{ ...girdiStil, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <select value={udSinif} onChange={(e) => setUdSinif(e.target.value)} style={girdiStil}>
                   {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
@@ -1765,11 +1765,11 @@ export default function YonetimPaneli() {
                   <option value="yerel">Yerel (İl Bazlı)</option>
                 </select>
                 {udKapsam === "yerel" && (
-                  <input value={udIl} onChange={(e) => setUdIl(e.target.value)} placeholder="İl (örn: İstanbul)" style={girdiStil} />
+                  <input value={udIl} aria-label="Il" onChange={(e) => setUdIl(e.target.value)} placeholder="İl (örn: İstanbul)" style={girdiStil} />
                 )}
               </div>
               <label style={etiketStil}>Fiyat (₺)</label>
-              <input type="number" value={udFiyat} onChange={(e) => setUdFiyat(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <input type="number" value={udFiyat} aria-label="Fiyat" onChange={(e) => setUdFiyat(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
               <button onClick={ucretliDenemeOlustur} disabled={udOlusturuluyor || !udAd || !udFiyat} style={{ ...butonStil(!!(udAd && udFiyat)), width: "100%", padding: "10px 0" }}>
                 {udOlusturuluyor ? "AI ile sorular üretiliyor..." : "Deneme Oluştur"}
               </button>
@@ -1805,17 +1805,17 @@ export default function YonetimPaneli() {
                 <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
                   <div style={{ flex: 1 }}>
                     <label style={etiketStil}>Kişi Başı Fiyat (₺/ay)</label>
-                    <input type="number" defaultValue={k.kisi_basi_fiyat_tl} onChange={(e) => setDuzenlenenKurumFiyat((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
+                    <input type="number" defaultValue={k.kisi_basi_fiyat_tl} aria-label="Kisi basi fiyat" onChange={(e) => setDuzenlenenKurumFiyat((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <label style={etiketStil}>Min. Kişi Sayısı</label>
-                    <input type="number" defaultValue={k.min_kisi_sayisi} onChange={(e) => setDuzenlenenKurumMin((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
+                    <input type="number" defaultValue={k.min_kisi_sayisi} aria-label="Minimum kisi sayisi" onChange={(e) => setDuzenlenenKurumMin((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <div style={{ flex: 1 }}>
                     <label style={etiketStil}>Kurum E-posta (rapor için)</label>
-                    <input type="email" defaultValue={k.eposta || ""} placeholder="kurum@ornek.com" onChange={(e) => setDuzenlenenKurumEposta((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
+                    <input type="email" defaultValue={k.eposta || ""} aria-label="Kurum eposta" placeholder="kurum@ornek.com" onChange={(e) => setDuzenlenenKurumEposta((eski) => ({ ...eski, [k.id]: e.target.value }))} style={girdiStil} />
                   </div>
                   <button onClick={() => kurumFiyatKaydet(k.id)} disabled={kurumKaydediliyor === k.id} style={{ ...butonStil(true), padding: "9px 14px", alignSelf: "flex-end" }}>
                     {kurumKaydediliyor === k.id ? "..." : "Kaydet"}
@@ -1845,10 +1845,10 @@ export default function YonetimPaneli() {
                 <select value={cdDers} onChange={(e) => setCdDers(e.target.value)} style={girdiStil}>
                   {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce"].map((d) => <option key={d} value={d}>{d}</option>)}
                 </select>
-                <input value={cdKonu} onChange={(e) => setCdKonu(e.target.value)} placeholder="Konu (opsiyonel)" style={girdiStil} />
+                <input value={cdKonu} aria-label="Konu" onChange={(e) => setCdKonu(e.target.value)} placeholder="Konu (opsiyonel)" style={girdiStil} />
               </div>
               <label style={etiketStil}>Başlangıç Zamanı</label>
-              <input type="datetime-local" value={cdBaslangic} onChange={(e) => setCdBaslangic(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <input type="datetime-local" value={cdBaslangic} aria-label="Baslangic tarihi" onChange={(e) => setCdBaslangic(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                 <div style={{ flex: 1 }}>
                   <label style={etiketStil}>Süre (dk)</label>
@@ -1858,15 +1858,15 @@ export default function YonetimPaneli() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={etiketStil}>Oturum Sayısı</label>
-                  <input type="number" min="1" value={cdOturumSayisi} onChange={(e) => setCdOturumSayisi(e.target.value)} style={girdiStil} />
+                  <input type="number" min="1" value={cdOturumSayisi} aria-label="Oturum sayisi" onChange={(e) => setCdOturumSayisi(e.target.value)} style={girdiStil} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={etiketStil}>Aralık (gün)</label>
-                  <input type="number" min="0" value={cdOturumAraligiGun} onChange={(e) => setCdOturumAraligiGun(e.target.value)} style={girdiStil} />
+                  <input type="number" min="0" value={cdOturumAraligiGun} aria-label="Oturum araligi gun" onChange={(e) => setCdOturumAraligiGun(e.target.value)} style={girdiStil} />
                 </div>
               </div>
               <label style={etiketStil}>Maksimum Kapasite</label>
-              <input type="number" min="2" value={cdMaxKapasite} onChange={(e) => setCdMaxKapasite(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
+              <input type="number" min="2" value={cdMaxKapasite} aria-label="Maksimum kapasite" onChange={(e) => setCdMaxKapasite(e.target.value)} style={{ ...girdiStil, marginBottom: 14 }} />
               <button onClick={canliDersOlustur} disabled={cdOlusturuluyor || !cdOgretmenId || !cdBaslangic} style={{ ...butonStil(!!(cdOgretmenId && cdBaslangic)), width: "100%", padding: "10px 0" }}>
                 {cdOlusturuluyor ? "Oluşturuluyor..." : "Oturum Oluştur"}
               </button>
@@ -1906,7 +1906,7 @@ export default function YonetimPaneli() {
         {sekme === "ogretmen" && (
           <Panel baslik="Yeni Öğretmen Ekle" ikon="🎓">
             <label style={etiketStil}>Ad Soyad</label>
-            <input value={yeniOgretmenAd} onChange={(e) => setYeniOgretmenAd(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+            <input value={yeniOgretmenAd} aria-label="Ogretmen adi" onChange={(e) => setYeniOgretmenAd(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
             <label style={etiketStil}>Branş</label>
             <select value={yeniOgretmenBrans} onChange={(e) => setYeniOgretmenBrans(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }}>
               {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce", "Rehberlik"].map((d) => <option key={d} value={d}>{d === "Rehberlik" ? "🧭 Rehberlik Danışmanlığı" : d}</option>)}
@@ -1916,8 +1916,8 @@ export default function YonetimPaneli() {
               <select value={yeniOgretmenGun} onChange={(e) => setYeniOgretmenGun(Number(e.target.value))} style={girdiStil}>
                 {["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"].map((g, i) => <option key={i} value={i}>{g}</option>)}
               </select>
-              <input type="time" value={yeniOgretmenBaslangic} onChange={(e) => setYeniOgretmenBaslangic(e.target.value)} style={girdiStil} />
-              <input type="time" value={yeniOgretmenBitis} onChange={(e) => setYeniOgretmenBitis(e.target.value)} style={girdiStil} />
+              <input type="time" value={yeniOgretmenBaslangic} aria-label="Baslangic saati" onChange={(e) => setYeniOgretmenBaslangic(e.target.value)} style={girdiStil} />
+              <input type="time" value={yeniOgretmenBitis} aria-label="Bitis saati" onChange={(e) => setYeniOgretmenBitis(e.target.value)} style={girdiStil} />
             </div>
             <button onClick={ogretmenEkle} disabled={ogretmenEkleniyor || !yeniOgretmenAd} style={{ ...butonStil(!!yeniOgretmenAd), width: "100%", padding: "10px 0" }}>
               {ogretmenEkleniyor ? "Ekleniyor..." : "Öğretmen Ekle"}
@@ -1947,7 +1947,7 @@ export default function YonetimPaneli() {
                     </button>
                   )}
                   <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
-                    <input type="number" placeholder="Saatlik ücret ₺" value={basvuruOnaySaatlikUcret[b.id] || ""} onChange={(e) => setBasvuruOnaySaatlikUcret((eski) => ({ ...eski, [b.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, width: 120 }} />
+                    <input type="number" placeholder="Saatlik ücret ₺" value={basvuruOnaySaatlikUcret[b.id] || ""} aria-label="Saatlik ucret" onChange={(e) => setBasvuruOnaySaatlikUcret((eski) => ({ ...eski, [b.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, width: 120 }} />
                     <button onClick={() => basvuruKararVer(b.id, "onayla")} disabled={basvuruIslemDurumu === b.id} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body }}>
                       {basvuruIslemDurumu === b.id ? "..." : "Onayla"}
                     </button>
@@ -1991,7 +1991,7 @@ export default function YonetimPaneli() {
                 <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{o.ad} <span style={{ color: T.textMuted, fontWeight: 400 }}>· {o.brans}</span></p>
                 {hesapFormAcik === o.id ? (
                   <div style={{ display: "flex", gap: 8, marginTop: 6, alignItems: "center" }}>
-                    <input type="email" placeholder="E-posta" value={hesapEposta[o.id] || ""} onChange={(e) => setHesapEposta((eski) => ({ ...eski, [o.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, flex: 1 }} />
+                    <input type="email" placeholder="E-posta" value={hesapEposta[o.id] || ""} aria-label="Hesap eposta" onChange={(e) => setHesapEposta((eski) => ({ ...eski, [o.id]: e.target.value }))} style={{ ...girdiStil, marginBottom: 0, flex: 1 }} />
                     <button onClick={() => hesapOlustur(o.id)} disabled={hesapSifreDurumu === o.id} style={{ ...butonStil(true), padding: "9px 12px", fontSize: TYPO.caption }}>
                       {hesapSifreDurumu === o.id ? "..." : "Oluştur"}
                     </button>
@@ -2051,7 +2051,7 @@ export default function YonetimPaneli() {
               {mesaiVeri?.acikKayit ? (
                 <>
                   <p style={{ fontSize: TYPO.body, color: T.accent, marginBottom: 10 }}>✓ Şu an mesaidesin — giriş: {new Date(mesaiVeri.acikKayit.giris_zamani).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}</p>
-                  <input value={mesaiCikisNotu} onChange={(e) => setMesaiCikisNotu(e.target.value)} placeholder="Çıkış notu (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+                  <input value={mesaiCikisNotu} aria-label="Cikis notu" onChange={(e) => setMesaiCikisNotu(e.target.value)} placeholder="Çıkış notu (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
                   <button onClick={() => mesaiIslemYap("cikis")} disabled={mesaiIslemDurumu} style={{ ...butonStil(true, T.danger), width: "100%", padding: "10px 0" }}>Çıkış Yap</button>
                 </>
               ) : (
@@ -2071,15 +2071,15 @@ export default function YonetimPaneli() {
 
             <Panel baslik="İzin Talebi" ikon="🏖️">
               <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-                <input type="date" value={izinBaslangic} onChange={(e) => setIzinBaslangic(e.target.value)} style={girdiStil} />
-                <input type="date" value={izinBitis} onChange={(e) => setIzinBitis(e.target.value)} style={girdiStil} />
+                <input type="date" value={izinBaslangic} aria-label="Izin baslangic tarihi" onChange={(e) => setIzinBaslangic(e.target.value)} style={girdiStil} />
+                <input type="date" value={izinBitis} aria-label="Izin bitis tarihi" onChange={(e) => setIzinBitis(e.target.value)} style={girdiStil} />
               </div>
               <select value={izinTur} onChange={(e) => setIzinTur(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }}>
                 <option value="yillik">Yıllık İzin</option>
                 <option value="mazeret">Mazeret İzni</option>
                 <option value="hastalik">Hastalık İzni</option>
               </select>
-              <input value={izinAciklama} onChange={(e) => setIzinAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={izinAciklama} aria-label="Izin aciklamasi" onChange={(e) => setIzinAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
               <button onClick={izinTalepEt} disabled={izinGonderiliyor} style={{ ...butonStil(true), width: "100%", padding: "10px 0" }}>Talep Gönder</button>
               {izinlerim?.length > 0 && (
                 <div style={{ marginTop: 14 }}>
@@ -2144,9 +2144,9 @@ export default function YonetimPaneli() {
                 <option value="">— Personel Seç —</option>
                 {ikYonetimVeri?.personelListesi?.map((p) => <option key={p.id} value={p.id}>{p.ad}</option>)}
               </select>
-              <input value={yeniGorevBaslik} onChange={(e) => setYeniGorevBaslik(e.target.value)} placeholder="Görev başlığı" style={{ ...girdiStil, marginBottom: 10 }} />
-              <input value={yeniGorevAciklama} onChange={(e) => setYeniGorevAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
-              <input type="date" value={yeniGorevSonTarih} onChange={(e) => setYeniGorevSonTarih(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={yeniGorevBaslik} aria-label="Gorev basligi" onChange={(e) => setYeniGorevBaslik(e.target.value)} placeholder="Görev başlığı" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input value={yeniGorevAciklama} aria-label="Gorev aciklamasi" onChange={(e) => setYeniGorevAciklama(e.target.value)} placeholder="Açıklama (opsiyonel)" style={{ ...girdiStil, marginBottom: 10 }} />
+              <input type="date" value={yeniGorevSonTarih} aria-label="Son tarih" onChange={(e) => setYeniGorevSonTarih(e.target.value)} style={{ ...girdiStil, marginBottom: 10 }} />
               <button onClick={gorevAta} disabled={gorevAtaniyor || !yeniGorevBaslik} style={{ ...butonStil(!!yeniGorevBaslik), width: "100%", padding: "10px 0" }}>Görev Ata</button>
             </Panel>
 
@@ -2170,7 +2170,7 @@ export default function YonetimPaneli() {
             <label style={etiketStil}>Mesaj</label>
             <textarea value={duyuruMesaji} onChange={(e) => setDuyuruMesaji(e.target.value)} style={{ ...girdiStil, minHeight: 70, marginBottom: 10, fontFamily: T.font }} />
             <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-              <input value={duyuruIl} onChange={(e) => setDuyuruIl(e.target.value)} placeholder="İl (boş = tümü)" style={girdiStil} />
+              <input value={duyuruIl} aria-label="Il" onChange={(e) => setDuyuruIl(e.target.value)} placeholder="İl (boş = tümü)" style={girdiStil} />
               <select value={duyuruSinif} onChange={(e) => setDuyuruSinif(e.target.value)} style={girdiStil}>
                 <option value="">Tüm Sınıflar</option>
                 {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}

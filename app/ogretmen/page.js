@@ -147,7 +147,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
         </select>
       ) : (
         <>
-          <input placeholder="Konu (örn: Üslü Sayılar)" value={konu} onChange={(e) => setKonu(e.target.value)}
+          <input aria-label="Konu" placeholder="Konu (örn: Üslü Sayılar)" value={konu} onChange={(e) => setKonu(e.target.value)}
             style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 4, fontSize: 13.5, boxSizing: "border-box" }} />
           <p style={{ fontSize: 11, color: "#999", marginBottom: 10 }}>Bu ders/sınıf için hazır ünite listesi yok, serbest yazabilirsin.</p>
         </>
@@ -338,7 +338,7 @@ function Materyallerim() {
     <div>
       {liste && liste.length > 0 && (
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-          <input placeholder="Başlıkta ara..." value={arama} onChange={(e) => setArama(e.target.value)}
+          <input aria-label="Basliklarda ara" placeholder="Başlıkta ara..." value={arama} onChange={(e) => setArama(e.target.value)}
             style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }} />
           <select value={dersFiltre} onChange={(e) => setDersFiltre(e.target.value)}
             style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
