@@ -220,7 +220,7 @@ export default function OgretmenPanel() {
   if (!ogretmen) return <div style={{ minHeight: "100vh", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center", color: C.muted }}>Yükleniyor...</div>;
 
   return (
-    <div style={{ minHeight: "100vh", background: C.bg }}>
+    <main style={{ minHeight: "100vh", background: C.bg }}>
       <style>{`
         @media print {
           body * { visibility: hidden; }
@@ -397,7 +397,7 @@ function ProfilSifreDegistir() {
       <button onClick={degistir} disabled={yukleniyor || !mevcutSifre || !yeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}>
         {yukleniyor ? "Kaydediliyor..." : "Şifreyi Güncelle"}
       </button>
-    </div>
+    </main>
   );
 }
 

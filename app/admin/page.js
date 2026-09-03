@@ -1021,7 +1021,7 @@ export default function YonetimPaneli() {
   const SEKMELER = SEKME_GRUPLARI.flatMap((g) => g.sekmeler);
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.font, color: T.text, paddingBottom: 60 }}>
+    <main style={{ minHeight: "100vh", background: T.bg, fontFamily: T.font, color: T.text, paddingBottom: 60 }}>
       <style>{`
         @keyframes adminPanelFadeIn { from { opacity: 0; } to { opacity: 1; } }
         .admin-panel-govde { animation: adminPanelFadeIn 0.35s ease-out; }
@@ -2185,6 +2185,6 @@ export default function YonetimPaneli() {
 
       </div>
       <CerezBildirimi renkler={{ bg: T.text, metin: "#fff", buton: T.accent }} />
-    </div>
+    </main>
   );
 }
