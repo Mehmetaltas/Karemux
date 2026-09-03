@@ -4138,7 +4138,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                                 cursor: gonderildi ? "default" : "pointer",
                                 border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
                                 background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
-                              }}>{sec}</button>
+                              }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>
                             );
                           })}
                           {gonderildi && cevaplar[i] !== s.dogruIndex && s.aciklama && (
@@ -4259,7 +4259,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                                 cursor: gonderildi ? "default" : "pointer",
                                 border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
                                 background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
-                              }}>{sec}</button>
+                              }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>
                             );
                           })}
                           {gonderildi && cevaplar[i] !== s.dogruIndex && (
@@ -4631,7 +4631,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       cursor: denemeGonderildi ? "default" : "pointer",
                       border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`,
                       background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff",
-                    }}>{sec}</button>
+                    }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>
                   );
                 })}
                 {denemeGonderildi && denemeCevaplar[i] !== s.dogruIndex && s.aciklama && (
@@ -6351,7 +6351,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       cursor: tekrarGosterildi ? "default" : "pointer",
                       border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : COLORS.line}`,
                       background: dogru ? RENK_BASARI_ACIK : yanlis ? "#FFF1EF" : "#fff",
-                    }}>{sec}</button>
+                    }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>
                   );
                 })}
                 {tekrarGosterildi && (
@@ -6581,7 +6581,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                               cursor: burslulukGonderildi ? "default" : "pointer",
                               border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? COLORS.mustard : COLORS.line}`,
                               background: dogru ? RENK_BASARI_ACIK : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff",
-                            }}>{sec}</button>
+                            }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>
                           );
                         })}
                         {burslulukGonderildi && burslulukCevaplar[anahtar] !== s.dogruIndex && s.aciklama && (
@@ -6695,7 +6695,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       cursor: paragrafGonderildi ? "default" : "pointer",
                       border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? COLORS.mustard : COLORS.line}`,
                       background: dogru ? RENK_BASARI_ACIK : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff",
-                    }}>{sec}</button>
+                    }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>
                   );
                 })}
                 {!paragrafGonderildi ? (
@@ -7141,7 +7141,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                     {(s.secenekler || []).map((sec, j) => {
                       const secili = cevaplar[i] === j, dogru = gonderildi && j === s.dogruIndex, yanlis = gonderildi && secili && j !== s.dogruIndex;
-                      return <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: gonderildi ? "default" : "pointer", border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`, background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff" }}>{sec}</button>;
+                      return <button key={j} onClick={() => !gonderildi && setCevaplar((c) => ({ ...c, [i]: j }))} style={{ display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: gonderildi ? "default" : "pointer", border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? COLORS.coral : secili ? COLORS.mustard : COLORS.line}`, background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff" }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>;
                     })}
                   </div>
                 ))}
