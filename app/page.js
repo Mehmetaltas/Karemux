@@ -4843,7 +4843,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   ) : (
                     <div>
-                      <select value={profilSinifSec} onChange={(e) => setProfilSinifSec(e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }}>
+                      <select value={profilSinifSec} aria-label="Sinif" onChange={(e) => setProfilSinifSec(e.target.value)} style={{ width: "100%", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }}>
                         <option value="">Sınıf seç</option>
                         <option value="5">5. Sınıf</option>
                         <option value="6">6. Sınıf</option>
@@ -4870,7 +4870,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         )}
                         <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 4 }}>Listede bulamazsan endişelenme, olduğu gibi yazabilirsin.</p>
                       </div>
-                      <select value={profilIl} onChange={(e) => setProfilIl(e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8, background: "#fff" }}>
+                      <select value={profilIl} aria-label="Il" onChange={(e) => setProfilIl(e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8, background: "#fff" }}>
                         <option value="">İl seç (opsiyonel)</option>
                         {TURKIYE_IL_ILCE.map((i) => <option key={i.plaka} value={i.il}>{i.il}</option>)}
                       </select>
@@ -6721,7 +6721,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
               <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İL</label>
-              <select value={hedefIl} onChange={(e) => { setHedefIl(e.target.value); setHedefIlce(""); }}
+              <select value={hedefIl} onChange={(e) => { setHedefIl(e.target.value); setHedefIlce(""); }} aria-label="Il"
                 style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }}>
                 <option value="">İl seç...</option>
                 {TURKIYE_IL_ILCE.map((i) => <option key={i.plaka} value={i.il}>{i.il}</option>)}
@@ -6730,7 +6730,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               {hedefIl && (
                 <>
                   <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İLÇE</label>
-                  <select value={hedefIlce} onChange={(e) => setHedefIlce(e.target.value)}
+                  <select value={hedefIlce} onChange={(e) => setHedefIlce(e.target.value)} aria-label="Ilce"
                     style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }}>
                     <option value="">İlçe seç...</option>
                     {(TURKIYE_IL_ILCE.find((i) => i.il === hedefIl)?.ilceler || []).map((ilce) => <option key={ilce} value={ilce}>{ilce}</option>)}

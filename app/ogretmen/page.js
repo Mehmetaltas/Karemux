@@ -130,17 +130,17 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
-        <select value={sinif} onChange={(e) => setSinif(Number(e.target.value))} style={{ padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
+        <select value={sinif} onChange={(e) => setSinif(Number(e.target.value))} aria-label="Sinif" style={{ padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
           {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. Sınıf</option>)}
         </select>
-        <select value={ders} onChange={(e) => setDers(e.target.value)} style={{ flex: 1, padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
+        <select value={ders} onChange={(e) => setDers(e.target.value)} style={{ flex: 1, aria-label="Ders" style={{ flex: 1, padding: "9px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
           {MATERYAL_DERSLER.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
       </div>
       {uniteler === null ? (
         <p style={{ fontSize: 12.5, color: "#999", marginBottom: 10 }}>Üniteler yükleniyor...</p>
       ) : uniteler.length > 0 ? (
-        <select value={konu} onChange={(e) => setKonu(e.target.value)}
+        <select value={konu} onChange={(e) => setKonu(e.target.value)} aria-label="Konu"
           style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }}>
           <option value="">Ünite seç...</option>
           {uniteler.map((u) => <option key={u} value={u}>{u}</option>)}
@@ -340,7 +340,7 @@ function Materyallerim() {
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           <input aria-label="Basliklarda ara" placeholder="Başlıkta ara..." value={arama} onChange={(e) => setArama(e.target.value)}
             style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }} />
-          <select value={dersFiltre} onChange={(e) => setDersFiltre(e.target.value)}
+          <select value={dersFiltre} onChange={(e) => setDersFiltre(e.target.value)} aria-label="Ders filtrele"
             style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
             <option value="">Tüm dersler</option>
             {dersler.map((d) => <option key={d} value={d}>{d}</option>)}
