@@ -83,8 +83,8 @@ const NOT_GEREKLI_TURLER = ["eksik_konu_paketi", "veli_ozeti", "sinif_analizi"];
 const METIN_TURLER = ["veli_ozeti", "sinif_analizi"];
 
 function MateryalUreticisi({ tur, dersVarsayilan }) {
-  const [sinif, setSinif] = useState(8);
-  const [ders, setDers] = useState(dersVarsayilan || "Matematik");
+  const [sinif, setSinif] = useState(() => { try { return Number(localStorage.getItem("kx_ogretmen_sinif")) || 8; } catch { return 8; } });
+  const [ders, setDers] = useState(() => { try { return localStorage.getItem("kx_ogretmen_ders") || dersVarsayilan || "Matematik"; } catch { return dersVarsayilan || "Matematik"; } });
   const [konu, setKonu] = useState("");
   const [ogretmenNotu, setOgretmenNotu] = useState("");
   const [uniteler, setUniteler] = useState(null);
@@ -115,6 +115,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSonuc(data.materyal);
+      try { localStorage.setItem("kx_ogretmen_sinif", sinif); localStorage.setItem("kx_ogretmen_ders", ders); } catch {}
     } catch (e) { setHata(e.message); } finally { setYukleniyor(false); }
   }
 
@@ -297,9 +298,17 @@ export default function OgretmenPanel() {
 function Materyallerim() {
   const [liste, setListe] = useState(null);
   const [acikMateryal, setAcikMateryal] = useState(null);
+  const [arama, setArama] = useState("");
+  const [dersFiltre, setDersFiltre] = useState("");
   useEffect(() => {
     fetch("/api/ogretmen/materyallerim").then((r) => r.json()).then((d) => setListe(d.materyaller || []));
   }, []);
+
+  const dersler = liste ? [...new Set(liste.map((m) => m.ders).filter(Boolean))] : [];
+  const filtreliListe = (liste || []).filter((m) =>
+    (!dersFiltre || m.ders === dersFiltre) &&
+    (!arama.trim() || m.materyal.baslik?.toLowerCase().includes(arama.trim().toLowerCase()))
+  );
 
   async function sil(id) {
     await fetch("/api/ogretmen/materyallerim", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
@@ -325,9 +334,22 @@ function Materyallerim() {
 
   return (
     <div>
+      {liste && liste.length > 0 && (
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <input placeholder="Başlıkta ara..." value={arama} onChange={(e) => setArama(e.target.value)}
+            style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }} />
+          <select value={dersFiltre} onChange={(e) => setDersFiltre(e.target.value)}
+            style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }}>
+            <option value="">Tüm dersler</option>
+            {dersler.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
+        </div>
+      )}
       {liste === null ? <p style={{ fontSize: 13, color: "#999" }}>Yükleniyor...</p> : liste.length === 0 ? (
         <p style={{ fontSize: 13, color: "#999" }}>Henüz materyal üretmedin.</p>
-      ) : liste.map((m) => (
+      ) : filtreliListe.length === 0 ? (
+        <p style={{ fontSize: 13, color: "#999" }}>Aramaya uyan materyal yok.</p>
+      ) : filtreliListe.map((m) => (
         <div key={m.id} style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 14, marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div onClick={() => setAcikMateryal(m)} style={{ cursor: "pointer", flex: 1 }}>
             <p style={{ fontSize: 13.5, fontWeight: 700, margin: 0 }}>{m.materyal.baslik}</p>
