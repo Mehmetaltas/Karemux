@@ -347,7 +347,7 @@ function Materyallerim() {
           </select>
         </div>
       )}
-      {liste === null ? <p style={{ fontSize: 13, color: "#999" }}>Yükleniyor...</p> : liste.length === 0 ? (
+      {liste === null ? <p aria-live="polite" style={{ fontSize: 13, color: "#999" }}>Yükleniyor...</p> : liste.length === 0 ? (
         <p style={{ fontSize: 13, color: "#999" }}>Henüz materyal üretmedin.</p>
       ) : filtreliListe.length === 0 ? (
         <p style={{ fontSize: 13, color: "#999" }}>Aramaya uyan materyal yok.</p>

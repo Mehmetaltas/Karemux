@@ -3390,6 +3390,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         @keyframes kxShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
         @keyframes kxPop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         @keyframes kxLogoAcilis { 0% { opacity: 0; transform: scale(0.4) rotate(-25deg); } 60% { opacity: 1; transform: scale(1.08) rotate(4deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
+        @media (prefers-reduced-motion: reduce) {
+          .kx-fadein, .kx-float, .kx-pop, .kx-btn, .kx-logo-header, .kx-logo-acilis, * { animation: none !important; transition: none !important; }
+        }
         .kx-fadein { animation: kxFadeUp 0.45s ease both; }
         .kx-float { display: inline-block; animation: kxFloat 3s ease-in-out infinite; }
         .kx-pop { animation: kxPop 0.3s ease both; }
@@ -3936,7 +3939,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                             cursor: gonderildi ? "default" : "pointer",
                             border: `1.5px solid ${dogru ? RENK_BASARI : yanlis ? "#FF6B5E" : secili ? "#E8B339" : COLORS.line}`,
                             background: dogru ? "#EAF7EE" : yanlis ? "#FFF1EF" : secili ? "#FEF8E8" : "#fff", color: "#1B2430",
-                          }}>{sec}</button>
+                          }}>{sec}{dogru ? " ✓" : yanlis ? " ✗" : ""}</button>
                         );
                       })}
                       {gonderildi && cevaplar[i] !== s.dogruIndex && s.aciklama && (
@@ -4073,7 +4076,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <button onClick={() => setTeknikPaneliAcik(false)} aria-label="Kapat" style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: "#8A8A8A" }}>✕</button>
                       </div>
                       {teknikYukleniyor ? (
-                        <p style={{ fontSize: 12.5, color: "#8A8A8A" }}>Yükleniyor...</p>
+                        <p aria-live="polite" style={{ fontSize: 12.5, color: "#8A8A8A" }}>Yükleniyor...</p>
                       ) : (teknikler?.liste?.length > 0 ? (
                         teknikler.liste.map((t, i) => (
                           <div key={i} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: i < teknikler.liste.length - 1 ? `1px solid ${COLORS.line}` : "none" }}>
@@ -5741,7 +5744,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               {(() => {
                 const filtrelenmisOgretmenler = ogretmenler?.filter((o) => ogretmenKategori === "rehberlik" ? o.brans === "Rehberlik" : o.brans !== "Rehberlik");
                 return !ogretmenler ? (
-                <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>
+                <p aria-live="polite" style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>
               ) : filtrelenmisOgretmenler.length === 0 ? (
                 <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>{ogretmenKategori === "rehberlik" ? "Şu an müsait rehber öğretmen yok." : "Şu an müsait ders öğretmeni yok."}</p>
               ) : (
@@ -5763,7 +5766,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <>
                       <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>MÜSAİT SAATLER (önümüzdeki 7 gün)</label>
                       {musaitSlotlar === null ? (
-                        <p style={{ fontSize: 12, color: COLORS.muted }}>Yükleniyor...</p>
+                        <p aria-live="polite" style={{ fontSize: 12, color: COLORS.muted }}>Yükleniyor...</p>
                       ) : musaitSlotlar.length === 0 ? (
                         <p style={{ fontSize: 12, color: COLORS.muted }}>Bu öğretmenin önümüzdeki 7 günde müsait saati yok.</p>
                       ) : (
@@ -5933,7 +5936,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, marginTop: 4 }}>Herkes aynı soruları çözüyor — gerçek sıralamanı gör.</p>
             </div>
 
-            {ulusalYukleniyor && <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>}
+            {ulusalYukleniyor && <p aria-live="polite" style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>}
 
             {!ulusalYukleniyor && !ulusalAktif && (
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
@@ -6312,7 +6315,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             );
           }
-          if (tekrarSorulari === null) return <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>;
+          if (tekrarSorulari === null) return <p aria-live="polite" style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>;
           if (tekrarSorulari.length === 0) {
             return (
               <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 24, textAlign: "center" }}>

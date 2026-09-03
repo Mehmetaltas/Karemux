@@ -1274,7 +1274,7 @@ export default function YonetimPaneli() {
             </Panel>
 
             <Panel baslik="Cari Listesi" ikon="🤝">
-              {!cariler ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : cariler.length === 0 ? (
+              {!cariler ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : cariler.length === 0 ? (
                 <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz cari yok.</p>
               ) : cariler.map((c) => (
                 <div key={c.id} onClick={() => cariSec(c.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); cariSec(c.id); } }} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenCariId === c.id ? T.surfaceHover : "transparent" }}>
@@ -1354,7 +1354,7 @@ export default function YonetimPaneli() {
             </Panel>
 
             <Panel baslik="Hesaplar" ikon="🏦">
-              {!kasaHesaplari ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kasaHesaplari.length === 0 ? (
+              {!kasaHesaplari ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kasaHesaplari.length === 0 ? (
                 <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz hesap yok.</p>
               ) : kasaHesaplari.map((h) => (
                 <div key={h.id} onClick={() => hesapSec(h.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); hesapSec(h.id); } }} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenHesapId === h.id ? T.surfaceHover : "transparent" }}>
@@ -1528,7 +1528,7 @@ export default function YonetimPaneli() {
         {sekme === "ikiz" && (
           <>
             <Panel baslik="Bekleyen Strateji Önerileri" ikon="🎯">
-              {!ikizVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
+              {!ikizVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
                 (ikizVeri.oneriler || []).filter((o) => o.durum === "oneriliyor").length === 0 ? (
                   <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Bekleyen öneri yok.</p>
                 ) : ikizVeri.oneriler.filter((o) => o.durum === "oneriliyor").map((o) => (
@@ -1574,7 +1574,7 @@ export default function YonetimPaneli() {
 
         {sekme === "iadeler" && (
           <Panel baslik="İade Talepleri (İlk Hafta Garantisi)" ikon="🛡️">
-            {!iadeVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : iadeVeri.length === 0 ? (
+            {!iadeVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : iadeVeri.length === 0 ? (
               <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz iade talebi yok.</p>
             ) : iadeVeri.map((t) => (
               <div key={t.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10 }}>
@@ -1596,7 +1596,7 @@ export default function YonetimPaneli() {
         {sekme === "mufredat" && (
           <>
             <Panel baslik="Müfredat Kapsamı Özeti" ikon="📚">
-              {!mufredatVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
+              {!mufredatVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
                 <>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: TYPO.caption }}>
                     <thead>
@@ -1700,7 +1700,7 @@ export default function YonetimPaneli() {
             </Panel>
 
             <Panel baslik="Mevcut İndirim Kodları" ikon="📋">
-              {!indirimKodlariVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : indirimKodlariVeri.length === 0 ? (
+              {!indirimKodlariVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : indirimKodlariVeri.length === 0 ? (
                 <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz indirim kodu yok.</p>
               ) : indirimKodlariVeri.map((k) => (
                 <div key={k.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body, gap: 8 }}>
@@ -1794,7 +1794,7 @@ export default function YonetimPaneli() {
             </Panel>
 
             <Panel baslik="Kurumlar ve Fiyatlandırma" ikon="🏢">
-            {!kurumlarVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kurumlarVeri.length === 0 ? (
+            {!kurumlarVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : kurumlarVeri.length === 0 ? (
               <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz kurum yok.</p>
             ) : kurumlarVeri.map((k) => (
               <div key={k.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: "12px 14px", marginBottom: 10 }}>
@@ -1890,7 +1890,7 @@ export default function YonetimPaneli() {
 
         {sekme === "randevuodeme" && (
           <Panel baslik="Özel Ders Ödemeleri (Ücretli Randevular)" ikon="📅">
-            {!randevuOdemeVeri ? <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : randevuOdemeVeri.length === 0 ? (
+            {!randevuOdemeVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : randevuOdemeVeri.length === 0 ? (
               <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Ücretli randevu yok.</p>
             ) : randevuOdemeVeri.map((r) => (
               <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.body }}>
@@ -1928,7 +1928,7 @@ export default function YonetimPaneli() {
         {sekme === "ogretmen" && (
           <Panel baslik="Öğretmen Başvuruları" ikon="📋">
             {!ogretmenBasvurulari ? (
-              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
+              <p aria-live="polite" style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
             ) : ogretmenBasvurulari.filter((b) => b.durum === "beklemede").length === 0 ? (
               <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Bekleyen başvuru yok.</p>
             ) : (
@@ -1983,7 +1983,7 @@ export default function YonetimPaneli() {
         {sekme === "ogretmen" && (
           <Panel baslik="Öğretmen Hesapları (Materyal Aracı Girişi)" ikon="🔑">
             {!ogretmenListesi ? (
-              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
+              <p aria-live="polite" style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
             ) : ogretmenListesi.length === 0 ? (
               <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Henüz onaylı öğretmen yok.</p>
             ) : ogretmenListesi.map((o) => (
@@ -2008,7 +2008,7 @@ export default function YonetimPaneli() {
         {sekme === "talepler" && (
           <Panel baslik="Kullanıcı Talepleri (Konu/Özellik)" ikon="💡">
             {!talepler ? (
-              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
+              <p aria-live="polite" style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
             ) : talepler.length === 0 ? (
               <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Henüz talep yok.</p>
             ) : (
@@ -2028,7 +2028,7 @@ export default function YonetimPaneli() {
         {sekme === "kariyer" && (
           <Panel baslik="Kariyer Havuzu" ikon="🧑‍💼">
             {!kariyerBasvurulari ? (
-              <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
+              <p aria-live="polite" style={{ color: T.textMuted, fontSize: TYPO.body }}>Yükleniyor...</p>
             ) : kariyerBasvurulari.length === 0 ? (
               <p style={{ color: T.textMuted, fontSize: TYPO.body }}>Henüz başvuru yok.</p>
             ) : (
