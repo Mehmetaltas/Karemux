@@ -1044,6 +1044,16 @@ export default function YonetimPaneli() {
           </div>
         )}
 
+        {sekme === "genel" && (
+          <button onClick={async () => {
+            const res = await fetch(`/api/admin/gecici-tablo-listesi?sifre=${encodeURIComponent(sifre)}`);
+            const data = await res.json();
+            alert(JSON.stringify(data.tablolar?.map((t) => `${t.tablo}: ${t.satirSayisi}`), null, 1));
+          }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body, marginBottom: 12 }}>
+            🧹 Hijyen: Tablo Listesi
+          </button>
+        )}
+
         {sekme === "genel" && ogretmenTestSonuclari?.some((s) => !s.basarili) && (
           <div style={{ background: "#FDECEA", border: `1px solid ${T.danger}`, borderRadius: 10, padding: 14, marginBottom: 16 }}>
             <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6, color: T.danger }}>⚠️ Öğretmen Materyal Araçları — Bazı Araçlar Başarısız</p>
