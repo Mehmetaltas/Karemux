@@ -1051,7 +1051,7 @@ export default function YonetimPaneli() {
               const res = await fetch(`/api/admin/gecici-tablo-listesi?sifre=${encodeURIComponent(sifre)}`);
               const data = await res.json();
               if (!res.ok) { alert("HATA: " + JSON.stringify(data)); return; }
-              alert(JSON.stringify(data.tablolar?.map((t) => `${t.tablo}: ${t.satirSayisi}`), null, 1));
+              alert(JSON.stringify(data.tablolar?.slice(0, 3), null, 1) + "\n---\n" + JSON.stringify(data.tablolar?.map((t) => `${t.tablo}: ${t.satirSayisi}`), null, 1));
             } catch (e) { alert("İSTİSNA: " + e.message); }
           }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body, marginBottom: 12 }}>
             🧹 Hijyen: Tablo Listesi

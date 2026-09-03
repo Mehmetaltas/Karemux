@@ -16,8 +16,9 @@ export async function GET(req) {
   const sonuc = await Promise.all(tablolar.map(async (t) => {
     try {
       const sayim = await sql.query(`SELECT COUNT(*)::int AS c FROM "${t.table_name}"`);
-      const satir = sayim.rows ? sayim.rows[0].c : sayim[0].c;
-      return { tablo: t.table_name, satirSayisi: satir };
+      const satirlar = Array.isArray(sayim) ? sayim : (sayim.rows || []);
+      const satir = satirlar[0] ? Number(satirlar[0].c) : null;
+      return { tablo: t.table_name, satirSayisi: satir, hamYapi: JSON.stringify(sayim).slice(0, 60) };
     } catch (e) {
       return { tablo: t.table_name, satirSayisi: null, hata: e.message };
     }
