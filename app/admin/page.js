@@ -93,6 +93,7 @@ export default function YonetimPaneli() {
 
   const [muhasebeVeri, setMuhasebeVeri] = useState(null);
   const [ogretmenTestSonuclari, setOgretmenTestSonuclari] = useState(null);
+  const [hijyenSonuc, setHijyenSonuc] = useState(null);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [duzenlenenFiyatlar, setDuzenlenenFiyatlar] = useState({});
   const [fiyatKaydediliyor, setFiyatKaydediliyor] = useState(null);
@@ -1047,15 +1048,18 @@ export default function YonetimPaneli() {
         {sekme === "genel" && (
           <button onClick={async () => {
             try {
-              alert("İstek gönderiliyor...");
               const res = await fetch(`/api/admin/gecici-tablo-listesi?sifre=${encodeURIComponent(sifre)}`);
               const data = await res.json();
-              if (!res.ok) { alert("HATA: " + JSON.stringify(data)); return; }
-              alert(JSON.stringify(data.tablolar?.map((t) => `${t.tablo}: ${t.satir_sayisi}`), null, 1));
-            } catch (e) { alert("İSTİSNA: " + e.message); }
+              if (!res.ok) { setHijyenSonuc("HATA: " + JSON.stringify(data)); return; }
+              setHijyenSonuc(data.tablolar.map((t) => `${t.tablo}: ${t.satir_sayisi}`).join("\n"));
+            } catch (e) { setHijyenSonuc("İSTİSNA: " + e.message); }
           }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body, marginBottom: 12 }}>
             🧹 Hijyen: Tablo Listesi
           </button>
+          {hijyenSonuc && (
+            <textarea readOnly value={hijyenSonuc} onClick={(e) => e.target.select()}
+              style={{ width: "100%", height: 300, padding: 10, borderRadius: 8, border: `1px solid ${T.border}`, fontSize: 12, fontFamily: "monospace", marginBottom: 12, boxSizing: "border-box" }} />
+          )}
         )}
 
         {sekme === "genel" && ogretmenTestSonuclari?.some((s) => !s.basarili) && (
