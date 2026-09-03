@@ -30,6 +30,13 @@ export async function GET(req) {
   const yeniOneriler = [];
 
   try {
+    // Reddedilen strateji onerileri 30 gun sonra otomatik yeniden degerlendirmeye
+    // aciliyor - admin bir daha bakabilsin, sonsuza kadar "reddedildi" kalmasin.
+    await sql`
+      UPDATE strateji_onerisi SET durum = 'oneriliyor', karar_notu = COALESCE(karar_notu, '') || ' [30 gun sonra otomatik yeniden acildi]'
+      WHERE durum = 'reddedildi' AND olusturulma < now() - interval '30 days'
+    `;
+
     // --- Otomatik hesaplanabilir degiskenler ---
     const mufredatToplam = await sql`SELECT COUNT(*)::int AS c FROM mufredat`;
     await degiskenGuncelle("toplam_mufredat_kaydi", mufredatToplam[0].c);
