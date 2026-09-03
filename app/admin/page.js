@@ -1046,9 +1046,13 @@ export default function YonetimPaneli() {
 
         {sekme === "genel" && (
           <button onClick={async () => {
-            const res = await fetch(`/api/admin/gecici-tablo-listesi?sifre=${encodeURIComponent(sifre)}`);
-            const data = await res.json();
-            alert(JSON.stringify(data.tablolar?.map((t) => `${t.tablo}: ${t.satirSayisi}`), null, 1));
+            try {
+              alert("İstek gönderiliyor...");
+              const res = await fetch(`/api/admin/gecici-tablo-listesi?sifre=${encodeURIComponent(sifre)}`);
+              const data = await res.json();
+              if (!res.ok) { alert("HATA: " + JSON.stringify(data)); return; }
+              alert(JSON.stringify(data.tablolar?.map((t) => `${t.tablo}: ${t.satirSayisi}`), null, 1));
+            } catch (e) { alert("İSTİSNA: " + e.message); }
           }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body, marginBottom: 12 }}>
             🧹 Hijyen: Tablo Listesi
           </button>
