@@ -1110,11 +1110,15 @@ export default function YonetimPaneli() {
           <div style={{ marginBottom: 18 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Hızlı Erişim</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {SEKME_GRUPLARI.flatMap((g) => g.sekmeler).filter(([k]) => k !== "genel").map(([k, etiket]) => (
-                <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ textAlign: "left", background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 12, cursor: "pointer" }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, margin: 0, color: T.text }}>{etiket}</p>
-                </button>
-              ))}
+              {["paketler", "ogretmen", "talepler", "ikiz", "cari", "kariyer"].map((k) => {
+                const etiket = SEKME_GRUPLARI.flatMap((g) => g.sekmeler).find(([kk]) => kk === k)?.[1];
+                if (!etiket) return null;
+                return (
+                  <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ textAlign: "left", background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 12, cursor: "pointer" }}>
+                    <p style={{ fontSize: 12.5, fontWeight: 700, margin: 0, color: T.text }}>{etiket}</p>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
