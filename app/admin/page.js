@@ -99,6 +99,7 @@ export default function YonetimPaneli() {
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [sekme, setSekme] = useState("genel");
   const [tema, setTemaState] = useState("orman");
+  const [menuAcik, setMenuAcik] = useState(false);
   useEffect(() => { const t = temaOku("orman"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
   const [hata, setHata] = useState("");
@@ -1024,31 +1025,40 @@ export default function YonetimPaneli() {
         @keyframes adminPanelFadeIn { from { opacity: 0; } to { opacity: 1; } }
         .admin-panel-govde { animation: adminPanelFadeIn 0.35s ease-out; }
       `}</style>
-      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: T.bg, zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9 }}>
-          <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 30, height: 30, borderRadius: 8, display: "block", objectFit: "cover" }} />
+      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: T.bg, zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <button onClick={() => setMenuAcik(true)} style={{ background: "none", border: "none", color: T.text, fontSize: 22, cursor: "pointer", padding: 0 }}>☰</button>
+          <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 28, height: 28, borderRadius: 8, display: "block", objectFit: "cover" }} />
           <div>
             <p style={{ fontWeight: 700, fontSize: TYPO.heading, margin: 0 }}>Karemux Yönetim</p>
             {personelAd && <p style={{ fontSize: TYPO.micro, color: T.textMuted, margin: 0 }}>Hoş geldin, {personelAd}</p>}
           </div>
         </div>
-        <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }} style={{ background: "none", border: "none", color: T.textMuted, fontSize: TYPO.caption, cursor: "pointer" }}>Çıkış</button>
       </div>
 
-      <div style={{ padding: "12px 16px 0" }}>
-        {SEKME_GRUPLARI.map((g, i) => (
-          <div key={i} style={{ marginBottom: 10 }}>
-            {g.baslik && <p style={{ fontSize: 10.5, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>{g.baslik}</p>}
-            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-              {g.sekmeler.map(([k, etiket]) => (
-                <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ ...butonStil(true, sekme === k ? T.accent : T.surfaceHover), color: sekme === k ? T.onAccent : T.textMuted, whiteSpace: "nowrap" }}>
-                  {etiket}
-                </button>
-              ))}
-            </div>
+      {menuAcik && (
+        <div onClick={() => setMenuAcik(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 20 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.surface, width: 280, height: "100%", padding: "20px 16px", boxShadow: "2px 0 12px rgba(0,0,0,0.15)", overflowY: "auto" }}>
+            <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{personelAd || "Yönetim"}</p>
+            <p style={{ fontSize: 12, color: T.textMuted, marginBottom: 18 }}>Karemux Yönetim Paneli</p>
+            {SEKME_GRUPLARI.map((g, i) => (
+              <div key={i} style={{ marginBottom: 14 }}>
+                {g.baslik && <p style={{ fontSize: 10.5, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>{g.baslik}</p>}
+                {g.sekmeler.map(([k, etiket]) => (
+                  <button key={k} onClick={() => { setSekme(k); mesajTemizle(); setMenuAcik(false); }}
+                    style={{ display: "block", width: "100%", textAlign: "left", padding: "9px 10px", borderRadius: 8, border: "none", background: sekme === k ? T.accentSoft : "transparent", color: sekme === k ? T.accent : T.text, fontSize: 13.5, fontWeight: sekme === k ? 700 : 500, cursor: "pointer", marginBottom: 1 }}>
+                    {etiket}
+                  </button>
+                ))}
+              </div>
+            ))}
+            <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }}
+              style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 10px", borderRadius: 8, border: "none", background: "none", color: T.danger, fontSize: 13.5, fontWeight: 600, cursor: "pointer", marginTop: 10 }}>
+              Çıkış Yap
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       <div style={{ padding: 16, maxWidth: 720, margin: "0 auto" }}>
         {(hata || basari) && (
@@ -1092,6 +1102,19 @@ export default function YonetimPaneli() {
             {ogretmenTestSonuclari.filter((s) => !s.basarili).map((s) => (
               <p key={s.tur} style={{ fontSize: 11.5, color: T.textMuted, margin: "2px 0" }}>{s.tur}: {s.hata_mesaji}</p>
             ))}
+          </div>
+        )}
+
+        {sekme === "genel" && (
+          <div style={{ marginBottom: 18 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Hızlı Erişim</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {SEKME_GRUPLARI.flatMap((g) => g.sekmeler).filter(([k]) => k !== "genel").map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ textAlign: "left", background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 12, cursor: "pointer" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, margin: 0, color: T.text }}>{etiket}</p>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
