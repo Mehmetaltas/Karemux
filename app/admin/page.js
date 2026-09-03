@@ -83,7 +83,7 @@ function KaseRozeti({ metin }) {
   );
 }
 
-const girdiStil = { width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.border}`, background: T.inputBg, color: T.text, fontSize: TYPO.bodyStrong, fontFamily: T.font, outline: "none" };
+const girdiStil = { width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.border}`, background: T.inputBg, color: T.text, fontSize: TYPO.bodyStrong, fontFamily: T.font };
 const etiketStil = { fontSize: TYPO.micro, fontWeight: 600, color: T.textMuted, marginBottom: 5, display: "block", textTransform: "uppercase", letterSpacing: 0.3 };
 function butonStil(aktif, renk) {
   return { padding: "9px 16px", borderRadius: 6, border: "none", background: aktif ? (renk || T.accent) : T.surfaceHover, color: aktif ? T.onAccent : T.textMuted, fontWeight: 700, fontSize: TYPO.body, cursor: aktif ? "pointer" : "default", transition: "background 0.15s" };
