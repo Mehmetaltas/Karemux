@@ -1,10 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
+import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
-const T = {
+// T artik MUTABLE (2 Eylul) - sadece marka renkleri (bg/text/textMuted/accent)
+// temaya bagli, anlamsal renkler (danger/amber) SABIT kaliyor - kirmizi hep
+// "hata/uyari" demeli, temaya gore degismemeli.
+let T = {
   bg: "#F7F7F5",           // kagit zemin
   surface: "#FFFFFF",      // kart/panel yuzeyi
   surfaceHover: "#EFEFEA",
@@ -23,6 +27,12 @@ const T = {
   headingFont: "Georgia, 'Times New Roman', serif",
   mono: "'SF Mono', 'Roboto Mono', ui-monospace, monospace",
 };
+
+function adminTemayiUygula(temaAdi) {
+  const t = TEMALAR[temaAdi];
+  if (!t) return;
+  Object.assign(T, { bg: t.page, text: t.ink, textMuted: t.muted, accent: t.coral, accentSoft: t.coral + "22" });
+}
 
 // ==== Tipografi olcegi - 16 rastgele deger yerine 7 anlamli isim ====
 const TYPO = {
@@ -88,6 +98,9 @@ export default function YonetimPaneli() {
   const [personelAd, setPersonelAd] = useState("");
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [sekme, setSekme] = useState("genel");
+  const [tema, setTemaState] = useState("orman");
+  useEffect(() => { const t = temaOku("orman"); adminTemayiUygula(t); setTemaState(t); }, []);
+  function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
   const [hata, setHata] = useState("");
   const [basari, setBasari] = useState("");
 
@@ -990,28 +1003,20 @@ export default function YonetimPaneli() {
     );
   }
 
-  const SEKMELER = [
-    ["genel", "📊 Genel Bakış"],
-    ["paketler", "💰 Paketler"],
-    ["giderler", "🧾 Giderler"],
-    ["cari", "🤝 Cari"],
-    ["kasa", "🏦 Kasa/Banka"],
-    ["maliyet", "🤖 Üretim Maliyeti"],
-    ["simulasyon", "🧮 Simülasyon"],
-    ["planlama", "📈 Finansal Planlama"],
-    ["kurumlar", "🏢 Kurumlar"],
-    ["canliders", "🎥 Canlı Ders"],
-    ["randevuodeme", "📅 Randevu Ödemeleri"],
-    ["ogretmen", "🎓 Öğretmenler"],
-    ["duyuru", "📢 Duyuru"],
-    ["talepler", "💡 Kullanıcı Talepleri"],
-    ["kariyer", "🧑‍💼 Kariyer Havuzu"],
-    ["ik", "🗂️ Personel Yönetimi"],
-    ["indirimkodlari", "🏷️ İndirim Kodları"],
-    ["mufredat", "📚 Müfredat"],
-    ["iadeler", "🛡️ İade Talepleri"],
-    ["ikiz", "🐋 Sistem İkizi"],
+  const SEKME_GRUPLARI = [
+    { baslik: null, sekmeler: [["genel", "📊 Genel Bakış"]] },
+    { baslik: "💰 Finans", sekmeler: [
+      ["paketler", "💰 Paketler"], ["giderler", "🧾 Giderler"], ["cari", "🤝 Cari"], ["kasa", "🏦 Kasa/Banka"],
+      ["maliyet", "🤖 Üretim Maliyeti"], ["simulasyon", "🧮 Simülasyon"], ["planlama", "📈 Finansal Planlama"],
+      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"],
+    ]},
+    { baslik: "🎓 Eğitim", sekmeler: [["mufredat", "📚 Müfredat"], ["ogretmen", "🎓 Öğretmenler"]] },
+    { baslik: "🎥 Canlı Hizmetler", sekmeler: [["canliders", "🎥 Canlı Ders"], ["randevuodeme", "📅 Randevu Ödemeleri"], ["kurumlar", "🏢 Kurumlar"]] },
+    { baslik: "👥 İnsan Kaynakları", sekmeler: [["ik", "🗂️ Personel Yönetimi"], ["kariyer", "🧑‍💼 Kariyer Havuzu"]] },
+    { baslik: "📢 İletişim", sekmeler: [["duyuru", "📢 Duyuru"], ["talepler", "💡 Kullanıcı Talepleri"]] },
+    { baslik: "⚙️ Sistem", sekmeler: [["ikiz", "🐋 Sistem İkizi"], ["tema", "🎨 Tema"]] },
   ];
+  const SEKMELER = SEKME_GRUPLARI.flatMap((g) => g.sekmeler);
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, fontFamily: T.font, color: T.text, paddingBottom: 60 }}>
@@ -1030,11 +1035,18 @@ export default function YonetimPaneli() {
         <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }} style={{ background: "none", border: "none", color: T.textMuted, fontSize: TYPO.caption, cursor: "pointer" }}>Çıkış</button>
       </div>
 
-      <div style={{ padding: "16px 16px 0", display: "flex", gap: 6, overflowX: "auto" }}>
-        {SEKMELER.map(([k, etiket]) => (
-          <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ ...butonStil(true, sekme === k ? T.accent : T.surfaceHover), color: sekme === k ? T.onAccent : T.textMuted, whiteSpace: "nowrap", flexShrink: 0 }}>
-            {etiket}
-          </button>
+      <div style={{ padding: "12px 16px 0" }}>
+        {SEKME_GRUPLARI.map((g, i) => (
+          <div key={i} style={{ marginBottom: 10 }}>
+            {g.baslik && <p style={{ fontSize: 10.5, fontWeight: 700, color: T.textMuted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>{g.baslik}</p>}
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {g.sekmeler.map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSekme(k); mesajTemizle(); }} style={{ ...butonStil(true, sekme === k ? T.accent : T.surfaceHover), color: sekme === k ? T.onAccent : T.textMuted, whiteSpace: "nowrap" }}>
+                  {etiket}
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 
@@ -1464,6 +1476,26 @@ export default function YonetimPaneli() {
             </>
           );
         })()}
+
+        {sekme === "tema" && (
+          <div style={{ background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 16, maxWidth: 360 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>🎨 Tema</p>
+            <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 14 }}>Panelin görünümünü değiştir.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {Object.keys(TEMALAR).map((t) => (
+                <button key={t} onClick={() => temaSec(t)} style={{
+                  padding: "14px 8px", borderRadius: 10, cursor: "pointer", textAlign: "center",
+                  border: `2px solid ${tema === t ? TEMALAR[t].mustard : "transparent"}`,
+                  background: TEMALAR[t].gradient, color: TEMALAR[t].page, fontSize: 12, fontWeight: 700,
+                }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{TEMALAR[t].ikon}</div>
+                  {TEMALAR[t].isim}
+                  {tema === t && <div style={{ fontSize: 9, marginTop: 2, opacity: 0.85 }}>✓ Aktif</div>}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {sekme === "ikiz" && (
           <>
