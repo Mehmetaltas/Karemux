@@ -1031,7 +1031,7 @@ export default function YonetimPaneli() {
           <button onClick={() => setMenuAcik(true)} style={{ background: "none", border: "none", color: T.text, fontSize: 22, cursor: "pointer", padding: 0 }}>☰</button>
           <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 28, height: 28, borderRadius: 8, display: "block", objectFit: "cover" }} />
           <div>
-            <p style={{ fontWeight: 700, fontSize: TYPO.heading, margin: 0 }}>Karemux Yönetim</p>
+            <h1 style={{ fontWeight: 700, fontSize: TYPO.heading, margin: 0 }}>Karemux Yönetim</h1>
             {personelAd && <p style={{ fontSize: TYPO.micro, color: T.textMuted, margin: 0 }}>Hoş geldin, {personelAd}</p>}
           </div>
         </div>

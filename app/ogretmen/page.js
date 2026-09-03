@@ -256,7 +256,7 @@ export default function OgretmenPanel() {
       <div style={{ padding: 20, maxWidth: 480, margin: "0 auto" }}>
         {sekme === "ozet" && (
           <div>
-            <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Hoş geldin, {ogretmen.ad}</p>
+            <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Hoş geldin, {ogretmen.ad}</h1>
             <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 20 }}>{ogretmen.brans} branşında Karemux'un 11 materyal üretim aracına erişimin var.</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {MENU.filter((m) => m.tur).map((m) => (
