@@ -1057,8 +1057,18 @@ export default function YonetimPaneli() {
             🧹 Hijyen: Tablo Listesi
           </button>
           {hijyenSonuc && (
-            <textarea readOnly value={hijyenSonuc} onClick={(e) => e.target.select()}
-              style={{ width: "100%", height: 300, padding: 10, borderRadius: 8, border: `1px solid ${T.border}`, fontSize: 12, fontFamily: "monospace", marginBottom: 12, boxSizing: "border-box" }} />
+            <>
+              <button onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(hijyenSonuc);
+                  alert("Panoya kopyalandı!");
+                } catch (e) { alert("Kopyalanamadı: " + e.message); }
+              }} style={{ ...butonStil(true), padding: "9px 14px", fontSize: TYPO.body, marginBottom: 8 }}>
+                📋 Panoya Kopyala
+              </button>
+              <textarea readOnly value={hijyenSonuc}
+                style={{ width: "100%", height: 300, padding: 10, borderRadius: 8, border: `1px solid ${T.border}`, fontSize: 12, fontFamily: "monospace", marginBottom: 12, boxSizing: "border-box" }} />
+            </>
           )}
         )}
 
