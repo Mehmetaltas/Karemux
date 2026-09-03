@@ -3,25 +3,17 @@ import { personelAdminMi } from "@/lib/personel";
 
 export const maxDuration = 60;
 
-// GECICI - hijyen taramasi icin tum tablo adlarini ve satir sayilarini listeler.
+// GECICI - hijyen taramasi. pg_stat_user_tables kullanarak TEK sorguda
+// tum tablolarin yaklasik satir sayisini cekiyor - dinamik sorguya gerek yok.
 export async function GET(req) {
   const sifre = new URL(req.url).searchParams.get("sifre");
   if (sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI || !(await personelAdminMi(req))) {
     return Response.json({ error: "Yetkisiz" }, { status: 401 });
   }
-  const tablolar = await sql`
-    SELECT table_name FROM information_schema.tables
-    WHERE table_schema = 'public' ORDER BY table_name
+  const sonuc = await sql`
+    SELECT relname AS tablo, n_live_tup AS satir_sayisi
+    FROM pg_stat_user_tables
+    ORDER BY relname
   `;
-  const sonuc = await Promise.all(tablolar.map(async (t) => {
-    try {
-      const sayim = await sql.query(`SELECT COUNT(*)::int AS c FROM "${t.table_name}"`);
-      const satirlar = Array.isArray(sayim) ? sayim : (sayim.rows || []);
-      const satir = satirlar[0] ? Number(satirlar[0].c) : null;
-      return { tablo: t.table_name, satirSayisi: satir, hamYapi: JSON.stringify(sayim).slice(0, 60) };
-    } catch (e) {
-      return { tablo: t.table_name, satirSayisi: null, hata: e.message };
-    }
-  }));
-  return Response.json({ tablolar: sonuc, toplam: tablolar.length });
+  return Response.json({ tablolar: sonuc, toplam: sonuc.length });
 }
