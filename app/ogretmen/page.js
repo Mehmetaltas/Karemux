@@ -2,8 +2,19 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
+import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 
-const C = { yesil: "#1F3D2E", turuncu: "#FF6B5E", altin: "#E8B339", metin: "#2A2A2A", muted: "#8A8A8A", bg: "#FDFBF6" };
+// C artik MUTABLE - tema degisince Object.assign ile ayni referans uzerinde
+// guncelleniyor. Boylece modul-seviyesinde C.xxx kullanan alt bilesenler
+// (MateryalUreticisi, MateryalGorunumu vb.) props gecirmeye/Context'e gerek
+// kalmadan otomatik yeni renkleri gorur (render zamaninda okunuyor).
+let C = { yesil: "#1F3D2E", turuncu: "#FF6B5E", altin: "#E8B339", metin: "#2A2A2A", muted: "#8A8A8A", bg: "#FDFBF6" };
+
+function temayiUygula(temaAdi) {
+  const t = TEMALAR[temaAdi];
+  if (!t) return;
+  Object.assign(C, { yesil: t.bg, turuncu: t.coral, altin: t.mustard, metin: t.ink, muted: t.muted, bg: t.page });
+}
 
 const MENU = [
   { kod: "ozet", ad: "📊 Genel Bakış", hazir: true },
@@ -21,6 +32,7 @@ const MENU = [
   { kod: "materyallerim", ad: "🗂️ Materyallerim", hazir: true },
   { kod: "profil", ad: "⚙️ Profil / Şifre", hazir: true },
   { kod: "is-basvuru", ad: "💼 İş Başvurusu Yap", hazir: true, dis: true, link: "/ogretmen-basvuru" },
+  { kod: "ayarlar", ad: "⚙️ Ayarlar (Tema)", hazir: true },
 ];
 
 const MATERYAL_DERSLER = ["Matematik", "Turkce", "Fen Bilimleri", "Ingilizce", "Sosyal Bilgiler", "T.C. Inkilap Tarihi", "Din Kulturu"];
@@ -183,6 +195,9 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
 }
 
 export default function OgretmenPanel() {
+  const [tema, setTema] = useState("orman");
+  useEffect(() => { const t = temaOku("orman"); temayiUygula(t); setTema(t); }, []);
+  function temaSec(t) { temayiUygula(t); temaKaydet(t); setTema(t); }
   const [ogretmen, setOgretmen] = useState(null);
   const [menuAcik, setMenuAcik] = useState(false);
   const [sekme, setSekme] = useState("ozet");
@@ -255,6 +270,25 @@ export default function OgretmenPanel() {
         )}
         {sekme === "materyallerim" && <Materyallerim />}
         {sekme === "profil" && <ProfilSifreDegistir />}
+        {sekme === "ayarlar" && (
+          <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16, maxWidth: 360 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>🎨 Tema</p>
+            <p style={{ fontSize: 11.5, color: C.muted, marginBottom: 14 }}>Panelin görünümünü değiştir.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {Object.keys(TEMALAR).map((t) => (
+                <button key={t} onClick={() => temaSec(t)} style={{
+                  padding: "14px 8px", borderRadius: 10, cursor: "pointer", textAlign: "center",
+                  border: `2px solid ${tema === t ? TEMALAR[t].mustard : "transparent"}`,
+                  background: TEMALAR[t].gradient, color: TEMALAR[t].page, fontSize: 12, fontWeight: 700,
+                }}>
+                  <div style={{ fontSize: 20, marginBottom: 4 }}>{TEMALAR[t].ikon}</div>
+                  {TEMALAR[t].isim}
+                  {tema === t && <div style={{ fontSize: 9, marginTop: 2, opacity: 0.85 }}>✓ Aktif</div>}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
