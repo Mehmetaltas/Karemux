@@ -4418,7 +4418,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               const altBasliklar = altKonuCache[anahtar] || [];
               if (altBasliklar.length === 0) {
                 return (
-                  <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder={altKonuYukleniyor aria-label="Alt konu" ? "Alt başlıklar hazırlanıyor..." : "Alt konu (isteğe bağlı, spesifik bir başlık yaz)"} style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
+                  <input value={kapsamKonu} onChange={(e) => setKapsamKonu(e.target.value)} placeholder={altKonuYukleniyor ? "Alt başlıklar hazırlanıyor..." : "Alt konu (isteğe bağlı, spesifik bir başlık yaz)"} aria-label="Alt konu" style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, marginBottom: 4, fontSize: 13, background: "#FAF6EE" }} />
                 );
               }
               return (
