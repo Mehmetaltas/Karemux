@@ -2640,7 +2640,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   function MikrofonButonu({ alanAdi, metinAyarla }) {
     const aktifMi = dinleniyor === alanAdi;
     return (
-      <button type="button" onClick={() => mikrofonlaDinle(alanAdi, metinAyarla)} disabled={dinleniyor !== null && !aktifMi} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: aktifMi ? 1 : 0.6 }}>
+      <button type="button" onClick={() => mikrofonlaDinle(alanAdi, metinAyarla)} aria-label={aktifMi ? "Dinlemeyi durdur" : "Sesli soyle"} disabled={dinleniyor !== null && !aktifMi} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: aktifMi ? 1 : 0.6 }}>
         {aktifMi ? "🔴" : "🎤"}
       </button>
     );
@@ -2648,7 +2648,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   function SesliOkuButonu({ metin }) {
     return (
-      <button type="button" onClick={() => sesliOku(metin)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 13, color: COLORS.muted, marginLeft: 6 }}>
+      <button type="button" onClick={() => sesliOku(metin)} aria-label="Metni sesli oku" style={{ border: "none", background: "none", cursor: "pointer", fontSize: 13, color: COLORS.muted, marginLeft: 6 }}>
         🔊
       </button>
     );
@@ -2717,8 +2717,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     return (
       <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
         <span style={{ fontSize: 10.5, color: COLORS.muted }}>Bu yardimci oldu mu?</span>
-        <button onClick={() => geriBildirimGonder(ozellik, "begeni")} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👍</button>
-        <button onClick={() => setSorunModu(true)} style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👎</button>
+        <button onClick={() => geriBildirimGonder(ozellik, "begeni")} aria-label="Faydali buldum" style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👍</button>
+        <button onClick={() => setSorunModu(true)} aria-label="Sorun bildir" style={{ border: "none", background: "none", cursor: "pointer", fontSize: 15 }}>👎</button>
       </div>
     );
   }
@@ -3390,7 +3390,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
           <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, display: "block", objectFit: "cover" }} />
-          <button onClick={() => setMenuAcik((a) => !a)} style={{
+          <button onClick={() => setMenuAcik((a) => !a)} aria-label="Menu" style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
           }}>☰</button>
@@ -4053,7 +4053,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <div style={{ background: "#FDFBF6", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 14 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                         <p style={{ fontSize: 14, fontWeight: 700 }}>🧠 {secilenDers} — Nasıl Çalışmalıyım?</p>
-                        <button onClick={() => setTeknikPaneliAcik(false)} style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: "#8A8A8A" }}>✕</button>
+                        <button onClick={() => setTeknikPaneliAcik(false)} aria-label="Kapat" style={{ background: "none", border: "none", fontSize: 16, cursor: "pointer", color: "#8A8A8A" }}>✕</button>
                       </div>
                       {teknikYukleniyor ? (
                         <p style={{ fontSize: 12.5, color: "#8A8A8A" }}>Yükleniyor...</p>
