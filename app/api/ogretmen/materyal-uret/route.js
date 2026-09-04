@@ -96,6 +96,41 @@ export async function POST(req) {
       return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
     }
 
+    if (tur === "brans_denemesi") {
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinin TAMAMINI (tek uniteyle sinirli DEGIL) kapsayan, gercek bir sinav kitapcigi kalitesinde "${tanim.baslik}" hazirla. ${sinif}. sinif seviyesinde ${tanim.soruSayisi} soru olsun. ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI KURALLAR: (1) Sorular EN AZ 5 FARKLI UNITEDEN gelsin, tek bir uniteye yogunlasma - her sorunun hangi uniteden geldigini "unite" alaninda belirt. (2) Zorluk dagilimi TAM OLARAK soyle olsun: ilk %20'si kolay, ortadaki %55'i orta, son %25'i zor (sirali ver). (3) Gercekci bir sinav suresi oner (soru basina ortalama 100 saniye hesabiyla). (4) Kisa, net bir sinav yonergesi yaz (ogrenciye nasil cevaplayacagini anlatan 1-2 cumle). (5) Her soru icin ayrica "beceri" (soru hangi beceriyi olcuyor, 2-4 kelime), "tahminiSureSaniye" (sayisal), "yayginHata" (ogrencilerin bu tarz soruda en sik yaptigi hata, kisa), "cozumTeknigi" (hizli cozum ipucu, kisa) alanlarini da doldur. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+{"baslik":"...","yonerge":"...","sinavSuresiDk":40,"sorular":[{"unite":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"...","tahminiSureSaniye":45,"yayginHata":"...","cozumTeknigi":"..."}]}`;
+
+      const cevap = await aiCagir({ prompt: p, maxTokens: 8000, jsonModu: true });
+      const temiz = cevap.replace(/```json|```/g, "").trim();
+      const parcaTemiz = temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1)
+        .replace(/"dogruIndex"\s*:\s*"?([A-D])"?/gi, (_, harf) => `"dogruIndex":${harf.toUpperCase().charCodeAt(0) - 65}`);
+      const veri = JSON.parse(parcaTemiz);
+
+      if (!veri.sorular || !Array.isArray(veri.sorular) || veri.sorular.length === 0) {
+        return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
+      }
+
+      try {
+        for (const s of veri.sorular) {
+          if (!s.soru || !Array.isArray(s.secenekler) || s.dogruIndex == null) continue;
+          await sql`
+            INSERT INTO soru_bankasi (ders, sinif, unite, zorluk, soru, secenekler, dogru_index, kaynak_turu, beceri, tahmini_sure_saniye, yaygin_hata, cozum_teknigi)
+            VALUES (${ders}, ${sinif}, ${s.unite || konu.trim()}, ${s.zorluk || null}, ${s.soru}, ${JSON.stringify(s.secenekler)}, ${s.dogruIndex}, ${"ogretmen_" + tur}, ${s.beceri || null}, ${s.tahminiSureSaniye || null}, ${s.yayginHata || null}, ${s.cozumTeknigi || null})
+          `;
+        }
+      } catch (e) { console.error("Ogretmen materyali soru bankasina kaydedilemedi:", e); }
+
+      if (ogretmenOturum?.id) {
+        try {
+          await sql`
+            INSERT INTO ogretmen_materyalleri (ogretmen_id, tur, sinif, ders, konu, materyal)
+            VALUES (${ogretmenOturum.id}, ${tur}, ${sinif}, ${ders}, ${konu?.trim() || null}, ${JSON.stringify(veri)})
+          `;
+        } catch (e) { console.error("Materyal gecmise kaydedilemedi:", e); }
+      }
+      return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
+    }
+
     const notMetni = tanim.notGerekli ? ` Ogretmenin belirttigi hedef: "${ogretmenNotu.trim()}" - sorulari BUNA GORE hedefle.` : "";
     const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${tur === "brans_denemesi" ? "" : ` "${konu}" konusuyla ilgili`} ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}.${notMetni} ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
 {"baslik":"...","ozet":"kisa konu ozeti (yoksa bos birak)","sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]}`;

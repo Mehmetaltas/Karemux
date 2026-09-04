@@ -61,10 +61,16 @@ function karistirVeBKitapciğiUret(sorular) {
   });
 }
 
-function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster }) {
+function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster, yonerge, sinavSuresiDk }) {
   return (
     <div className="yazdir-alani" style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16 }}>
       <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{baslik}</p>
+      {(yonerge || sinavSuresiDk) && (
+        <div role="note" style={{ background: "#FDF6E8", borderRadius: 8, padding: "10px 12px", marginBottom: 12, border: "1px solid #E8D9A8" }}>
+          {sinavSuresiDk && <p style={{ fontSize: 12, fontWeight: 700, marginBottom: yonerge ? 4 : 0 }}>Sınav Süresi: {sinavSuresiDk} dakika</p>}
+          {yonerge && <p style={{ fontSize: 12, lineHeight: 1.5, color: "#555" }}>{yonerge}</p>}
+        </div>
+      )}
       {ozet && <p style={{ fontSize: 13, lineHeight: 1.6, color: "#555", marginBottom: 14, paddingBottom: 14, borderBottom: "1px solid #eee" }}>{ozet}</p>}
       {sorular.map((s, i) => (
         <div key={i} style={{ marginBottom: 14 }}>
@@ -202,7 +208,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
             )}
             <button onClick={() => window.print()} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>🖨️ Yazdır</button>
           </div>
-          <MateryalGorunumu baslik={gosterilecek.baslik + (aktifGorunum === "B" ? " (B Kitapçığı)" : "")} ozet={gosterilecek.ozet} sorular={gosterilecek.sorular} cevapGoster={cevapGoster} />
+          <MateryalGorunumu baslik={gosterilecek.baslik + (aktifGorunum === "B" ? " (B Kitapçığı)" : "")} ozet={gosterilecek.ozet} sorular={gosterilecek.sorular} cevapGoster={cevapGoster} yonerge={gosterilecek.yonerge} sinavSuresiDk={gosterilecek.sinavSuresiDk} />
         </>
       )}
     </div>
@@ -341,7 +347,7 @@ function Materyallerim() {
             <p style={{ fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{acikMateryal.materyal.icerik}</p>
           </div>
         ) : (
-          <MateryalGorunumu baslik={acikMateryal.materyal.baslik} ozet={acikMateryal.materyal.ozet} sorular={acikMateryal.materyal.sorular} cevapGoster={true} />
+          <MateryalGorunumu baslik={acikMateryal.materyal.baslik} ozet={acikMateryal.materyal.ozet} sorular={acikMateryal.materyal.sorular} cevapGoster={true} yonerge={acikMateryal.materyal.yonerge} sinavSuresiDk={acikMateryal.materyal.sinavSuresiDk} />
         )}
       </div>
     );
