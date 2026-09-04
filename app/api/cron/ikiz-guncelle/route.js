@@ -55,6 +55,10 @@ export async function GET(req) {
     await degiskenGuncelle("neon_depolama_kullanim", neonMB);
     guncellenenler.push("neon_depolama_kullanim");
 
+    const gercekOgretmenSayisi = await sql`SELECT COUNT(*)::int AS c FROM ogretmenler`;
+    await degiskenGuncelle("ogretmen_sayisi", gercekOgretmenSayisi[0].c);
+    guncellenenler.push("ogretmen_sayisi");
+
     // Son 30 gunun gercek geliri (satislar tablosundan)
     const aylikGelirSonuc = await sql`SELECT COALESCE(SUM(net_gelir_tl), 0)::numeric AS toplam FROM satislar WHERE olusturulma >= now() - interval '30 days'`;
     const aylikGelir = Number(aylikGelirSonuc[0].toplam);
@@ -103,6 +107,36 @@ export async function GET(req) {
         `ikiz_degisken.${d.kod} IS NULL`,
         "yuksek"
       )) yeniOneriler.push(d.ad);
+    }
+
+    // ===================================================================
+    // TAZELIK / SAGLIK KONTROLU (yukaridaki guncelleme mantigindan AYRI,
+    // bagimsiz bir denetim asamasi). Amac: "otomatik guncellenmesi beklenen
+    // bir degisken sessizce durdu mu" sorusunu HER degisken icin tek merkezden
+    // otomatik tespit etmek - tek tek hata bulup panel eklemek yerine.
+    // Sonuc, YENI bir panel DEGIL, mevcut "Bekleyen Strateji Onerileri"
+    // akisina (yukaridaki guvenlik kontrolüyle ayni mekanizma) ekleniyor.
+    //
+    // YENI bir otomatik degisken eklerseniz, buraya da eklemeyi unutmayin.
+    const OTOMATIK_GUNCELLENMESI_BEKLENEN = [
+      { kod: "toplam_mufredat_kaydi", maxSaat: 30 },
+      { kod: "sekizinci_sinif_eksik_unite_sayisi", maxSaat: 30 },
+      { kod: "aktif_ogrenci_sayisi", maxSaat: 30 },
+      { kod: "neon_depolama_kullanim", maxSaat: 30 },
+      { kod: "ogretmen_sayisi", maxSaat: 30 },
+    ];
+    for (const { kod, maxSaat } of OTOMATIK_GUNCELLENMESI_BEKLENEN) {
+      const satir = await sql`SELECT ad, guncelleme FROM ikiz_degisken WHERE kod = ${kod} LIMIT 1`;
+      if (satir.length === 0 || !satir[0].guncelleme) continue;
+      const saatFarki = (Date.now() - new Date(satir[0].guncelleme).getTime()) / 3600000;
+      if (saatFarki > maxSaat) {
+        if (await oneriOlustur(
+          `Veri tazeligi sorunu: ${satir[0].ad || kod}`,
+          `Bu degisken otomatik guncellenmesi beklenirken yaklasik ${Math.round(saatFarki)} saattir guncellenmedi - cron akisinda bir kopukluk olabilir, kod incelenmeli.`,
+          `ikiz_degisken.guncelleme, kod=${kod}`,
+          "orta"
+        )) yeniOneriler.push(`Veri tazeligi: ${kod}`);
+      }
     }
 
     return Response.json({ ok: true, guncellenenler, aylikGelir, yeniOneriler });
