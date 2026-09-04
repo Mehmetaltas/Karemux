@@ -484,7 +484,8 @@ export default function YonetimPaneli() {
   const [mufredatVeri, setMufredatVeri] = useState(null);
   const [iadeVeri, setIadeVeri] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
-  const [gunlukRaporVeri, setGunlukRaporVeri] = useState(null);
+  const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
+  const [sirketRaporDonem, setSirketRaporDonem] = useState("gunluk");
   const [senaryoVeri, setSenaryoVeri] = useState(null);
   const [senaryoForm, setSenaryoForm] = useState({ ad: "", donem: "aylik", senaryoTipi: "gerceki", ogrenciSayisi: "", ortalamaAylikGelirKisiBasiTl: "", ogretmenSayisi: "", ortalamaAylikOgretmenMaliyetiTl: "", personelMaliyetiAylikTl: "", aylikAiMaliyetTahminiTl: "", ekstraAylikGiderTl: "", youtubeAylikGiderTl: "", youtubeAylikGelirTahminiTl: "" });
   const [senaryoHesaplaniyor, setSenaryoHesaplaniyor] = useState(false);
@@ -723,7 +724,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
-  useEffect(() => { if (girisYapildi && sekme === "ikiz" && !gunlukRaporVeri) gunlukRaporGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
@@ -750,11 +751,14 @@ export default function YonetimPaneli() {
     } catch {}
   }
 
-  async function gunlukRaporGetir() {
+  async function sirketRaporGetir(donem) {
     try {
-      const res = await fetch(`/api/admin/gunluk-rapor?sifre=${encodeURIComponent(sifre)}`);
+      const url = donem === "gunluk" ? `/api/admin/gunluk-rapor?sifre=${encodeURIComponent(sifre)}`
+        : donem === "haftalik" ? `/api/admin/haftalik-rapor?sifre=${encodeURIComponent(sifre)}`
+        : `/api/admin/donemsel-rapor?sifre=${encodeURIComponent(sifre)}&donem=${donem}`;
+      const res = await fetch(url);
       const data = await res.json();
-      if (res.ok) setGunlukRaporVeri(data);
+      if (res.ok) setSirketRaporVeri({ ...data, _donem: donem });
     } catch {}
   }
 
@@ -1605,37 +1609,55 @@ export default function YonetimPaneli() {
               ))}
             </Panel>
 
-            <Panel baslik="Günlük AI CEO Raporu" ikon="📋">
-              {!gunlukRaporVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
-                <>
-                  <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 10 }}>{gunlukRaporVeri.tarih}</p>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
-                    <span style={{ color: T.textMuted }}>Günlük gelir</span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.finans.gunlukGelirTl}₺ ({gunlukRaporVeri.finans.gunlukSatisAdedi} satış)</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
-                    <span style={{ color: T.textMuted }}>Dünkü gelir</span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.finans.dunkuGelirTl}₺ ({gunlukRaporVeri.finans.dunkuSatisAdedi} satış)</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
-                    <span style={{ color: T.textMuted }}>Brüt katkı</span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700, color: gunlukRaporVeri.finans.brutKatkiTl >= 0 ? T.accent : T.danger }}>{gunlukRaporVeri.finans.brutKatkiTl}₺</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
-                    <span style={{ color: T.textMuted }}>Yeni kayıt (bugün)</span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.kullanici.yeniKayitBugun}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
-                    <span style={{ color: T.textMuted }}>Aktif Premium</span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.kullanici.aktifPremiumSayisi} / {gunlukRaporVeri.kullanici.toplamKullaniciSayisi} toplam</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: TYPO.caption }}>
-                    <span style={{ color: T.textMuted }}>AI maliyeti bugün</span>
-                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.aiMaliyeti.bugunTl}₺ ({gunlukRaporVeri.aiMaliyeti.bugunCagriSayisi} çağrı{gunlukRaporVeri.aiMaliyeti.degisimYuzde !== null ? `, dünden ${gunlukRaporVeri.aiMaliyeti.degisimYuzde > 0 ? "+" : ""}${gunlukRaporVeri.aiMaliyeti.degisimYuzde}%` : ""})</span>
-                  </div>
-                  <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{gunlukRaporVeri.aiMaliyeti.not}</p>
-                </>
-              )}
+            <Panel baslik="Şirket Raporu" ikon="📋">
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+                {[["gunluk", "Günlük"], ["haftalik", "Haftalık"], ["aylik", "Aylık"], ["uc_aylik", "3 Aylık"], ["alti_aylik", "6 Aylık"], ["yillik", "Yıllık"]].map(([anahtar, etiket]) => (
+                  <button key={anahtar} onClick={() => setSirketRaporDonem(anahtar)} style={{ ...butonStil(sirketRaporDonem === anahtar), padding: "6px 12px", fontSize: TYPO.caption }}>{etiket}</button>
+                ))}
+              </div>
+              {!sirketRaporVeri || sirketRaporVeri._donem !== sirketRaporDonem ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (() => {
+                const v = sirketRaporVeri;
+                const gelirTl = v.finans.gunlukGelirTl ?? v.finans.haftalikGelirTl ?? v.finans.donemGelirTl;
+                const satisAdedi = v.finans.gunlukSatisAdedi ?? v.finans.haftalikSatisAdedi ?? v.finans.donemSatisAdedi;
+                const oncekiGelirTl = v.finans.dunkuGelirTl ?? v.finans.oncekiHaftaGelirTl ?? v.finans.oncekiDonemGelirTl;
+                const giderTl = v.finans.gunlukGiderTl ?? v.finans.haftalikGiderTl ?? v.finans.donemGiderTl;
+                const yeniKayit = v.kullanici.yeniKayitBugun ?? v.kullanici.yeniKayitBuHafta ?? v.kullanici.yeniKayitBuDonem;
+                const aiTl = v.aiMaliyeti.bugunTl ?? v.aiMaliyeti.buHaftaTl ?? v.aiMaliyeti.buDonemTl;
+                const aiCagri = v.aiMaliyeti.bugunCagriSayisi ?? v.aiMaliyeti.buHaftaCagriSayisi ?? v.aiMaliyeti.buDonemCagriSayisi;
+                const aiDegisim = v.aiMaliyeti.degisimYuzde;
+                return (
+                  <>
+                    <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 10 }}>{v.tarih || `${v.donemBaslangic} → ${v.donemBitis}`}</p>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                      <span style={{ color: T.textMuted }}>Gelir</span>
+                      <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gelirTl}₺ ({satisAdedi} satış)</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                      <span style={{ color: T.textMuted }}>Önceki dönem gelir</span>
+                      <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{oncekiGelirTl}₺</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                      <span style={{ color: T.textMuted }}>Brüt katkı</span>
+                      <span style={{ fontFamily: T.mono, fontWeight: 700, color: v.finans.brutKatkiTl >= 0 ? T.accent : T.danger }}>{v.finans.brutKatkiTl}₺</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                      <span style={{ color: T.textMuted }}>Yeni kayıt</span>
+                      <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{yeniKayit}</span>
+                    </div>
+                    {v.kullanici.aktifPremiumSayisi != null && (
+                      <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                        <span style={{ color: T.textMuted }}>Aktif Premium</span>
+                        <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{v.kullanici.aktifPremiumSayisi} / {v.kullanici.toplamKullaniciSayisi} toplam</span>
+                      </div>
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: TYPO.caption }}>
+                      <span style={{ color: T.textMuted }}>AI maliyeti</span>
+                      <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{aiTl}₺ ({aiCagri} çağrı{aiDegisim !== null && aiDegisim !== undefined ? `, öncekinden ${aiDegisim > 0 ? "+" : ""}${aiDegisim}%` : ""})</span>
+                    </div>
+                    {v.aiMaliyeti.not && <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{v.aiMaliyeti.not}</p>}
+                  </>
+                );
+              })()}
             </Panel>
 
             <Panel baslik="Şirket İkizi — Senaryo Hesaplayıcı" ikon="🏢">
