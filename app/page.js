@@ -5108,34 +5108,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </div>
                 )}
 
-                {hesap.rol === "veli" && (
-                  <div style={{ margin: "14px 0" }}>
-                    <label style={{ fontSize: 12, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>OGRENCI BAGLA</label>
-                    <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
-                      <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Ogrencinin baglanti kodu" aria-label="Ogrencinin baglanti kodu" style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
-                      <button onClick={veliBaglan} style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, cursor: "pointer" }}>Bagla</button>
-                    </div>
-                    {veliMesaj && <p style={{ fontSize: 12, marginBottom: 10 }}>{veliMesaj}</p>}
-
-                    {veliOgrenciler.map((o, i) => (
-                      <div key={i} style={{ borderTop: `1px solid ${COLORS.line}`, paddingTop: 10, marginTop: 10 }}>
-                        <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>{o.ogrenci.ad}</p>
-                        {o.zayifDersler.length > 0 && (
-                          <p style={{ fontSize: 12, color: COLORS.coral, marginBottom: 6 }}>Zayif dersler: {o.zayifDersler.join(", ")}</p>
-                        )}
-                        {o.gecmis.length === 0 ? (
-                          <p style={{ fontSize: 12, color: COLORS.muted }}>Henuz quiz cozmemis.</p>
-                        ) : (
-                          o.gecmis.map((g, j) => (
-                            <p key={j} style={{ fontSize: 12, margin: "2px 0" }}>
-                              {g.ders} · {g.konu}: {g.dogru}/{g.toplam} dogru
-                            </p>
-                          ))
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
 
                 <div style={{ marginBottom: 14 }}>
                   <button onClick={teshisCalistir} disabled={teshisYukleniyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>

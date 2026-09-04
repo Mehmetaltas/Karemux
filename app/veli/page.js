@@ -24,7 +24,7 @@ export default function VeliPaneli() {
         const res = await fetch("/api/auth/me");
         const data = await res.json();
         if (!data.girisYapmis || data.kullanici?.rol !== "veli") {
-          setYukleniyor(false);
+          window.location.href = "/veli-giris";
           return;
         }
         setKullanici(data.kullanici);
@@ -90,11 +90,7 @@ export default function VeliPaneli() {
   }
 
   if (!kullanici) {
-    return (
-      <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: T.bg, padding: 24, textAlign: "center" }}>
-        <p style={{ color: T.muted, fontSize: 14 }}>Bu sayfa sadece giris yapmis veli hesaplari icindir. Once ana sayfadan giris yap.</p>
-      </main>
-    );
+    return <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: T.bg }}><p aria-live="polite" style={{ color: T.muted }}>Yonlendiriliyor...</p></main>;
   }
 
   return (
