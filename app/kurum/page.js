@@ -18,6 +18,13 @@ export default function KurumPaneli() {
   const [havaleBilgi, setHavaleBilgi] = useState(null);
   const [islemYukleniyor, setIslemYukleniyor] = useState(null);
   const [hata, setHata] = useState("");
+  const [lisanslar, setLisanslar] = useState(null);
+  const [yillikPaketler, setYillikPaketler] = useState(null);
+  const [lisansPlanSecim, setLisansPlanSecim] = useState("");
+  const [lisansKoltukSayisi, setLisansKoltukSayisi] = useState(1);
+  const [lisansHavaleBilgi, setLisansHavaleBilgi] = useState(null);
+  const [lisansIslemYukleniyor, setLisansIslemYukleniyor] = useState(false);
+  const [lisansHata, setLisansHata] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -29,7 +36,7 @@ export default function KurumPaneli() {
           return;
         }
         setKullanici(data.kullanici);
-        await Promise.all([kurumGetir(), denemeleriGetir()]);
+        await Promise.all([kurumGetir(), denemeleriGetir(), lisanslariGetir(), yillikPaketleriGetir()]);
       } finally {
         setYukleniyor(false);
       }
@@ -93,6 +100,44 @@ export default function KurumPaneli() {
     }
   }
 
+  async function lisanslariGetir() {
+    try {
+      const res = await fetch("/api/kurum/lisanslar");
+      const data = await res.json();
+      if (res.ok) setLisanslar(data.lisanslar || []);
+    } catch {}
+  }
+
+  async function yillikPaketleriGetir() {
+    try {
+      const res = await fetch("/api/paketler");
+      const data = await res.json();
+      if (res.ok) setYillikPaketler((data.paketler || []).filter((p) => p.anahtar?.startsWith("yillik_")));
+    } catch {}
+  }
+
+  async function havaleIleLisansSatinAl() {
+    setLisansHata(""); setLisansHavaleBilgi(null);
+    if (!lisansPlanSecim) { setLisansHata("Once bir paket sec."); return; }
+    if (!Number.isInteger(lisansKoltukSayisi) || lisansKoltukSayisi < 1) { setLisansHata("Gecerli bir koltuk sayisi gir."); return; }
+    setLisansIslemYukleniyor(true);
+    try {
+      const res = await fetch("/api/kurum/lisans-havale-baslat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: lisansPlanSecim, koltukSayisi: lisansKoltukSayisi }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setLisansHavaleBilgi(data);
+      lisanslariGetir();
+    } catch (e) {
+      setLisansHata(e.message);
+    } finally {
+      setLisansIslemYukleniyor(false);
+    }
+  }
+
   if (yukleniyor) {
     return <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: T.bg }}><p aria-live="polite" style={{ color: T.muted }}>Yukleniyor...</p></main>;
   }
@@ -144,6 +189,49 @@ export default function KurumPaneli() {
               <p style={{ fontSize: 12.5, marginBottom: 8, color: "#B23A2E", fontWeight: 700 }}>Aciklama alanina MUTLAKA su kodu yaz: {havaleBilgi.referans}</p>
             </div>
           )}
+        </section>
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginTop: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Lisanslarım</h2>
+          {!lisanslar ? <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p> : lisanslar.length === 0 ? (
+            <p style={{ fontSize: 13, color: T.muted, marginBottom: 14 }}>Henuz bir lisansin yok.</p>
+          ) : lisanslar.map((l) => (
+            <div key={l.id} style={{ borderBottom: `1px solid ${T.line}`, padding: "10px 0" }}>
+              <p style={{ fontWeight: 700, fontSize: 13.5 }}>{l.plan}</p>
+              <p style={{ fontSize: 12, color: T.muted }}>{l.kullanilan_koltuk}/{l.koltuk_sayisi} koltuk kullanimda · {Number(l.tutar_tl).toLocaleString("tr-TR")}₺ · {new Date(l.satin_alma_tarihi).toLocaleDateString("tr-TR")}</p>
+            </div>
+          ))}
+
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${T.line}` }}>
+            <h3 style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 8 }}>Yeni Lisans Satin Al</h3>
+            {!yillikPaketler ? (
+              <p style={{ fontSize: 12, color: T.muted }}>Paketler yukleniyor...</p>
+            ) : (
+              <>
+                <select aria-label="Paket sec" value={lisansPlanSecim} onChange={(e) => setLisansPlanSecim(e.target.value)} style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }}>
+                  <option value="">Paket sec...</option>
+                  {yillikPaketler.map((p) => (
+                    <option key={p.anahtar} value={p.anahtar}>{p.ad} — {Number(p.fiyat_tl).toLocaleString("tr-TR")}₺/koltuk</option>
+                  ))}
+                </select>
+                <input aria-label="Koltuk sayisi" type="number" min="1" value={lisansKoltukSayisi} onChange={(e) => setLisansKoltukSayisi(parseInt(e.target.value) || 1)} placeholder="Koltuk sayisi" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 13 }} />
+                <button onClick={havaleIleLisansSatinAl} disabled={lisansIslemYukleniyor} style={{ width: "100%", padding: "9px 0", borderRadius: 6, border: `1.5px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                  {lisansIslemYukleniyor ? "Hazirlaniyor..." : "🏦 Banka Havalesi ile Satin Al"}
+                </button>
+              </>
+            )}
+            {lisansHata && <p style={{ color: "#B23A2E", fontSize: 12.5, marginTop: 8 }}>{lisansHata}</p>}
+            {lisansHavaleBilgi && (
+              <div role="alert" style={{ background: "#FFF8E8", border: `1.5px solid ${T.mustard}`, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 8 }}>Havale/EFT Bilgileri</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Banka:</b> {lisansHavaleBilgi.bankaAdi}</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Hesap Sahibi:</b> {lisansHavaleBilgi.hesapSahibi}</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>IBAN:</b> {lisansHavaleBilgi.iban}</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Tutar:</b> {lisansHavaleBilgi.tutar}₺</p>
+                <p style={{ fontSize: 12.5, marginBottom: 0, color: "#B23A2E", fontWeight: 700 }}>Aciklama alanina MUTLAKA su kodu yaz: {lisansHavaleBilgi.referans}</p>
+              </div>
+            )}
+          </div>
         </section>
       </div>
     </main>
