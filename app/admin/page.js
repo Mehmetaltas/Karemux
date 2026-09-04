@@ -486,7 +486,7 @@ export default function YonetimPaneli() {
   const [ikizVeri, setIkizVeri] = useState(null);
   const [gunlukRaporVeri, setGunlukRaporVeri] = useState(null);
   const [senaryoVeri, setSenaryoVeri] = useState(null);
-  const [senaryoForm, setSenaryoForm] = useState({ ad: "", donem: "aylik", senaryoTipi: "gerceki", ogrenciSayisi: "", ortalamaAylikGelirKisiBasiTl: "", ogretmenSayisi: "", ortalamaAylikOgretmenMaliyetiTl: "", personelMaliyetiAylikTl: "", aylikAiMaliyetTahminiTl: "", ekstraAylikGiderTl: "" });
+  const [senaryoForm, setSenaryoForm] = useState({ ad: "", donem: "aylik", senaryoTipi: "gerceki", ogrenciSayisi: "", ortalamaAylikGelirKisiBasiTl: "", ogretmenSayisi: "", ortalamaAylikOgretmenMaliyetiTl: "", personelMaliyetiAylikTl: "", aylikAiMaliyetTahminiTl: "", ekstraAylikGiderTl: "", youtubeAylikGiderTl: "", youtubeAylikGelirTahminiTl: "" });
   const [senaryoHesaplaniyor, setSenaryoHesaplaniyor] = useState(false);
   const [ikizOneriIslemDurumu, setIkizOneriIslemDurumu] = useState(null);
   const [iadeIslemDurumu, setIadeIslemDurumu] = useState(null);
@@ -1661,6 +1661,8 @@ export default function YonetimPaneli() {
                 <input aria-label="Sirket personeli aylik maliyet" type="number" value={senaryoForm.personelMaliyetiAylikTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, personelMaliyetiAylikTl: e.target.value }))} placeholder="Şirket personeli aylık maliyet (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
                 <input aria-label="AI maliyet tahmini" type="number" value={senaryoForm.aylikAiMaliyetTahminiTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, aylikAiMaliyetTahminiTl: e.target.value }))} placeholder="Aylık AI maliyet tahmini (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
                 <input aria-label="Ekstra gider" type="number" value={senaryoForm.ekstraAylikGiderTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, ekstraAylikGiderTl: e.target.value }))} placeholder="Ekstra aylık gider (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="YouTube aylik gider" type="number" value={senaryoForm.youtubeAylikGiderTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, youtubeAylikGiderTl: e.target.value }))} placeholder="YouTube aylık üretim gideri (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="YouTube aylik gelir tahmini" type="number" value={senaryoForm.youtubeAylikGelirTahminiTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, youtubeAylikGelirTahminiTl: e.target.value }))} placeholder="YouTube aylık gelir tahmini (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
               </div>
               <button onClick={senaryoHesapla} disabled={senaryoHesaplaniyor} style={{ ...butonStil(true), marginBottom: 16 }}>{senaryoHesaplaniyor ? "Hesaplanıyor…" : "Senaryoyu Hesapla ve Kaydet"}</button>
 

@@ -96,12 +96,14 @@ export async function POST(req) {
     const personelMaliyetiAylikTl = Number(body.personelMaliyetiAylikTl) || 0;
     const aylikAiMaliyetTahminiTl = Number(body.aylikAiMaliyetTahminiTl) || 0;
     const ekstraAylikGiderTl = Number(body.ekstraAylikGiderTl) || 0;
+    const youtubeAylikGiderTl = Number(body.youtubeAylikGiderTl) || 0;
+    const youtubeAylikGelirTahminiTl = Number(body.youtubeAylikGelirTahminiTl) || 0;
 
     const sabitGider = await gercekAylikSabitGider();
 
-    const aylikGelirHam = ogrenciSayisi * ortalamaAylikGelirKisiBasiTl;
+    const aylikGelirHam = (ogrenciSayisi * ortalamaAylikGelirKisiBasiTl) + youtubeAylikGelirTahminiTl;
     const aylikOgretmenMaliyetiHam = ogretmenSayisi * ortalamaAylikOgretmenMaliyetiTl;
-    const aylikGiderHamKdvHaric = aylikOgretmenMaliyetiHam + personelMaliyetiAylikTl + aylikAiMaliyetTahminiTl + sabitGider.toplamTahminiAylikTl + ekstraAylikGiderTl;
+    const aylikGiderHamKdvHaric = aylikOgretmenMaliyetiHam + personelMaliyetiAylikTl + aylikAiMaliyetTahminiTl + sabitGider.toplamTahminiAylikTl + ekstraAylikGiderTl + youtubeAylikGiderTl;
 
     const aylikGelir = aylikGelirHam * carpan.gelir;
     const aylikGiderKdvHaric = aylikGiderHamKdvHaric * carpan.gider;
@@ -117,6 +119,7 @@ export async function POST(req) {
       ogrenciSayisi, ortalamaAylikGelirKisiBasiTl,
       ogretmenSayisi, ortalamaAylikOgretmenMaliyetiTl,
       personelMaliyetiAylikTl, aylikAiMaliyetTahminiTl, ekstraAylikGiderTl,
+      youtubeAylikGiderTl, youtubeAylikGelirTahminiTl,
     };
     const sonuc = {
       donem, senaryoTipi,
