@@ -7,7 +7,7 @@ export async function GET(req) {
   try {
     const yonetici = await kurumYoneticisiCoz(req);
     if (!yonetici) return Response.json({ error: "Giris yapmis bir kurum yoneticisi olmalisin" }, { status: 401 });
-    const kurum = await sql`SELECT id, ad, kurum_kodu, vergi_no, vergi_dairesi, yetkili_unvan FROM kurumlar WHERE id = ${yonetici.kurumId}`;
+    const kurum = await sql`SELECT id, ad, kurum_kodu, vergi_no, vergi_dairesi, yetkili_unvan, logo_url FROM kurumlar WHERE id = ${yonetici.kurumId}`;
     return Response.json({ kurum: kurum[0] || null });
   } catch (e) {
     console.error(e);
@@ -20,7 +20,7 @@ export async function POST(req) {
     const yonetici = await kurumYoneticisiCoz(req);
     if (!yonetici) return Response.json({ error: "Giris yapmis bir kurum yoneticisi olmalisin" }, { status: 401 });
 
-    const { vergiNo, vergiDairesi, yetkiliUnvan } = await req.json();
+    const { vergiNo, vergiDairesi, yetkiliUnvan, logoUrl } = await req.json();
     const vergiNoTemiz = (vergiNo || "").replace(/\D/g, "");
     if (vergiNoTemiz.length !== 10) {
       return Response.json({ error: "Gecerli bir vergi numarasi girilmeli (10 hane)" }, { status: 400 });
@@ -30,7 +30,7 @@ export async function POST(req) {
     }
 
     await sql`
-      UPDATE kurumlar SET vergi_no = ${vergiNoTemiz}, vergi_dairesi = ${vergiDairesi.trim()}, yetkili_unvan = ${yetkiliUnvan || null}
+      UPDATE kurumlar SET vergi_no = ${vergiNoTemiz}, vergi_dairesi = ${vergiDairesi.trim()}, yetkili_unvan = ${yetkiliUnvan || null}, logo_url = ${logoUrl?.trim() || null}
       WHERE id = ${yonetici.kurumId}
     `;
     return Response.json({ ok: true });
