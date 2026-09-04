@@ -6,7 +6,7 @@ const T = {
   coral: "#0974E0", line: "#E5E5EA",
 };
 
-export default function VeliGiris() {
+export default function KurumGiris() {
   const [eposta, setEposta] = useState("");
   const [sifre, setSifre] = useState("");
   const [sifreGoster, setSifreGoster] = useState(false);
@@ -36,10 +36,10 @@ export default function VeliGiris() {
 
       const meRes = await fetch("/api/auth/me");
       const meData = await meRes.json();
-      if (meData.girisYapmis && meData.kullanici?.rol === "veli") {
-        window.location.href = "/veli";
+      if (meData.girisYapmis && meData.kullanici?.rol === "kurum_yoneticisi") {
+        window.location.href = "/kurum";
       } else {
-        setHata("Bu hesap bir veli hesabi degil.");
+        setHata("Bu hesap bir kurum yoneticisi hesabi degil.");
       }
     } catch (e) {
       setHata(e.message);
@@ -74,8 +74,8 @@ export default function VeliGiris() {
   return (
     <main style={{ minHeight: "100vh", background: T.bg, display: "flex", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "system-ui, sans-serif" }}>
       <div style={{ width: "100%", maxWidth: 360, background: T.page, borderRadius: 14, padding: 24, border: `1px solid ${T.line}` }}>
-        <h1 style={{ fontSize: 19, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Karemux Veli Girişi</h1>
-        <p style={{ fontSize: 12.5, color: T.muted, marginBottom: 20, textAlign: "center" }}>Çocuğunun ilerlemesini takip et</p>
+        <h1 style={{ fontSize: 19, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Karemux Kurum Girişi</h1>
+        <p style={{ fontSize: 12.5, color: T.muted, marginBottom: 20, textAlign: "center" }}>Okul / dershane yönetim paneli</p>
 
         {!sifremiUnuttumAcik ? (
           <>
@@ -126,10 +126,6 @@ export default function VeliGiris() {
             >
               Şifremi Unuttum
             </button>
-
-            <p style={{ fontSize: 11.5, color: T.muted, marginTop: 16, textAlign: "center" }}>
-              Veli hesabın yoksa, öğrencinin öğretmeninden veya Karemux desteğinden bilgi alabilirsin.
-            </p>
           </>
         ) : (
           <>
