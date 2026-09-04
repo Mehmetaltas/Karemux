@@ -3769,7 +3769,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <button key={j} onClick={() => setGecenYilCevaplar((c) => ({ ...c, [i]: j }))} style={{
                         display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: "pointer",
                         border: `1.5px solid ${gecenYilCevaplar[i] === j ? COLORS.mustard : COLORS.line}`, background: gecenYilCevaplar[i] === j ? "#FEF8E8" : "#fff",
-                      }>{sec}{(gecenYilCevaplar[i] === j) ? " ●" : ""}</button>
+                      }}>{sec}{(gecenYilCevaplar[i] === j) ? " ●" : ""}</button>
                     ))}
                   </div>
                 ))}
@@ -3824,7 +3824,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <button key={j} onClick={() => setDersSeviyeCevaplar((c) => ({ ...c, [i]: j }))} style={{
                         display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: "pointer",
                         border: `1.5px solid ${dersSeviyeCevaplar[i] === j ? COLORS.mustard : COLORS.line}`, background: dersSeviyeCevaplar[i] === j ? "#FEF8E8" : "#fff",
-                      }>{sec}{(dersSeviyeCevaplar[i] === j) ? " ●" : ""}</button>
+                      }}>{sec}{(dersSeviyeCevaplar[i] === j) ? " ●" : ""}</button>
                     ))}
                   </div>
                 ))}
@@ -4318,7 +4318,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <button key={j} onClick={() => setSeviyeCevaplar((c) => ({ ...c, [i]: j }))} style={{
                           display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 6, borderRadius: 7, fontSize: 13, cursor: "pointer",
                           border: `1.5px solid ${secili ? COLORS.mustard : COLORS.line}`, background: secili ? "#FEF8E8" : "#fff",
-                        }>{sec}{(secili) ? " ●" : ""}</button>
+                        }}>{sec}{(secili) ? " ●" : ""}</button>
                       );
                     })}
                   </div>
@@ -5215,7 +5215,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <button key={j} onClick={() => setSeviyeTestCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
                         display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5, cursor: "pointer",
                         border: `1.5px solid ${seviyeTestCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: seviyeTestCevaplar[i] === j ? "#FFF1EF" : "#fff",
-                      }>{sec}{(seviyeTestCevaplar[i] === j) ? " ●" : ""}</button>
+                      }}>{sec}{(seviyeTestCevaplar[i] === j) ? " ●" : ""}</button>
                     ))}
                   </div>
                 ))}
@@ -5311,7 +5311,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                                   <button key={j} onClick={() => setSeviyeOnayCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
                                     display: "block", width: "100%", textAlign: "left", padding: "6px 9px", marginBottom: 4, borderRadius: 6, fontSize: 11, cursor: "pointer",
                                     border: `1.5px solid ${seviyeOnayCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: seviyeOnayCevaplar[i] === j ? "#FFF1EF" : "#fff",
-                                  }>{sec}{(seviyeOnayCevaplar[i] === j) ? " ●" : ""}</button>
+                                  }}>{sec}{(seviyeOnayCevaplar[i] === j) ? " ●" : ""}</button>
                                 ))}
                               </div>
                             ))}
@@ -5984,7 +5984,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <button key={j} onClick={() => setUlusalCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
                         display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5, cursor: "pointer",
                         border: `1.5px solid ${ulusalCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: ulusalCevaplar[i] === j ? "#FFF1EF" : "#fff",
-                      }>{sec}{(ulusalCevaplar[i] === j) ? " ●" : ""}</button>
+                      }}>{sec}{(ulusalCevaplar[i] === j) ? " ●" : ""}</button>
                     ))}
                   </div>
                 ))}
