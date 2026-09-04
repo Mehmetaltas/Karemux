@@ -33,7 +33,6 @@ const KRITIK_API_UCLARI = [
   { yol: "/api/auth/me", beklenen: 200 },
   { yol: "/api/istatistik", beklenen: 200 },
   { yol: "/api/soru-bankasi", beklenen: 200 },
-  { yol: "/api/ulusal-deneme/aktif", beklenen: 200 },
   { yol: "/api/basarilar", beklenen: 200 },
   { yol: "/api/paketler", beklenen: 200 },
   { yol: "/api/canli-ders/listele", beklenen: 200 },
@@ -92,6 +91,26 @@ async function apiKontrolEt() {
     } catch (e) {
       console.log(`  RED  ${yol}: istek basarisiz -> ${e.message}`);
     }
+  }
+  return { gecen, toplam };
+}
+
+// VPS'teki Ulusal Deneme servisi (4 Eylul eklendi) - ayri bir sunucuda
+// (api.karemux.com) calistigi icin Vercel URL'sinden AYRI test edilir.
+async function vpsDenemeServisiKontrolEt() {
+  console.log(`\n=== VPS DENEME SERVISI KONTROLU (https://api.karemux.com) ===`);
+  let gecen = 0, toplam = 1;
+  try {
+    const res = await fetch("https://api.karemux.com/health");
+    const data = await res.json();
+    if (res.status === 200 && data.ok) {
+      console.log(`  OK   /health (${res.status})`);
+      gecen++;
+    } else {
+      console.log(`  RED  /health: beklenmeyen yanit -> ${JSON.stringify(data)}`);
+    }
+  } catch (e) {
+    console.log(`  RED  /health: istek basarisiz -> ${e.message}`);
   }
   return { gecen, toplam };
 }
@@ -456,9 +475,10 @@ async function rolYetkiTestiCalistir() {
   const entegrasyon = await entegrasyonTestiCalistir();
   const rolYetki = await rolYetkiTestiCalistir();
   const finans = await finansPaneliKontrolEt();
+  const vpsDeneme = await vpsDenemeServisiKontrolEt();
 
-  const toplamGecen = db.gecen + api.gecen + senaryo.gecen + entegrasyon.gecen + rolYetki.gecen + finans.gecen;
-  const toplamTest = db.toplam + api.toplam + senaryo.toplam + entegrasyon.toplam + rolYetki.toplam + finans.toplam;
+  const toplamGecen = db.gecen + api.gecen + senaryo.gecen + entegrasyon.gecen + rolYetki.gecen + finans.gecen + vpsDeneme.gecen;
+  const toplamTest = db.toplam + api.toplam + senaryo.toplam + entegrasyon.toplam + rolYetki.toplam + finans.toplam + vpsDeneme.toplam;
   console.log("\n=== SONUC ===");
   console.log(`Database:    ${db.gecen}/${db.toplam}`);
   console.log(`API:         ${api.gecen}/${api.toplam}`);
@@ -466,6 +486,7 @@ async function rolYetkiTestiCalistir() {
   console.log(`Entegrasyon: ${entegrasyon.gecen}/${entegrasyon.toplam}`);
   console.log(`Rol/Yetki:   ${rolYetki.gecen}/${rolYetki.toplam}`);
   console.log(`Finans/Randevu: ${finans.gecen}/${finans.toplam}`);
+  console.log(`VPS Deneme:  ${vpsDeneme.gecen}/${vpsDeneme.toplam}`);
   console.log(`TOPLAM:      ${toplamGecen}/${toplamTest} ${toplamGecen === toplamTest ? "— HEPSI GECTI" : "— BAZI TESTLER BASARISIZ"}`);
 
   process.exit(toplamGecen === toplamTest ? 0 : 1);
