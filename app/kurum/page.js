@@ -25,6 +25,12 @@ export default function KurumPaneli() {
   const [lisansHavaleBilgi, setLisansHavaleBilgi] = useState(null);
   const [lisansIslemYukleniyor, setLisansIslemYukleniyor] = useState(false);
   const [lisansHata, setLisansHata] = useState("");
+  const [koltukAtaAcikLisans, setKoltukAtaAcikLisans] = useState(null);
+  const [koltukAtaEposta, setKoltukAtaEposta] = useState("");
+  const [koltukAtaYukleniyor, setKoltukAtaYukleniyor] = useState(false);
+  const [koltukAtaMesaj, setKoltukAtaMesaj] = useState("");
+  const [rapor, setRapor] = useState(null);
+  const [raporYukleniyor, setRaporYukleniyor] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -36,7 +42,7 @@ export default function KurumPaneli() {
           return;
         }
         setKullanici(data.kullanici);
-        await Promise.all([kurumGetir(), denemeleriGetir(), lisanslariGetir(), yillikPaketleriGetir()]);
+        await Promise.all([kurumGetir(), denemeleriGetir(), lisanslariGetir(), yillikPaketleriGetir(), raporuGetir()]);
       } finally {
         setYukleniyor(false);
       }
@@ -138,6 +144,37 @@ export default function KurumPaneli() {
     }
   }
 
+  async function koltukAta(lisansId) {
+    setKoltukAtaMesaj("");
+    if (!koltukAtaEposta.trim()) { setKoltukAtaMesaj("Ogrenci e-postasi gerekli."); return; }
+    setKoltukAtaYukleniyor(true);
+    try {
+      const res = await fetch("/api/kurum/koltuk-ata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lisansId, ogrenciEposta: koltukAtaEposta.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setKoltukAtaMesaj("Koltuk basariyla atandi.");
+      setKoltukAtaEposta("");
+      lisanslariGetir();
+    } catch (e) {
+      setKoltukAtaMesaj(e.message);
+    } finally {
+      setKoltukAtaYukleniyor(false);
+    }
+  }
+
+  async function raporuGetir() {
+    setRaporYukleniyor(true);
+    try {
+      const res = await fetch("/api/kurum/rapor");
+      const data = await res.json();
+      if (res.ok) setRapor(data);
+    } catch {} finally { setRaporYukleniyor(false); }
+  }
+
   if (yukleniyor) {
     return <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: T.bg }}><p aria-live="polite" style={{ color: T.muted }}>Yukleniyor...</p></main>;
   }
@@ -198,7 +235,21 @@ export default function KurumPaneli() {
           ) : lisanslar.map((l) => (
             <div key={l.id} style={{ borderBottom: `1px solid ${T.line}`, padding: "10px 0" }}>
               <p style={{ fontWeight: 700, fontSize: 13.5 }}>{l.plan}</p>
-              <p style={{ fontSize: 12, color: T.muted }}>{l.kullanilan_koltuk}/{l.koltuk_sayisi} koltuk kullanimda · {Number(l.tutar_tl).toLocaleString("tr-TR")}₺ · {new Date(l.satin_alma_tarihi).toLocaleDateString("tr-TR")}</p>
+              <p style={{ fontSize: 12, color: T.muted, marginBottom: 8 }}>{l.kullanilan_koltuk}/{l.koltuk_sayisi} koltuk kullanimda · {Number(l.tutar_tl).toLocaleString("tr-TR")}₺ · {new Date(l.satin_alma_tarihi).toLocaleDateString("tr-TR")}</p>
+              {l.kullanilan_koltuk < l.koltuk_sayisi && (
+                <button onClick={() => { setKoltukAtaAcikLisans(koltukAtaAcikLisans === l.id ? null : l.id); setKoltukAtaMesaj(""); }} style={{ padding: "6px 12px", borderRadius: 6, border: `1.5px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 11.5, cursor: "pointer" }}>
+                  {koltukAtaAcikLisans === l.id ? "Kapat" : "🪑 Koltuk Ata"}
+                </button>
+              )}
+              {koltukAtaAcikLisans === l.id && (
+                <div style={{ marginTop: 8, display: "flex", gap: 6 }}>
+                  <input aria-label="Ogrenci epostasi" type="email" value={koltukAtaEposta} onChange={(e) => setKoltukAtaEposta(e.target.value)} placeholder="Ogrencinin e-postasi" style={{ flex: 1, padding: "8px 10px", borderRadius: 6, border: `1px solid ${T.line}`, fontSize: 12.5 }} />
+                  <button onClick={() => koltukAta(l.id)} disabled={koltukAtaYukleniyor} style={{ padding: "8px 14px", borderRadius: 6, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                    {koltukAtaYukleniyor ? "..." : "Ata"}
+                  </button>
+                </div>
+              )}
+              {koltukAtaAcikLisans === l.id && koltukAtaMesaj && <p style={{ fontSize: 11.5, color: koltukAtaMesaj.includes("basariyla") ? "#2E7D4F" : "#B23A2E", marginTop: 6 }}>{koltukAtaMesaj}</p>}
             </div>
           ))}
 
@@ -232,6 +283,97 @@ export default function KurumPaneli() {
               </div>
             )}
           </div>
+        </section>
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginTop: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Kurum Raporu</h2>
+          {raporYukleniyor && <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p>}
+          {rapor && (
+            <div>
+              <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+                <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
+                  <p style={{ color: "#E8B339", fontSize: 22, fontWeight: 900 }}>{rapor.ogrenciSayisi}</p>
+                  <p style={{ color: "#8A968E", fontSize: 9 }}>TOPLAM ÖĞRENCİ</p>
+                </div>
+                <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
+                  <p style={{ color: "#2E7D4F", fontSize: 22, fontWeight: 900 }}>{rapor.buHaftaAktifOgrenci}</p>
+                  <p style={{ color: "#8A968E", fontSize: 9 }}>BU HAFTA AKTİF</p>
+                </div>
+                <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
+                  <p style={{ color: T.coral, fontSize: 22, fontWeight: 900 }}>{rapor.genelOrtalamaNet ?? "—"}</p>
+                  <p style={{ color: "#8A968E", fontSize: 9 }}>GENEL ORT. NET</p>
+                </div>
+              </div>
+
+              {rapor.gunlukTrend?.length >= 2 && (() => {
+                const genislik = 320, yukseklik = 90, kenar = 12;
+                const maxDeger = Math.max(...rapor.gunlukTrend.map((v) => Number(v.aktif_ogrenci)), 1);
+                const adim = (genislik - kenar * 2) / (rapor.gunlukTrend.length - 1);
+                const noktalar = rapor.gunlukTrend.map((v, i) => ({
+                  x: kenar + i * adim,
+                  y: yukseklik - kenar - (Number(v.aktif_ogrenci) / maxDeger) * (yukseklik - kenar * 2),
+                }));
+                const yol = noktalar.map((n, i) => `${i === 0 ? "M" : "L"}${n.x.toFixed(1)},${n.y.toFixed(1)}`).join(" ");
+                return (
+                  <div style={{ background: T.bg, borderRadius: 12, padding: 16, border: `1px solid ${T.line}`, marginBottom: 14 }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, color: T.muted, marginBottom: 10 }}>SON 7 GÜN — GÜNLÜK AKTİF ÖĞRENCİ</p>
+                    <svg viewBox={`0 0 ${genislik} ${yukseklik}`} style={{ width: "100%", height: 100 }} role="img" aria-label="Son 7 gunun gunluk aktif ogrenci sayisi trend grafigi">
+                      <path d={yol} fill="none" stroke="#2E7D4F" strokeWidth="2.5" />
+                      {noktalar.map((n, i) => <circle key={i} cx={n.x} cy={n.y} r="3" fill="#2E7D4F" />)}
+                    </svg>
+                  </div>
+                );
+              })()}
+
+              {rapor.sinifDagilimi?.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Sınıf Dağılımı</p>
+                  {rapor.sinifDagilimi.map((s) => (
+                    <div key={s.sinif} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${T.line}`, fontSize: 12.5 }}>
+                      <span>{s.sinif}. Sınıf</span>
+                      <span style={{ fontWeight: 700 }}>{s.sayi} öğrenci</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {rapor.dersBazindaNet?.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Ders Bazında Ortalama Net</p>
+                  {rapor.dersBazindaNet.map((d) => (
+                    <div key={d.ders} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${T.line}`, fontSize: 12.5 }}>
+                      <span>{d.ders}</span>
+                      <span style={{ fontWeight: 700 }}>{d.ortalama_net} net ({d.test_sayisi} test)</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {rapor.zayifKonular?.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>En Çok Hata Yapılan Konular</p>
+                  {rapor.zayifKonular.slice(0, 5).map((z, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${T.line}`, fontSize: 12 }}>
+                      <span>{z.ders} · {z.alt_konu}</span>
+                      <span style={{ color: "#B23A2E", fontWeight: 700 }}>{z.hata_sayisi} hata</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {rapor.ulusalKarsilastirma?.length > 0 && (
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Ulusal Denemelerde Türkiye Karşılaştırması</p>
+                  {rapor.ulusalKarsilastirma.map((u) => (
+                    <div key={u.id} style={{ padding: "8px 0", borderBottom: `1px solid ${T.line}` }}>
+                      <p style={{ fontSize: 12, fontWeight: 700 }}>{u.ad}</p>
+                      <p style={{ fontSize: 11.5, color: T.muted }}>Kurum: {u.kurum_ortalama ?? "—"} net ({u.kurum_katilimci} kişi) · Türkiye: {u.turkiye_ortalama ?? "—"} net ({u.turkiye_katilimci} kişi)</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </section>
       </div>
     </main>
