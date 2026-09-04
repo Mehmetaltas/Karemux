@@ -47,20 +47,43 @@ export async function POST(req) {
     }
 
     const odemeSonuc = await sql`
-      SELECT id, kullanici_id, plan, tutar FROM odemeler
-      WHERE id = ${odemeId} AND yontem = 'havale' AND durum = 'beklemede'
+      SELECT id, kullanici_id, plan, tutar, kurum_id, ucretli_deneme_id, canli_ders_oturum_id, randevu_id
+      FROM odemeler WHERE id = ${odemeId} AND yontem = 'havale' AND durum = 'beklemede'
     `;
     if (odemeSonuc.length === 0) {
       return Response.json({ error: "Bekleyen havale odemesi bulunamadi" }, { status: 404 });
     }
-    const { kullanici_id: kullaniciId, plan, tutar } = odemeSonuc[0];
+    const { kullanici_id: kullaniciId, plan, tutar, kurum_id: kurumId, ucretli_deneme_id: denemeId, canli_ders_oturum_id: oturumId, randevu_id: randevuId } = odemeSonuc[0];
 
     if (aksiyon === "reddet") {
       await sql`UPDATE odemeler SET durum = 'basarisiz' WHERE id = ${odemeId}`;
+      if (oturumId) await sql`DELETE FROM canli_ders_katilimcilari WHERE oturum_id = ${oturumId} AND ogrenci_id = ${kullaniciId} AND odendi = false`;
       return Response.json({ ok: true, durum: "reddedildi" });
     }
 
     await sql`UPDATE odemeler SET durum = 'basarili' WHERE id = ${odemeId}`;
+
+    if (randevuId) {
+      await sql`UPDATE randevular SET odendi = true WHERE id = ${randevuId} AND ogrenci_id = ${kullaniciId}`;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      return Response.json({ ok: true, durum: "onaylandi" });
+    }
+
+    if (oturumId) {
+      await sql`UPDATE canli_ders_katilimcilari SET odendi = true WHERE oturum_id = ${oturumId} AND ogrenci_id = ${kullaniciId}`;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      return Response.json({ ok: true, durum: "onaylandi" });
+    }
+
+    if (kurumId && denemeId) {
+      await sql`
+        INSERT INTO kurum_deneme_satin_alma (kurum_id, deneme_id, tutar_tl, odendi)
+        VALUES (${kurumId}, ${denemeId}, ${tutar}, true)
+        ON CONFLICT (kurum_id, deneme_id) DO UPDATE SET tutar_tl = ${tutar}, odendi = true
+      `;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId || null}, NULL, ${tutar}, ${tutar})`;
+      return Response.json({ ok: true, durum: "onaylandi" });
+    }
 
     const paket = await sql`SELECT id, sure_gun, kredi_miktari, fiyat_tl FROM paketler WHERE anahtar = ${plan}`;
     const sureGun = paket[0]?.sure_gun || 365;
