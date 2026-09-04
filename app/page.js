@@ -2999,7 +2999,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uniteMetni = uniteSec ? ` (${uniteSec} unitesinden)` : "";
       const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
       const zorlukMetni = { basit: "cok basit ve yavas, temel seviyeden baslayarak", orta: "orta seviyede, ders kitabi diline uygun", zor: "ileri seviyede, LGS'de sik cikan zorlayici detaylara da deginerek" }[zorlukSec];
-      const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusunu${uniteMetni}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\\\sqrt, \\\\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
+      // Icerik Onbellegi (4 Eylul) - once cache'e bak, varsa AI'ya gitmeden kullan
+      const onbellekParam = new URLSearchParams({ sinif: String(sinif), ders, unite: uniteSec || "", konu: konu.trim(), zorlukSeviyesi: zorlukSec || "", icerikTuru: "konu_anlatimi" });
+      try {
+        const onbellekRes = await fetch(`/api/icerik-onbellek?${onbellekParam.toString()}`);
+        const onbellekData = await onbellekRes.json();
+        if (onbellekData.bulundu) {
+          setAciklama(onbellekData.icerik);
+          setYukleniyor(null);
+          return;
+        }
+      } catch (onbellekHata) { /* cache erisilemezse normal AI akisina devam et, sessizce gec */ }
+      const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusunu${uniteMetni}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \sqrt, \frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       const temizMetin = cevap
         .replace(/\*\*/g, "")
@@ -3010,7 +3021,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\[a-zA-Z]+/g, "")
         .replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       const uyari = await icerikDenetle(temizMetin, `Bu "${ders}" dersi "${konu}" konusu anlatimi.`, cihazIdRef.current);
-      setAciklama(uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin);
+      const nihaiMetin = uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin;
+      setAciklama(nihaiMetin);
+      // Kaliteli sonucu cache'e kaydet (yalnizca kalite kontrolu uyari vermediyse - riskli/duzeltilmis icerik cache'lenmesin)
+      if (!uyari) {
+        fetch("/api/icerik-onbellek", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sinif, ders, unite: uniteSec || "", konu: konu.trim(), zorlukSeviyesi: zorlukSec || "", icerikTuru: "konu_anlatimi", icerik: nihaiMetin }),
+        }).catch(() => {});
+      }
     } catch (e) { setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
