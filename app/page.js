@@ -1535,6 +1535,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [haftalikGorevListesi, setHaftalikGorevListesi] = useState(null);
 
   const [checkoutHtml, setCheckoutHtml] = useState("");
+  const [havaleBilgi, setHavaleBilgi] = useState(null);
+  const [havaleYukleniyor, setHavaleYukleniyor] = useState(false);
   const [odemeHata, setOdemeHata] = useState("");
   const [odemeAdres, setOdemeAdres] = useState("");
   const [odemeTcKimlikNo, setOdemeTcKimlikNo] = useState("");
@@ -3346,6 +3348,27 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (n === 7) return "yillik_7_sinif";
     if (n === 8) return "yillik_8_sinif_lgs";
     return null;
+  }
+
+  async function havaleIleOde(plan) {
+    setOdemeHata(""); setHavaleBilgi(null);
+    if (!hesap) { setOdemeHata("Odeme yapabilmek icin once giris yapmalisin."); return; }
+    if (!plan) { setOdemeHata("Once profilden sinifini secmelisin (5-8 arasi)."); return; }
+    setHavaleYukleniyor(true);
+    try {
+      const res = await fetch("/api/checkout/havale-baslat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, kullaniciId: hesap.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setHavaleBilgi(data);
+    } catch (e) {
+      setOdemeHata("Havale baslatilamadi: " + e.message);
+    } finally {
+      setHavaleYukleniyor(false);
+    }
   }
 
   async function premiumSatinAl(plan) {
@@ -5466,8 +5489,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <div key={p.anahtar} style={{ marginBottom: 12, paddingBottom: 12, borderBottom: `1px solid ${COLORS.line}` }}>
                           <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 2 }}>{p.ad}</p>
                           {p.aciklama && <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>{p.aciklama}</p>}
-                          <button onClick={() => premiumSatinAl(p.anahtar)} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                          <button onClick={() => premiumSatinAl(p.anahtar)} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer", marginBottom: 6 }}>
                             {p.ad} — {Number(p.fiyat_tl).toLocaleString("tr-TR")}₺
+                          </button>
+                          <button onClick={() => havaleIleOde(p.anahtar)} disabled={havaleYukleniyor} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "none", color: COLORS.ink, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                            {havaleYukleniyor ? "Hazirlaniyor…" : "🏦 Banka Havalesi ile Öde"}
                           </button>
                         </div>
                       ))
@@ -5503,6 +5529,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
                 {odemeHata && <p style={{ color: COLORS.coral, fontSize: 13 }}>{odemeHata}</p>}
                 {checkoutHtml && <div dangerouslySetInnerHTML={{ __html: checkoutHtml }} />}
+                {havaleBilgi && (
+                  <div role="alert" style={{ background: "#FFF8E8", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                    <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 8 }}>Havale/EFT Bilgileri</p>
+                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Banka:</b> {havaleBilgi.bankaAdi}</p>
+                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Hesap Sahibi:</b> {havaleBilgi.hesapSahibi}</p>
+                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>IBAN:</b> {havaleBilgi.iban}</p>
+                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Tutar:</b> {havaleBilgi.tutar}₺</p>
+                    <p style={{ fontSize: 12.5, marginBottom: 8, color: "#B23A2E", fontWeight: 700 }}>Açıklama alanına MUTLAKA şu kodu yaz: {havaleBilgi.referans}</p>
+                    <p style={{ fontSize: 11, color: COLORS.muted }}>Havaleyi yaptıktan sonra ödemen kontrol edilip en kısa sürede onaylanacak, paketin otomatik aktif olacak.</p>
+                  </div>
+                )}
               </>
             )}
           </div>
