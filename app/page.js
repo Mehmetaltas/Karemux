@@ -2863,10 +2863,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }, []);
 
   useEffect(() => {
+    // Veli girisi artik ayri, temiz /veli panelinde - 4 Eylul'de tasindi.
     if (hesap?.rol === "veli") {
-      fetch("/api/veli/ilerleme").then((r) => r.json()).then((d) => {
-        if (d.ogrenciler) setVeliOgrenciler(d.ogrenciler);
-      }).catch(() => {});
+      window.location.href = "/veli";
     }
   }, [hesap]);
 
