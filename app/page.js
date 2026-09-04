@@ -2870,6 +2870,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }, [hesap]);
 
   useEffect(() => {
+    // Kurum yoneticisi girisi de artik ayri, temiz /kurum panelinde - 4 Eylul.
+    if (hesap?.rol === "kurum_yoneticisi") {
+      window.location.href = "/kurum";
+    }
+  }, [hesap]);
+
+  useEffect(() => {
     if (hesap) {
       fetch("/api/abonelik/durum").then((r) => r.json()).then((d) => setAktifAbonelik(d.aktifAbonelik)).catch(() => {});
       fetch("/api/paketler").then((r) => r.json()).then((d) => setTumPaketler(d.paketler)).catch(() => {});
