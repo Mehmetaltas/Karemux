@@ -484,6 +484,10 @@ export default function YonetimPaneli() {
   const [mufredatVeri, setMufredatVeri] = useState(null);
   const [iadeVeri, setIadeVeri] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
+  const [gunlukRaporVeri, setGunlukRaporVeri] = useState(null);
+  const [senaryoVeri, setSenaryoVeri] = useState(null);
+  const [senaryoForm, setSenaryoForm] = useState({ ad: "", donem: "aylik", senaryoTipi: "gerceki", ogrenciSayisi: "", ortalamaAylikGelirKisiBasiTl: "", ogretmenSayisi: "", ortalamaAylikOgretmenMaliyetiTl: "", personelMaliyetiAylikTl: "", aylikAiMaliyetTahminiTl: "", ekstraAylikGiderTl: "" });
+  const [senaryoHesaplaniyor, setSenaryoHesaplaniyor] = useState(false);
   const [ikizOneriIslemDurumu, setIkizOneriIslemDurumu] = useState(null);
   const [iadeIslemDurumu, setIadeIslemDurumu] = useState(null);
   const [ikKod, setIkKod] = useState("");
@@ -719,6 +723,8 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ikiz" && !gunlukRaporVeri) gunlukRaporGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
@@ -742,6 +748,35 @@ export default function YonetimPaneli() {
       const data = await res.json();
       if (res.ok) setIkizVeri(data);
     } catch {}
+  }
+
+  async function gunlukRaporGetir() {
+    try {
+      const res = await fetch(`/api/admin/gunluk-rapor?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setGunlukRaporVeri(data);
+    } catch {}
+  }
+
+  async function senaryoVeriGetir() {
+    try {
+      const res = await fetch(`/api/admin/ikiz-senaryo?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setSenaryoVeri(data);
+    } catch {}
+  }
+
+  async function senaryoHesapla() {
+    setSenaryoHesaplaniyor(true);
+    try {
+      const res = await fetch("/api/admin/ikiz-senaryo", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, ...senaryoForm }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      senaryoVeriGetir();
+    } catch (e) { setHata(e.message); } finally { setSenaryoHesaplaniyor(false); }
   }
 
   async function ikizOneriKararVer(id, durum) {
@@ -1567,6 +1602,81 @@ export default function YonetimPaneli() {
                 <p key={i} style={{ fontSize: TYPO.caption, color: T.textMuted, padding: "4px 0", borderBottom: `1px solid ${T.border}` }}>
                   <strong>{r.ad}:</strong> {r.formul_aciklama}
                 </p>
+              ))}
+            </Panel>
+
+            <Panel baslik="Günlük AI CEO Raporu" ikon="📋">
+              {!gunlukRaporVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
+                <>
+                  <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 10 }}>{gunlukRaporVeri.tarih}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                    <span style={{ color: T.textMuted }}>Günlük gelir</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.finans.gunlukGelirTl}₺ ({gunlukRaporVeri.finans.gunlukSatisAdedi} satış)</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                    <span style={{ color: T.textMuted }}>Dünkü gelir</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.finans.dunkuGelirTl}₺ ({gunlukRaporVeri.finans.dunkuSatisAdedi} satış)</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                    <span style={{ color: T.textMuted }}>Brüt katkı</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700, color: gunlukRaporVeri.finans.brutKatkiTl >= 0 ? T.accent : T.danger }}>{gunlukRaporVeri.finans.brutKatkiTl}₺</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                    <span style={{ color: T.textMuted }}>Yeni kayıt (bugün)</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.kullanici.yeniKayitBugun}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
+                    <span style={{ color: T.textMuted }}>Aktif Premium</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.kullanici.aktifPremiumSayisi} / {gunlukRaporVeri.kullanici.toplamKullaniciSayisi} toplam</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: TYPO.caption }}>
+                    <span style={{ color: T.textMuted }}>AI maliyeti bugün</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gunlukRaporVeri.aiMaliyeti.bugunTl}₺ ({gunlukRaporVeri.aiMaliyeti.bugunCagriSayisi} çağrı{gunlukRaporVeri.aiMaliyeti.degisimYuzde !== null ? `, dünden ${gunlukRaporVeri.aiMaliyeti.degisimYuzde > 0 ? "+" : ""}${gunlukRaporVeri.aiMaliyeti.degisimYuzde}%` : ""})</span>
+                  </div>
+                  <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 6, fontStyle: "italic" }}>{gunlukRaporVeri.aiMaliyeti.not}</p>
+                </>
+              )}
+            </Panel>
+
+            <Panel baslik="Şirket İkizi — Senaryo Hesaplayıcı" ikon="🏢">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 10 }}>
+                <input aria-label="Senaryo adi" value={senaryoForm.ad} onChange={(e) => setSenaryoForm((f) => ({ ...f, ad: e.target.value }))} placeholder="Senaryo adı" style={{ ...girdiStil, marginBottom: 0, gridColumn: "1 / -1" }} />
+                <select aria-label="Donem" value={senaryoForm.donem} onChange={(e) => setSenaryoForm((f) => ({ ...f, donem: e.target.value }))} style={{ ...girdiStil, marginBottom: 0 }}>
+                  <option value="gunluk">Günlük</option>
+                  <option value="haftalik">Haftalık</option>
+                  <option value="aylik">Aylık</option>
+                  <option value="uc_aylik">3 Aylık</option>
+                  <option value="alti_aylik">6 Aylık</option>
+                  <option value="yillik">Yıllık</option>
+                </select>
+                <select aria-label="Senaryo tipi" value={senaryoForm.senaryoTipi} onChange={(e) => setSenaryoForm((f) => ({ ...f, senaryoTipi: e.target.value }))} style={{ ...girdiStil, marginBottom: 0 }}>
+                  <option value="iyimser">İyimser</option>
+                  <option value="gerceki">Gerçekçi</option>
+                  <option value="kotumser">Kötümser</option>
+                </select>
+                <input aria-label="Ogrenci sayisi" type="number" value={senaryoForm.ogrenciSayisi} onChange={(e) => setSenaryoForm((f) => ({ ...f, ogrenciSayisi: e.target.value }))} placeholder="Öğrenci sayısı" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="Kisi basi aylik gelir" type="number" value={senaryoForm.ortalamaAylikGelirKisiBasiTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, ortalamaAylikGelirKisiBasiTl: e.target.value }))} placeholder="Kişi başı aylık gelir (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="Ogretmen sayisi" type="number" value={senaryoForm.ogretmenSayisi} onChange={(e) => setSenaryoForm((f) => ({ ...f, ogretmenSayisi: e.target.value }))} placeholder="Öğretmen sayısı" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="Ogretmen basi aylik maliyet" type="number" value={senaryoForm.ortalamaAylikOgretmenMaliyetiTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, ortalamaAylikOgretmenMaliyetiTl: e.target.value }))} placeholder="Öğretmen başı aylık maliyet (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="Sirket personeli aylik maliyet" type="number" value={senaryoForm.personelMaliyetiAylikTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, personelMaliyetiAylikTl: e.target.value }))} placeholder="Şirket personeli aylık maliyet (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="AI maliyet tahmini" type="number" value={senaryoForm.aylikAiMaliyetTahminiTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, aylikAiMaliyetTahminiTl: e.target.value }))} placeholder="Aylık AI maliyet tahmini (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
+                <input aria-label="Ekstra gider" type="number" value={senaryoForm.ekstraAylikGiderTl} onChange={(e) => setSenaryoForm((f) => ({ ...f, ekstraAylikGiderTl: e.target.value }))} placeholder="Ekstra aylık gider (₺)" style={{ ...girdiStil, marginBottom: 0 }} />
+              </div>
+              <button onClick={senaryoHesapla} disabled={senaryoHesaplaniyor} style={{ ...butonStil(true), marginBottom: 16 }}>{senaryoHesaplaniyor ? "Hesaplanıyor…" : "Senaryoyu Hesapla ve Kaydet"}</button>
+
+              {senaryoVeri?.sabitGider && (
+                <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 12, fontStyle: "italic" }}>
+                  Gerçek aylık sabit gider (giderler tablosundan): {senaryoVeri.sabitGider.toplamTahminiAylikTl}₺
+                </p>
+              )}
+
+              {(senaryoVeri?.senaryolar || []).map((s) => (
+                <div key={s.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10, borderLeft: `3px solid ${s.sonuc_json.durum === "karli" ? T.accent : T.danger}` }}>
+                  <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{s.ad} <span style={{ fontSize: TYPO.micro, color: T.textMuted, fontWeight: 400 }}>({s.girdi_json.donem} · {s.girdi_json.senaryoTipi})</span></p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginTop: 4 }}>
+                    Gelir: {s.sonuc_json.donemGelirTl}₺ · Gider: {s.sonuc_json.donemToplamGiderTl}₺ · Net: <strong style={{ color: s.sonuc_json.durum === "karli" ? T.accent : T.danger }}>{s.sonuc_json.donemNetKarZararTl}₺</strong> {s.sonuc_json.karMarjiYuzde !== null ? `(%${s.sonuc_json.karMarjiYuzde} marj)` : ""}
+                  </p>
+                </div>
               ))}
             </Panel>
           </>
