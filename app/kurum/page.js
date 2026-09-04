@@ -31,6 +31,17 @@ export default function KurumPaneli() {
   const [koltukAtaMesaj, setKoltukAtaMesaj] = useState("");
   const [rapor, setRapor] = useState(null);
   const [raporYukleniyor, setRaporYukleniyor] = useState(false);
+  const [logoUrl, setLogoUrl] = useState("");
+  const [ogrenciler, setOgrenciler] = useState(null);
+  const [duyurular, setDuyurular] = useState(null);
+  const [duyuruBaslik, setDuyuruBaslik] = useState("");
+  const [duyuruIcerik, setDuyuruIcerik] = useState("");
+  const [duyuruYukleniyor, setDuyuruYukleniyor] = useState(false);
+  const [personel, setPersonel] = useState(null);
+  const [personelAd, setPersonelAd] = useState("");
+  const [personelGorev, setPersonelGorev] = useState("");
+  const [personelEposta, setPersonelEposta] = useState("");
+  const [personelYukleniyor, setPersonelYukleniyor] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -42,7 +53,7 @@ export default function KurumPaneli() {
           return;
         }
         setKullanici(data.kullanici);
-        await Promise.all([kurumGetir(), denemeleriGetir(), lisanslariGetir(), yillikPaketleriGetir(), raporuGetir()]);
+        await Promise.all([kurumGetir(), denemeleriGetir(), lisanslariGetir(), yillikPaketleriGetir(), raporuGetir(), ogrencileriGetir(), duyurulariGetir(), personeliGetir()]);
       } finally {
         setYukleniyor(false);
       }
@@ -58,6 +69,7 @@ export default function KurumPaneli() {
         setVergiNo(data.kurum.vergi_no || "");
         setVergiDairesi(data.kurum.vergi_dairesi || "");
         setYetkiliUnvan(data.kurum.yetkili_unvan || "");
+        setLogoUrl(data.kurum.logo_url || "");
       }
     } catch {}
   }
@@ -76,7 +88,7 @@ export default function KurumPaneli() {
       const res = await fetch("/api/kurum/profil", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vergiNo, vergiDairesi, yetkiliUnvan }),
+        body: JSON.stringify({ vergiNo, vergiDairesi, yetkiliUnvan, logoUrl }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -175,6 +187,91 @@ export default function KurumPaneli() {
     } catch {} finally { setRaporYukleniyor(false); }
   }
 
+  async function ogrencileriGetir() {
+    try {
+      const res = await fetch("/api/kurum/ogrenciler");
+      const data = await res.json();
+      if (res.ok) setOgrenciler(data.ogrenciler || []);
+    } catch {}
+  }
+
+  async function subeGuncelle(ogrenciId, sube) {
+    try {
+      await fetch("/api/kurum/ogrenciler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ogrenciId, sube }),
+      });
+      ogrencileriGetir();
+    } catch {}
+  }
+
+  async function duyurulariGetir() {
+    try {
+      const res = await fetch("/api/kurum/duyuru");
+      const data = await res.json();
+      if (res.ok) setDuyurular(data.duyurular || []);
+    } catch {}
+  }
+
+  async function duyuruEkle() {
+    if (!duyuruBaslik.trim() || !duyuruIcerik.trim()) return;
+    setDuyuruYukleniyor(true);
+    try {
+      await fetch("/api/kurum/duyuru", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ baslik: duyuruBaslik, icerik: duyuruIcerik }),
+      });
+      setDuyuruBaslik(""); setDuyuruIcerik("");
+      duyurulariGetir();
+    } catch {} finally { setDuyuruYukleniyor(false); }
+  }
+
+  async function duyuruSil(duyuruId) {
+    try {
+      await fetch("/api/kurum/duyuru", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ duyuruId }),
+      });
+      duyurulariGetir();
+    } catch {}
+  }
+
+  async function personeliGetir() {
+    try {
+      const res = await fetch("/api/kurum/personel");
+      const data = await res.json();
+      if (res.ok) setPersonel(data.personel || []);
+    } catch {}
+  }
+
+  async function personelEkle() {
+    if (!personelAd.trim()) return;
+    setPersonelYukleniyor(true);
+    try {
+      await fetch("/api/kurum/personel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad: personelAd, gorev: personelGorev, eposta: personelEposta }),
+      });
+      setPersonelAd(""); setPersonelGorev(""); setPersonelEposta("");
+      personeliGetir();
+    } catch {} finally { setPersonelYukleniyor(false); }
+  }
+
+  async function personelSil(personelId) {
+    try {
+      await fetch("/api/kurum/personel", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ personelId }),
+      });
+      personeliGetir();
+    } catch {}
+  }
+
   if (yukleniyor) {
     return <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: T.bg }}><p aria-live="polite" style={{ color: T.muted }}>Yukleniyor...</p></main>;
   }
@@ -193,7 +290,9 @@ export default function KurumPaneli() {
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Fatura / Vergi Bilgileri</h2>
           <input aria-label="Vergi numarasi" value={vergiNo} onChange={(e) => setVergiNo(e.target.value)} placeholder="Vergi Numarasi (10 hane)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
           <input aria-label="Vergi dairesi" value={vergiDairesi} onChange={(e) => setVergiDairesi(e.target.value)} placeholder="Vergi Dairesi" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
-          <input aria-label="Yetkili unvani" value={yetkiliUnvan} onChange={(e) => setYetkiliUnvan(e.target.value)} placeholder="Yetkili Unvani (opsiyonel)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 13 }} />
+          <input aria-label="Yetkili unvani" value={yetkiliUnvan} onChange={(e) => setYetkiliUnvan(e.target.value)} placeholder="Yetkili Unvani (opsiyonel)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
+          <input aria-label="Logo URL" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="Logo URL (opsiyonel, baska bir yerde barindirilan gorsel linki)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 13 }} />
+          {logoUrl && <img src={logoUrl} alt="Kurum logosu" style={{ maxHeight: 50, marginBottom: 10, borderRadius: 6 }} onError={(e) => { e.target.style.display = "none"; }} />}
           <button onClick={profilKaydet} style={{ padding: "9px 16px", borderRadius: 6, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Kaydet</button>
           {profilMesaj && <p style={{ fontSize: 12, marginTop: 8, color: T.muted }}>{profilMesaj}</p>}
         </section>
@@ -374,6 +473,73 @@ export default function KurumPaneli() {
               )}
             </div>
           )}
+        </section>
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginTop: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Öğrenciler — Sınıf/Şube</h2>
+          {!ogrenciler ? <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p> : ogrenciler.length === 0 ? (
+            <p style={{ fontSize: 13, color: T.muted }}>Henuz bagli bir ogrenci yok.</p>
+          ) : ogrenciler.map((o) => (
+            <div key={o.id} style={{ display: "flex", alignItems: "center", gap: 8, borderBottom: `1px solid ${T.line}`, padding: "8px 0" }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: 600 }}>{o.ad}</p>
+                <p style={{ fontSize: 11, color: T.muted }}>{o.eposta} · {o.sinif ? `${o.sinif}. Sinif` : "Sinif belirtilmemis"}</p>
+              </div>
+              <input
+                aria-label={`${o.ad} icin sube`}
+                defaultValue={o.sube || ""}
+                onBlur={(e) => subeGuncelle(o.id, e.target.value)}
+                placeholder="Şube (örn. A)"
+                style={{ width: 70, padding: "6px 8px", borderRadius: 6, border: `1px solid ${T.line}`, fontSize: 12, textAlign: "center" }}
+              />
+            </div>
+          ))}
+        </section>
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginTop: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Duyurular</h2>
+          <div style={{ marginBottom: 14, paddingBottom: 14, borderBottom: `1px solid ${T.line}` }}>
+            <input aria-label="Duyuru basligi" value={duyuruBaslik} onChange={(e) => setDuyuruBaslik(e.target.value)} placeholder="Duyuru Başlığı" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
+            <textarea aria-label="Duyuru icerigi" value={duyuruIcerik} onChange={(e) => setDuyuruIcerik(e.target.value)} placeholder="Duyuru içeriği..." rows={3} style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13, fontFamily: "inherit", resize: "vertical" }} />
+            <button onClick={duyuruEkle} disabled={duyuruYukleniyor} style={{ padding: "9px 16px", borderRadius: 6, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+              {duyuruYukleniyor ? "Ekleniyor..." : "Duyuru Ekle"}
+            </button>
+          </div>
+          {!duyurular ? <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p> : duyurular.length === 0 ? (
+            <p style={{ fontSize: 13, color: T.muted }}>Henuz duyuru yok.</p>
+          ) : duyurular.map((d) => (
+            <div key={d.id} style={{ borderBottom: `1px solid ${T.line}`, padding: "10px 0" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                <p style={{ fontWeight: 700, fontSize: 13 }}>{d.baslik}</p>
+                <button onClick={() => duyuruSil(d.id)} style={{ background: "none", border: "none", color: "#B23A2E", fontSize: 11, cursor: "pointer" }}>Sil</button>
+              </div>
+              <p style={{ fontSize: 12, color: T.ink, marginTop: 4, whiteSpace: "pre-wrap" }}>{d.icerik}</p>
+              <p style={{ fontSize: 10.5, color: T.muted, marginTop: 4 }}>{new Date(d.olusturulma).toLocaleDateString("tr-TR")}</p>
+            </div>
+          ))}
+        </section>
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginTop: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Kadro (Kurum Personeli)</h2>
+          <div style={{ marginBottom: 14, paddingBottom: 14, borderBottom: `1px solid ${T.line}` }}>
+            <input aria-label="Personel adi" value={personelAd} onChange={(e) => setPersonelAd(e.target.value)} placeholder="Ad Soyad" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
+            <input aria-label="Gorevi" value={personelGorev} onChange={(e) => setPersonelGorev(e.target.value)} placeholder="Görevi (örn. Matematik Öğretmeni)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
+            <input aria-label="Eposta" type="email" value={personelEposta} onChange={(e) => setPersonelEposta(e.target.value)} placeholder="E-posta (opsiyonel)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
+            <button onClick={personelEkle} disabled={personelYukleniyor} style={{ padding: "9px 16px", borderRadius: 6, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+              {personelYukleniyor ? "Ekleniyor..." : "Personel Ekle"}
+            </button>
+          </div>
+          {!personel ? <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p> : personel.length === 0 ? (
+            <p style={{ fontSize: 13, color: T.muted }}>Henuz personel eklenmemis.</p>
+          ) : personel.map((p) => (
+            <div key={p.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: `1px solid ${T.line}`, padding: "8px 0" }}>
+              <div>
+                <p style={{ fontSize: 13, fontWeight: 600 }}>{p.ad}</p>
+                <p style={{ fontSize: 11, color: T.muted }}>{p.gorev || "—"}{p.eposta ? ` · ${p.eposta}` : ""}</p>
+              </div>
+              <button onClick={() => personelSil(p.id)} style={{ background: "none", border: "none", color: "#B23A2E", fontSize: 11, cursor: "pointer" }}>Sil</button>
+            </div>
+          ))}
         </section>
       </div>
     </main>
