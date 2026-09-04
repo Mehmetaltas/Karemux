@@ -1545,6 +1545,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [randevuOdemeYukleniyor, setRandevuOdemeYukleniyor] = useState(null);
   const [randevuOdemeMesaj, setRandevuOdemeMesaj] = useState("");
   const [randevuOdemeCheckoutHtml, setRandevuOdemeCheckoutHtml] = useState("");
+  const [randevuHavaleBilgi, setRandevuHavaleBilgi] = useState(null);
+
+  async function randevuHavaleIleOde(randevuId) {
+    if (!hesap) { setRandevuOdemeMesaj("Once giris yapmalisin."); return; }
+    setRandevuOdemeYukleniyor(randevuId); setRandevuOdemeMesaj(""); setRandevuHavaleBilgi(null);
+    try {
+      const res = await fetch("/api/randevu/havale-baslat", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ randevuId, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setRandevuHavaleBilgi(data);
+    } catch (e) {
+      setRandevuOdemeMesaj(e.message);
+    } finally {
+      setRandevuOdemeYukleniyor(null);
+    }
+  }
 
   async function randevuyeOde(randevuId) {
     if (!hesap) { setRandevuOdemeMesaj("Once giris yapmalisin."); return; }
@@ -1574,6 +1593,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [canliDersKatilimYukleniyor, setCanliDersKatilimYukleniyor] = useState(null);
   const [canliDersMesaj, setCanliDersMesaj] = useState("");
   const [canliDersCheckoutHtml, setCanliDersCheckoutHtml] = useState("");
+  const [canliDersHavaleBilgi, setCanliDersHavaleBilgi] = useState(null);
   const [derslerimVeri, setDerslerimVeri] = useState(null);
 
   async function canliDersOturumlariGetir() {
@@ -1591,6 +1611,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const data = await res.json();
       if (res.ok) setDerslerimVeri(data.katilimlar || []);
     } catch (e) {}
+  }
+
+  async function canliDersHavaleIleKatil(oturumId) {
+    if (!hesap) { setCanliDersMesaj("Once giris yapmalisin."); return; }
+    setCanliDersKatilimYukleniyor(oturumId); setCanliDersMesaj(""); setCanliDersHavaleBilgi(null);
+    try {
+      const res = await fetch("/api/canli-ders/havale-baslat", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oturumId, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setCanliDersHavaleBilgi(data);
+    } catch (e) {
+      setCanliDersMesaj(e.message);
+    } finally {
+      setCanliDersKatilimYukleniyor(null);
+    }
   }
 
   async function canliDerseKatil(oturumId) {
@@ -5442,14 +5480,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
                     {o.ogretmen_adi} · {new Date(o.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })} · {o.sure_dk}dk{o.oturum_sayisi > 1 ? ` × ${o.oturum_sayisi} oturum` : ""} · {o.kalanKontenjan} kontenjan kaldi
                   </p>
-                  <button onClick={() => canliDerseKatil(o.id)} disabled={canliDersKatilimYukleniyor === o.id} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                  <button onClick={() => canliDerseKatil(o.id)} disabled={canliDersKatilimYukleniyor === o.id} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer", marginBottom: 6 }}>
                     {canliDersKatilimYukleniyor === o.id ? "..." : `Katil — ${o.fiyat_tl}₺`}
+                  </button>
+                  <button onClick={() => canliDersHavaleIleKatil(o.id)} disabled={canliDersKatilimYukleniyor === o.id} style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: "none", color: COLORS.ink, fontWeight: 600, fontSize: 11.5, cursor: "pointer" }}>
+                    🏦 Banka Havalesi ile Katıl
                   </button>
                 </div>
               ))
             )}
             {canliDersMesaj && <p style={{ color: COLORS.coral, fontSize: 13 }}>{canliDersMesaj}</p>}
             {canliDersCheckoutHtml && <div dangerouslySetInnerHTML={{ __html: canliDersCheckoutHtml }} />}
+            {canliDersHavaleBilgi && (
+              <div role="alert" style={{ background: "#FFF8E8", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 8 }}>Havale/EFT Bilgileri</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Banka:</b> {canliDersHavaleBilgi.bankaAdi}</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Hesap Sahibi:</b> {canliDersHavaleBilgi.hesapSahibi}</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>IBAN:</b> {canliDersHavaleBilgi.iban}</p>
+                <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Tutar:</b> {canliDersHavaleBilgi.tutar}₺</p>
+                <p style={{ fontSize: 12.5, marginBottom: 8, color: "#B23A2E", fontWeight: 700 }}>Açıklama alanına MUTLAKA şu kodu yaz: {canliDersHavaleBilgi.referans}</p>
+                <p style={{ fontSize: 11, color: COLORS.muted }}>Havaleyi yaptıktan sonra ödemen kontrol edilip en kısa sürede onaylanacak, koltuğun kesinleşecek.</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -5785,9 +5837,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <div key={r.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 12, gap: 8 }}>
                       <span>{r.ogretmen_adi} ({r.brans}) — {new Date(r.baslangic_zamani).toLocaleString("tr-TR", { dateStyle: "short", timeStyle: "short" })}{r.ucret_tl > 0 && <span style={{ color: r.odendi ? "#2E7D4F" : "#B23A2E", fontWeight: 700 }}> · {r.ucret_tl}₺ {r.odendi ? "Ödendi" : "Ödenmedi"}</span>}</span>
                       {r.ucret_tl > 0 && !r.odendi ? (
-                        <button onClick={() => randevuyeOde(r.id)} disabled={randevuOdemeYukleniyor === r.id} style={{ background: "none", border: "none", color: COLORS.coral, fontWeight: 700, fontSize: 11.5, cursor: "pointer", flexShrink: 0 }}>
-                          {randevuOdemeYukleniyor === r.id ? "..." : "Öde ve Katıl →"}
-                        </button>
+                        <span style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                          <button onClick={() => randevuyeOde(r.id)} disabled={randevuOdemeYukleniyor === r.id} style={{ background: "none", border: "none", color: COLORS.coral, fontWeight: 700, fontSize: 11.5, cursor: "pointer" }}>
+                            {randevuOdemeYukleniyor === r.id ? "..." : "Öde ve Katıl →"}
+                          </button>
+                          <button onClick={() => randevuHavaleIleOde(r.id)} disabled={randevuOdemeYukleniyor === r.id} style={{ background: "none", border: "none", color: COLORS.ink, fontWeight: 600, fontSize: 11, cursor: "pointer" }}>
+                            🏦 Havale
+                          </button>
+                        </span>
                       ) : (
                         <a href={r.zoom_link} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.coral, fontWeight: 700, fontSize: 11.5, flexShrink: 0 }}>Katıl →</a>
                       )}
@@ -5795,6 +5852,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   ))}
                   {randevuOdemeMesaj && <p style={{ color: COLORS.coral, fontSize: 11.5, marginTop: 6 }}>{randevuOdemeMesaj}</p>}
                   {randevuOdemeCheckoutHtml && <div dangerouslySetInnerHTML={{ __html: randevuOdemeCheckoutHtml }} />}
+                  {randevuHavaleBilgi && (
+                    <div role="alert" style={{ background: "#FFF8E8", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                      <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 8 }}>Havale/EFT Bilgileri</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Banka:</b> {randevuHavaleBilgi.bankaAdi}</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Hesap Sahibi:</b> {randevuHavaleBilgi.hesapSahibi}</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>IBAN:</b> {randevuHavaleBilgi.iban}</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Tutar:</b> {randevuHavaleBilgi.tutar}₺</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 8, color: "#B23A2E", fontWeight: 700 }}>Açıklama alanına MUTLAKA şu kodu yaz: {randevuHavaleBilgi.referans}</p>
+                      <p style={{ fontSize: 11, color: COLORS.muted }}>Havaleyi yaptıktan sonra ödemen kontrol edilip en kısa sürede onaylanacak.</p>
+                    </div>
+                  )}
                 </div>
               )}
 
