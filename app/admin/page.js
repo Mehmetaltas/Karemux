@@ -1028,7 +1028,7 @@ export default function YonetimPaneli() {
       `}</style>
       <div style={{ borderBottom: `1px solid ${T.border}`, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: T.bg, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={() => setMenuAcik(true)} style={{ background: "none", border: "none", color: T.text, fontSize: 22, cursor: "pointer", padding: 0 }}>☰</button>
+          <button onClick={() => setMenuAcik(true)} aria-label="Menu" aria-expanded={menuAcik} style={{ background: "none", border: "none", color: T.text, fontSize: 22, cursor: "pointer", padding: 0 }}>☰</button>
           <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 28, height: 28, borderRadius: 8, display: "block", objectFit: "cover" }} />
           <div>
             <h1 style={{ fontWeight: 700, fontSize: TYPO.heading, margin: 0 }}>Karemux Yönetim</h1>

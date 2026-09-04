@@ -647,7 +647,7 @@ function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, sorulariGoster,
         const listeMi = k.anahtar === "pufNoktalari" || k.anahtar === "sikHatalar";
         return (
           <div key={k.anahtar} style={{ background: "#FDFBF6", borderRadius: 12, border: "1px solid #E5DFD3", marginBottom: 8, overflow: "hidden" }}>
-            <button onClick={() => setAcikKatman(acik ? null : k.anahtar)} style={{ width: "100%", textAlign: "left", padding: "14px 16px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <button onClick={() => setAcikKatman(acik ? null : k.anahtar)} aria-expanded={acik} aria-label={`${k.baslik}, ${acik ? "acik" : "kapali"}`} style={{ width: "100%", textAlign: "left", padding: "14px 16px", background: "none", border: "none", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <p style={{ fontSize: 14.5, fontWeight: 700, margin: 0 }}>{k.baslik}</p>
                 <p style={{ fontSize: 11, color: "#8A8A8A", margin: "2px 0 0" }}>{k.altbaslik}</p>
@@ -3410,7 +3410,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
           <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, display: "block", objectFit: "cover" }} />
-          <button onClick={() => setMenuAcik((a) => !a)} aria-label="Menu" style={{
+          <button onClick={() => setMenuAcik((a) => !a)} aria-label="Menu" aria-expanded={menuAcik} style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
           }}>☰</button>
@@ -4828,7 +4828,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <div style={{ margin: "14px 0", borderTop: `1px solid ${COLORS.line}`, paddingTop: 14 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                     <p style={{ fontSize: 13, fontWeight: 700 }}>Profil Bilgilerin</p>
-                    <button onClick={() => setProfilDuzenleAcik((a) => !a)} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                    <button onClick={() => setProfilDuzenleAcik((a) => !a)} aria-expanded={profilDuzenleAcik} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
                       {profilDuzenleAcik ? "Vazgec" : "Duzenle"}
                     </button>
                   </div>

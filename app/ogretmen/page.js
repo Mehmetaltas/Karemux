@@ -230,7 +230,7 @@ export default function OgretmenPanel() {
         }
       `}</style>
       <div style={{ background: C.yesil, padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: 0, zIndex: 10 }}>
-        <button onClick={() => setMenuAcik(true)} style={{ background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer" }}>☰</button>
+        <button onClick={() => setMenuAcik(true)} aria-label="Menu" aria-expanded={menuAcik} style={{ background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer" }}>☰</button>
         <p style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>Karemux Öğretmen</p>
         <div style={{ width: 22 }} />
       </div>
