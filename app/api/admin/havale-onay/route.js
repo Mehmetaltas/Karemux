@@ -47,13 +47,13 @@ export async function POST(req) {
     }
 
     const odemeSonuc = await sql`
-      SELECT id, kullanici_id, plan, tutar, kurum_id, ucretli_deneme_id, canli_ders_oturum_id, randevu_id
+      SELECT id, kullanici_id, plan, tutar, kurum_id, ucretli_deneme_id, canli_ders_oturum_id, randevu_id, kurum_lisans_id
       FROM odemeler WHERE id = ${odemeId} AND yontem = 'havale' AND durum = 'beklemede'
     `;
     if (odemeSonuc.length === 0) {
       return Response.json({ error: "Bekleyen havale odemesi bulunamadi" }, { status: 404 });
     }
-    const { kullanici_id: kullaniciId, plan, tutar, kurum_id: kurumId, ucretli_deneme_id: denemeId, canli_ders_oturum_id: oturumId, randevu_id: randevuId } = odemeSonuc[0];
+    const { kullanici_id: kullaniciId, plan, tutar, kurum_id: kurumId, ucretli_deneme_id: denemeId, canli_ders_oturum_id: oturumId, randevu_id: randevuId, kurum_lisans_id: lisansId } = odemeSonuc[0];
 
     if (aksiyon === "reddet") {
       await sql`UPDATE odemeler SET durum = 'basarisiz' WHERE id = ${odemeId}`;
@@ -71,6 +71,12 @@ export async function POST(req) {
 
     if (oturumId) {
       await sql`UPDATE canli_ders_katilimcilari SET odendi = true WHERE oturum_id = ${oturumId} AND ogrenci_id = ${kullaniciId}`;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      return Response.json({ ok: true, durum: "onaylandi" });
+    }
+
+    if (lisansId) {
+      await sql`UPDATE kurum_lisans_satin_alma SET odendi = true WHERE id = ${lisansId}`;
       await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
       return Response.json({ ok: true, durum: "onaylandi" });
     }
