@@ -538,6 +538,27 @@ export default function YonetimPaneli() {
     } catch { setUnutumMesajAdmin("Bir hata oluştu, tekrar dene."); }
   }
 
+  // Sayfa yenilenince oturumu geri yukle (4 Eylul, "Beni Hatirla" gercekten
+  // calissin diye) - once gercek personel oturumunu (JWT cookie) dogrular,
+  // varsa paylasilan admin sifresini de alip ayni girisDene basari yolunu izler.
+  useEffect(() => {
+    (async () => {
+      try {
+        const benRes = await fetch("/api/personel/ben");
+        const benData = await benRes.json();
+        if (!benData.girisYapmis || !benData.sifre) return;
+        setPersonelAd(benData.personel.ad);
+        setSifre(benData.sifre);
+        const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(benData.sifre)}`);
+        const data = await res.json();
+        if (res.ok) {
+          setMuhasebeVeri(data);
+          setGirisYapildi(true);
+        }
+      } catch (e) {}
+    })();
+  }, []);
+
   async function girisDene() {
     mesajTemizle();
     setYukleniyor(true);
