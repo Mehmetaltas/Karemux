@@ -16,7 +16,7 @@ const KALITE_REFERANSLARI = {
   "Din Kulturu": "KOLAY sorular Tonguc Akademi tarzinda; ORTA sorular KR Akademi tarzinda; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda.",
 };
 
-// cikti_tipi: "sorular" (coktan secmeli soru listesi) | "metin" (duz metin rapor/ozet)
+// cikti_tipi: "sorular" (coktan secmeli soru listesi) | "metin" (duz metin rapor/ozet) | "acik_uclu" (soru+adim adim cozum, sikli degil)
 const TUR_TANIMLARI = {
   calisma_kagidi: { baslik: "Çalışma Kağıdı", soruSayisi: 8, aciklama: "kısa konu özeti + karışık zorlukta 8 soru + cevap anahtarı", ciktiTipi: "sorular" },
   soru_seti: { baslik: "Soru Seti", soruSayisi: 10, aciklama: "sadece 10 soru (kolaydan zora sıralı) + cevap anahtarı", ciktiTipi: "sorular" },
@@ -24,7 +24,7 @@ const TUR_TANIMLARI = {
   fasikul: { baslik: "Fasikül", soruSayisi: 15, aciklama: "konu özeti + 15 soru (ilk 5 kolay, sonraki 5 orta, son 5 zor) + cevap anahtarı", ciktiTipi: "sorular" },
   kazanim_testi: { baslik: "Kazanım Testi", soruSayisi: 8, aciklama: "tek bir kazanıma/alt konuya odaklı 8 soru + cevap anahtarı", ciktiTipi: "sorular" },
   tekrar_paketi: { baslik: "Tekrar Paketi", soruSayisi: 12, aciklama: "konuyu farklı açılardan pekiştiren, karışık zorlukta 12 tekrar sorusu + cevap anahtarı", ciktiTipi: "sorular" },
-  odev_paketi: { baslik: "Ödev Paketi", soruSayisi: 6, aciklama: "evde tek başına çözülebilecek, adım adım çözümlü 6 soru + detaylı cevap anahtarı", ciktiTipi: "sorular" },
+  odev_paketi: { baslik: "Ödev Paketi", soruSayisi: 6, aciklama: "evde tek başına çözülebilecek, ACIK UCLU (coktan secmeli DEGIL) 6 soru + her biri icin adim adim detayli cozum", ciktiTipi: "acik_uclu" },
   brans_denemesi: { baslik: "Branş Denemesi", soruSayisi: 20, aciklama: "TÜM DERSİ (tek üniteyle sınırlı değil) kapsayan, gerçek sınav formatında 20 soru + cevap anahtarı + zorluk dağılımı", ciktiTipi: "sorular" },
   eksik_konu_paketi: { baslik: "Eksik Konu Paketi", soruSayisi: 10, aciklama: "öğretmenin belirttiği zayıf konulara ÖZEL, hedefli 10 pekiştirme sorusu + cevap anahtarı", ciktiTipi: "sorular", notGerekli: true },
   veli_ozeti: { baslik: "Veli Bilgilendirme Özeti", aciklama: "öğretmenin gözlem notlarından, veliye gönderilecek profesyonel ve nazik bir bilgilendirme metni", ciktiTipi: "metin", notGerekli: true },
@@ -70,6 +70,30 @@ export async function POST(req) {
       } catch (e) { console.error("Materyal gecmise kaydedilemedi:", e); }
     }
     return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
+    }
+
+    if (tanim.ciktiTipi === "acik_uclu") {
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}. ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI: Bu sorular ACIK UCLU olmali - coktan secmeli SIK (A/B/C/D) OLMAMALI, ogrenci kendi cozumunu yazmali. Her soru icin "cozum" alaninda, ogrencinin kontrol edebilecegi ADIM ADIM, DETAYLI bir cozum ver (sadece sonuc degil, tum adimlari goster). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+{"baslik":"...","ozet":"kisa konu ozeti (yoksa bos birak)","sorular":[{"soru":"...","cozum":"adim adim detayli cozum metni","zorluk":"kolay"}]}`;
+
+      const cevap = await aiCagir({ prompt: p, maxTokens: 4000, jsonModu: true });
+      const temiz = cevap.replace(/```json|```/g, "").trim();
+      const parcaTemiz = temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1);
+      const veri = JSON.parse(parcaTemiz);
+
+      if (!veri.sorular || !Array.isArray(veri.sorular) || veri.sorular.length === 0) {
+        return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
+      }
+
+      if (ogretmenOturum?.id) {
+        try {
+          await sql`
+            INSERT INTO ogretmen_materyalleri (ogretmen_id, tur, sinif, ders, konu, materyal)
+            VALUES (${ogretmenOturum.id}, ${tur}, ${sinif}, ${ders}, ${konu?.trim() || null}, ${JSON.stringify(veri)})
+          `;
+        } catch (e) { console.error("Materyal gecmise kaydedilemedi:", e); }
+      }
+      return Response.json({ ok: true, materyal: veri, tur, olusturan: ogretmen.ad });
     }
 
     const notMetni = tanim.notGerekli ? ` Ogretmenin belirttigi hedef: "${ogretmenNotu.trim()}" - sorulari BUNA GORE hedefle.` : "";

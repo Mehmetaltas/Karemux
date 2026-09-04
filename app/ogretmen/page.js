@@ -69,11 +69,24 @@ function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster }) {
       {sorular.map((s, i) => (
         <div key={i} style={{ marginBottom: 14 }}>
           <p style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 6 }}>{i + 1}. {s.soru}</p>
-          {(s.secenekler || []).map((sec, j) => (
-            <p key={j} style={{ fontSize: 13, margin: "3px 0 3px 10px", fontWeight: cevapGoster && j === s.dogruIndex ? 700 : 400, color: cevapGoster && j === s.dogruIndex ? "#1F3D2E" : "#333" }}>
-              {sec}{cevapGoster && j === s.dogruIndex ? " ✓" : ""}
-            </p>
-          ))}
+          {s.cozum != null ? (
+            // Acik uclu soru (orn. Odev Paketi) - sik yok, adim adim cozum var.
+            // Cozum sadece cevapGoster true iken gosterilir (ogrenci once kendi denesin).
+            cevapGoster ? (
+              <div style={{ margin: "6px 0 3px 10px", padding: "8px 10px", background: "#F0F7F0", borderRadius: 6, borderLeft: "3px solid #1F3D2E" }}>
+                <p style={{ fontSize: 11.5, fontWeight: 700, color: "#1F3D2E", marginBottom: 4 }}>Çözüm</p>
+                <p style={{ fontSize: 12.5, lineHeight: 1.6, color: "#333", whiteSpace: "pre-wrap" }}>{s.cozum}</p>
+              </div>
+            ) : (
+              <p style={{ fontSize: 11.5, color: "#999", margin: "3px 0 3px 10px", fontStyle: "italic" }}>(Çözüm alanı - cevap anahtarında görünür)</p>
+            )
+          ) : (
+            (s.secenekler || []).map((sec, j) => (
+              <p key={j} style={{ fontSize: 13, margin: "3px 0 3px 10px", fontWeight: cevapGoster && j === s.dogruIndex ? 700 : 400, color: cevapGoster && j === s.dogruIndex ? "#1F3D2E" : "#333" }}>
+                {sec}{cevapGoster && j === s.dogruIndex ? " ✓" : ""}
+              </p>
+            ))
+          )}
         </div>
       ))}
     </div>
