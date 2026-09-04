@@ -483,6 +483,8 @@ export default function YonetimPaneli() {
   const [indirimKodlariVeri, setIndirimKodlariVeri] = useState(null);
   const [mufredatVeri, setMufredatVeri] = useState(null);
   const [iadeVeri, setIadeVeri] = useState(null);
+  const [havaleVeri, setHavaleVeri] = useState(null);
+  const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
   const [sirketRaporDonem, setSirketRaporDonem] = useState("gunluk");
@@ -723,6 +725,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "indirimkodlari" && !indirimKodlariVeri) indirimKodlariGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "havaleler" && !havaleVeri) havaleleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
@@ -794,6 +797,27 @@ export default function YonetimPaneli() {
       if (!res.ok) throw new Error(data.error);
       ikizGetir();
     } catch (e) { setHata(e.message); } finally { setIkizOneriIslemDurumu(null); }
+  }
+
+  async function havaleleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/havale-onay?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setHavaleVeri(data.bekleyenler);
+    } catch {}
+  }
+
+  async function havaleKararVer(odemeId, aksiyon) {
+    setHavaleIslemDurumu(odemeId);
+    try {
+      const res = await fetch("/api/admin/havale-onay", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, odemeId, aksiyon }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      havaleleriGetir();
+    } catch (e) { setHata(e.message); } finally { setHavaleIslemDurumu(null); }
   }
 
   async function iadeleriGetir() {
@@ -1049,7 +1073,7 @@ export default function YonetimPaneli() {
     { baslik: "💰 Finans", sekmeler: [
       ["paketler", "💰 Paketler"], ["giderler", "🧾 Giderler"], ["cari", "🤝 Cari"], ["kasa", "🏦 Kasa/Banka"],
       ["maliyet", "🤖 Üretim Maliyeti"], ["simulasyon", "🧮 Simülasyon"], ["planlama", "📈 Finansal Planlama"],
-      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"],
+      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"],
     ]},
     { baslik: "🎓 Eğitim", sekmeler: [["mufredat", "📚 Müfredat"], ["ogretmen", "🎓 Öğretmenler"]] },
     { baslik: "🎥 Canlı Hizmetler", sekmeler: [["canliders", "🎥 Canlı Ders"], ["randevuodeme", "📅 Randevu Ödemeleri"], ["kurumlar", "🏢 Kurumlar"]] },
@@ -1728,6 +1752,25 @@ export default function YonetimPaneli() {
                     <button onClick={() => iadeKararVer(t.id, "reddedildi")} disabled={iadeIslemDurumu === t.id} style={{ ...butonStil(true, T.danger), padding: "6px 12px", fontSize: TYPO.caption }}>Reddet</button>
                   </div>
                 )}
+              </div>
+            ))}
+          </Panel>
+        )}
+
+        {sekme === "havaleler" && (
+          <Panel baslik="Havale/EFT Onayları" ikon="🏦">
+            {!havaleVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : havaleVeri.length === 0 ? (
+              <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Bekleyen havale ödemesi yok.</p>
+            ) : havaleVeri.map((h) => (
+              <div key={h.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10 }}>
+                <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{h.ogrenci_ad || "?"} <span style={{ color: T.textMuted, fontWeight: 400 }}>({h.ogrenci_eposta})</span></p>
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{h.plan} · {h.tutar}₺ · {new Date(h.olusturulma).toLocaleDateString("tr-TR")}</p>
+                <p style={{ fontSize: TYPO.caption, fontFamily: T.mono, fontWeight: 700, color: T.mustard, marginTop: 4 }}>Referans: {h.havale_referans}</p>
+                <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 4 }}>Banka hesabında bu referans kodlu {h.tutar}₺ tutarındaki havaleyi kontrol edip onaylayın.</p>
+                <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                  <button onClick={() => havaleKararVer(h.id, "onayla")} disabled={havaleIslemDurumu === h.id} style={{ ...butonStil(true), padding: "6px 12px", fontSize: TYPO.caption }}>Onayla</button>
+                  <button onClick={() => havaleKararVer(h.id, "reddet")} disabled={havaleIslemDurumu === h.id} style={{ ...butonStil(true, T.danger), padding: "6px 12px", fontSize: TYPO.caption }}>Reddet</button>
+                </div>
               </div>
             ))}
           </Panel>
