@@ -2077,6 +2077,61 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [ulusalSorular, setUlusalSorular] = useState(null);
   const [ulusalCevaplar, setUlusalCevaplar] = useState({});
   const [ulusalSonuc, setUlusalSonuc] = useState(null);
+
+  // Ucretli Deneme (kurum ogrencisi) - 4 Eylul, ilk kez eklendi.
+  const [ucretliDenemeler, setUcretliDenemeler] = useState(null);
+  const [ucretliYukleniyor, setUcretliYukleniyor] = useState(false);
+  const [ucretliAktifDeneme, setUcretliAktifDeneme] = useState(null);
+  const [ucretliSorular, setUcretliSorular] = useState(null);
+  const [ucretliCevaplar, setUcretliCevaplar] = useState({});
+  const [ucretliSonuc, setUcretliSonuc] = useState(null);
+  const [ucretliGonderiliyor, setUcretliGonderiliyor] = useState(false);
+  const [ucretliHata, setUcretliHata] = useState("");
+
+  async function ucretliDenemeleriGetir() {
+    setUcretliYukleniyor(true);
+    try {
+      const res = await fetch(`/api/ucretli-deneme/mevcut?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      setUcretliDenemeler(data.denemeler || []);
+    } catch (e) {} finally { setUcretliYukleniyor(false); }
+  }
+
+  async function ucretliDenemeyeBasla(denemeId) {
+    setUcretliHata(""); setUcretliSorular(null); setUcretliCevaplar({}); setUcretliSonuc(null);
+    setUcretliYukleniyor(true);
+    try {
+      const res = await fetch(`/api/ucretli-deneme/sorular?denemeId=${denemeId}&cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setUcretliAktifDeneme(data.deneme);
+      setUcretliSorular(data.sorular);
+    } catch (e) {
+      setUcretliHata(e.message);
+    } finally {
+      setUcretliYukleniyor(false);
+    }
+  }
+
+  async function ucretliCevaplariGonder() {
+    if (!ucretliAktifDeneme) return;
+    setUcretliGonderiliyor(true);
+    setUcretliHata("");
+    try {
+      const res = await fetch("/api/ucretli-deneme/gonder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ denemeId: ucretliAktifDeneme.id, cevaplar: ucretliCevaplar, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setUcretliSonuc(data);
+    } catch (e) {
+      setUcretliHata(e.message);
+    } finally {
+      setUcretliGonderiliyor(false);
+    }
+  }
   const [cevapAnahtariAcik, setCevapAnahtariAcik] = useState(false);
   const [ulusalZatenCozmus, setUlusalZatenCozmus] = useState(false);
   const [ulusalGonderiliyor, setUlusalGonderiliyor] = useState(false);
@@ -2255,6 +2310,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     finally { setUlusalYukleniyor(false); }
   }
   useEffect(() => { if (mod === "ulusaldeneme") ulusalDenemeyiGetir(); }, [mod]);
+  useEffect(() => { if (mod === "ucretlideneme" && hesap) ucretliDenemeleriGetir(); }, [mod, hesap]);
 
   async function ulusalCevaplariGonder() {
     if (!ulusalAktif) return;
@@ -3708,6 +3764,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["yazili", "✏️ Yazili Hazirligi"],
                 ["deneme", "📝 Deneme Sinavi"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
+        ["ucretlideneme", "🏫 Kurum Denemesi"],
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
                 ["seviyetespit", "🎯 Seviye Tespit Sinavi"],
               ].map(([k, etiket]) => (
@@ -6151,6 +6208,113 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
         )}
 
+
+        {mod === "ucretlideneme" && !hesap && (
+          <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 16, lineHeight: 1.6 }}>Kurum denemelerini çözebilmen için bir kuruma bağlı hesapla giriş yapman lazım.</p>
+            <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Giriş Yap / Kayıt Ol</button>
+          </div>
+        )}
+
+        {mod === "ucretlideneme" && hesap && (
+          <div>
+            <div className="kx-fadein" style={{ background: "linear-gradient(135deg,#1F3D2E,#B23A2E)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🏫</p>
+              <p style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>Kurum Denemesi</p>
+              <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, marginTop: 4 }}>Kurumunun satın aldığı denemeler burada.</p>
+            </div>
+
+            {ucretliYukleniyor && <p aria-live="polite" style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>}
+            {ucretliHata && <p role="alert" style={{ color: COLORS.coral, fontSize: 12.5, textAlign: "center", marginBottom: 10 }}>{ucretliHata}</p>}
+
+            {!ucretliSorular && !ucretliSonuc && !ucretliYukleniyor && (
+              <>
+                {(!ucretliDenemeler || ucretliDenemeler.length === 0) ? (
+                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 20, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+                    <p style={{ fontSize: 13, color: COLORS.muted }}>Kurumunun satın aldığı bir deneme yok, ya da kuruma bağlı bir hesabın yok.</p>
+                  </div>
+                ) : ucretliDenemeler.map((d) => (
+                  <div key={d.id} style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 10 }}>
+                    <p style={{ fontWeight: 700, fontSize: 13 }}>{d.ad}</p>
+                    <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>{d.sinif}. Sınıf · {d.ders} · {d.soru_sayisi} soru</p>
+                    {d.cozuldu ? (
+                      <p style={{ fontSize: 12, color: "#2E7D4F", fontWeight: 700 }}>✓ Çözüldü</p>
+                    ) : (
+                      <button className="kx-btn" onClick={() => ucretliDenemeyeBasla(d.id)} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Denemeye Başla</button>
+                    )}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {ucretliSorular && !ucretliSonuc && (
+              <div>
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 12, textAlign: "center" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700 }}>{ucretliAktifDeneme?.ad}</p>
+                  <p style={{ fontSize: 11, color: COLORS.muted }}>{ucretliAktifDeneme?.sinif}. Sınıf · {ucretliAktifDeneme?.ders} · {ucretliSorular.length} soru</p>
+                </div>
+                {ucretliSorular.map((s, i) => (
+                  <div key={i} style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 8 }}>{i + 1}. {s.soru}</p>
+                    {(s.secenekler || []).map((sec, j) => (
+                      <button key={j} onClick={() => setUcretliCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
+                        display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5, cursor: "pointer",
+                        border: `1.5px solid ${ucretliCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: ucretliCevaplar[i] === j ? "#FFF1EF" : "#fff",
+                      }}>{sec}{(ucretliCevaplar[i] === j) ? " ●" : ""}</button>
+                    ))}
+                  </div>
+                ))}
+                <button className="kx-btn" onClick={ucretliCevaplariGonder} disabled={ucretliGonderiliyor || Object.keys(ucretliCevaplar).length === 0}
+                  style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                  {ucretliGonderiliyor ? "Gönderiliyor..." : `Gönder (${Object.keys(ucretliCevaplar).length}/${ucretliSorular.length})`}
+                </button>
+              </div>
+            )}
+
+            {ucretliSonuc && (
+              <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 16, padding: 24, textAlign: "center" }}>
+                <p style={{ color: COLORS.mustard, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, marginBottom: 8 }}>SONUCUN</p>
+                <p style={{ color: "#fff", fontSize: 40, fontWeight: 900, marginBottom: 4 }}>{ucretliSonuc.net.toFixed(2)}</p>
+                <p style={{ color: "#8A968E", fontSize: 11, marginBottom: 16 }}>NET</p>
+                <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 18 }}>
+                  <div><p style={{ color: RENK_BASARI, fontSize: 16, fontWeight: 800 }}>{ucretliSonuc.dogru}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>DOĞRU</p></div>
+                  <div><p style={{ color: "#FF6B5E", fontSize: 16, fontWeight: 800 }}>{ucretliSonuc.yanlis}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>YANLIŞ</p></div>
+                  <div><p style={{ color: "#8A968E", fontSize: 16, fontWeight: 800 }}>{ucretliSonuc.bos}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>BOŞ</p></div>
+                </div>
+                <div style={{ background: "rgba(232,179,57,0.15)", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 12, marginBottom: 12 }}>
+                  <p style={{ color: COLORS.mustard, fontSize: 13, fontWeight: 800 }}>Kurumunda {ucretliSonuc.kurumKatilimci} kişi arasında {ucretliSonuc.kurumSiram}. sıradasın</p>
+                  {ucretliSonuc.kurumOrtalama !== null && <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>Kurum ortalaması: {ucretliSonuc.kurumOrtalama}</p>}
+                </div>
+                {ucretliSonuc.genelKatilimci > 0 && (
+                  <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 12, marginBottom: 12 }}>
+                    <p style={{ color: "#C5CBD3", fontSize: 12, fontWeight: 700 }}>Genelde {ucretliSonuc.genelKatilimci} kişi arasında {ucretliSonuc.genelSiram}. sıradasın</p>
+                    {ucretliSonuc.genelOrtalama !== null && <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>Genel ortalama: {ucretliSonuc.genelOrtalama}</p>}
+                  </div>
+                )}
+                {ucretliSonuc.karne && ucretliSonuc.karne.length > 0 && (
+                  <div style={{ marginTop: 18, textAlign: "left" }}>
+                    <p style={{ color: "#fff", fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>Konu Bazında Karnen</p>
+                    {ucretliSonuc.karne.map((k) => (
+                      <div key={k.altKonu} style={{ marginBottom: 8 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                          <span style={{ color: "#C5CBD3", fontSize: 11 }}>{k.altKonu}</span>
+                          <span style={{ color: "#8A968E", fontSize: 10 }}>{k.dogru}D {k.yanlis}Y {k.bos}B</span>
+                        </div>
+                        <div style={{ display: "flex", height: 5, borderRadius: 3, overflow: "hidden", background: "#2A3441" }}>
+                          {k.dogru > 0 && <div style={{ flex: k.dogru, background: RENK_BASARI }} />}
+                          {k.yanlis > 0 && <div style={{ flex: k.yanlis, background: "#FF6B5E" }} />}
+                          {k.bos > 0 && <div style={{ flex: k.bos, background: "#4A5568" }} />}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         {mod === "kurumpaneli" && !hesap && (
           <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
             <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
