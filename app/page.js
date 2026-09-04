@@ -3714,7 +3714,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         )}
 
         {hata && (
-          <div className="kx-fadein" style={{ display: "flex", alignItems: "center", gap: 10, background: "#FFF1EF", border: "1.5px solid #FF6B5E", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
+          <div role="alert" className="kx-fadein" style={{ display: "flex", alignItems: "center", gap: 10, background: "#FFF1EF", border: "1.5px solid #FF6B5E", borderRadius: 10, padding: "12px 14px", marginBottom: 14 }}>
             <span style={{ fontSize: 18, flexShrink: 0 }}>⚠️</span>
             <p style={{ color: "#B23A2E", fontSize: 13, fontWeight: 600, margin: 0 }}>{hata}</p>
           </div>

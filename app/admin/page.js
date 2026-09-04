@@ -992,7 +992,7 @@ export default function YonetimPaneli() {
           <button onClick={girisDene} disabled={yukleniyor || !personelEposta || !personelSifre} style={{ ...butonStil(!!(personelEposta && personelSifre)), width: "100%", padding: "12px 0", fontSize: TYPO.bodyStrong }}>
             {yukleniyor ? "Kontrol ediliyor..." : "Giriş Yap"}
           </button>
-          {hata && <p style={{ color: T.danger, fontSize: TYPO.body, marginTop: 12, textAlign: "center" }}>{hata}</p>}
+          {hata && <p role="alert" style={{ color: T.danger, fontSize: TYPO.body, marginTop: 12, textAlign: "center" }}>{hata}</p>}
           <button onClick={() => setUnutumModuAdmin(!unutumModuAdmin)} style={{ display: "block", width: "100%", textAlign: "center", background: "none", border: "none", color: T.textMuted, fontSize: 12, marginTop: 12, cursor: "pointer", textDecoration: "underline" }}>Şifremi unuttum</button>
           {unutumModuAdmin && (
             <div style={{ marginTop: 8, textAlign: "center" }}>

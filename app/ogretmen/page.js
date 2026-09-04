@@ -157,7 +157,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
           value={ogretmenNotu} onChange={(e) => setOgretmenNotu(e.target.value)} rows={4}
           style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13, boxSizing: "border-box", fontFamily: "inherit", resize: "vertical" }} />
       )}
-      {hata && <p style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
+      {hata && <p role="alert" style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
       <button onClick={uret} disabled={yukleniyor || !konu.trim() || (notGerekli && !ogretmenNotu.trim())} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", marginBottom: 16 }}>
         {yukleniyor ? "Üretiliyor... (~20 sn)" : "Üret"}
       </button>
@@ -392,7 +392,7 @@ function ProfilSifreDegistir() {
         style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }} />
       <GosterGizleInput placeholder="Yeni şifre (en az 6 karakter)" value={yeniSifre} onChange={(e) => setYeniSifre(e.target.value)}
         style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #ddd", marginBottom: 10, fontSize: 13.5, boxSizing: "border-box" }} />
-      {hata && <p style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
+      {hata && <p role="alert" style={{ color: "#FF6B5E", fontSize: 12.5, marginBottom: 8 }}>{hata}</p>}
       {basarili && <p style={{ color: "#1F3D2E", fontSize: 12.5, marginBottom: 8, fontWeight: 600 }}>{basarili}</p>}
       <button onClick={degistir} disabled={yukleniyor || !mevcutSifre || !yeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#FF6B5E", color: "#fff", fontWeight: 700, fontSize: 13.5, cursor: "pointer" }}>
         {yukleniyor ? "Kaydediliyor..." : "Şifreyi Güncelle"}
