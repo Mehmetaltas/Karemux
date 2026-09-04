@@ -1,4 +1,5 @@
 import { sql } from "@/lib/db";
+import { aiCagir } from "@/lib/ai";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { personelAdminMi } from "@/lib/personel";
 
@@ -55,8 +56,22 @@ export async function GET(req) {
     const aiDegisimYuzde = aid.maliyet > 0 ? Math.round(((ai.maliyet - aid.maliyet) / aid.maliyet) * 10000) / 100 : null;
     const brutKatki = g.net - gid.tutar;
 
+    let aiYorum = null;
+    try {
+      const ozetPrompt = `Sen bir teknoloji sirketinin CEO'suna gunluk rapor sunan finans analistisin. Asagidaki GERCEK verilere bakarak 2-3 cumlelik, SADECE risk veya firsat iceren KISA bir degerlendirme yaz - selamlama, giris cumlesi, tekrar YOK, direkt analiz. Eger veri cok azsa (yeni sistem, dusuk hacim) bunu da durustce belirt, abartili yorum yapma.
+Gunluk gelir: ${Math.round(g.tutar)}TL (dun: ${Math.round(gd.tutar)}TL)
+AI maliyeti: ${Math.round(ai.maliyet)}TL (dun: ${Math.round(aid.maliyet)}TL)
+Yeni kayit: ${yeniKayitBugun[0].adet}
+Aktif Premium: ${aktifPremium[0].adet}
+SADECE Turkce yaz, markdown kullanma.`;
+      aiYorum = await aiCagir({ prompt: ozetPrompt, maxTokens: 300, jsonModu: false });
+    } catch (e) {
+      console.error("Gunluk rapor AI yorum hatasi:", e);
+    }
+
     return Response.json({
       tarih: new Date().toISOString().slice(0, 10),
+      aiYorum,
       finans: {
         gunlukGelirTl: Math.round(g.tutar * 100) / 100,
         gunlukNetGelirTl: Math.round(g.net * 100) / 100,

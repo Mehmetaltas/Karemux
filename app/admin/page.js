@@ -1628,6 +1628,12 @@ export default function YonetimPaneli() {
                 return (
                   <>
                     <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 10 }}>{v.tarih || `${v.donemBaslangic} → ${v.donemBitis}`}</p>
+                    {v.aiYorum && (
+                      <div style={{ background: T.surfaceHover, borderRadius: 8, padding: 10, marginBottom: 10, borderLeft: `3px solid ${T.mustard}` }}>
+                        <p style={{ fontSize: TYPO.micro, fontWeight: 700, color: T.textMuted, marginBottom: 4 }}>🤖 AI Değerlendirmesi</p>
+                        <p style={{ fontSize: TYPO.caption, whiteSpace: "pre-wrap" }}>{v.aiYorum}</p>
+                      </div>
+                    )}
                     <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${T.border}`, fontSize: TYPO.caption }}>
                       <span style={{ color: T.textMuted }}>Gelir</span>
                       <span style={{ fontFamily: T.mono, fontWeight: 700 }}>{gelirTl}₺ ({satisAdedi} satış)</span>
