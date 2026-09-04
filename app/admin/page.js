@@ -1781,6 +1781,7 @@ export default function YonetimPaneli() {
             <Panel baslik="Müfredat Kapsamı Özeti" ikon="📚">
               {!mufredatVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
                 <>
+                  <div style={{ overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: TYPO.caption }}>
                     <thead>
                       <tr style={{ borderBottom: `1px solid ${T.border}` }}>
@@ -1803,6 +1804,7 @@ export default function YonetimPaneli() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </>
               )}
             </Panel>
@@ -1819,6 +1821,7 @@ export default function YonetimPaneli() {
 
             {mufredatVeri?.soruBankasiOzet?.length > 0 && (
               <Panel baslik="Soru Bankası — İçerik Türü Envanteri" ikon="🗂️">
+                <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: TYPO.caption }}>
                   <thead>
                     <tr style={{ borderBottom: `1px solid ${T.border}` }}>
@@ -1845,6 +1848,7 @@ export default function YonetimPaneli() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </Panel>
             )}
           </>
