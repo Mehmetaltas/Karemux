@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 
 const T = {
   bg: "#F5F5F7", page: "#fff", ink: "#1D1D1F", muted: "#76767A",
@@ -9,7 +10,6 @@ const T = {
 export default function VeliGiris() {
   const [eposta, setEposta] = useState("");
   const [sifre, setSifre] = useState("");
-  const [sifreGoster, setSifreGoster] = useState(false);
   const [beniHatirla, setBeniHatirla] = useState(true);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState("");
@@ -88,25 +88,14 @@ export default function VeliGiris() {
               onKeyDown={(e) => e.key === "Enter" && girisYap()}
               style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 14 }}
             />
-            <div style={{ position: "relative", marginBottom: 8 }}>
-              <input
-                aria-label="Sifre"
-                type={sifreGoster ? "text" : "password"}
-                value={sifre}
-                onChange={(e) => setSifre(e.target.value)}
-                placeholder="Şifre"
-                onKeyDown={(e) => e.key === "Enter" && girisYap()}
-                style={{ width: "100%", boxSizing: "border-box", padding: "10px 40px 10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, fontSize: 14 }}
-              />
-              <button
-                type="button"
-                onClick={() => setSifreGoster((g) => !g)}
-                aria-label={sifreGoster ? "Sifreyi gizle" : "Sifreyi goster"}
-                style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", fontSize: 15, color: T.muted }}
-              >
-                {sifreGoster ? "🙈" : "👁️"}
-              </button>
-            </div>
+            <GosterGizleInput
+              aria-label="Sifre"
+              value={sifre}
+              onChange={(e) => setSifre(e.target.value)}
+              placeholder="Şifre"
+              onKeyDown={(e) => e.key === "Enter" && girisYap()}
+              style={{ boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, fontSize: 14, marginBottom: 8 }}
+            />
 
             <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12.5, color: T.muted, marginBottom: 14, cursor: "pointer" }}>
               <input type="checkbox" checked={beniHatirla} onChange={(e) => setBeniHatirla(e.target.checked)} />
