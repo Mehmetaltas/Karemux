@@ -42,11 +42,11 @@ export async function GET(req) {
     const toplamKullanici = await sql`SELECT COUNT(*)::int AS adet FROM kullanicilar`;
 
     const aiBugun = await sql`
-      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS cagriSayisi
+      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS "cagriSayisi"
       FROM ai_kullanim_log WHERE olusturulma::date = CURRENT_DATE
     `;
     const aiDun = await sql`
-      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS cagriSayisi
+      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS "cagriSayisi"
       FROM ai_kullanim_log WHERE olusturulma::date = (CURRENT_DATE - INTERVAL '1 day')
     `;
 

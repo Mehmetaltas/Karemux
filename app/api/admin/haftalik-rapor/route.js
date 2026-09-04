@@ -40,7 +40,7 @@ export async function GET(req) {
     `;
 
     const aiBuHafta = await sql`
-      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS cagriSayisi
+      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS "cagriSayisi"
       FROM ai_kullanim_log WHERE olusturulma >= (CURRENT_DATE - INTERVAL '7 days')
     `;
     const aiOncekiHafta = await sql`

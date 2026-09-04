@@ -53,7 +53,7 @@ export async function GET(req) {
         AND olusturulma < (CURRENT_DATE - (${gunSayisi}::text || ' days')::interval)
     `;
     const aiBuDonem = await sql`
-      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS cagriSayisi
+      SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS maliyet, COUNT(*)::int AS "cagriSayisi"
       FROM ai_kullanim_log WHERE olusturulma >= (CURRENT_DATE - (${gunSayisi}::text || ' days')::interval)
     `;
     const aiOncekiDonem = await sql`
