@@ -3,6 +3,8 @@ import { kullaniciIdCoz } from "@/lib/kullanici";
 
 // Ucretsiz ulusal-deneme/gonder'in aynisi AMA once kullanicinin kurumunun
 // bu SPESIFIK denemeyi satin alip almadigini (odendi=true) kontrol ediyor.
+// 4 Eylul: alt konu karnesi + hata_kitapcigi kaydi eklendi (ulusal deneme
+// servisindeki (VPS) ile ayni zenginlik seviyesine getirildi).
 export async function POST(req) {
   try {
     const { denemeId, cevaplar, cihazId } = await req.json();
@@ -28,26 +30,44 @@ export async function POST(req) {
     const zaten = await sql`SELECT id FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kullanici_id = ${kullaniciId}`;
     if (zaten.length > 0) return Response.json({ error: "Bu denemeyi zaten cozdun" }, { status: 400 });
 
+    const ders = deneme[0].ders;
     const sorular = deneme[0].sorular;
     let dogru = 0, yanlis = 0, bos = 0;
     const yanlisSoruNo = [], bosSoruNo = [];
+    const altKonuOzet = {};
+    const hataSatirlari = [];
     for (let i = 0; i < sorular.length; i++) {
+      const s = sorular[i];
       const verilen = cevaplar[i];
-      if (verilen === undefined || verilen === null) { bos++; bosSoruNo.push(i + 1); }
-      else if (verilen === sorular[i].dogruIndex) dogru++;
-      else { yanlis++; yanlisSoruNo.push(i + 1); }
+      const altKonu = s.altKonu || "Genel";
+      if (!altKonuOzet[altKonu]) altKonuOzet[altKonu] = { dogru: 0, yanlis: 0, bos: 0 };
+      if (verilen === undefined || verilen === null) {
+        bos++; bosSoruNo.push(i + 1); altKonuOzet[altKonu].bos++;
+      } else if (verilen === s.dogruIndex) {
+        dogru++; altKonuOzet[altKonu].dogru++;
+      } else {
+        yanlis++; yanlisSoruNo.push(i + 1); altKonuOzet[altKonu].yanlis++;
+        hataSatirlari.push([kullaniciId, ders, altKonu, s.soru, JSON.stringify(s.secenekler), s.dogruIndex, verilen, s.aciklama || null]);
+      }
     }
     const net = Math.max(0, dogru - yanlis / 3);
+
+    if (hataSatirlari.length > 0) {
+      try {
+        for (const h of hataSatirlari) {
+          await sql`
+            INSERT INTO hata_kitapcigi (kullanici_id, ders, alt_konu, soru, secenekler, dogru_index, verilen_index, aciklama)
+            VALUES (${h[0]}, ${h[1]}, ${h[2]}, ${h[3]}, ${h[4]}, ${h[5]}, ${h[6]}, ${h[7]})
+          `;
+        }
+      } catch (e) { console.error("Hata kitapcigi kaydi basarisiz:", e); }
+    }
 
     await sql`
       INSERT INTO ucretli_deneme_sonuclari (deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net)
       VALUES (${denemeId}, ${kullaniciId}, ${kurumId}, ${dogru}, ${yanlis}, ${bos}, ${net})
     `;
 
-    // Zenginlestirilmis karne verisi - ulusal-deneme/gonder ile AYNI desen
-    // (siralama, yuzdelik dilim), UZERINE kurum ortalamasi karsilastirmasi eklendi
-    // (Pozitif ornegindeki "sube/okul ortalamasi" mantigi - kurumun KENDI
-    // ogrencileri arasindaki karsilastirma, disaridaki kurumlarla degil).
     const kurumSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kurum_id = ${kurumId} ORDER BY net DESC`;
     const kurumKatilimci = kurumSiralama.length;
     const kurumSiram = kurumSiralama.findIndex((r) => Number(r.net) <= net) + 1;
@@ -58,11 +78,12 @@ export async function POST(req) {
     const genelSiram = genelSiralama.findIndex((r) => Number(r.net) <= net) + 1;
     const genelOrtalama = genelKatilimci > 0 ? Math.round((genelSiralama.reduce((t, r) => t + Number(r.net), 0) / genelKatilimci) * 100) / 100 : null;
 
+    const karne = Object.keys(altKonuOzet).map((k) => ({ altKonu: k, ...altKonuOzet[k] }));
     const cevapAnahtari = sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama || null }));
 
     return Response.json({
       dogru, yanlis, bos, net,
-      yanlisSoruNo, bosSoruNo, cevapAnahtari,
+      yanlisSoruNo, bosSoruNo, cevapAnahtari, karne,
       kurumSiram, kurumKatilimci, kurumOrtalama,
       genelSiram, genelKatilimci, genelOrtalama,
     });
