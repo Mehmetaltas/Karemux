@@ -111,10 +111,13 @@ export default function KurumGiris() {
             <button
               type="button"
               onClick={() => { setSifremiUnuttumAcik(true); setSifremiUnuttumEposta(eposta); }}
-              style={{ width: "100%", background: "none", border: "none", color: T.coral, fontSize: 12.5, cursor: "pointer", textAlign: "center" }}
+              style={{ width: "100%", background: "none", border: "none", color: T.coral, fontSize: 12.5, cursor: "pointer", textAlign: "center", marginBottom: 10 }}
             >
               Şifremi Unuttum
             </button>
+            <p style={{ fontSize: 11.5, color: T.muted, textAlign: "center" }}>
+              Hesabın yok mu? <a href="/kurum-kayit" style={{ color: T.coral, fontWeight: 600 }}>Kurum Kaydı Oluştur</a>
+            </p>
           </>
         ) : (
           <>
