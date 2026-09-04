@@ -2,16 +2,22 @@ import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { personelAdminMi } from "@/lib/personel";
 
-// Dijital Ikiz Senaryo Motoru / "Sirket Ikizi" (4 Eylul) - ikiz_senaryo tablosu
-// (girdi_json/sonuc_json) daha once bos duruyordu, bu route ile ilk kez
-// gercek hesaplama motoruna bagliyor. Amac: "N ogrenci + M ogretmen + X AI
-// kullanimi olursa net kar/zarar ne olur" sorusunu, GERCEK verilerle
-// (giderler tablosundaki gercek sabit giderler) cevaplayabilmek.
-//
-// DURUSTLUK NOTU: KDV_ORANI_TASLAK bir VARSAYIMDIR, mali musavir onayina
-// kadar kesin degildir - sonuc_json'da acikca "taslak" etiketiyle donuyor.
-
 const KDV_ORANI_TASLAK = 0.20; // TASLAK - mali musavir onayina kadar kesin degil
+
+const DONEM_AY_CARPANI = {
+  gunluk: 1 / 30,
+  haftalik: 1 / 4.33,
+  aylik: 1,
+  uc_aylik: 3,
+  alti_aylik: 6,
+  yillik: 12,
+};
+
+const SENARYO_CARPANLARI = {
+  iyimser: { gelir: 1.15, gider: 0.95 },
+  gerceki: { gelir: 1.0, gider: 1.0 },
+  kotumser: { gelir: 0.75, gider: 1.15 },
+};
 
 async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
@@ -50,12 +56,21 @@ export async function GET(req) {
 
     const sabitGider = await gercekAylikSabitGider();
 
+    const personelSayisi = await sql`SELECT COUNT(*)::int AS adet FROM personel WHERE aktif = true`;
+
     const senaryolar = await sql`
-      SELECT id, ad, sonuc_json, olusturulma FROM ikiz_senaryo
-      ORDER BY olusturulma DESC LIMIT 20
+      SELECT id, ad, girdi_json, sonuc_json, olusturulma FROM ikiz_senaryo
+      ORDER BY olusturulma DESC LIMIT 30
     `;
 
-    return Response.json({ sabitGider, senaryolar, kdvOraniTaslak: KDV_ORANI_TASLAK });
+    return Response.json({
+      sabitGider,
+      gercekAktifPersonelSayisi: personelSayisi[0]?.adet ?? null,
+      senaryolar,
+      kdvOraniTaslak: KDV_ORANI_TASLAK,
+      donemSecenekleri: Object.keys(DONEM_AY_CARPANI),
+      senaryoTipiSecenekleri: Object.keys(SENARYO_CARPANLARI),
+    });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Getirilemedi" }, { status: 500 });
@@ -69,33 +84,55 @@ export async function POST(req) {
     const yetki = await yetkiKontrol(req, sifre);
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
+    const donem = DONEM_AY_CARPANI[body.donem] ? body.donem : "aylik";
+    const senaryoTipi = SENARYO_CARPANLARI[body.senaryoTipi] ? body.senaryoTipi : "gerceki";
+    const ayCarpani = DONEM_AY_CARPANI[donem];
+    const carpan = SENARYO_CARPANLARI[senaryoTipi];
+
     const ogrenciSayisi = Number(body.ogrenciSayisi) || 0;
     const ortalamaAylikGelirKisiBasiTl = Number(body.ortalamaAylikGelirKisiBasiTl) || 0;
     const ogretmenSayisi = Number(body.ogretmenSayisi) || 0;
     const ortalamaAylikOgretmenMaliyetiTl = Number(body.ortalamaAylikOgretmenMaliyetiTl) || 0;
+    const personelMaliyetiAylikTl = Number(body.personelMaliyetiAylikTl) || 0;
     const aylikAiMaliyetTahminiTl = Number(body.aylikAiMaliyetTahminiTl) || 0;
     const ekstraAylikGiderTl = Number(body.ekstraAylikGiderTl) || 0;
 
     const sabitGider = await gercekAylikSabitGider();
 
-    const toplamGelir = ogrenciSayisi * ortalamaAylikGelirKisiBasiTl;
-    const ogretmenMaliyetiToplam = ogretmenSayisi * ortalamaAylikOgretmenMaliyetiTl;
-    const toplamGiderKdvHaric = ogretmenMaliyetiToplam + aylikAiMaliyetTahminiTl + sabitGider.toplamTahminiAylikTl + ekstraAylikGiderTl;
-    const kdvTahminiTl = Math.round(toplamGelir * KDV_ORANI_TASLAK * 100) / 100;
-    const netKarZararTl = Math.round((toplamGelir - toplamGiderKdvHaric - kdvTahminiTl) * 100) / 100;
-    const karMarjiYuzde = toplamGelir > 0 ? Math.round((netKarZararTl / toplamGelir) * 10000) / 100 : null;
+    const aylikGelirHam = ogrenciSayisi * ortalamaAylikGelirKisiBasiTl;
+    const aylikOgretmenMaliyetiHam = ogretmenSayisi * ortalamaAylikOgretmenMaliyetiTl;
+    const aylikGiderHamKdvHaric = aylikOgretmenMaliyetiHam + personelMaliyetiAylikTl + aylikAiMaliyetTahminiTl + sabitGider.toplamTahminiAylikTl + ekstraAylikGiderTl;
 
-    const girdi = { ogrenciSayisi, ortalamaAylikGelirKisiBasiTl, ogretmenSayisi, ortalamaAylikOgretmenMaliyetiTl, aylikAiMaliyetTahminiTl, ekstraAylikGiderTl };
+    const aylikGelir = aylikGelirHam * carpan.gelir;
+    const aylikGiderKdvHaric = aylikGiderHamKdvHaric * carpan.gider;
+
+    const donemGelir = aylikGelir * ayCarpani;
+    const donemGiderKdvHaric = aylikGiderKdvHaric * ayCarpani;
+    const donemKdvTahmini = donemGelir * KDV_ORANI_TASLAK;
+    const donemNetKarZarar = donemGelir - donemGiderKdvHaric - donemKdvTahmini;
+    const karMarjiYuzde = donemGelir > 0 ? (donemNetKarZarar / donemGelir) * 100 : null;
+
+    const girdi = {
+      donem, senaryoTipi,
+      ogrenciSayisi, ortalamaAylikGelirKisiBasiTl,
+      ogretmenSayisi, ortalamaAylikOgretmenMaliyetiTl,
+      personelMaliyetiAylikTl, aylikAiMaliyetTahminiTl, ekstraAylikGiderTl,
+    };
     const sonuc = {
-      toplamGelirTl: Math.round(toplamGelir * 100) / 100,
-      ogretmenMaliyetiToplamTl: Math.round(ogretmenMaliyetiToplam * 100) / 100,
-      sabitGider,
-      kdvTahminiTl,
+      donem, senaryoTipi,
+      senaryoCarpanlari: carpan,
+      donemAyCarpani: Math.round(ayCarpani * 10000) / 10000,
+      donemGelirTl: Math.round(donemGelir * 100) / 100,
+      donemOgretmenMaliyetiTl: Math.round(aylikOgretmenMaliyetiHam * carpan.gider * ayCarpani * 100) / 100,
+      donemPersonelMaliyetiTl: Math.round(personelMaliyetiAylikTl * carpan.gider * ayCarpani * 100) / 100,
+      donemSabitGiderTl: Math.round(sabitGider.toplamTahminiAylikTl * carpan.gider * ayCarpani * 100) / 100,
+      donemKdvTahminiTl: Math.round(donemKdvTahmini * 100) / 100,
       kdvOraniTaslak: KDV_ORANI_TASLAK,
-      toplamGiderTl: Math.round((toplamGiderKdvHaric + kdvTahminiTl) * 100) / 100,
-      netKarZararTl,
-      karMarjiYuzde,
-      durum: netKarZararTl >= 0 ? "karli" : "zararli",
+      donemToplamGiderTl: Math.round((donemGiderKdvHaric + donemKdvTahmini) * 100) / 100,
+      donemNetKarZararTl: Math.round(donemNetKarZarar * 100) / 100,
+      karMarjiYuzde: karMarjiYuzde !== null ? Math.round(karMarjiYuzde * 100) / 100 : null,
+      durum: donemNetKarZarar >= 0 ? "karli" : "zararli",
+      sabitGiderKaynagi: sabitGider,
     };
 
     const eklenen = await sql`
