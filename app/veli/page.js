@@ -17,6 +17,11 @@ export default function VeliPaneli() {
   const [havaleBilgi, setHavaleBilgi] = useState(null);
   const [islemYukleniyor, setIslemYukleniyor] = useState(null);
   const [hata, setHata] = useState("");
+  const [odemeGecmisi, setOdemeGecmisi] = useState(null);
+  const [iadeAcikId, setIadeAcikId] = useState(null);
+  const [iadeSebep, setIadeSebep] = useState("");
+  const [iadeYukleniyor, setIadeYukleniyor] = useState(false);
+  const [iadeMesaj, setIadeMesaj] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -28,7 +33,7 @@ export default function VeliPaneli() {
           return;
         }
         setKullanici(data.kullanici);
-        await ogrencileriGetir();
+        await Promise.all([ogrencileriGetir(), odemeGecmisiniGetir()]);
         try {
           const pRes = await fetch("/api/paketler");
           const pData = await pRes.json();
@@ -82,6 +87,36 @@ export default function VeliPaneli() {
       setHata(e.message);
     } finally {
       setIslemYukleniyor(null);
+    }
+  }
+
+  async function odemeGecmisiniGetir() {
+    try {
+      const res = await fetch("/api/veli/odeme-gecmisi");
+      const data = await res.json();
+      setOdemeGecmisi(data.odemeler || []);
+    } catch {}
+  }
+
+  async function iadeTalebiGonder(odemeId) {
+    setIadeMesaj("");
+    setIadeYukleniyor(true);
+    try {
+      const res = await fetch("/api/iade-talebi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ odemeId, sebep: iadeSebep }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setIadeMesaj("Iade talebin alindi, en kisa surede degerlendirilecek.");
+      setIadeSebep("");
+      setIadeAcikId(null);
+      odemeGecmisiniGetir();
+    } catch (e) {
+      setIadeMesaj(e.message);
+    } finally {
+      setIadeYukleniyor(false);
     }
   }
 
@@ -150,6 +185,35 @@ export default function VeliPaneli() {
             )}
           </section>
         ))}
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ödeme Geçmişim</h2>
+          {!odemeGecmisi ? <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p> : odemeGecmisi.length === 0 ? (
+            <p style={{ fontSize: 13, color: T.muted }}>Henuz bir odeme yapmadin.</p>
+          ) : odemeGecmisi.map((o) => (
+            <div key={o.id} style={{ borderBottom: `1px solid ${T.line}`, padding: "10px 0" }}>
+              <p style={{ fontWeight: 700, fontSize: 13 }}>{o.ogrenci_ad} — {o.plan}</p>
+              <p style={{ fontSize: 12, color: T.muted }}>{o.tutar}₺ · {o.yontem} · {o.durum} · {new Date(o.olusturulma).toLocaleDateString("tr-TR")}</p>
+              {o.iade_id && <p style={{ fontSize: 11.5, color: T.mustard, marginTop: 4 }}>İade talebi: {o.iade_durumu}</p>}
+              {o.iadeHakkiVar && (
+                <div style={{ marginTop: 6 }}>
+                  {iadeAcikId === o.id ? (
+                    <div>
+                      <textarea aria-label="Iade sebebi" value={iadeSebep} onChange={(e) => setIadeSebep(e.target.value)} placeholder="Iade sebebini kisaca yaz (opsiyonel)" rows={2} style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 6, fontSize: 12.5, fontFamily: "inherit" }} />
+                      <button onClick={() => iadeTalebiGonder(o.id)} disabled={iadeYukleniyor} style={{ padding: "7px 12px", borderRadius: 6, border: "none", background: "#B23A2E", color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer", marginRight: 6 }}>
+                        {iadeYukleniyor ? "Gonderiliyor..." : "Iade Talebini Gonder"}
+                      </button>
+                      <button onClick={() => { setIadeAcikId(null); setIadeMesaj(""); }} style={{ padding: "7px 12px", borderRadius: 6, border: `1px solid ${T.line}`, background: "none", color: T.muted, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Vazgeç</button>
+                    </div>
+                  ) : (
+                    <button onClick={() => setIadeAcikId(o.id)} style={{ padding: "7px 12px", borderRadius: 6, border: `1px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 11.5, cursor: "pointer" }}>İlk Hafta Garantisi — İade Talebi Aç</button>
+                  )}
+                  {iadeAcikId === o.id && iadeMesaj && <p style={{ fontSize: 11.5, color: iadeMesaj.includes("alindi") ? "#2E7D4F" : "#B23A2E", marginTop: 6 }}>{iadeMesaj}</p>}
+                </div>
+              )}
+            </div>
+          ))}
+        </section>
       </div>
     </main>
   );
