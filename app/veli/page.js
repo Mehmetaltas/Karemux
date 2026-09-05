@@ -28,7 +28,7 @@ export default function VeliPaneli() {
       try {
         const res = await fetch("/api/auth/me");
         const data = await res.json();
-        if (!data.girisYapmis || data.kullanici?.rol !== "veli") {
+        if (!data.girisYapmis || (data.kullanici?.rol !== "veli" && !data.kullanici?.ek_roller?.includes("veli"))) {
           window.location.href = "/veli-giris";
           return;
         }

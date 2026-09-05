@@ -36,7 +36,7 @@ export default function VeliGiris() {
 
       const meRes = await fetch("/api/auth/me");
       const meData = await meRes.json();
-      if (meData.girisYapmis && meData.kullanici?.rol === "veli") {
+      if (meData.girisYapmis && (meData.kullanici?.rol === "veli" || meData.kullanici?.ek_roller?.includes("veli"))) {
         window.location.href = "/veli";
       } else {
         setHata("Bu hesap bir veli hesabi degil.");
