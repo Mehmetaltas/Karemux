@@ -3830,7 +3830,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>👥 Baglantilar</p>
               {[
                 ["seviyetamamlama", "📶 Seviye Tamamlama"],
-                ["kurumpaneli", "🏢 Kurum Paneli"],
+                ["kurumpaneli", "🏆 Sınıf Sıralaman"],
                 ["velipaneli", "👪 Veli Paneli"],
                 ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
                 ["canliders", "👥 Grup Dersi / Kamp / Soru Cozum"],
@@ -6367,9 +6367,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         {mod === "kurumpaneli" && hesap && (
           <div>
             <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
-              <p style={{ fontSize: 22, marginBottom: 4 }}>🏢</p>
-              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Kurum Paneli</p>
-              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Okul/dershane yöneticileri için toplu, anonim öğrenci raporu.</p>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🏆</p>
+              <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Sınıf Sıralaman</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Kurumuna bağlı sınıf arkadaşların arasında nerede olduğunu gör.</p>
             </div>
 
             {hesap.rol === "ogrenci" && liderlikVeri && !liderlikVeri.kurumaBagliDegil && liderlikVeri.siralama?.length > 0 && (
@@ -6393,138 +6393,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             )}
 
-            {!kurumRaporu && (
-              <>
-                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>1) Kurum Hesabı Oluştur</p>
-                  <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10 }}>Gerçek bir kurum yöneticisi hesabı oluşturur - giriş bilgilerin bu olacak.</p>
-                  {!kurumOlusturSonuc ? (
-                    <>
-                      <input value={kurumOlusturAdi} aria-label="Okul veya dershane adi" onChange={(e) => setKurumOlusturAdi(e.target.value)} placeholder="Okul / Dershane Adı"
-                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
-                      <input value={kurumOlusturYoneticiAdi} aria-label="Yonetici adi soyadi" onChange={(e) => setKurumOlusturYoneticiAdi(e.target.value)} placeholder="Yönetici Adı Soyadı"
-                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
-                      <input type="email" value={kurumOlusturEposta} aria-label="E-posta" onChange={(e) => setKurumOlusturEposta(e.target.value)} placeholder="E-posta"
-                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 8 }} />
-                      <GosterGizleInput value={kurumOlusturSifre} onChange={(e) => setKurumOlusturSifre(e.target.value)} placeholder="Şifre (en az 6 karakter)"
-                        style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
-                      <button className="kx-btn" onClick={kurumOlustur} disabled={kurumOlusturYukleniyor || !kurumOlusturAdi.trim() || !kurumOlusturEposta.trim() || kurumOlusturSifre.length < 6}
-                        style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
-                        {kurumOlusturYukleniyor ? "Oluşturuluyor..." : "Kurum Hesabı Oluştur"}
-                      </button>
-                    </>
-                  ) : (
-                    <div style={{ background: RENK_BASARI_ACIK, borderRadius: 10, padding: 14, textAlign: "center" }}>
-                      <p style={{ fontSize: 12, color: "#2E7D4F", marginBottom: 6 }}>"{kurumOlusturSonuc.ad}" hesabı oluşturuldu, giriş yapıldı!</p>
-                      <p style={{ fontSize: 22, fontWeight: 900, letterSpacing: 2, color: "#1B2430" }}>{kurumOlusturSonuc.kurumKodu}</p>
-                      <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Bu kodu öğrencilerine ver — kendi hesaplarından bu koda bağlanabilirler. Aşağıdan raporunu ve lisanslarını yönetebilirsin.</p>
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>2) Kurum Raporunu Görüntüle</p>
-                  <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10 }}>Kurum yöneticisi hesabınla giriş yapmış olman gerekir.</p>
-                  <button className="kx-btn" onClick={kurumRaporuGetir} disabled={kurumRaporYukleniyor}
-                    style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
-                    {kurumRaporYukleniyor ? "Getiriliyor..." : "Raporu Getir"}
-                  </button>
-                </div>
-              </>
-            )}
-
-            {kurumRaporu && (
-              <div className="kx-fadein">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <p style={{ fontWeight: 700, fontSize: 15 }}>{kurumRaporu.kurumAdi}</p>
-                  <button onClick={() => { setKurumRaporu(null); setKurumRaporKodu(""); }} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>← Geri</button>
-                </div>
-
-                <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
-                    <p style={{ color: COLORS.mustard, fontSize: 22, fontWeight: 900 }}>{kurumRaporu.ogrenciSayisi}</p>
-                    <p style={{ color: "#8A968E", fontSize: 9 }}>TOPLAM ÖĞRENCİ</p>
-                  </div>
-                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
-                    <p style={{ color: RENK_BASARI, fontSize: 22, fontWeight: 900 }}>{kurumRaporu.buHaftaAktifOgrenci}</p>
-                    <p style={{ color: "#8A968E", fontSize: 9 }}>BU HAFTA AKTİF</p>
-                  </div>
-                  <div style={{ flex: 1, background: "#1B2430", borderRadius: 12, padding: "14px 8px", textAlign: "center" }}>
-                    <p style={{ color: COLORS.coral, fontSize: 22, fontWeight: 900 }}>{kurumRaporu.genelOrtalamaNet ?? "—"}</p>
-                    <p style={{ color: "#8A968E", fontSize: 9 }}>GENEL ORT. NET</p>
-                  </div>
-                </div>
-
-                {kurumRaporu.gunlukTrend?.length >= 2 && (() => {
-                  const genislik = 280, yukseklik = 80, kenar = 10;
-                  const maxDeger = Math.max(...kurumRaporu.gunlukTrend.map((v) => Number(v.aktif_ogrenci)), 1);
-                  const adim = (genislik - kenar * 2) / (kurumRaporu.gunlukTrend.length - 1);
-                  const noktalar = kurumRaporu.gunlukTrend.map((v, i) => ({
-                    x: kenar + i * adim,
-                    y: yukseklik - kenar - (Number(v.aktif_ogrenci) / maxDeger) * (yukseklik - kenar * 2),
-                  }));
-                  const yol = noktalar.map((n, i) => `${i === 0 ? "M" : "L"}${n.x.toFixed(1)},${n.y.toFixed(1)}`).join(" ");
-                  return (
-                    <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
-                      <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>SON 7 GÜN — GÜNLÜK AKTİF ÖĞRENCİ</p>
-                      <svg viewBox={`0 0 ${genislik} ${yukseklik}`} style={{ width: "100%", height: 90 }}>
-                        <path d={yol} fill="none" stroke={RENK_BASARI} strokeWidth="2.5" />
-                        {noktalar.map((n, i) => <circle key={i} cx={n.x} cy={n.y} r="3.5" fill={RENK_BASARI} />)}
-                      </svg>
-                    </div>
-                  );
-                })()}
-
-                {kurumRaporu.sinifDagilimi?.length > 0 && (
-                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>SINIF DAĞILIMI</p>
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      {kurumRaporu.sinifDagilimi.map((s) => (
-                        <div key={s.sinif} style={{ background: "#FAF6EE", borderRadius: 8, padding: "6px 12px", fontSize: 12 }}>
-                          <strong>{s.sinif}. Sınıf:</strong> {s.sayi} öğrenci
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {kurumRaporu.dersBazindaNet?.length > 0 && (() => {
-                  const maxNet = Math.max(...kurumRaporu.dersBazindaNet.map((d) => Number(d.ortalama_net)), 1);
-                  return (
-                    <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 12 }}>
-                      <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>DERS BAZINDA ORTALAMA NET (düşükten yükseğe)</p>
-                      {kurumRaporu.dersBazindaNet.map((d) => {
-                        const oran = Number(d.ortalama_net) / maxNet;
-                        const renk = oran > 0.66 ? "#3DA35D" : oran > 0.33 ? COLORS.mustard : "#E8503F";
-                        return (
-                          <div key={d.ders} style={{ marginBottom: 8 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 3 }}>
-                              <span>{d.ders}</span>
-                              <span style={{ fontWeight: 700 }}>{d.ortalama_net} <span style={{ color: COLORS.muted, fontWeight: 400 }}>({d.test_sayisi} test)</span></span>
-                            </div>
-                            <div style={{ height: 7, borderRadius: 999, background: "#EDE8DC", overflow: "hidden" }}>
-                              <div style={{ height: "100%", width: `${Math.max(6, oran * 100)}%`, borderRadius: 999, background: renk }} />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })()}
-
-                {kurumRaporu.zayifKonular?.length > 0 && (
-                  <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                    <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 10 }}>KURUM GENELİ EN ÇOK HATA YAPILAN KONULAR</p>
-                    {kurumRaporu.zayifKonular.map((z, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 12 }}>
-                        <span>{z.ders} — {z.alt_konu}</span>
-                        <span style={{ fontWeight: 700, color: COLORS.coral }}>{z.hata_sayisi}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
