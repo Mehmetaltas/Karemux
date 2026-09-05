@@ -6513,7 +6513,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <>
                       <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ÜNİTE (opsiyonel)</label>
                       <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12, maxHeight: 160, overflowY: "auto" }}>
-                        {uniteleriGetir(sinif, tekKonuDers).map((u) => (
+                        {dersinUniteleri(tekKonuDers, sinif).map((u) => (
                           <button key={u} onClick={() => setTekKonuUnite(tekKonuUnite === u ? "" : u)} style={{ padding: "8px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", textAlign: "left", border: `1.5px solid ${tekKonuUnite === u ? COLORS.mustard : COLORS.line}`, background: tekKonuUnite === u ? "#FEF8E8" : "#FAF6EE" }}>{u}</button>
                         ))}
                       </div>
