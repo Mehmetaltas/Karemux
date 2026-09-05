@@ -3,7 +3,7 @@ name: Ogrenci APK Build
 on:
   push:
     paths:
-      - 'karemux-android/**'
+      - 'android-ogrenci/**'
       - '.github/workflows/build-ogrenci-apk.yml'
   workflow_dispatch:
 
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: karemux-android
+        working-directory: android-ogrenci
     steps:
       - uses: actions/checkout@v4
       - name: JDK 17 kur
@@ -50,13 +50,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: karemux-ogrenci-apk
-          path: karemux-android/karemux-ogrenci-imzali.apk
+          path: android-ogrenci/karemux-ogrenci-imzali.apk
 
       - name: Herkese acik GitHub Release'e yayinla
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ogrenci-apk-latest
           name: "Karemux Ogrenci APK (guncel)"
-          files: karemux-android/karemux-ogrenci-imzali.apk
+          files: android-ogrenci/karemux-ogrenci-imzali.apk
           make_latest: false
           body: "Otomatik yayinlanmis, imzali Karemux Ogrenci APK'si. Her yeni derlemede bu ayni link uzerine guncellenir."

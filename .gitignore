@@ -10,3 +10,9 @@ android-ogretmen/.gradle/
 android-ogretmen/build/
 android-ogretmen/app/build/
 android-ogretmen/*.keystore
+
+# Ogrenci Android projesi - build ciktilari ve anahtar asla commit edilmez
+android-ogrenci/.gradle/
+android-ogrenci/build/
+android-ogrenci/app/build/
+android-ogrenci/*.keystore
