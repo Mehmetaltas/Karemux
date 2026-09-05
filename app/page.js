@@ -1878,14 +1878,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     ]).then(([b, s]) => setBasariVeri({ ...b, enUzunSeri: s.enUzunSeri || 0 })).catch(() => {});
   }, [mod, hesap?.eposta]);
 
-  const [kurumOlusturAdi, setKurumOlusturAdi] = useState("");
-  const [kurumOlusturEposta, setKurumOlusturEposta] = useState("");
-  const [kurumOlusturSifre, setKurumOlusturSifre] = useState("");
-  const [kurumOlusturYoneticiAdi, setKurumOlusturYoneticiAdi] = useState("");
-  const [kurumOlusturSonuc, setKurumOlusturSonuc] = useState(null); // {kurumKodu, ad}
-  const [kurumOlusturYukleniyor, setKurumOlusturYukleniyor] = useState(false);
-  const [kurumRaporu, setKurumRaporu] = useState(null);
-  const [kurumRaporYukleniyor, setKurumRaporYukleniyor] = useState(false);
   const [kurumBaglanKodu, setKurumBaglanKodu] = useState("");
   const [kurumBaglaniyor, setKurumBaglaniyor] = useState(false);
   const [kurumBaglandi, setKurumBaglandi] = useState(false);
@@ -2349,45 +2341,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
-  async function kurumOlustur() {
-    if (!kurumOlusturAdi.trim() || !kurumOlusturEposta.trim() || kurumOlusturSifre.length < 6) return;
-    setKurumOlusturYukleniyor(true); setHata("");
-    try {
-      // GUNCELLEME: artik hesapsiz kod uretmiyor - gercek bir kurum yoneticisi
-      // hesabi (eposta+sifre) olusturuyor, otomatik giris de yapiyor.
-      const res = await fetch("/api/kurum/kayit", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kurumAdi: kurumOlusturAdi.trim(),
-          eposta: kurumOlusturEposta.trim(),
-          sifre: kurumOlusturSifre,
-          yoneticiAdi: kurumOlusturYoneticiAdi.trim(),
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setKurumOlusturSonuc({ ad: kurumOlusturAdi.trim(), kurumKodu: data.kurumKodu });
-    } catch (e) {
-      setHata(temizHataMesaji(e, "Kurum olusturulamadi, tekrar dene."));
-    } finally {
-      setKurumOlusturYukleniyor(false);
-    }
-  }
-
-  async function kurumRaporuGetir() {
-    setKurumRaporYukleniyor(true); setHata(""); setKurumRaporu(null);
-    try {
-      // GUVENLIK GUNCELLEMESI: artik kod DEGIL, oturum (kurum yoneticisi girisi) kullaniliyor.
-      const res = await fetch("/api/kurum/rapor");
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setKurumRaporu(data);
-    } catch (e) {
-      setHata(temizHataMesaji(e, "Rapor alinamadi - kurum yoneticisi olarak giris yapmis olman gerekiyor."));
-    } finally {
-      setKurumRaporYukleniyor(false);
-    }
-  }
 
   async function kurumaOgrenciOlarakBaglan() {
     if (!kurumBaglanKodu.trim()) return;
@@ -2654,6 +2607,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [tekKonuYukleniyor, setTekKonuYukleniyor] = useState(false);
   const [tekKonuHata, setTekKonuHata] = useState("");
 
+  const [iadeUygunOdeme, setIadeUygunOdeme] = useState(null);
+  const [iadeAcik, setIadeAcik] = useState(false);
+  const [iadeSebep, setIadeSebep] = useState("");
+  const [iadeMesaj, setIadeMesaj] = useState("");
+  const [iadeYukleniyor, setIadeYukleniyor] = useState(false);
+
   useEffect(() => {
     try {
       const kayitli = localStorage.getItem("karemux_hatirla_ana");
@@ -2897,6 +2856,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       fetch("/api/abonelik/durum").then((r) => r.json()).then((d) => setAktifAbonelik(d.aktifAbonelik)).catch(() => {});
       fetch("/api/paketler").then((r) => r.json()).then((d) => setTumPaketler(d.paketler)).catch(() => {});
       fetch(`/api/ogrenci/duyurular?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setKurumDuyurulari(d.duyurular || [])).catch(() => {});
+      fetch(`/api/odeme/gecmisim?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => {
+        const uygun = (d.odemeler || []).find((o) => o.iadeHakkiVar);
+        if (uygun) setIadeUygunOdeme(uygun);
+      }).catch(() => {});
       canliDersOturumlariGetir();
       derslerimGetir();
     }
@@ -3258,6 +3221,26 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       setTekKonuHata(temizHataMesaji(e, "Gonderilemedi, tekrar dene."));
     } finally {
       setTekKonuYukleniyor(false);
+    }
+  }
+
+  async function iadeTalebiGonder() {
+    if (!iadeUygunOdeme) return;
+    setIadeYukleniyor(true); setIadeMesaj("");
+    try {
+      const res = await fetch("/api/iade-talebi", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ odemeId: iadeUygunOdeme.id, sebep: iadeSebep, cihazId: cihazIdRef.current }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setIadeMesaj("Iade talebin alindi, en kisa surede degerlendirilecek.");
+      setIadeUygunOdeme(null);
+      setIadeAcik(false);
+    } catch (e) {
+      setIadeMesaj(e.message);
+    } finally {
+      setIadeYukleniyor(false);
     }
   }
 
@@ -5067,6 +5050,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         <p style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>{new Date(d.olusturulma).toLocaleDateString("tr-TR")}</p>
                       </div>
                     ))}
+                  </div>
+                )}
+                {iadeUygunOdeme && (
+                  <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 8, padding: 12, marginTop: 12 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>İlk Hafta Garantisi</p>
+                    <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>Son ödemen ({iadeUygunOdeme.plan}, {iadeUygunOdeme.tutar}₺) için 7 gün içinde iade talebi açabilirsin.</p>
+                    {!iadeAcik ? (
+                      <button onClick={() => setIadeAcik(true)} style={{ padding: "7px 12px", borderRadius: 6, border: `1px solid ${COLORS.line}`, background: "none", color: COLORS.ink, fontWeight: 600, fontSize: 11.5, cursor: "pointer" }}>İade Talebi Aç</button>
+                    ) : (
+                      <div>
+                        <textarea value={iadeSebep} onChange={(e) => setIadeSebep(e.target.value)} placeholder="Sebep (opsiyonel)" rows={2} style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 6, border: `1px solid ${COLORS.line}`, marginBottom: 6, fontSize: 12, fontFamily: "inherit" }} />
+                        <button onClick={iadeTalebiGonder} disabled={iadeYukleniyor} style={{ padding: "7px 12px", borderRadius: 6, border: "none", background: "#B23A2E", color: "#fff", fontWeight: 600, fontSize: 11.5, cursor: "pointer", marginRight: 6 }}>{iadeYukleniyor ? "Gonderiliyor..." : "Talebi Gonder"}</button>
+                        <button onClick={() => setIadeAcik(false)} style={{ padding: "7px 12px", borderRadius: 6, border: `1px solid ${COLORS.line}`, background: "none", color: COLORS.muted, fontWeight: 600, fontSize: 11.5, cursor: "pointer" }}>Vazgeç</button>
+                      </div>
+                    )}
+                    {iadeMesaj && <p style={{ fontSize: 11.5, color: iadeMesaj.includes("alindi") ? "#2E7D4F" : "#B23A2E", marginTop: 6 }}>{iadeMesaj}</p>}
                   </div>
                 )}
 
