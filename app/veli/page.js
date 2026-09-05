@@ -14,6 +14,7 @@ export default function VeliPaneli() {
   const [baglantiMesaj, setBaglantiMesaj] = useState("");
   const [paketler, setPaketler] = useState(null);
   const [acikPaketOgrenci, setAcikPaketOgrenci] = useState(null);
+  const [acikDetayOgrenci, setAcikDetayOgrenci] = useState(null);
   const [havaleBilgi, setHavaleBilgi] = useState(null);
   const [islemYukleniyor, setIslemYukleniyor] = useState(null);
   const [hata, setHata] = useState("");
@@ -168,6 +169,48 @@ export default function VeliPaneli() {
               <p style={{ fontSize: 12, color: T.coral, marginBottom: 8 }}>Zayif dersler: {o.zayifDersler.join(", ")}</p>
             )}
             <p style={{ fontSize: 11.5, color: T.muted, marginBottom: 12 }}>Bu hafta aktif gun: {o.buHaftaAktifGun}/7</p>
+
+            <button onClick={() => setAcikDetayOgrenci(acikDetayOgrenci === o.ogrenci.id ? null : o.ogrenci.id)} style={{ padding: "8px 14px", borderRadius: 6, border: `1.5px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 12, cursor: "pointer", marginRight: 8, marginBottom: 8 }}>
+              {acikDetayOgrenci === o.ogrenci.id ? "Detayli Raporu Gizle" : "Detayli Rapor"}
+            </button>
+
+            {acikDetayOgrenci === o.ogrenci.id && (
+              <div style={{ marginBottom: 12, paddingTop: 10, borderTop: `1px solid ${T.line}` }}>
+                {o.netOzet?.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Son 30 Gun — Ders Bazinda Ortalama Net</p>
+                    {o.netOzet.map((n, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: `1px solid ${T.line}`, fontSize: 12 }}>
+                        <span>{n.ders}</span>
+                        <span style={{ fontWeight: 700 }}>{n.ortalama_net} net ({n.test_sayisi} test)</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {o.enZayifKonular?.length > 0 && (
+                  <div style={{ marginBottom: 12 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>En Zayif Konular</p>
+                    {o.enZayifKonular.map((z, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: `1px solid ${T.line}`, fontSize: 11.5 }}>
+                        <span>{z.ders} · {z.alt_konu}</span>
+                        <span style={{ color: "#B23A2E", fontWeight: 700 }}>{z.hata_sayisi} hata</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {o.gecmis?.length > 0 && (
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Konu Bazinda Gecmis</p>
+                    {o.gecmis.slice(0, 10).map((g, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "4px 0", borderBottom: `1px solid ${T.line}`, fontSize: 11.5 }}>
+                        <span>{g.ders} · {g.konu}</span>
+                        <span style={{ color: T.muted }}>{g.dogru}/{g.toplam} dogru</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <button onClick={() => { setAcikPaketOgrenci(acikPaketOgrenci === o.ogrenci.id ? null : o.ogrenci.id); setHavaleBilgi(null); setHata(""); }} style={{ padding: "8px 14px", borderRadius: 6, border: `1.5px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
               {acikPaketOgrenci === o.ogrenci.id ? "Paketleri Gizle" : "Bu Ogrenci Icin Paket Satin Al"}
