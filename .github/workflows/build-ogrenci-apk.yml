@@ -1,10 +1,10 @@
-name: Ogretmen APK Build
+name: Ogrenci APK Build
 
 on:
   push:
     paths:
-      - 'android-ogretmen/**'
-      - '.github/workflows/build-ogretmen-apk.yml'
+      - 'karemux-android/**'
+      - '.github/workflows/build-ogrenci-apk.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,10 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: android-ogretmen
+        working-directory: karemux-android
     steps:
       - uses: actions/checkout@v4
-
       - name: JDK 17 kur
         uses: actions/setup-java@v4
         with:
@@ -34,30 +33,30 @@ jobs:
           ./gradlew assembleRelease
 
       - name: Keystore'u geri yukle
-        run: echo "${{ secrets.OGRETMEN_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
+        run: echo "${{ secrets.OGRENCI_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
 
       - name: Zipalign + Imzala
         run: |
           BUILD_TOOLS=$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)
           $ANDROID_HOME/build-tools/$BUILD_TOOLS/zipalign -v -p 4 \
-            app/build/outputs/apk/release/app-release-unsigned.apk karemux-ogretmen-aligned.apk
+            app/build/outputs/apk/release/app-release-unsigned.apk karemux-ogrenci-aligned.apk
           $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner sign \
             --ks android.keystore --ks-key-alias android \
-            --ks-pass "pass:${{ secrets.OGRETMEN_KEYSTORE_SIFRE }}" \
-            --out karemux-ogretmen-imzali.apk karemux-ogretmen-aligned.apk
-          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner verify karemux-ogretmen-imzali.apk
+            --ks-pass "pass:${{ secrets.OGRENCI_KEYSTORE_SIFRE }}" \
+            --out karemux-ogrenci-imzali.apk karemux-ogrenci-aligned.apk
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner verify karemux-ogrenci-imzali.apk
 
       - name: APK'yi yukle (indirilebilir cikti)
         uses: actions/upload-artifact@v4
         with:
-          name: karemux-ogretmen-apk
-          path: android-ogretmen/karemux-ogretmen-imzali.apk
+          name: karemux-ogrenci-apk
+          path: karemux-android/karemux-ogrenci-imzali.apk
 
       - name: Herkese acik GitHub Release'e yayinla
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ogretmen-apk-latest
-          name: "Karemux Ogretmen APK (guncel)"
-          files: android-ogretmen/karemux-ogretmen-imzali.apk
+          tag_name: ogrenci-apk-latest
+          name: "Karemux Ogrenci APK (guncel)"
+          files: karemux-android/karemux-ogrenci-imzali.apk
           make_latest: false
-          body: "Otomatik yayinlanmis, imzali Karemux Ogretmen APK'si. Her yeni derlemede bu ayni link uzerine guncellenir."
+          body: "Otomatik yayinlanmis, imzali Karemux Ogrenci APK'si. Her yeni derlemede bu ayni link uzerine guncellenir."
