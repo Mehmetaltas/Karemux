@@ -2862,19 +2862,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }).catch(() => {});
   }, []);
 
-  useEffect(() => {
-    // Veli girisi artik ayri, temiz /veli panelinde - 4 Eylul'de tasindi.
-    if (hesap?.rol === "veli") {
-      window.location.href = "/veli";
-    }
-  }, [hesap]);
-
-  useEffect(() => {
-    // Kurum yoneticisi girisi de artik ayri, temiz /kurum panelinde - 4 Eylul.
-    if (hesap?.rol === "kurum_yoneticisi") {
-      window.location.href = "/kurum";
-    }
-  }, [hesap]);
+  // 5 Eylul: ZORLA yonlendirme kaldirildi - kullanici (ozellikle cok rollu
+  // hesaplar) ana ogrenci deneyimini de gorebilsin, panel secimi ELLE olsun
+  // (hesap ekranindaki "Panellerim" bagintilariyla).
 
   useEffect(() => {
     if (hesap) {
@@ -4913,6 +4903,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 <p style={{ fontSize: 14, marginBottom: 4 }}>
                   Giris yapildi: <strong>{hesap.ad}</strong> <span style={{ color: COLORS.muted, fontSize: 12 }}>({hesap.rol === "veli" ? "veli hesabi" : "ogrenci hesabi"})</span>
+                  {(hesap.rol === "veli" || hesap.ek_roller?.includes("veli") || hesap.rol === "kurum_yoneticisi" || hesap.ek_roller?.includes("kurum_yoneticisi")) && (
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                      {(hesap.rol === "veli" || hesap.ek_roller?.includes("veli")) && (
+                        <a href="/veli" style={{ padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, color: COLORS.ink, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>👨‍👩‍👧 Veli Paneli</a>
+                      )}
+                      {(hesap.rol === "kurum_yoneticisi" || hesap.ek_roller?.includes("kurum_yoneticisi")) && (
+                        <a href="/kurum" style={{ padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, color: COLORS.ink, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>🏫 Kurum Paneli</a>
+                      )}
+                    </div>
+                  )}
                 </p>
 
                 {!hesap.eposta_dogrulandi && (
