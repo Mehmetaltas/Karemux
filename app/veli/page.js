@@ -17,6 +17,7 @@ export default function VeliPaneli() {
   const [havaleBilgi, setHavaleBilgi] = useState(null);
   const [islemYukleniyor, setIslemYukleniyor] = useState(null);
   const [hata, setHata] = useState("");
+  const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
   const [odemeGecmisi, setOdemeGecmisi] = useState(null);
   const [iadeAcikId, setIadeAcikId] = useState(null);
   const [iadeSebep, setIadeSebep] = useState("");
@@ -90,6 +91,14 @@ export default function VeliPaneli() {
     }
   }
 
+  async function cikisYap() {
+    setCikisYukleniyor(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    window.location.href = "/veli-giris";
+  }
+
   async function odemeGecmisiniGetir() {
     try {
       const res = await fetch("/api/veli/odeme-gecmisi");
@@ -131,7 +140,12 @@ export default function VeliPaneli() {
   return (
     <main style={{ minHeight: "100vh", background: T.bg, padding: "24px 16px", fontFamily: "system-ui, sans-serif" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>Veli Paneli</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700 }}>Veli Paneli</h1>
+          <button onClick={cikisYap} disabled={cikisYukleniyor} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, background: "none", color: T.muted, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+            {cikisYukleniyor ? "..." : "Çıkış Yap"}
+          </button>
+        </div>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ogrenci Bagla</h2>

@@ -18,6 +18,7 @@ export default function KurumPaneli() {
   const [havaleBilgi, setHavaleBilgi] = useState(null);
   const [islemYukleniyor, setIslemYukleniyor] = useState(null);
   const [hata, setHata] = useState("");
+  const [cikisYukleniyor, setCikisYukleniyor] = useState(false);
   const [lisanslar, setLisanslar] = useState(null);
   const [yillikPaketler, setYillikPaketler] = useState(null);
   const [lisansPlanSecim, setLisansPlanSecim] = useState("");
@@ -116,6 +117,14 @@ export default function KurumPaneli() {
     } finally {
       setIslemYukleniyor(null);
     }
+  }
+
+  async function cikisYap() {
+    setCikisYukleniyor(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
+    window.location.href = "/kurum-giris";
   }
 
   async function lisanslariGetir() {
@@ -283,7 +292,12 @@ export default function KurumPaneli() {
   return (
     <main style={{ minHeight: "100vh", background: T.bg, padding: "24px 16px", fontFamily: "system-ui, sans-serif" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>Kurum Paneli</h1>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+          <h1 style={{ fontSize: 20, fontWeight: 700 }}>Kurum Paneli</h1>
+          <button onClick={cikisYap} disabled={cikisYukleniyor} style={{ padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, background: "none", color: T.muted, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+            {cikisYukleniyor ? "..." : "Çıkış Yap"}
+          </button>
+        </div>
         <p style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>{kurum?.ad}</p>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>

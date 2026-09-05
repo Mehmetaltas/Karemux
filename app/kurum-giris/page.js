@@ -17,6 +17,9 @@ export default function KurumGiris() {
   const [sifremiUnuttumEposta, setSifremiUnuttumEposta] = useState("");
   const [sifremiUnuttumMesaj, setSifremiUnuttumMesaj] = useState("");
   const [sifremiUnuttumYukleniyor, setSifremiUnuttumYukleniyor] = useState(false);
+  const [sifremiUnuttumKodGonderildi, setSifremiUnuttumKodGonderildi] = useState(false);
+  const [sifremiUnuttumKod, setSifremiUnuttumKod] = useState("");
+  const [sifremiUnuttumYeniSifre, setSifremiUnuttumYeniSifre] = useState("");
 
   async function girisYap() {
     setHata("");
@@ -63,7 +66,35 @@ export default function KurumGiris() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Gonderilemedi");
-      setSifremiUnuttumMesaj("Eger bu eposta kayitliysa, sifirlama linki gonderildi.");
+      setSifremiUnuttumKodGonderildi(true);
+      setSifremiUnuttumMesaj("Eger bu eposta kayitliysa, 6 haneli bir kod gonderildi.");
+    } catch (e) {
+      setSifremiUnuttumMesaj(e.message);
+    } finally {
+      setSifremiUnuttumYukleniyor(false);
+    }
+  }
+
+  async function sifreYenile() {
+    setSifremiUnuttumMesaj("");
+    if (!sifremiUnuttumKod.trim() || !sifremiUnuttumYeniSifre) {
+      setSifremiUnuttumMesaj("Kod ve yeni sifre gerekli.");
+      return;
+    }
+    setSifremiUnuttumYukleniyor(true);
+    try {
+      const res = await fetch("/api/auth/sifre-sifirlama-tamamla", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: sifremiUnuttumEposta.trim(), kod: sifremiUnuttumKod.trim(), yeniSifre: sifremiUnuttumYeniSifre }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setSifremiUnuttumMesaj("Sifren guncellendi, simdi yeni sifrenle giris yapabilirsin.");
+      setSifremiUnuttumKodGonderildi(false);
+      setSifremiUnuttumAcik(false);
+      setSifremiUnuttumKod("");
+      setSifremiUnuttumYeniSifre("");
     } catch (e) {
       setSifremiUnuttumMesaj(e.message);
     } finally {
@@ -121,21 +152,48 @@ export default function KurumGiris() {
           </>
         ) : (
           <>
-            <p style={{ fontSize: 13, marginBottom: 12 }}>Kayıtlı e-postana bir sıfırlama linki göndereceğiz.</p>
-            <input
-              aria-label="Sifirlama icin e-posta"
-              type="email"
-              value={sifremiUnuttumEposta}
-              onChange={(e) => setSifremiUnuttumEposta(e.target.value)}
-              placeholder="Kayıtlı e-postan"
-              onKeyDown={(e) => e.key === "Enter" && sifremiUnuttumGonder()}
-              style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 14 }}
-            />
-            {sifremiUnuttumMesaj && <p role="alert" style={{ fontSize: 12.5, color: T.muted, marginBottom: 10 }}>{sifremiUnuttumMesaj}</p>}
-            <button onClick={sifremiUnuttumGonder} disabled={sifremiUnuttumYukleniyor} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 10 }}>
-              {sifremiUnuttumYukleniyor ? "Gönderiliyor..." : "Sıfırlama Linki Gönder"}
-            </button>
-            <button type="button" onClick={() => { setSifremiUnuttumAcik(false); setSifremiUnuttumMesaj(""); }} style={{ width: "100%", background: "none", border: "none", color: T.muted, fontSize: 12.5, cursor: "pointer", textAlign: "center" }}>
+            {!sifremiUnuttumKodGonderildi ? (
+              <>
+                <p style={{ fontSize: 13, marginBottom: 12 }}>Kayıtlı e-postana 6 haneli bir kod göndereceğiz.</p>
+                <input
+                  aria-label="Sifirlama icin e-posta"
+                  type="email"
+                  value={sifremiUnuttumEposta}
+                  onChange={(e) => setSifremiUnuttumEposta(e.target.value)}
+                  placeholder="Kayıtlı e-postan"
+                  onKeyDown={(e) => e.key === "Enter" && sifremiUnuttumGonder()}
+                  style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 14 }}
+                />
+                {sifremiUnuttumMesaj && <p role="alert" style={{ fontSize: 12.5, color: T.muted, marginBottom: 10 }}>{sifremiUnuttumMesaj}</p>}
+                <button onClick={sifremiUnuttumGonder} disabled={sifremiUnuttumYukleniyor} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 10 }}>
+                  {sifremiUnuttumYukleniyor ? "Gönderiliyor..." : "Kod Gönder"}
+                </button>
+              </>
+            ) : (
+              <>
+                <p style={{ fontSize: 13, marginBottom: 12 }}>E-postana gelen 6 haneli kodu ve yeni şifreni gir.</p>
+                <input
+                  aria-label="Dogrulama kodu"
+                  value={sifremiUnuttumKod}
+                  onChange={(e) => setSifremiUnuttumKod(e.target.value)}
+                  placeholder="6 haneli kod"
+                  style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 14, textAlign: "center", letterSpacing: 2 }}
+                />
+                <GosterGizleInput
+                  aria-label="Yeni sifre"
+                  value={sifremiUnuttumYeniSifre}
+                  onChange={(e) => setSifremiUnuttumYeniSifre(e.target.value)}
+                  placeholder="Yeni şifre (en az 6 karakter)"
+                  onKeyDown={(e) => e.key === "Enter" && sifreYenile()}
+                  style={{ boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 14 }}
+                />
+                {sifremiUnuttumMesaj && <p role="alert" style={{ fontSize: 12.5, color: sifremiUnuttumMesaj.includes("guncellendi") ? "#2E7D4F" : T.muted, marginBottom: 10 }}>{sifremiUnuttumMesaj}</p>}
+                <button onClick={sifreYenile} disabled={sifremiUnuttumYukleniyor} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 10 }}>
+                  {sifremiUnuttumYukleniyor ? "Kaydediliyor..." : "Şifreyi Güncelle"}
+                </button>
+              </>
+            )}
+            <button type="button" onClick={() => { setSifremiUnuttumAcik(false); setSifremiUnuttumKodGonderildi(false); setSifremiUnuttumMesaj(""); }} style={{ width: "100%", background: "none", border: "none", color: T.muted, fontSize: 12.5, cursor: "pointer", textAlign: "center" }}>
               ← Girişe Dön
             </button>
           </>
