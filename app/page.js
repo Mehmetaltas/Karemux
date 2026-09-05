@@ -2311,6 +2311,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
   useEffect(() => { if (mod === "ulusaldeneme") ulusalDenemeyiGetir(); }, [mod]);
   useEffect(() => { if (mod === "ucretlideneme" && hesap) ucretliDenemeleriGetir(); }, [mod, hesap]);
+  useEffect(() => { if (mod === "tekkonu" && hesap && tekKonuAsama === "secim" && !tekKonuSorular) tekKonuVeriGetir(); }, [mod, hesap]);
 
   async function ulusalCevaplariGonder() {
     if (!ulusalAktif) return;
@@ -2639,6 +2640,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [sifreGir, setSifreGir] = useState("");
   const [beniHatirlaOgrenci, setBeniHatirlaOgrenci] = useState(true);
   const [kurumDuyurulari, setKurumDuyurulari] = useState(null);
+
+  const [tekKonuAsama, setTekKonuAsama] = useState("secim");
+  const [tekKonuOneri, setTekKonuOneri] = useState(null);
+  const [tekKonuDers, setTekKonuDers] = useState("");
+  const [tekKonuUnite, setTekKonuUnite] = useState("");
+  const [tekKonuKonu, setTekKonuKonu] = useState("");
+  const [tekKonuAnlatim, setTekKonuAnlatim] = useState("");
+  const [tekKonuSorular, setTekKonuSorular] = useState(null);
+  const [tekKonuCevaplar, setTekKonuCevaplar] = useState({});
+  const [tekKonuOturumId, setTekKonuOturumId] = useState(null);
+  const [tekKonuSonuc, setTekKonuSonuc] = useState(null);
+  const [tekKonuYukleniyor, setTekKonuYukleniyor] = useState(false);
+  const [tekKonuHata, setTekKonuHata] = useState("");
 
   useEffect(() => {
     try {
@@ -3148,6 +3162,103 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       }
     } catch (e) { setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
+  }
+
+  async function tekKonuVeriGetir() {
+    try {
+      const [oneriRes, oturumRes] = await Promise.all([
+        fetch(`/api/tek-konu/onerilen?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
+        fetch(`/api/tek-konu/oturum?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
+      ]);
+      if (oneriRes.oneri) setTekKonuOneri(oneriRes.oneri);
+      if (oturumRes.oturum) {
+        const o = oturumRes.oturum;
+        setTekKonuOturumId(o.id);
+        setTekKonuDers(o.ders);
+        setTekKonuUnite(o.unite || "");
+        setTekKonuKonu(o.konu);
+        setTekKonuAnlatim(o.anlatim);
+        setTekKonuSorular(o.sorular);
+        setTekKonuAsama("sorular");
+      }
+    } catch (e) {}
+  }
+
+  async function tekKonuBaslat(dersSec, uniteSec, konuSec) {
+    if (!dersSec || !konuSec?.trim()) return;
+    setTekKonuYukleniyor(true); setTekKonuHata("");
+    setTekKonuDers(dersSec); setTekKonuUnite(uniteSec || ""); setTekKonuKonu(konuSec.trim());
+    try {
+      const onbellekParam = new URLSearchParams({ sinif: String(sinif), ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), zorlukSeviyesi: "", icerikTuru: "tek_konu_anlatimi" });
+      let anlatimMetni = "";
+      try {
+        const onbellekRes = await fetch(`/api/icerik-onbellek?${onbellekParam.toString()}`);
+        const onbellekData = await onbellekRes.json();
+        if (onbellekData.bulundu) anlatimMetni = onbellekData.icerik;
+      } catch (onbellekHata) {}
+
+      if (!anlatimMetni) {
+        const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
+        const pAnlatim = `Sen deneyimli, alaninda uzman bir "${dersSec}" ogretmenisin. "${konuSec.trim()}" konusunu${uniteSec ? ` (${uniteSec} unitesinden)` : ""}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye, TEK BIR KONUYA ODAKLANMIS, kisa ve net bir "hakimiyet anlatimi" olarak anlat. Once konunun tanimini 2-3 cumleyle ver. Sonra 1-2 somut ornek coz (adim adim). En sonda "DIKKAT EDILECEK NOKTALAR" basligiyla 2-3 maddelik kisa liste ekle. Toplamda 200-280 kelime. SADECE duz metin yaz: markdown, LaTeX kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma.`;
+        anlatimMetni = await aiIstek(pAnlatim, 2000, cihazIdRef.current);
+        anlatimMetni = anlatimMetni.replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "");
+        fetch("/api/icerik-onbellek", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sinif, ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), zorlukSeviyesi: "", icerikTuru: "tek_konu_anlatimi", icerik: anlatimMetni }),
+        }).catch(() => {});
+      }
+      setTekKonuAnlatim(anlatimMetni);
+
+      const pSorular = `Sen bir LGS/ortaokul ogretmenisin. "${dersSec}" dersinden${uniteSec ? ` (${uniteSec} unitesinden)` : ""} "${konuSec.trim()}" konusuyla ilgili ${sinif}. sinif seviyesinde TAM 10 coktan secmeli soru hazirla: ILK 4 SORU KOLAY, SONRAKI 4 SORU ORTA, SON 2 SORU ZOR olsun (sirali ver). Sorular mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma: [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]`;
+      const cevapSorular = await aiIstek(pSorular, 5000, cihazIdRef.current, true);
+      const temiz = cevapSorular.replace(/```json|```/g, "").trim();
+      const parcaTemiz = temiz.slice(temiz.indexOf("["), temiz.lastIndexOf("]") + 1)
+        .replace(/"dogruIndex"\s*:\s*"?([A-D])"?/gi, (_, harf) => `"dogruIndex":${harf.toUpperCase().charCodeAt(0) - 65}`);
+      const sorularVeri = JSON.parse(parcaTemiz);
+      if (!Array.isArray(sorularVeri) || sorularVeri.length === 0) throw new Error("Sorular uretilemedi");
+      setTekKonuSorular(sorularVeri);
+      setTekKonuCevaplar({});
+
+      const oturumRes = await fetch("/api/tek-konu/oturum-olustur", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, sinif, ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), anlatim: anlatimMetni, sorular: sorularVeri }),
+      });
+      const oturumData = await oturumRes.json();
+      if (oturumRes.ok) setTekKonuOturumId(oturumData.oturumId);
+
+      setTekKonuAsama("anlatim");
+    } catch (e) {
+      setTekKonuHata(temizHataMesaji(e, "Uretilemedi, tekrar dene."));
+    } finally {
+      setTekKonuYukleniyor(false);
+    }
+  }
+
+  async function tekKonuGonder() {
+    if (!tekKonuOturumId) return;
+    setTekKonuYukleniyor(true); setTekKonuHata("");
+    try {
+      const res = await fetch("/api/tek-konu/tamamla", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, oturumId: tekKonuOturumId, cevaplar: tekKonuCevaplar }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setTekKonuSonuc(data);
+      setTekKonuAsama("sonuc");
+    } catch (e) {
+      setTekKonuHata(temizHataMesaji(e, "Gonderilemedi, tekrar dene."));
+    } finally {
+      setTekKonuYukleniyor(false);
+    }
+  }
+
+  function tekKonuSifirla() {
+    setTekKonuAsama("secim");
+    setTekKonuDers(""); setTekKonuUnite(""); setTekKonuKonu("");
+    setTekKonuAnlatim(""); setTekKonuSorular(null); setTekKonuCevaplar({});
+    setTekKonuOturumId(null); setTekKonuSonuc(null); setTekKonuHata("");
+    tekKonuVeriGetir();
   }
 
   async function soruUret(fasikulModu) {
@@ -3784,6 +3895,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["deneme", "📝 Deneme Sinavi"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
         ["ucretlideneme", "🏫 Kurum Denemesi"],
+        ["tekkonu", "🎯 Tek Konu Motoru"],
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
                 ["seviyetespit", "🎯 Seviye Tespit Sinavi"],
               ].map(([k, etiket]) => (
@@ -6356,6 +6468,135 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             )}
           </div>
         )}
+        {mod === "tekkonu" && !hesap && (
+          <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 16, lineHeight: 1.6 }}>Tek Konu Motoru'nu kullanmak için gerçek bir hesapla giriş yapman lazım.</p>
+            <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Giriş Yap / Kayıt Ol</button>
+          </div>
+        )}
+
+        {mod === "tekkonu" && hesap && (
+          <div>
+            <div className="kx-fadein" style={{ background: "linear-gradient(135deg,#1F3D2E,#B23A2E)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🎯</p>
+              <p style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>Tek Konu Motoru</p>
+              <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, marginTop: 4 }}>Tek konuya odaklan, gerçekten ustalaş.</p>
+            </div>
+
+            {tekKonuHata && <p role="alert" style={{ color: COLORS.coral, fontSize: 12.5, textAlign: "center", marginBottom: 10 }}>{tekKonuHata}</p>}
+
+            {tekKonuAsama === "secim" && (
+              <div>
+                {tekKonuOneri && (
+                  <div style={{ background: "#1B2430", borderRadius: 14, padding: 16, marginBottom: 14 }}>
+                    <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 12, marginBottom: 6 }}>💡 SİSTEM ÖNERİSİ</p>
+                    <p style={{ color: "#fff", fontSize: 13.5, fontWeight: 600, marginBottom: 4 }}>{tekKonuOneri.ders} — {tekKonuOneri.konu}</p>
+                    <p style={{ color: "#8A968E", fontSize: 11, marginBottom: 12 }}>Hata kitapçığında {tekKonuOneri.hataSayisi} çözülmemiş hata bulundu — en zayıf konun bu olabilir.</p>
+                    <button className="kx-btn" disabled={tekKonuYukleniyor} onClick={() => tekKonuBaslat(tekKonuOneri.ders, "", tekKonuOneri.konu)} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
+                      {tekKonuYukleniyor ? "Hazırlanıyor..." : "Bu Konuya Çalış"}
+                    </button>
+                  </div>
+                )}
+
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>Kendi Konunu Seç</p>
+                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>DERS</label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+                    {Object.keys(MUFREDAT).map((d) => (
+                      <button key={d} onClick={() => { setTekKonuDers(d); setTekKonuUnite(""); }} style={{ padding: "7px 12px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${tekKonuDers === d ? COLORS.coral : COLORS.line}`, background: tekKonuDers === d ? "#FFF1EF" : "#fff" }}>{d}</button>
+                    ))}
+                  </div>
+
+                  {tekKonuDers && (
+                    <>
+                      <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ÜNİTE (opsiyonel)</label>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12, maxHeight: 160, overflowY: "auto" }}>
+                        {uniteleriGetir(sinif, tekKonuDers).map((u) => (
+                          <button key={u} onClick={() => setTekKonuUnite(tekKonuUnite === u ? "" : u)} style={{ padding: "8px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", textAlign: "left", border: `1.5px solid ${tekKonuUnite === u ? COLORS.mustard : COLORS.line}`, background: tekKonuUnite === u ? "#FEF8E8" : "#FAF6EE" }}>{u}</button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>KONU</label>
+                  <input value={tekKonuKonu} onChange={(e) => setTekKonuKonu(e.target.value)} placeholder="Örn: Üslü Sayılarda Bölme" aria-label="Konu" style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
+
+                  <button className="kx-btn" disabled={tekKonuYukleniyor || !tekKonuDers || !tekKonuKonu.trim()} onClick={() => tekKonuBaslat(tekKonuDers, tekKonuUnite, tekKonuKonu)} style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: (tekKonuDers && tekKonuKonu.trim()) ? COLORS.coral : COLORS.line, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                    {tekKonuYukleniyor ? "Hazırlanıyor..." : "Başla"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {tekKonuAsama === "anlatim" && (
+              <div>
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>{tekKonuDers} — {tekKonuKonu}</p>
+                  <p style={{ fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap", marginTop: 10 }}>{tekKonuAnlatim}</p>
+                </div>
+                <button className="kx-btn" onClick={() => setTekKonuAsama("sorular")} style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                  Sorulara Geç
+                </button>
+              </div>
+            )}
+
+            {tekKonuAsama === "sorular" && tekKonuSorular && (
+              <div>
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 12, textAlign: "center" }}>
+                  <p style={{ fontSize: 12.5, fontWeight: 700 }}>{tekKonuDers} — {tekKonuKonu}</p>
+                  <p style={{ fontSize: 11, color: COLORS.muted }}>{tekKonuSorular.length} soru</p>
+                </div>
+                {tekKonuSorular.map((s, i) => (
+                  <div key={i} style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
+                    <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 8 }}>{i + 1}. {s.soru}</p>
+                    {(s.secenekler || []).map((sec, j) => (
+                      <button key={j} onClick={() => setTekKonuCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
+                        display: "block", width: "100%", textAlign: "left", padding: "8px 10px", marginBottom: 5, borderRadius: 7, fontSize: 12.5, cursor: "pointer",
+                        border: `1.5px solid ${tekKonuCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: tekKonuCevaplar[i] === j ? "#FFF1EF" : "#fff",
+                      }}>{sec}{(tekKonuCevaplar[i] === j) ? " ●" : ""}</button>
+                    ))}
+                  </div>
+                ))}
+                <button className="kx-btn" onClick={tekKonuGonder} disabled={tekKonuYukleniyor || Object.keys(tekKonuCevaplar).length === 0} style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                  {tekKonuYukleniyor ? "Gönderiliyor..." : `Gönder (${Object.keys(tekKonuCevaplar).length}/${tekKonuSorular.length})`}
+                </button>
+              </div>
+            )}
+
+            {tekKonuAsama === "sonuc" && tekKonuSonuc && (
+              <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 16, padding: 24, textAlign: "center" }}>
+                <p style={{ color: COLORS.mustard, fontSize: 11, fontWeight: 700, letterSpacing: 0.5, marginBottom: 8 }}>SONUCUN</p>
+                <p style={{ color: "#fff", fontSize: 40, fontWeight: 900, marginBottom: 4 }}>{tekKonuSonuc.net.toFixed(2)}</p>
+                <p style={{ color: "#8A968E", fontSize: 11, marginBottom: 16 }}>NET</p>
+                <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 18 }}>
+                  <div><p style={{ color: RENK_BASARI, fontSize: 16, fontWeight: 800 }}>{tekKonuSonuc.dogru}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>DOĞRU</p></div>
+                  <div><p style={{ color: "#FF6B5E", fontSize: 16, fontWeight: 800 }}>{tekKonuSonuc.yanlis}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>YANLIŞ</p></div>
+                  <div><p style={{ color: "#8A968E", fontSize: 16, fontWeight: 800 }}>{tekKonuSonuc.bos}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>BOŞ</p></div>
+                </div>
+                <div style={{
+                  background: tekKonuSonuc.hakimiyetSeviyesi === "hakim" ? "rgba(61,163,93,0.18)" : tekKonuSonuc.hakimiyetSeviyesi === "gelisiyor" ? "rgba(232,179,57,0.18)" : "rgba(232,80,63,0.18)",
+                  border: `1.5px solid ${tekKonuSonuc.hakimiyetSeviyesi === "hakim" ? "#3DA35D" : tekKonuSonuc.hakimiyetSeviyesi === "gelisiyor" ? COLORS.mustard : "#E8503F"}`,
+                  borderRadius: 10, padding: 14, marginBottom: 16,
+                }}>
+                  <p style={{ fontSize: 20, marginBottom: 4 }}>{tekKonuSonuc.hakimiyetSeviyesi === "hakim" ? "🟢" : tekKonuSonuc.hakimiyetSeviyesi === "gelisiyor" ? "🟡" : "🔴"}</p>
+                  <p style={{ color: "#fff", fontSize: 14, fontWeight: 800 }}>{tekKonuSonuc.hakimiyetSeviyesi === "hakim" ? "Hakim Oldun!" : tekKonuSonuc.hakimiyetSeviyesi === "gelisiyor" ? "Gelişiyorsun" : "Başlangıç Seviyesi"}</p>
+                  <p style={{ color: "#8A968E", fontSize: 11, marginTop: 4 }}>
+                    {tekKonuSonuc.hakimiyetSeviyesi === "hakim" ? "Bu konuda ustalaştın, başka bir konuya geçebilirsin." : "Bu konuya tekrar çalışman öneriliyor."}
+                  </p>
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {tekKonuSonuc.hakimiyetSeviyesi !== "hakim" && (
+                    <button onClick={() => tekKonuBaslat(tekKonuDers, tekKonuUnite, tekKonuKonu)} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Tekrar Dene</button>
+                  )}
+                  <button onClick={tekKonuSifirla} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "1.5px solid rgba(255,255,255,0.2)", background: "none", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Başka Konu Seç</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {mod === "kurumpaneli" && !hesap && (
           <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
             <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
