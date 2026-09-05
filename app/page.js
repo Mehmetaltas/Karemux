@@ -3199,9 +3199,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
       if (!anlatimMetni) {
         const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
-        const pAnlatim = `Sen deneyimli, alaninda uzman bir "${dersSec}" ogretmenisin. "${konuSec.trim()}" konusunu${uniteSec ? ` (${uniteSec} unitesinden)` : ""}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye, TEK BIR KONUYA ODAKLANMIS, kisa ve net bir "hakimiyet anlatimi" olarak anlat. Once konunun tanimini 2-3 cumleyle ver. Sonra 1-2 somut ornek coz (adim adim). En sonda "DIKKAT EDILECEK NOKTALAR" basligiyla 2-3 maddelik kisa liste ekle. Toplamda 200-280 kelime. SADECE duz metin yaz: markdown, LaTeX kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma.`;
-        anlatimMetni = await aiIstek(pAnlatim, 2000, cihazIdRef.current);
-        anlatimMetni = anlatimMetni.replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "");
+        const pAnlatim = `Sen deneyimli, alaninda uzman bir "${dersSec}" ogretmenisin. "${konuSec.trim()}" konusunu${uniteSec ? ` (${uniteSec} unitesinden)` : ""}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye orta seviyede, ders kitabi diline uygun ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
+        anlatimMetni = await aiIstek(pAnlatim, 3200, cihazIdRef.current);
+        anlatimMetni = anlatimMetni
+          .replace(/\*\*/g, "")
+          .replace(/#+\s?/g, "")
+          .replace(/\$\$?/g, "")
+          .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1")
+          .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
+          .replace(/\\[a-zA-Z]+/g, "")
+          .replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "")
+          .replace(/\s*\(\d{1,4}\)\s*/g, " ");
         fetch("/api/icerik-onbellek", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sinif, ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), zorlukSeviyesi: "", icerikTuru: "tek_konu_anlatimi", icerik: anlatimMetni }),
@@ -6514,11 +6522,28 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ÜNİTE (opsiyonel)</label>
                       <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12, maxHeight: 160, overflowY: "auto" }}>
                         {dersinUniteleri(tekKonuDers, sinif).map((u) => (
-                          <button key={u} onClick={() => setTekKonuUnite(tekKonuUnite === u ? "" : u)} style={{ padding: "8px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", textAlign: "left", border: `1.5px solid ${tekKonuUnite === u ? COLORS.mustard : COLORS.line}`, background: tekKonuUnite === u ? "#FEF8E8" : "#FAF6EE" }}>{u}</button>
+                          <button key={u} onClick={() => { const yeni = tekKonuUnite === u ? "" : u; setTekKonuUnite(yeni); if (yeni) altKonulariGetir(tekKonuDers, yeni); }} style={{ padding: "8px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", textAlign: "left", border: `1.5px solid ${tekKonuUnite === u ? COLORS.mustard : COLORS.line}`, background: tekKonuUnite === u ? "#FEF8E8" : "#FAF6EE" }}>{u}</button>
                         ))}
                       </div>
                     </>
                   )}
+
+                  {tekKonuUnite && (() => {
+                    const anahtar = altKonuAnahtari(tekKonuDers, tekKonuUnite);
+                    const liste = altKonuCache[anahtar];
+                    if (altKonuYukleniyor && !liste) return <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 10 }}>Alt konular getiriliyor...</p>;
+                    if (!liste || liste.length === 0) return null;
+                    return (
+                      <div style={{ marginBottom: 10 }}>
+                        <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ALT KONU SEÇ (önerilen)</label>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                          {liste.map((ak) => (
+                            <button key={ak} onClick={() => setTekKonuKonu(ak)} style={{ padding: "7px 11px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${tekKonuKonu === ak ? COLORS.coral : COLORS.line}`, background: tekKonuKonu === ak ? "#FFF1EF" : "#fff" }}>{ak}</button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                   <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>KONU</label>
                   <input value={tekKonuKonu} onChange={(e) => setTekKonuKonu(e.target.value)} placeholder="Örn: Üslü Sayılarda Bölme" aria-label="Konu" style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
