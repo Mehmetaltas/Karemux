@@ -44,8 +44,8 @@ export async function POST(req) {
     const referans = `KRX-${Date.now().toString(36).toUpperCase()}`;
 
     await sql`
-      INSERT INTO odemeler (kullanici_id, tutar, para_birimi, durum, plan, yontem, havale_referans, indirim_kodu, indirim_tutari)
-      VALUES (${ogrenciId}, ${finalFiyat.toFixed(2)}, 'TRY', 'beklemede', ${plan}, 'havale', ${referans}, ${uygulananKod?.kod || null}, ${indirimTutari.toFixed(2)})
+      INSERT INTO odemeler (kullanici_id, odeyen_kullanici_id, tutar, para_birimi, durum, plan, yontem, havale_referans, indirim_kodu, indirim_tutari)
+      VALUES (${ogrenciId}, ${veliId}, ${finalFiyat.toFixed(2)}, 'TRY', 'beklemede', ${plan}, 'havale', ${referans}, ${uygulananKod?.kod || null}, ${indirimTutari.toFixed(2)})
     `;
     if (uygulananKod) {
       await sql`UPDATE indirim_kodlari SET kullanim_sayisi = kullanim_sayisi + 1 WHERE id = ${uygulananKod.id}`;
