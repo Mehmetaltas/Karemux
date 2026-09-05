@@ -7,7 +7,7 @@ export async function GET(req) {
 
   try {
     const ogrenciler = await sql`
-      SELECT k.id, k.ad, k.sinif FROM veli_ogrenci vo
+      SELECT k.id, k.ad, k.sinif, k.kurum_id FROM veli_ogrenci vo
       JOIN kullanicilar k ON k.id = vo.ogrenci_id
       WHERE vo.veli_id = ${veliId}
     `;
@@ -62,8 +62,14 @@ export async function GET(req) {
           ? `${ogrenci.ad} bu hafta az aktif oldu (${aktifGunler[0]?.gun || 0} gun) - kisa bir hatirlatma iyi olabilir.`
           : `${ogrenci.ad} genel olarak iyi gidiyor, belirgin bir zayif nokta yok.`;
 
+      // Ogrencinin kurumu varsa, kurumun duyurularini da ekle (5 Eylul).
+      const duyurular = ogrenci.kurum_id
+        ? await sql`SELECT id, baslik, icerik, olusturulma FROM kurum_duyuru WHERE kurum_id = ${ogrenci.kurum_id} ORDER BY olusturulma DESC LIMIT 5`
+        : [];
+
       sonuc.push({
         ogrenci: { id: ogrenci.id, ad: ogrenci.ad, sinif: ogrenci.sinif },
+        kurumDuyurulari: duyurular,
         gecmis: satirlar,
         zayifDersler,
         netOzet: netSatirlari,

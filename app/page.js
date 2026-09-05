@@ -2638,6 +2638,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [epostaGir, setEpostaGir] = useState("");
   const [sifreGir, setSifreGir] = useState("");
   const [beniHatirlaOgrenci, setBeniHatirlaOgrenci] = useState(true);
+  const [kurumDuyurulari, setKurumDuyurulari] = useState(null);
 
   useEffect(() => {
     try {
@@ -2881,6 +2882,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (hesap) {
       fetch("/api/abonelik/durum").then((r) => r.json()).then((d) => setAktifAbonelik(d.aktifAbonelik)).catch(() => {});
       fetch("/api/paketler").then((r) => r.json()).then((d) => setTumPaketler(d.paketler)).catch(() => {});
+      fetch(`/api/ogrenci/duyurular?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setKurumDuyurulari(d.duyurular || [])).catch(() => {});
       canliDersOturumlariGetir();
       derslerimGetir();
     }
@@ -4935,6 +4937,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   )}
                 </p>
+                {kurumDuyurulari && kurumDuyurulari.length > 0 && (
+                  <div style={{ background: "#FDF6E8", borderRadius: 10, padding: 12, marginTop: 12, border: "1px solid #E8D9A8" }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>📢 Kurum Duyuruları</p>
+                    {kurumDuyurulari.map((d) => (
+                      <div key={d.id} style={{ marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid #E8D9A8" }}>
+                        <p style={{ fontSize: 12, fontWeight: 700 }}>{d.baslik}</p>
+                        <p style={{ fontSize: 11.5, color: COLORS.muted, whiteSpace: "pre-wrap" }}>{d.icerik}</p>
+                        <p style={{ fontSize: 10, color: COLORS.muted, marginTop: 2 }}>{new Date(d.olusturulma).toLocaleDateString("tr-TR")}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
                 {!hesap.eposta_dogrulandi && (
                   <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 8, padding: 12, margin: "10px 0" }}>

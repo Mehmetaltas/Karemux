@@ -212,6 +212,19 @@ export default function VeliPaneli() {
               </div>
             )}
 
+            {o.kurumDuyurulari?.length > 0 && (
+              <div style={{ background: "#FDF6E8", borderRadius: 10, padding: 12, marginBottom: 12, border: "1px solid #E8D9A8" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>📢 Kurum Duyuruları</p>
+                {o.kurumDuyurulari.map((d) => (
+                  <div key={d.id} style={{ marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid #E8D9A8" }}>
+                    <p style={{ fontSize: 12, fontWeight: 700 }}>{d.baslik}</p>
+                    <p style={{ fontSize: 11.5, color: T.muted, whiteSpace: "pre-wrap" }}>{d.icerik}</p>
+                    <p style={{ fontSize: 10, color: T.muted, marginTop: 2 }}>{new Date(d.olusturulma).toLocaleDateString("tr-TR")}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <button onClick={() => { setAcikPaketOgrenci(acikPaketOgrenci === o.ogrenci.id ? null : o.ogrenci.id); setHavaleBilgi(null); setHata(""); }} style={{ padding: "8px 14px", borderRadius: 6, border: `1.5px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
               {acikPaketOgrenci === o.ogrenci.id ? "Paketleri Gizle" : "Bu Ogrenci Icin Paket Satin Al"}
             </button>
