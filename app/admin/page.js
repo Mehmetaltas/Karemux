@@ -541,25 +541,18 @@ export default function YonetimPaneli() {
     } catch { setUnutumMesajAdmin("Bir hata oluştu, tekrar dene."); }
   }
 
-  // Sayfa yenilenince oturumu geri yukle (4 Eylul, "Beni Hatirla" gercekten
-  // calissin diye) - once gercek personel oturumunu (JWT cookie) dogrular,
-  // varsa paylasilan admin sifresini de alip ayni girisDene basari yolunu izler.
+  // 5 Eylul: "Beni Hatirla" artik oturumu OTOMATIK ACMIYOR - sadece
+  // eposta+sifreyi (localStorage) hatirlayip formu dolduruyor, giris HER
+  // ZAMAN elle onaylanmali. Onceki otomatik-giris mantigi kaldirildi.
   useEffect(() => {
-    (async () => {
-      try {
-        const benRes = await fetch("/api/personel/ben");
-        const benData = await benRes.json();
-        if (!benData.girisYapmis || !benData.sifre) return;
-        setPersonelAd(benData.personel.ad);
-        setSifre(benData.sifre);
-        const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(benData.sifre)}`);
-        const data = await res.json();
-        if (res.ok) {
-          setMuhasebeVeri(data);
-          setGirisYapildi(true);
-        }
-      } catch (e) {}
-    })();
+    try {
+      const kayitli = localStorage.getItem("karemux_hatirla_admin");
+      if (kayitli) {
+        const { eposta, sifre } = JSON.parse(kayitli);
+        setPersonelEposta(eposta || "");
+        setPersonelSifre(sifre || "");
+      }
+    } catch (e) {}
   }, []);
 
   async function girisDene() {
@@ -575,6 +568,13 @@ export default function YonetimPaneli() {
       if (!girisRes.ok) throw new Error(girisData.error || "Giris basarisiz");
       setPersonelAd(girisData.ad);
       setSifre(girisData.sifre);
+      try {
+        if (personelBeniHatirla) {
+          localStorage.setItem("karemux_hatirla_admin", JSON.stringify({ eposta: personelEposta, sifre: personelSifre }));
+        } else {
+          localStorage.removeItem("karemux_hatirla_admin");
+        }
+      } catch (e) {}
 
       const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(girisData.sifre)}`);
       const data = await res.json();

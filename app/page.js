@@ -2638,6 +2638,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [epostaGir, setEpostaGir] = useState("");
   const [sifreGir, setSifreGir] = useState("");
   const [beniHatirlaOgrenci, setBeniHatirlaOgrenci] = useState(true);
+
+  useEffect(() => {
+    try {
+      const kayitli = localStorage.getItem("karemux_hatirla_ana");
+      if (kayitli) {
+        const { eposta, sifre } = JSON.parse(kayitli);
+        setEpostaGir(eposta || "");
+        setSifreGir(sifre || "");
+      }
+    } catch (e) {}
+  }, []);
   const [adGir, setAdGir] = useState("");
   const [rolSec, setRolSec] = useState("ogrenci"); // "ogrenci" | "veli"
   const [veliEpostaGir, setVeliEpostaGir] = useState("");
@@ -2961,6 +2972,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       // Tam kullanici bilgisini (rol, dogrulama durumu, veli kodu dahil) tazele
+      try {
+        if (hesapModu === "giris") {
+          if (beniHatirlaOgrenci) {
+            localStorage.setItem("karemux_hatirla_ana", JSON.stringify({ eposta: epostaGir, sifre: sifreGir }));
+          } else {
+            localStorage.removeItem("karemux_hatirla_ana");
+          }
+        }
+      } catch (e) {}
+
       const me = await fetch("/api/auth/me").then((r) => r.json());
       if (me.girisYapmis) setHesap(me.kullanici);
       const p = await fetch(`/api/ilerleme?cihazId=${cihazIdRef.current}`).then((r) => r.json());
