@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 
 const T = {
@@ -11,6 +11,17 @@ export default function VeliGiris() {
   const [eposta, setEposta] = useState("");
   const [sifre, setSifre] = useState("");
   const [beniHatirla, setBeniHatirla] = useState(true);
+
+  useEffect(() => {
+    try {
+      const kayitli = localStorage.getItem("karemux_hatirla_veli");
+      if (kayitli) {
+        const { eposta: e, sifre: s } = JSON.parse(kayitli);
+        setEposta(e || "");
+        setSifre(s || "");
+      }
+    } catch (e) {}
+  }, []);
   const [yukleniyor, setYukleniyor] = useState(false);
   const [hata, setHata] = useState("");
   const [sifremiUnuttumAcik, setSifremiUnuttumAcik] = useState(false);
@@ -36,6 +47,14 @@ export default function VeliGiris() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Giris basarisiz");
+      try {
+        if (beniHatirla) {
+          localStorage.setItem("karemux_hatirla_veli", JSON.stringify({ eposta, sifre }));
+        } else {
+          localStorage.removeItem("karemux_hatirla_veli");
+        }
+      } catch (e) {}
+
 
       const meRes = await fetch("/api/auth/me");
       const meData = await meRes.json();

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 
@@ -40,6 +40,17 @@ export default function OgretmenGiris() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [unutumModu, setUnutumModu] = useState(false);
   const [unutumMesaj, setUnutumMesaj] = useState("");
+
+  useEffect(() => {
+    try {
+      const kayitli = localStorage.getItem("karemux_hatirla_ogretmen");
+      if (kayitli) {
+        const { eposta: e, sifre: s } = JSON.parse(kayitli);
+        setEposta(e || "");
+        setSifre(s || "");
+      }
+    } catch (e) {}
+  }, []);
   const router = useRouter();
 
   async function girisYap() {
@@ -51,6 +62,13 @@ export default function OgretmenGiris() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Giris basarisiz");
+      try {
+        if (beniHatirla) {
+          localStorage.setItem("karemux_hatirla_ogretmen", JSON.stringify({ eposta, sifre }));
+        } else {
+          localStorage.removeItem("karemux_hatirla_ogretmen");
+        }
+      } catch (e) {}
       router.push("/ogretmen");
     } catch (e) { setHata(e.message); } finally { setYukleniyor(false); }
   }
