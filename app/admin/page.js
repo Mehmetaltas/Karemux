@@ -484,6 +484,9 @@ export default function YonetimPaneli() {
   const [mufredatVeri, setMufredatVeri] = useState(null);
   const [iadeVeri, setIadeVeri] = useState(null);
   const [havaleVeri, setHavaleVeri] = useState(null);
+  const [impersonateEposta, setImpersonateEposta] = useState("");
+  const [impersonateYukleniyor, setImpersonateYukleniyor] = useState(false);
+  const [impersonateMesaj, setImpersonateMesaj] = useState("");
   const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
@@ -841,6 +844,26 @@ export default function YonetimPaneli() {
     } catch (e) { setHata(e.message); } finally { setHavaleIslemDurumu(null); }
   }
 
+  async function kullaniciyiGoruntule() {
+    setImpersonateMesaj("");
+    if (!impersonateEposta.trim()) { setImpersonateMesaj("Eposta gerekli."); return; }
+    setImpersonateYukleniyor(true);
+    try {
+      const res = await fetch("/api/admin/impersonate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, hedefEposta: impersonateEposta.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      const hedefUrl = data.rol === "veli" ? "/veli" : data.rol === "kurum_yoneticisi" ? "/kurum" : "/";
+      window.location.href = hedefUrl;
+    } catch (e) {
+      setImpersonateMesaj(e.message);
+    } finally {
+      setImpersonateYukleniyor(false);
+    }
+  }
+
   async function iadeleriGetir() {
     try {
       const res = await fetch(`/api/admin/iade-talepleri?sifre=${encodeURIComponent(sifre)}`);
@@ -1094,7 +1117,7 @@ export default function YonetimPaneli() {
     { baslik: "💰 Finans", sekmeler: [
       ["paketler", "💰 Paketler"], ["giderler", "🧾 Giderler"], ["cari", "🤝 Cari"], ["kasa", "🏦 Kasa/Banka"],
       ["maliyet", "🤖 Üretim Maliyeti"], ["simulasyon", "🧮 Simülasyon"], ["planlama", "📈 Finansal Planlama"],
-      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"],
+      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"], ["impersonate", "👤 Kullanıcı Görüntüle"],
     ]},
     { baslik: "🎓 Eğitim", sekmeler: [["mufredat", "📚 Müfredat"], ["ogretmen", "🎓 Öğretmenler"]] },
     { baslik: "🎥 Canlı Hizmetler", sekmeler: [["canliders", "🎥 Canlı Ders"], ["randevuodeme", "📅 Randevu Ödemeleri"], ["kurumlar", "🏢 Kurumlar"]] },
@@ -1794,6 +1817,21 @@ export default function YonetimPaneli() {
                 </div>
               </div>
             ))}
+          </Panel>
+        )}
+
+        {sekme === "impersonate" && (
+          <Panel baslik="Kullanıcı Görüntüle (Impersonation)" ikon="👤">
+            <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 12 }}>
+              Bir kullanıcının (öğrenci/veli/kurum yöneticisi) e-postasını gir — o kullanıcının oturumuna geçici olarak girip panelini kontrol amaçlı görüntülersin. Şifresine gerek yok. Her kullanım kayıt altına alınır.
+            </p>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input value={impersonateEposta} onChange={(e) => setImpersonateEposta(e.target.value)} onKeyDown={(e) => e.key === "Enter" && kullaniciyiGoruntule()} placeholder="Hedef kullanıcının e-postası" aria-label="Hedef kullanici epostasi" style={{ flex: 1, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${T.border}` }} />
+              <button onClick={kullaniciyiGoruntule} disabled={impersonateYukleniyor} style={{ ...butonStil(true), padding: "9px 16px", fontSize: TYPO.caption }}>
+                {impersonateYukleniyor ? "..." : "Görüntüle"}
+              </button>
+            </div>
+            {impersonateMesaj && <p role="alert" style={{ fontSize: TYPO.caption, color: T.danger, marginTop: 8 }}>{impersonateMesaj}</p>}
           </Panel>
         )}
 
