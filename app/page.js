@@ -926,6 +926,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uyari = await icerikDenetle(temizMetin, `Bu "${dersAdi}" dersi ${oncekiSinif}. sinif temel konu tekrari anlatimi.`, cihazIdRef.current);
       const finalMetin = uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin;
       setAciklama(finalMetin);
+      gorselKararIste(dersAdi, `${oncekiSinif}. sinif temel konular`, oncekiSinif, cihazIdRef.current).then(setAciklamaGorselSvg);
       setTekrarAnlatimOnbellek((eski) => ({ ...eski, [onbellekAnahtari]: finalMetin }));
     } catch (e) { if (secilenDersRef.current === dersAdi) setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAdi) setYukleniyor(null); }
@@ -1234,6 +1235,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
         .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setAciklama(temizMetin);
+      gorselKararIste(kocPaneliDers, `${oncekiSinif}. sinif temel kavramlar`, oncekiSinif, cihazIdRef.current).then(setAciklamaGorselSvg);
     } catch (e) { setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
@@ -1277,6 +1279,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       const uyari = await icerikDenetle(temizMetin, `Bu "${secilenDers}" dersi "${unite}" konusu anlatimi.`, cihazIdRef.current);
       setAciklama(uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin);
+      gorselKararIste(secilenDers, unite, sinif, cihazIdRef.current).then(setAciklamaGorselSvg);
     } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAtCagri) setYukleniyor(null); }
   }
