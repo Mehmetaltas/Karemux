@@ -487,6 +487,7 @@ export default function YonetimPaneli() {
   const [impersonateEposta, setImpersonateEposta] = useState("");
   const [impersonateYukleniyor, setImpersonateYukleniyor] = useState(false);
   const [impersonateMesaj, setImpersonateMesaj] = useState("");
+  const [donusumHuni, setDonusumHuni] = useState(null);
   const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
@@ -750,6 +751,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "havaleler" && !havaleVeri) havaleleriGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !donusumHuni) donusumHuniGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
@@ -842,6 +844,14 @@ export default function YonetimPaneli() {
       if (!res.ok) throw new Error(data.error);
       havaleleriGetir();
     } catch (e) { setHata(e.message); } finally { setHavaleIslemDurumu(null); }
+  }
+
+  async function donusumHuniGetir() {
+    try {
+      const res = await fetch(`/api/admin/donusum-huni?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setDonusumHuni(data.basamaklar);
+    } catch (e) {}
   }
 
   async function kullaniciyiGoruntule() {
@@ -1117,7 +1127,7 @@ export default function YonetimPaneli() {
     { baslik: "💰 Finans", sekmeler: [
       ["paketler", "💰 Paketler"], ["giderler", "🧾 Giderler"], ["cari", "🤝 Cari"], ["kasa", "🏦 Kasa/Banka"],
       ["maliyet", "🤖 Üretim Maliyeti"], ["simulasyon", "🧮 Simülasyon"], ["planlama", "📈 Finansal Planlama"],
-      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"], ["impersonate", "👤 Kullanıcı Görüntüle"],
+      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"], ["impersonate", "👤 Kullanıcı Görüntüle"], ["donusumhuni", "📊 Satış Hunisi"],
     ]},
     { baslik: "🎓 Eğitim", sekmeler: [["mufredat", "📚 Müfredat"], ["ogretmen", "🎓 Öğretmenler"]] },
     { baslik: "🎥 Canlı Hizmetler", sekmeler: [["canliders", "🎥 Canlı Ders"], ["randevuodeme", "📅 Randevu Ödemeleri"], ["kurumlar", "🏢 Kurumlar"]] },
@@ -1832,6 +1842,34 @@ export default function YonetimPaneli() {
               </button>
             </div>
             {impersonateMesaj && <p role="alert" style={{ fontSize: TYPO.caption, color: T.danger, marginTop: 8 }}>{impersonateMesaj}</p>}
+          </Panel>
+        )}
+
+        {sekme === "donusumhuni" && (
+          <Panel baslik="Satış Hunisi (Son 30 Gün)" ikon="📊">
+            {!donusumHuni ? (
+              <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p>
+            ) : (
+              <div>
+                {donusumHuni.map((b, i) => {
+                  const onceki = i > 0 ? donusumHuni[i - 1].sayi : null;
+                  const oran = onceki && onceki > 0 ? Math.round((b.sayi / onceki) * 100) : null;
+                  return (
+                    <div key={b.etiket} style={{ marginBottom: 10 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
+                        <span style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{b.etiket}</span>
+                        <span style={{ fontSize: TYPO.bodyStrong, fontWeight: 800, color: T.accent }}>{b.sayi}</span>
+                      </div>
+                      <div style={{ height: 8, borderRadius: 999, background: T.surfaceHover, overflow: "hidden" }}>
+                        <div style={{ height: "100%", width: `${donusumHuni[0].sayi > 0 ? Math.max(4, (b.sayi / donusumHuni[0].sayi) * 100) : 0}%`, borderRadius: 999, background: T.accent }} />
+                      </div>
+                      {oran !== null && <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 2 }}>Bir önceki basamağa göre: %{oran}</p>}
+                    </div>
+                  );
+                })}
+                <button onClick={donusumHuniGetir} style={{ ...butonStil(true), padding: "8px 14px", fontSize: TYPO.caption, marginTop: 8 }}>Yenile</button>
+              </div>
+            )}
           </Panel>
         )}
 
