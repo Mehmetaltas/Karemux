@@ -488,6 +488,9 @@ export default function YonetimPaneli() {
   const [impersonateYukleniyor, setImpersonateYukleniyor] = useState(false);
   const [impersonateMesaj, setImpersonateMesaj] = useState("");
   const [donusumHuni, setDonusumHuni] = useState(null);
+  const [destekTalepleri, setDestekTalepleri] = useState(null);
+  const [destekAcikSayisi, setDestekAcikSayisi] = useState(0);
+  const [destekYanitTaslagi, setDestekYanitTaslagi] = useState({});
   const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
@@ -752,6 +755,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "havaleler" && !havaleVeri) havaleleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !donusumHuni) donusumHuniGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "destek") destekGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
@@ -844,6 +848,25 @@ export default function YonetimPaneli() {
       if (!res.ok) throw new Error(data.error);
       havaleleriGetir();
     } catch (e) { setHata(e.message); } finally { setHavaleIslemDurumu(null); }
+  }
+
+  async function destekGetir() {
+    try {
+      const res = await fetch(`/api/admin/destek?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) { setDestekTalepleri(data.talepler); setDestekAcikSayisi(data.acikSayisi); }
+    } catch (e) {}
+  }
+
+  async function destekYanitla(id, durum) {
+    try {
+      await fetch("/api/admin/destek", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sifre, id, adminYaniti: destekYanitTaslagi[id] || null, durum }),
+      });
+      destekGetir();
+    } catch (e) {}
   }
 
   async function donusumHuniGetir() {
@@ -1127,7 +1150,7 @@ export default function YonetimPaneli() {
     { baslik: "💰 Finans", sekmeler: [
       ["paketler", "💰 Paketler"], ["giderler", "🧾 Giderler"], ["cari", "🤝 Cari"], ["kasa", "🏦 Kasa/Banka"],
       ["maliyet", "🤖 Üretim Maliyeti"], ["simulasyon", "🧮 Simülasyon"], ["planlama", "📈 Finansal Planlama"],
-      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"], ["impersonate", "👤 Kullanıcı Görüntüle"], ["donusumhuni", "📊 Satış Hunisi"],
+      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"], ["impersonate", "👤 Kullanıcı Görüntüle"], ["donusumhuni", "📊 Satış Hunisi"], ["destek", "🎧 Destek"],
     ]},
     { baslik: "🎓 Eğitim", sekmeler: [["mufredat", "📚 Müfredat"], ["ogretmen", "🎓 Öğretmenler"]] },
     { baslik: "🎥 Canlı Hizmetler", sekmeler: [["canliders", "🎥 Canlı Ders"], ["randevuodeme", "📅 Randevu Ödemeleri"], ["kurumlar", "🏢 Kurumlar"]] },
@@ -1842,6 +1865,38 @@ export default function YonetimPaneli() {
               </button>
             </div>
             {impersonateMesaj && <p role="alert" style={{ fontSize: TYPO.caption, color: T.danger, marginTop: 8 }}>{impersonateMesaj}</p>}
+          </Panel>
+        )}
+
+        {sekme === "destek" && (
+          <Panel baslik={`Destek Talepleri ${destekAcikSayisi > 0 ? `(${destekAcikSayisi} açık)` : ""}`} ikon="🎧">
+            {!destekTalepleri ? (
+              <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p>
+            ) : destekTalepleri.length === 0 ? (
+              <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz destek talebi yok.</p>
+            ) : (
+              <div>
+                {destekTalepleri.map((t) => (
+                  <div key={t.id} style={{ background: t.durum === "acik" ? "#FDF6E8" : T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10, border: `1px solid ${t.durum === "acik" ? "#E8D9A8" : T.line}` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                      <span style={{ fontSize: TYPO.caption, fontWeight: 700 }}>{t.konu}</span>
+                      <span style={{ fontSize: TYPO.micro, color: T.textMuted }}>{t.rol} · {new Date(t.olusturulma).toLocaleString("tr-TR")}</span>
+                    </div>
+                    <p style={{ fontSize: TYPO.caption, marginBottom: 6, whiteSpace: "pre-wrap" }}>{t.mesaj}</p>
+                    {(t.ad || t.eposta) && <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 6 }}>{t.ad || ""} {t.eposta ? `· ${t.eposta}` : ""} {t.kullanici_id ? `· kullanıcı #${t.kullanici_id}` : ""}</p>}
+                    {t.admin_yaniti && <p style={{ fontSize: TYPO.caption, background: "#F0F7F0", borderRadius: 6, padding: 8, marginBottom: 6 }}>Yanıt: {t.admin_yaniti}</p>}
+                    {t.durum === "acik" && (
+                      <div>
+                        <textarea value={destekYanitTaslagi[t.id] || ""} onChange={(e) => setDestekYanitTaslagi((eski) => ({ ...eski, [t.id]: e.target.value }))} placeholder="Yanıt yaz..." style={{ width: "100%", minHeight: 50, fontSize: TYPO.caption, padding: 8, borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 6 }} />
+                        <button onClick={() => destekYanitla(t.id, "yanitlandi")} style={{ ...butonStil(true), padding: "6px 12px", fontSize: TYPO.micro, marginRight: 6 }}>Yanıtla ve Kapat</button>
+                        <button onClick={() => destekYanitla(t.id, "kapatildi")} style={{ ...butonStil(false), padding: "6px 12px", fontSize: TYPO.micro }}>Sadece Kapat</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                <button onClick={destekGetir} style={{ ...butonStil(true), padding: "8px 14px", fontSize: TYPO.caption }}>Yenile</button>
+              </div>
+            )}
           </Panel>
         )}
 

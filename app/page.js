@@ -1596,6 +1596,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [denemeGonderildi, setDenemeGonderildi] = useState(false);
   const [aciklama, setAciklama] = useState("");
   const [aciklamaGorselSvg, setAciklamaGorselSvg] = useState(null);
+  const [destekKonu, setDestekKonu] = useState("");
+  const [destekMesaj, setDestekMesaj] = useState("");
+  const [destekGonderiliyor, setDestekGonderiliyor] = useState(false);
+  const [destekSonuc, setDestekSonuc] = useState("");
+
+  async function destekGonder() {
+    if (!destekKonu.trim() || !destekMesaj.trim()) return;
+    setDestekGonderiliyor(true); setDestekSonuc("");
+    try {
+      const res = await fetch("/api/destek/olustur", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rol: "ogrenci", ad: hesap?.ad, eposta: hesap?.eposta, konu: destekKonu.trim(), mesaj: destekMesaj.trim(), cihazId: cihazIdRef.current }),
+      });
+      if (res.ok) { setDestekSonuc("Talebin alindi, en yakin zamanda donus yapacagiz."); setDestekKonu(""); setDestekMesaj(""); }
+      else setDestekSonuc("Gonderilemedi, tekrar dene.");
+    } catch (e) { setDestekSonuc("Gonderilemedi, tekrar dene."); }
+    finally { setDestekGonderiliyor(false); }
+  }
   const [acikKatman, setAcikKatman] = useState(null); // Katmanli Konu Anlatimi (31 Agustos) - akordiyonda hangi katman acik
   const [teknikPaneliAcik, setTeknikPaneliAcik] = useState(false); // Ogrenme Teknikleri Kutuphanesi (31 Agustos)
   const [teknikler, setTeknikler] = useState(null);
@@ -5454,6 +5473,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <button onClick={() => { setMod("ogretmenders"); setMenuAcik(false); }} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: RENK_BASARI, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>
                     Insan Ogretmenle Canli Ders Ayarla
                   </button>
+                </div>
+
+                <div style={{ background: COLORS.page, borderRadius: 10, padding: 12, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, marginBottom: 8 }}>🎧 Destek Talebi Olustur</p>
+                  <input value={destekKonu} onChange={(e) => setDestekKonu(e.target.value)} placeholder="Konu (orn: Odeme sorunu)" style={{ width: "100%", padding: 8, fontSize: 12, borderRadius: 6, border: `1px solid ${COLORS.line}`, marginBottom: 6 }} />
+                  <textarea value={destekMesaj} onChange={(e) => setDestekMesaj(e.target.value)} placeholder="Sorununu detayli anlat..." style={{ width: "100%", minHeight: 60, padding: 8, fontSize: 12, borderRadius: 6, border: `1px solid ${COLORS.line}`, marginBottom: 6 }} />
+                  <button onClick={destekGonder} disabled={destekGonderiliyor || !destekKonu.trim() || !destekMesaj.trim()} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.mustard, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer", opacity: destekGonderiliyor ? 0.6 : 1 }}>
+                    {destekGonderiliyor ? "Gonderiliyor..." : "Gonder"}
+                  </button>
+                  {destekSonuc && <p role="status" style={{ fontSize: 11, color: COLORS.muted, marginTop: 6 }}>{destekSonuc}</p>}
                 </div>
 
                 <div style={{ background: COLORS.page, borderRadius: 10, padding: 12, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
