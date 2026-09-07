@@ -15,7 +15,7 @@ export async function POST(req) {
     const gruplar = await sql`
       SELECT ders, sinif, unite, COUNT(*)::int AS soru_sayisi
       FROM soru_bankasi
-      WHERE ders IN ('Ingilizce', 'Sosyal Bilgiler')
+      WHERE ders IN ('Ingilizce', 'Sosyal Bilgiler') AND kaynak_turu != 'yeniden_uretim_7eylul'
       GROUP BY ders, sinif, unite
     `;
 
