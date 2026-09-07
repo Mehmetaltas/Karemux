@@ -6661,8 +6661,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {hesap.rol === "ogrenci" && liderlikVeri && !liderlikVeri.kurumaBagliDegil && liderlikVeri.siralama?.length > 0 && (
               <div className="kx-fadein" style={{ background: "#1B2430", borderRadius: 14, padding: 18, marginBottom: 16 }}>
-                <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🏆 Sınıf Sıralaman</p>
-                <p style={{ color: "#8A968E", fontSize: 10.5, marginBottom: 12 }}>Aynı kuruma bağlı, en az 2 test çözmüş sınıf arkadaşların arasında — isimler kısmi gizlenmiştir.</p>
+                <p style={{ color: COLORS.mustard, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🏆 {liderlikVeri.sube ? `${sinif}-${liderlikVeri.sube} Sıralaman` : "Sınıf Sıralaman"}</p>
+                <p style={{ color: "#8A968E", fontSize: 10.5, marginBottom: 12 }}>{liderlikVeri.sube ? "Aynı şubedeki" : "Aynı kuruma bağlı"}, en az 2 test çözmüş sınıf arkadaşların arasında — isimler kısmi gizlenmiştir.</p>
                 {liderlikVeri.kendiSiran && (
                   <p style={{ color: "#fff", fontSize: 12.5, fontWeight: 700, marginBottom: 10, textAlign: "center", background: "rgba(255,255,255,0.08)", borderRadius: 8, padding: 8 }}>
                     Sen {liderlikVeri.kendiSiran}. sıradasın ({liderlikVeri.siralama.length} kişi arasında)

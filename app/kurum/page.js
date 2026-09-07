@@ -451,6 +451,18 @@ export default function KurumPaneli() {
                 </div>
               )}
 
+              {rapor.subeBazindaNet?.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Şube Bazında Ortalama Net</p>
+                  {rapor.subeBazindaNet.map((s) => (
+                    <div key={`${s.sinif}-${s.sube}`} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${T.line}`, fontSize: 12.5 }}>
+                      <span>{s.sinif}-{s.sube}</span>
+                      <span style={{ fontWeight: 700 }}>{s.ortalama_net} net ({s.ogrenci_sayisi} öğrenci)</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {rapor.dersBazindaNet?.length > 0 && (
                 <div style={{ marginBottom: 14 }}>
                   <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>Ders Bazında Ortalama Net</p>

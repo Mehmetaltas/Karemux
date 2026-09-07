@@ -45,6 +45,16 @@ export async function GET(req) {
       GROUP BY sinif ORDER BY sinif
     `;
 
+    // Sube bazinda ortalama net (7 Eylul) - sadece subesi atanmis ogrenciler icin
+    const subeBazindaNet = await sql`
+      SELECT k.sinif, k.sube, ROUND(AVG(s.net)::numeric, 2) as ortalama_net, COUNT(DISTINCT k.id)::int as ogrenci_sayisi
+      FROM kullanicilar k
+      JOIN sinav_sonuclari s ON s.kullanici_id = k.id
+      WHERE k.kurum_id = ${kurumId} AND k.sube IS NOT NULL
+      GROUP BY k.sinif, k.sube
+      ORDER BY k.sinif, k.sube
+    `;
+
     const dersBazindaNet = await sql`
       SELECT s.ders, ROUND(AVG(s.net)::numeric, 2) as ortalama_net, COUNT(*) as test_sayisi
       FROM sinav_sonuclari s
@@ -85,6 +95,7 @@ export async function GET(req) {
       genelOrtalamaNet: genelOrtalamaNet[0]?.ortalama ? Number(genelOrtalamaNet[0].ortalama) : null,
       gunlukTrend,
       sinifDagilimi,
+      subeBazindaNet,
       dersBazindaNet,
       zayifKonular,
       ulusalKarsilastirma,
