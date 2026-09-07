@@ -276,7 +276,8 @@ export default function OgretmenPanel() {
         {sekme === "ozet" && (
           <div>
             <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Hoş geldin, {ogretmen.ad}</h1>
-            <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 20 }}>{ogretmen.brans} branşında Karemux'un 11 materyal üretim aracına erişimin var.</p>
+            <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 12 }}>{ogretmen.brans} branşında Karemux'un 11 materyal üretim aracına erişimin var.</p>
+            <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogretmen-apk-latest/karemux-ogretmen-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${C.cizgi || "#E5E5EA"}`, color: C.ink || "#1D1D1F", fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 20 }}>📱 Uygulamayı İndir</a>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {MENU.filter((m) => m.tur).map((m) => (
                 <button key={m.kod} onClick={() => setSekme(m.kod)} style={{ textAlign: "left", background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 12, cursor: "pointer" }}>

@@ -5040,6 +5040,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   )}
                 </p>
+                <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogrenci-apk-latest/karemux-ogrenci-imzali.apk" style={{ display: "inline-block", padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, color: COLORS.ink, fontSize: 12, fontWeight: 600, textDecoration: "none", marginBottom: 8 }}>📱 Uygulamayı İndir</a>
                 {kurumDuyurulari && kurumDuyurulari.length > 0 && (
                   <div style={{ background: "#FDF6E8", borderRadius: 10, padding: 12, marginTop: 12, border: "1px solid #E8D9A8" }}>
                     <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>📢 Kurum Duyuruları</p>

@@ -298,6 +298,7 @@ export default function KurumPaneli() {
             {cikisYukleniyor ? "..." : "Çıkış Yap"}
           </button>
         </div>
+        <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/kurum-apk-latest/karemux-kurum-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}>📱 Uygulamayı İndir</a>
         <p style={{ fontSize: 13, color: T.muted, marginBottom: 20 }}>{kurum?.ad}</p>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
