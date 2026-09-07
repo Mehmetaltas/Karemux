@@ -1,5 +1,6 @@
 import { aiCagir } from "@/lib/ai";
 import { sorulariDenetle } from "@/lib/soruKalite";
+import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 // Istemci, 4. ve 5. sinif konularindan sectigi bir listeyi ({ders, unite, sinif})
 // gonderir, biz her biri icin 1 soru uretiriz. Boylece unite listesi (page.js'te
@@ -14,9 +15,15 @@ export async function POST(req) {
       return Response.json({ error: "Cok fazla konu istendi" }, { status: 400 });
     }
 
+    const dersRehberi = [...new Set(konular.map((k) => k.ders))]
+      .filter((d) => KALITE_REFERANSLARI[d])
+      .map((d) => `${d}: ${KALITE_REFERANSLARI[d]}`)
+      .join("\n");
+    const kaliteMetni = dersRehberi ? `\nKalite referanslari (ORTA zorluk seviyesini kullan, bu bir seviye tespit sinavi):\n${dersRehberi}\n` : "";
+
     const p = `Sen bir ilkokul/ortaokul ogretmenisin. Asagidaki ${konular.length} konunun HER BIRI icin, o konunun ait oldugu sinif seviyesine uygun TEK bir coktan secmeli soru hazirla. Konular ve sinif seviyeleri:
 ${konular.map((k, i) => `${i + 1}. Ders: ${k.ders}, Unite: ${k.unite}, Sinif: ${k.sinif}`).join("\n")}
-Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli - cok kolay ya da cok zor olmasin, bu bir SEVIYE TESPIT sinavi. SADECE JSON dizisi dondur, tam ${konular.length} eleman olsun, sirayla yukaridaki listeye karsilik gelsin:
+${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli - cok kolay ya da cok zor olmasin, bu bir SEVIYE TESPIT sinavi. SADECE JSON dizisi dondur, tam ${konular.length} eleman olsun, sirayla yukaridaki listeye karsilik gelsin:
 [{"ders":"...","unite":"...","sinif":5,"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
 
     const cevap = await aiCagir({ prompt: p, maxTokens: Math.min(8000, 400 + konular.length * 350), jsonModu: true });

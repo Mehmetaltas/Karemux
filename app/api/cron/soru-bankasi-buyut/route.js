@@ -5,6 +5,7 @@
 // sayida kombinasyon isler (maliyet kontrolu icin).
 import { sql } from "@/lib/db";
 import { aiCagir } from "@/lib/ai";
+import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 const GUNLUK_ISLENECEK_KOMBINASYON = 8; // gecede kac konu icin ek soru uretilsin
 const HEDEF_SORU_SAYISI = 15; // her kombinasyon icin bankada en az kac soru olsun
@@ -43,7 +44,8 @@ export async function GET(req) {
       const eksikAdet = HEDEF_SORU_SAYISI - k.mevcut_soru;
       const uretilecek = Math.min(10, eksikAdet); // tek seferde en fazla 10 soru
       try {
-        const p = `Sen bir LGS/ortaokul ogretmenisin. "${k.ders}" dersinin "${k.unite}" unitesinin TAMAMINI kapsayan, ${k.sinif}. sinif seviyesinde ${uretilecek} coktan secmeli soru hazirla. Gercekci, LGS tarzi, bag lam temelli sorular olsun. Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle acikla. SADECE JSON dondur:
+        const kaliteMetni = KALITE_REFERANSLARI[k.ders] ? ` Kalite referansi: ${KALITE_REFERANSLARI[k.ders]}` : "";
+        const p = `Sen bir LGS/ortaokul ogretmenisin. "${k.ders}" dersinin "${k.unite}" unitesinin TAMAMINI kapsayan, ${k.sinif}. sinif seviyesinde ${uretilecek} coktan secmeli soru hazirla. Gercekci, LGS tarzi, bag lam temelli sorular olsun.${kaliteMetni} Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle acikla. SADECE JSON dondur:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"..."}]`;
         const cevap = await aiCagir({ prompt: p, maxTokens: 3500, jsonModu: true });
         const temiz = cevap.replace(/```json|```/g, "").trim();

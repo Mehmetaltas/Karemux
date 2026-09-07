@@ -4,6 +4,7 @@ import { personelAdminMi } from "@/lib/personel";
 import { sql } from "@/lib/db";
 import { ogretmenGunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { gorselUret } from "@/lib/gorsel-motoru";
+import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 // Gorsel Motoru - Ogretmen Araclarina Genisletme (7 Eylul). Ayni ilke: AI
 // SADECE tip+parametre seciyor, cizimi lib/gorsel-motoru.js yapiyor. Materyal
@@ -40,16 +41,6 @@ async function gorselKararIsteSunucu(ders, konu, sinif) {
 export const maxDuration = 60; // Vercel fonksiyon zaman asimini uzat (buyuk uretimler icin)
 
 const BAGLAM_TEMELLI_SORU_TALIMATI = `Sorulari "Baglam Temelli Soru" yaklasimiyla yaz: her soru gercekci bir senaryo, veri veya durum icinde kurulsun. Celdiriciler rastgele olmamali, spesifik bir kavram yanilgisini yansitmali. Turkce'ye ozgu karakterleri DOGRU ve EKSIKSIZ kullan.`;
-
-const KALITE_REFERANSLARI = {
-  "Matematik": "KOLAY sorular Nitelik Yayinlari tarzinda; ORTA sorular Okyanus Master tarzinda; ZOR sorular Sinan Kuzucu Yayinlari tarzinda.",
-  "Fen Bilimleri": "KOLAY sorular Canta Yayinlari Kazandiran Defter tarzinda; ORTA sorular Okyanus Master tarzinda; ZOR sorular Nartest Power tarzinda.",
-  "Turkce": "KOLAY sorular Tonguc Akademi tarzinda; ORTA sorular KR Akademi tarzinda; ZOR sorular Sinan Kuzucu Yayinlari tarzinda.",
-  "T.C. Inkilap Tarihi": "KOLAY sorular Tonguc Akademi tarzinda; ORTA sorular KR Akademi tarzinda; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda.",
-  "Din Kulturu": "KOLAY sorular Tonguc Akademi tarzinda; ORTA sorular KR Akademi tarzinda; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda.",
-  "Ingilizce": "KOLAY sorular temel kelime/gramer sorulari; ORTA sorular MEB sinav formatina yakin, kisa paragraf/diyalog temelli; ZOR sorular yeni nesil, baglam temelli okuma-anlama ve gramer entegrasyonu gerektiren sorular.",
-  "Sosyal Bilgiler": "KOLAY sorular Tonguc Akademi tarzinda (kavram/harita agirlikli); ORTA sorular KR Akademi tarzinda; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda (neden-sonuc/yorum agirlikli).",
-};
 
 // cikti_tipi: "sorular" (coktan secmeli soru listesi) | "metin" (duz metin rapor/ozet) | "acik_uclu" (soru+adim adim cozum, sikli degil)
 const TUR_TANIMLARI = {
