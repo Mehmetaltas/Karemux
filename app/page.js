@@ -1033,6 +1033,37 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
   const [menuAcik, setMenuAcik] = useState(false);
 
+  // Geri Tusu / Navigasyon (7 Eylul) - her mod/menu degisikligi gercek bir
+  // tarayici gecmisi adimi oluyor. Boylece geri tusuna basinca sirayla
+  // (menu -> onceki mod -> ... -> ana ekran) geri gidiliyor, tek seferde
+  // ana ekrana atlamiyor.
+  const popstateSkipRef = useRef(false);
+  const ilkKurulumRef = useRef(true);
+
+  useEffect(() => {
+    if (ilkKurulumRef.current) {
+      ilkKurulumRef.current = false;
+      window.history.replaceState({ karemuxMod: mod, karemuxMenu: menuAcik }, "");
+      return;
+    }
+    if (popstateSkipRef.current) {
+      popstateSkipRef.current = false;
+      return;
+    }
+    window.history.pushState({ karemuxMod: mod, karemuxMenu: menuAcik }, "");
+  }, [mod, menuAcik]);
+
+  useEffect(() => {
+    function popstateIsle(e) {
+      popstateSkipRef.current = true;
+      const durum = e.state || {};
+      setMod(durum.karemuxMod || "bos");
+      setMenuAcik(!!durum.karemuxMenu);
+    }
+    window.addEventListener("popstate", popstateIsle);
+    return () => window.removeEventListener("popstate", popstateIsle);
+  }, []);
+
   // Telefonun geri tusu, uygulamadan direkt cikmak yerine once menuyu, sonra
   // ana sayfayi gostersin diye tarayici gecmisine adim adim durum kaydediyoruz.
   const ilkYuklemeRef = useRef(true);
