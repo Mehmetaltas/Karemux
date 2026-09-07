@@ -488,8 +488,6 @@ export default function YonetimPaneli() {
   const [impersonateYukleniyor, setImpersonateYukleniyor] = useState(false);
   const [impersonateMesaj, setImpersonateMesaj] = useState("");
   const [donusumHuni, setDonusumHuni] = useState(null);
-  const [yenidenUretSonuc, setYenidenUretSonuc] = useState(null);
-  const [yenidenUretYukleniyor, setYenidenUretYukleniyor] = useState(false);
   const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
@@ -846,22 +844,6 @@ export default function YonetimPaneli() {
       if (!res.ok) throw new Error(data.error);
       havaleleriGetir();
     } catch (e) { setHata(e.message); } finally { setHavaleIslemDurumu(null); }
-  }
-
-  async function soruYenidenUret() {
-    setYenidenUretYukleniyor(true); setYenidenUretSonuc(null);
-    try {
-      const res = await fetch("/api/admin/soru-yeniden-uret", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sifre }),
-      });
-      const data = await res.json();
-      setYenidenUretSonuc(data);
-    } catch (e) {
-      setYenidenUretSonuc({ error: e.message });
-    } finally {
-      setYenidenUretYukleniyor(false);
-    }
   }
 
   async function donusumHuniGetir() {
@@ -1887,18 +1869,6 @@ export default function YonetimPaneli() {
                 })}
                 <button onClick={donusumHuniGetir} style={{ ...butonStil(true), padding: "8px 14px", fontSize: TYPO.caption, marginTop: 8 }}>Yenile</button>
               </div>
-            )}
-          </Panel>
-        )}
-
-        {sekme === "donusumhuni" && (
-          <Panel baslik="🔧 Bir Kerelik: Ingilizce/Sosyal Bilgiler Soru Yeniden Uretimi" ikon="🔧">
-            <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 10 }}>259 eski, referanssiz/yanlis-referansli soruyu siler, dogru kalite referanslariyla yeniden uretir. Bir kez calistir, sonra bu paneli kaldirabiliriz.</p>
-            <button onClick={soruYenidenUret} disabled={yenidenUretYukleniyor} style={{ ...butonStil(true, T.danger), padding: "9px 16px", fontSize: TYPO.caption }}>
-              {yenidenUretYukleniyor ? "Calisiyor (biraz surebilir)..." : "Simdi Yeniden Uret"}
-            </button>
-            {yenidenUretSonuc && (
-              <pre style={{ fontSize: 10.5, background: T.surfaceHover, borderRadius: 8, padding: 10, marginTop: 10, overflow: "auto", whiteSpace: "pre-wrap" }}>{JSON.stringify(yenidenUretSonuc, null, 2)}</pre>
             )}
           </Panel>
         )}

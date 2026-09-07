@@ -4,6 +4,7 @@ import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
+import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 const DUYURULAR = [
   { ikon: "🧭", baslik: "Seviye Tespiti ile basla", metin: "6 dersten 12 soru — nerede guclu, nerede zayif oldugunu 5 dakikada ogren." },
@@ -2506,7 +2507,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         setBurslulukAsama(dersAdi);
         const uniteler = dersinUniteleri(dersAdi, sinif).join(", ");
         const sosyalDinNotu = dersAdi === "Sosyal Bilgiler" ? ` ONEMLI: Gercek IOKBS'de Sosyal Bilgiler sorularinin bir kismi Din Kulturu ve Ahlak Bilgisi konularini da icerir - hazirladigin ${burslulukSoruSayisi} sorunun yaklasik %20-25'ini (${sinif}. sinif Din Kulturu mufredatindan) Din Kulturu konularindan yap, kalanini Sosyal Bilgiler'den yap.` : "";
-        const p = `Sen bursluluk sinavi (IOKBS) hazirlik uzmanisin. "${dersAdi}" dersinden, ${sinif}. sinif mufredatinin TAMAMINI (uniteler: ${uniteler}) kapsayacak sekilde, dengeli dagilmis ${burslulukSoruSayisi} coktan secmeli soru hazirla.${sosyalDinNotu} ${BAGLAM_TEMELLI_SORU_TALIMATI} Sorular gercek IOKBS sinavi zorlugunda ve tarzinda olsun. Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+        const kaliteMetniBursluluk = KALITE_REFERANSLARI[dersAdi] ? ` Kalite referansi: ${KALITE_REFERANSLARI[dersAdi]}` : "";
+        const p = `Sen bursluluk sinavi (IOKBS) hazirlik uzmanisin. "${dersAdi}" dersinden, ${sinif}. sinif mufredatinin TAMAMINI (uniteler: ${uniteler}) kapsayacak sekilde, dengeli dagilmis ${burslulukSoruSayisi} coktan secmeli soru hazirla.${sosyalDinNotu} ${BAGLAM_TEMELLI_SORU_TALIMATI} Sorular gercek IOKBS sinavi zorlugunda ve tarzinda olsun.${kaliteMetniBursluluk} Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"orta","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
         const cevap = await aiIstek(p, Math.min(6000, 500 + burslulukSoruSayisi * 450), cihazIdRef.current, true, null, "bursluluk");
         const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
