@@ -2513,12 +2513,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"orta","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
         const cevap = await aiIstek(p, Math.min(6000, 500 + burslulukSoruSayisi * 450), cihazIdRef.current, true, null, "bursluluk");
         const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-        sonuc[dersAdi] = soruJsonAyikla(temiz);
+        try {
+          sonuc[dersAdi] = soruJsonAyikla(temiz);
+        } catch (ayiklamaHatasi) {
+          throw new Error(`[TANI-${dersAdi}] ${ayiklamaHatasi.message} | HAM YANIT (ilk 500 karakter): ${cevap.slice(0, 500)}`);
+        }
         sorulariBankayaKaydet(dersAdi, sinif, null, sonuc[dersAdi], "bursluluk");
         setBurslulukSorular({ ...sonuc });
       }
     } catch (e) {
-      setHata(temizHataMesaji(e, "Bursluluk denemesi olusturulamadi, tekrar dene."));
+      setHata(e.message?.startsWith("[TANI-") ? e.message : temizHataMesaji(e, "Bursluluk denemesi olusturulamadi, tekrar dene."));
     } finally {
       setBurslulukYukleniyor(false); setBurslulukAsama("");
       // Gercek IOKBS: 80 soru (4 ders x 20) icin 100 dakika - orani koruyarak hesapliyoruz.
