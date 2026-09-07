@@ -10,11 +10,17 @@ export async function GET() {
     const soruBankasi = await sql`SELECT COUNT(*)::int as toplam FROM soru_bankasi`;
     const cozulenSoru = await sql`SELECT COALESCE(SUM(dogru + yanlis + bos), 0)::int as toplam FROM sinav_sonuclari`;
     const kayitliKullanici = await sql`SELECT COUNT(*)::int as toplam FROM kullanicilar WHERE sifre_hash != 'anon'`;
+    const mufredatSayilari = await sql`
+      SELECT COUNT(DISTINCT sinif || '::' || ders || '::' || unite)::int as unite_sayisi, COUNT(*)::int as alt_konu_sayisi
+      FROM mufredat
+    `;
 
     return Response.json({
       soruBankasiToplam: soruBankasi[0].toplam,
       cozulenSoruToplam: cozulenSoru[0].toplam,
       kayitliKullaniciToplam: kayitliKullanici[0].toplam,
+      uniteToplam: mufredatSayilari[0].unite_sayisi,
+      altKonuToplam: mufredatSayilari[0].alt_konu_sayisi,
     });
   } catch (e) {
     console.error(e);

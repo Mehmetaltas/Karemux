@@ -3790,12 +3790,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         {mod === "bos" && !secilenDers && (
           <div className="kx-fadein" style={{ display: "flex", justifyContent: "space-around", background: COLORS.page, border: `1px solid ${COLORS.line}`, borderRadius: 14, padding: "14px 8px", marginBottom: 16 }}>
             <div style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>163</p>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>{sistemIstatistik ? sistemIstatistik.uniteToplam.toLocaleString("tr-TR") : "…"}</p>
               <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>ÜNİTE/TEMA</p>
             </div>
             <div style={{ width: 1, background: COLORS.line }} />
             <div style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>480+</p>
+              <p style={{ fontFamily: "Georgia, serif", fontSize: 19, fontWeight: 800, color: COLORS.ink, fontVariantNumeric: "tabular-nums" }}>{sistemIstatistik ? sistemIstatistik.altKonuToplam.toLocaleString("tr-TR") : "…"}</p>
               <p style={{ fontSize: 9.5, color: COLORS.muted, marginTop: 2 }}>ALT KONU</p>
             </div>
             <div style={{ width: 1, background: COLORS.line }} />
