@@ -3,6 +3,39 @@ import { ogretmenCoz } from "@/lib/ogretmen";
 import { personelAdminMi } from "@/lib/personel";
 import { sql } from "@/lib/db";
 import { ogretmenGunlukLimitKontrolEt } from "@/lib/ratelimit";
+import { gorselUret } from "@/lib/gorsel-motoru";
+
+// Gorsel Motoru - Ogretmen Araclarina Genisletme (7 Eylul). Ayni ilke: AI
+// SADECE tip+parametre seciyor, cizimi lib/gorsel-motoru.js yapiyor. Materyal
+// basina TEK bir genel gorsel (soru basina degil) - konunun turune gore.
+const GORSEL_TIPI_REHBERI_OGRETMEN = `Eger bu materyal icin bir egitim gorseli GERCEKTEN faydali olacaksa (ozellikle geometri/grafik/sema iceren konularda), su tiplerden birini sec ve parametrelerini doldur:
+- ucgen: {a,b,c (kenar uzunluklari sayi, opsiyonel), kenarEtiketleri:{ab,bc,ac (string)}, aciEtiketleri:{a,b,c}, vurgulananKose:"A"|"B"|"C"}
+- dortgen: {tip:"kare"|"dikdortgen", kenarEtiketleri:{ust,sol}}
+- cember: {yaricapEtiketi (string), capGoster (bool)}
+- aci: {derece (0-360 sayi), etiket (string)}
+- cokgen: {kenarSayisi (sayi), etiket (string)}
+- sayi_dogrusu: {min,max (sayi), noktalar:[{deger (sayi), etiket, doluMu (bool)}]}
+- koordinat_duzlemi: {fonksiyonTipi:"dogrusal"|"karesel", katsayilar:{m,n} veya {a,b,c}, noktalar:[{x,y,etiket}]}
+- cizgi_grafigi veya sutun_grafigi: {veriler:[sayilar], etiketler:[string]}
+- pasta_grafigi: {veriler:[sayilar], etiketler:[string]}
+- fen_semasi: {anahtar:"su_dongusu"|"gunes_sistemi"|"elektrik_devresi"|"hucre_yapisi"|"sindirim_sistemi"}
+Gorsel gerekmiyorsa gerekli:false don. SADECE JSON dondur: {"gerekli":true veya false,"gorselTipi":"...","parametreler":{...}}`;
+
+async function gorselKararIsteSunucu(ders, konu, sinif) {
+  try {
+    const p = `"${ders}" dersinden "${konu}" konusu, ${sinif}. sinif seviyesinde. ${GORSEL_TIPI_REHBERI_OGRETMEN}`;
+    const cevap = await aiCagir({ prompt: p, maxTokens: 600, jsonModu: true });
+    const temiz = cevap.replace(/```json|```/g, "").trim();
+    const baslangic = temiz.indexOf("{");
+    const bitis = temiz.lastIndexOf("}");
+    if (baslangic === -1 || bitis === -1) return null;
+    const karar = JSON.parse(temiz.slice(baslangic, bitis + 1));
+    if (!karar.gerekli || !karar.gorselTipi) return null;
+    return gorselUret(karar.gorselTipi, karar.parametreler || {});
+  } catch (e) {
+    return null;
+  }
+}
 
 export const maxDuration = 60; // Vercel fonksiyon zaman asimini uzat (buyuk uretimler icin)
 
@@ -85,6 +118,8 @@ export async function POST(req) {
         return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
       }
 
+      veri.gorselSvg = await gorselKararIsteSunucu(ders, konu.trim(), sinif);
+
       if (ogretmenOturum?.id) {
         try {
           await sql`
@@ -144,6 +179,8 @@ export async function POST(req) {
     if (!veri.sorular || !Array.isArray(veri.sorular) || veri.sorular.length === 0) {
       return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
     }
+
+    veri.gorselSvg = await gorselKararIsteSunucu(ders, konu.trim(), sinif);
 
     try {
       for (const s of veri.sorular) {

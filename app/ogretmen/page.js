@@ -61,10 +61,13 @@ function karistirVeBKitapciğiUret(sorular) {
   });
 }
 
-function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster, yonerge, sinavSuresiDk }) {
+function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster, yonerge, sinavSuresiDk, gorselSvg }) {
   return (
     <div className="yazdir-alani" style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16 }}>
       <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{baslik}</p>
+      {gorselSvg && (
+        <div style={{ background: "#FAF8F4", borderRadius: 8, padding: 12, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: gorselSvg }} />
+      )}
       {(yonerge || sinavSuresiDk) && (
         <div role="note" style={{ background: "#FDF6E8", borderRadius: 8, padding: "10px 12px", marginBottom: 12, border: "1px solid #E8D9A8" }}>
           {sinavSuresiDk && <p style={{ fontSize: 12, fontWeight: 700, marginBottom: yonerge ? 4 : 0 }}>Sınav Süresi: {sinavSuresiDk} dakika</p>}
@@ -208,7 +211,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
             )}
             <button onClick={() => window.print()} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>🖨️ Yazdır</button>
           </div>
-          <MateryalGorunumu baslik={gosterilecek.baslik + (aktifGorunum === "B" ? " (B Kitapçığı)" : "")} ozet={gosterilecek.ozet} sorular={gosterilecek.sorular} cevapGoster={cevapGoster} yonerge={gosterilecek.yonerge} sinavSuresiDk={gosterilecek.sinavSuresiDk} />
+          <MateryalGorunumu baslik={gosterilecek.baslik + (aktifGorunum === "B" ? " (B Kitapçığı)" : "")} ozet={gosterilecek.ozet} sorular={gosterilecek.sorular} cevapGoster={cevapGoster} yonerge={gosterilecek.yonerge} sinavSuresiDk={gosterilecek.sinavSuresiDk} gorselSvg={gosterilecek.gorselSvg} />
         </>
       )}
     </div>
@@ -348,7 +351,7 @@ function Materyallerim() {
             <p style={{ fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>{acikMateryal.materyal.icerik}</p>
           </div>
         ) : (
-          <MateryalGorunumu baslik={acikMateryal.materyal.baslik} ozet={acikMateryal.materyal.ozet} sorular={acikMateryal.materyal.sorular} cevapGoster={true} yonerge={acikMateryal.materyal.yonerge} sinavSuresiDk={acikMateryal.materyal.sinavSuresiDk} />
+          <MateryalGorunumu baslik={acikMateryal.materyal.baslik} ozet={acikMateryal.materyal.ozet} sorular={acikMateryal.materyal.sorular} cevapGoster={true} yonerge={acikMateryal.materyal.yonerge} sinavSuresiDk={acikMateryal.materyal.sinavSuresiDk} gorselSvg={acikMateryal.materyal.gorselSvg} />
         )}
       </div>
     );
