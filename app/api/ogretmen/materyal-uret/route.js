@@ -47,6 +47,8 @@ const KALITE_REFERANSLARI = {
   "Turkce": "KOLAY sorular Tonguc Akademi tarzinda; ORTA sorular KR Akademi tarzinda; ZOR sorular Sinan Kuzucu Yayinlari tarzinda.",
   "T.C. Inkilap Tarihi": "KOLAY sorular Tonguc Akademi tarzinda; ORTA sorular KR Akademi tarzinda; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda.",
   "Din Kulturu": "KOLAY sorular Tonguc Akademi tarzinda; ORTA sorular KR Akademi tarzinda; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda.",
+  "Ingilizce": "KOLAY sorular temel kelime/gramer sorulari; ORTA sorular MEB sinav formatina yakin, kisa paragraf/diyalog temelli; ZOR sorular yeni nesil, baglam temelli okuma-anlama ve gramer entegrasyonu gerektiren sorular.",
+  "Sosyal Bilgiler": "KOLAY sorular Tonguc Akademi tarzinda (kavram/harita agirlikli); ORTA sorular KR Akademi tarzinda; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda (neden-sonuc/yorum agirlikli).",
 };
 
 // cikti_tipi: "sorular" (coktan secmeli soru listesi) | "metin" (duz metin rapor/ozet) | "acik_uclu" (soru+adim adim cozum, sikli degil)
