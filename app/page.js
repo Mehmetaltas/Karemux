@@ -466,6 +466,16 @@ function cihazIdAl() {
 
 // Tarayicidan DOGRUDAN Anthropic'e degil, kendi /api/claude route'umuza istek atiyoruz.
 // API anahtari sadece sunucuda (Vercel env) tutulur.
+function donusumLogla(olayTuru, cihazId, meta) {
+  try {
+    fetch("/api/donusum/logla", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cihazId, olayTuru, meta }),
+    }).catch(() => {});
+  } catch (e) {}
+}
+
 async function aiIstek(prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket) {
   const res = await fetch("/api/claude", {
     method: "POST",
@@ -2304,6 +2314,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   useEffect(() => { if (mod === "ulusaldeneme") ulusalDenemeyiGetir(); }, [mod]);
   useEffect(() => { if (mod === "ucretlideneme" && hesap) ucretliDenemeleriGetir(); }, [mod, hesap]);
   useEffect(() => { if (mod === "tekkonu" && hesap && tekKonuAsama === "secim" && !tekKonuSorular) tekKonuVeriGetir(); }, [mod, hesap]);
+  useEffect(() => { if (mod === "hesap") donusumLogla("premium_inceleme", cihazIdRef.current); }, [mod]);
 
   async function ulusalCevaplariGonder() {
     if (!ulusalAktif) return;
@@ -2912,6 +2923,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   useEffect(() => {
     cihazIdRef.current = cihazIdAl();
     if (!cihazIdRef.current) return;
+
+    // Satis Donusum Hunisi (7 Eylul) - ziyaret, cihaz basina gunde 1 kez
+    try {
+      const bugun = new Date().toISOString().slice(0, 10);
+      if (localStorage.getItem("karemux_son_ziyaret") !== bugun) {
+        localStorage.setItem("karemux_son_ziyaret", bugun);
+        donusumLogla("ziyaret", cihazIdRef.current);
+      }
+    } catch (e) {}
     fetch(`/api/ilerleme?cihazId=${cihazIdRef.current}`)
       .then((r) => r.json())
       .then((d) => {
@@ -3569,6 +3589,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setOdemeHata(""); setHavaleBilgi(null);
     if (!hesap) { setOdemeHata("Odeme yapabilmek icin once giris yapmalisin."); return; }
     if (!plan) { setOdemeHata("Once profilden sinifini secmelisin (5-8 arasi)."); return; }
+    donusumLogla("satin_alma_baslatildi", cihazIdRef.current, { plan });
     setHavaleYukleniyor(true);
     try {
       const res = await fetch("/api/checkout/havale-baslat", {

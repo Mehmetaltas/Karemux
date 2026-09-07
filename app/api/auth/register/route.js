@@ -33,6 +33,9 @@ export async function POST(req) {
     const kullanici = sonuc[0];
     const token = tokenUret(kullanici.id);
 
+    // Satis Donusum Hunisi (7 Eylul) - sessizce, kaydi hic etkilemesin
+    sql`INSERT INTO donusum_olayi (kullanici_id, olay_turu, meta) VALUES (${kullanici.id}, 'kayit', ${JSON.stringify({ rol: rolTemiz })})`.catch(() => {});
+
     if (!testModu) {
       try {
         await resendIstemcisi().emails.send({
