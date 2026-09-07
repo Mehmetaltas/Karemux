@@ -2492,6 +2492,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   const [burslulukSoruSayisi, setBurslulukSoruSayisi] = useState(5);
+  const BURSLULUK_DERSLER = ["Turkce", "Matematik", "Fen Bilimleri", "Sosyal Bilgiler"]; // 7 Eylul: TANIMSIZDI, gercek bir ReferenceError hatasiydi - Bursluluk ozelligi hic calismiyordu, simdi duzeltildi
   const [burslulukBasladi, setBurslulukBasladi] = useState(false);
   const [burslulukSorular, setBurslulukSorular] = useState(null); // { Turkce: [...], Matematik: [...], ... }
   const [burslulukYukleniyor, setBurslulukYukleniyor] = useState(false);
