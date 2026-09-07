@@ -2508,21 +2508,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         setBurslulukAsama(dersAdi);
         const uniteler = dersinUniteleri(dersAdi, sinif).join(", ");
         const sosyalDinNotu = dersAdi === "Sosyal Bilgiler" ? ` ONEMLI: Gercek IOKBS'de Sosyal Bilgiler sorularinin bir kismi Din Kulturu ve Ahlak Bilgisi konularini da icerir - hazirladigin ${burslulukSoruSayisi} sorunun yaklasik %20-25'ini (${sinif}. sinif Din Kulturu mufredatindan) Din Kulturu konularindan yap, kalanini Sosyal Bilgiler'den yap.` : "";
-        const kaliteMetniBursluluk = KALITE_REFERANSLARI[dersAdi] ? ` Kalite referansi: ${KALITE_REFERANSLARI[dersAdi]}` : "";
-        const p = `Sen bursluluk sinavi (IOKBS) hazirlik uzmanisin. "${dersAdi}" dersinden, ${sinif}. sinif mufredatinin TAMAMINI (uniteler: ${uniteler}) kapsayacak sekilde, dengeli dagilmis ${burslulukSoruSayisi} coktan secmeli soru hazirla.${sosyalDinNotu} ${BAGLAM_TEMELLI_SORU_TALIMATI} Sorular gercek IOKBS sinavi zorlugunda ve tarzinda olsun.${kaliteMetniBursluluk} Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+        const kaliteMetniBursluluk = KALITE_REFERANSLARI[dersAdi] ? ` Ders icerik kalitesi referansi: ${KALITE_REFERANSLARI[dersAdi]}` : "";
+        const p = `Sen bursluluk sinavi (IOKBS) hazirlik uzmanisin. "${dersAdi}" dersinden, ${sinif}. sinif mufredatinin TAMAMINI (uniteler: ${uniteler}) kapsayacak sekilde, dengeli dagilmis ${burslulukSoruSayisi} coktan secmeli soru hazirla.${sosyalDinNotu} ${BAGLAM_TEMELLI_SORU_TALIMATI} Sorular gercek IOKBS sinavi zorlugunda ve tarzinda olsun - Editor Yayinlari, Data Yayinlari ve IQ Yayinlari'nin IOKBS/PYBS hazirlik kitaplarindaki soru tarzi ve zorluk seviyesini referans al (resmi MEB kaynagi degil, ozel sinav hazirlik yayinlari, ancak IOKBS'e ozel en yaygin kabul goren kaynaklar bunlardir).${kaliteMetniBursluluk} Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"orta","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
         const cevap = await aiIstek(p, Math.min(6000, 500 + burslulukSoruSayisi * 450), cihazIdRef.current, true, null, "bursluluk");
         const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
-        try {
-          sonuc[dersAdi] = soruJsonAyikla(temiz);
-        } catch (ayiklamaHatasi) {
-          throw new Error(`[TANI-${dersAdi}] ${ayiklamaHatasi.message} | HAM YANIT (ilk 500 karakter): ${cevap.slice(0, 500)}`);
-        }
+        sonuc[dersAdi] = soruJsonAyikla(temiz);
         sorulariBankayaKaydet(dersAdi, sinif, null, sonuc[dersAdi], "bursluluk");
         setBurslulukSorular({ ...sonuc });
       }
     } catch (e) {
-      setHata(e.message?.startsWith("[TANI-") ? e.message : temizHataMesaji(e, "Bursluluk denemesi olusturulamadi, tekrar dene."));
+      setHata(temizHataMesaji(e, "Bursluluk denemesi olusturulamadi, tekrar dene."));
     } finally {
       setBurslulukYukleniyor(false); setBurslulukAsama("");
       // Gercek IOKBS: 80 soru (4 ders x 20) icin 100 dakika - orani koruyarak hesapliyoruz.
