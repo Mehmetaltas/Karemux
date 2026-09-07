@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 import CerezBildirimi from "@/lib/CerezBildirimi";
+import { gorselUret } from "@/lib/gorsel-motoru";
 
 const DUYURULAR = [
   { ikon: "🧭", baslik: "Seviye Tespiti ile basla", metin: "6 dersten 12 soru — nerede guclu, nerede zayif oldugunu 5 dakikada ogren." },
@@ -474,6 +475,39 @@ function donusumLogla(olayTuru, cihazId, meta) {
       body: JSON.stringify({ cihazId, olayTuru, meta }),
     }).catch(() => {});
   } catch (e) {}
+}
+
+// Gorsel Motoru (7 Eylul) - AI'ya SADECE "bu konu gorsel gerektiriyor mu, hangi
+// tipte, hangi parametrelerle" karar aldiriyor. Gercek cizimi lib/gorsel-motoru.js
+// yapiyor (kural-bazli, matematiksel olarak dogru). AI HICBIR ZAMAN dogrudan
+// SVG/cizim uretmiyor.
+const GORSEL_TIPI_REHBERI = `Eger bu konu icin bir egitim gorseli GERCEKTEN faydali olacaksa (ozellikle geometri/grafik/sema iceren konularda), su tiplerden birini sec ve parametrelerini doldur:
+- ucgen: {a,b,c (kenar uzunluklari sayi, opsiyonel), kenarEtiketleri:{ab,bc,ac (string, orn "5 cm")}, aciEtiketleri:{a,b,c}, vurgulananKose:"A"|"B"|"C"}
+- dortgen: {tip:"kare"|"dikdortgen", kenarEtiketleri:{ust,sol}}
+- cember: {yaricapEtiketi (string), capGoster (bool)}
+- aci: {derece (0-360 sayi), etiket (string)}
+- cokgen: {kenarSayisi (sayi), etiket (string)}
+- sayi_dogrusu: {min,max (sayi), noktalar:[{deger (sayi), etiket, doluMu (bool)}]}
+- koordinat_duzlemi: {fonksiyonTipi:"dogrusal"|"karesel", katsayilar:{m,n} veya {a,b,c}, noktalar:[{x,y,etiket}]}
+- cizgi_grafigi veya sutun_grafigi: {veriler:[sayilar], etiketler:[string]}
+- pasta_grafigi: {veriler:[sayilar], etiketler:[string]}
+- fen_semasi: {anahtar:"su_dongusu"|"gunes_sistemi"|"elektrik_devresi"|"hucre_yapisi"|"sindirim_sistemi"}
+Gorsel gerekmiyorsa gerekli:false don. SADECE JSON dondur: {"gerekli":true veya false,"gorselTipi":"...","parametreler":{...}}`;
+
+async function gorselKararIste(ders, konu, sinif, cihazId) {
+  try {
+    const p = `"${ders}" dersinden "${konu}" konusu, ${sinif}. sinif seviyesinde. ${GORSEL_TIPI_REHBERI}`;
+    const cevap = await aiIstek(p, 600, cihazId, true);
+    const temiz = cevap.replace(/```json|```/g, "").trim();
+    const baslangic = temiz.indexOf("{");
+    const bitis = temiz.lastIndexOf("}");
+    if (baslangic === -1 || bitis === -1) return null;
+    const karar = JSON.parse(temiz.slice(baslangic, bitis + 1));
+    if (!karar.gerekli || !karar.gorselTipi) return null;
+    return gorselUret(karar.gorselTipi, karar.parametreler || {});
+  } catch (e) {
+    return null;
+  }
 }
 
 async function aiIstek(prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket) {
@@ -1526,6 +1560,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [denemeGonderildi, setDenemeGonderildi] = useState(false);
   const [aciklama, setAciklama] = useState("");
+  const [aciklamaGorselSvg, setAciklamaGorselSvg] = useState(null);
   const [acikKatman, setAcikKatman] = useState(null); // Katmanli Konu Anlatimi (31 Agustos) - akordiyonda hangi katman acik
   const [teknikPaneliAcik, setTeknikPaneliAcik] = useState(false); // Ogrenme Teknikleri Kutuphanesi (31 Agustos)
   const [teknikler, setTeknikler] = useState(null);
@@ -2611,6 +2646,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [tekKonuUnite, setTekKonuUnite] = useState("");
   const [tekKonuKonu, setTekKonuKonu] = useState("");
   const [tekKonuAnlatim, setTekKonuAnlatim] = useState("");
+  const [tekKonuGorselSvg, setTekKonuGorselSvg] = useState(null);
   const [tekKonuSorular, setTekKonuSorular] = useState(null);
   const [tekKonuCevaplar, setTekKonuCevaplar] = useState({});
   const [tekKonuOturumId, setTekKonuOturumId] = useState(null);
@@ -3106,7 +3142,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function konuAnlat() {
     if (!ders || !konu.trim()) return;
-    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
+    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setAciklamaGorselSvg(null); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
     try {
       const uniteMetni = uniteSec ? ` (${uniteSec} unitesinden)` : "";
       const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
@@ -3119,6 +3155,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         if (onbellekData.bulundu) {
           setAciklama(onbellekData.icerik);
           setYukleniyor(null);
+          gorselKararIste(ders, konu.trim(), sinif, cihazIdRef.current).then(setAciklamaGorselSvg);
           return;
         }
       } catch (onbellekHata) { /* cache erisilemezse normal AI akisina devam et, sessizce gec */ }
@@ -3135,6 +3172,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uyari = await icerikDenetle(temizMetin, `Bu "${ders}" dersi "${konu}" konusu anlatimi.`, cihazIdRef.current);
       const nihaiMetin = uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin;
       setAciklama(nihaiMetin);
+      gorselKararIste(ders, konu.trim(), sinif, cihazIdRef.current).then(setAciklamaGorselSvg);
       // Kaliteli sonucu cache'e kaydet (yalnizca kalite kontrolu uyari vermediyse - riskli/duzeltilmis icerik cache'lenmesin)
       if (!uyari) {
         fetch("/api/icerik-onbellek", {
@@ -3169,7 +3207,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function tekKonuBaslat(dersSec, uniteSec, konuSec) {
     if (!dersSec || !konuSec?.trim()) return;
-    setTekKonuYukleniyor(true); setTekKonuHata("");
+    setTekKonuYukleniyor(true); setTekKonuHata(""); setTekKonuGorselSvg(null);
     setTekKonuDers(dersSec); setTekKonuUnite(uniteSec || ""); setTekKonuKonu(konuSec.trim());
     try {
       const onbellekParam = new URLSearchParams({ sinif: String(sinif), ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), zorlukSeviyesi: "", icerikTuru: "tek_konu_anlatimi" });
@@ -3199,6 +3237,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         }).catch(() => {});
       }
       setTekKonuAnlatim(anlatimMetni);
+      gorselKararIste(dersSec, konuSec.trim(), sinif, cihazIdRef.current).then(setTekKonuGorselSvg);
 
       const pSorular = `Sen bir LGS/ortaokul ogretmenisin. "${dersSec}" dersinden${uniteSec ? ` (${uniteSec} unitesinden)` : ""} "${konuSec.trim()}" konusuyla ilgili ${sinif}. sinif seviyesinde TAM 10 coktan secmeli soru hazirla: ILK 4 SORU KOLAY, SONRAKI 4 SORU ORTA, SON 2 SORU ZOR olsun (sirali ver). Sorular mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma: [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]`;
       const cevapSorular = await aiIstek(pSorular, 5000, cihazIdRef.current, true);
@@ -3267,7 +3306,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   function tekKonuSifirla() {
     setTekKonuAsama("secim");
     setTekKonuDers(""); setTekKonuUnite(""); setTekKonuKonu("");
-    setTekKonuAnlatim(""); setTekKonuSorular(null); setTekKonuCevaplar({});
+    setTekKonuAnlatim(""); setTekKonuGorselSvg(null); setTekKonuSorular(null); setTekKonuCevaplar({});
     setTekKonuOturumId(null); setTekKonuSonuc(null); setTekKonuHata("");
     tekKonuVeriGetir();
   }
@@ -4378,6 +4417,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <p style={{ fontSize: 12, lineHeight: 1.6, color: "#2A2A2A" }}>{teknikOnerisi.nasil_uygulanir}</p>
                     </div>
                   )}
+                  {aciklamaGorselSvg && (
+                    <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: aciklamaGorselSvg }} />
+                  )}
                   {aciklama && (() => {
                     const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
@@ -4496,6 +4538,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <p style={{ fontSize: 12.5, fontWeight: 700, color: "#E8B339", marginBottom: 4 }}>💡 Bu konuda böyle çalışabilirsin: {teknikOnerisi.teknik_adi}</p>
                       <p style={{ fontSize: 12, lineHeight: 1.6, color: "#2A2A2A" }}>{teknikOnerisi.nasil_uygulanir}</p>
                     </div>
+                  )}
+                  {aciklamaGorselSvg && (
+                    <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: aciklamaGorselSvg }} />
                   )}
                   {aciklama && (() => {
                     const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
@@ -6580,6 +6625,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div>
                 <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
                   <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>{tekKonuDers} — {tekKonuKonu}</p>
+                  {tekKonuGorselSvg && (
+                    <div style={{ background: "#fff", borderRadius: 10, border: `1px solid ${COLORS.line}`, padding: 12, marginTop: 10, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: tekKonuGorselSvg }} />
+                  )}
                   <p style={{ fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap", marginTop: 10 }}>{tekKonuAnlatim}</p>
                 </div>
                 <button className="kx-btn" onClick={() => setTekKonuAsama("sorular")} style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
@@ -7556,6 +7604,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontSize: 12.5, fontWeight: 700, color: "#E8B339", marginBottom: 4 }}>💡 Bu konuda böyle çalışabilirsin: {teknikOnerisi.teknik_adi}</p>
                 <p style={{ fontSize: 12, lineHeight: 1.6, color: "#2A2A2A" }}>{teknikOnerisi.nasil_uygulanir}</p>
               </div>
+            )}
+            {aciklamaGorselSvg && (
+              <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: aciklamaGorselSvg }} />
             )}
             {aciklama && (() => {
               const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
