@@ -488,6 +488,7 @@ export default function YonetimPaneli() {
   const [impersonateYukleniyor, setImpersonateYukleniyor] = useState(false);
   const [impersonateMesaj, setImpersonateMesaj] = useState("");
   const [donusumHuni, setDonusumHuni] = useState(null);
+  const [sirketMerkezi, setSirketMerkezi] = useState(null);
   const [destekTalepleri, setDestekTalepleri] = useState(null);
   const [destekAcikSayisi, setDestekAcikSayisi] = useState(0);
   const [destekYanitTaslagi, setDestekYanitTaslagi] = useState({});
@@ -756,6 +757,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "havaleler" && !havaleVeri) havaleleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !donusumHuni) donusumHuniGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "destek") destekGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "genel" && !sirketMerkezi) sirketMerkeziGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
@@ -848,6 +850,14 @@ export default function YonetimPaneli() {
       if (!res.ok) throw new Error(data.error);
       havaleleriGetir();
     } catch (e) { setHata(e.message); } finally { setHavaleIslemDurumu(null); }
+  }
+
+  async function sirketMerkeziGetir() {
+    try {
+      const res = await fetch(`/api/admin/sirket-merkezi?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setSirketMerkezi(data);
+    } catch (e) {}
   }
 
   async function destekGetir() {
@@ -1260,6 +1270,19 @@ export default function YonetimPaneli() {
                 );
               })}
             </div>
+          </div>
+        )}
+
+        {sekme === "genel" && sirketMerkezi && (
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
+            <KpiKart etiket="Toplam Öğrenci/Veli" deger={sirketMerkezi.kullaniciSayisi} renk={T.accent} ikon="👥" />
+            <KpiKart etiket="Öğretmen" deger={sirketMerkezi.ogretmenSayisi} renk={T.accent} ikon="👨‍🏫" />
+            <KpiKart etiket="Kurum" deger={sirketMerkezi.kurumSayisi} renk={T.accent} ikon="🏫" />
+            <KpiKart etiket="Bugünkü Ziyaretçi" deger={sirketMerkezi.bugunkuZiyaretci} renk={T.accent} ikon="👀" />
+            <KpiKart etiket="Aktif Abonelik" deger={sirketMerkezi.aktifAbonelikSayisi} renk={T.accent} ikon="💎" />
+            <KpiKart etiket="Açık Destek Talebi" deger={sirketMerkezi.acikDestekTalebi} renk={sirketMerkezi.acikDestekTalebi > 0 ? T.danger : T.accent} ikon="🎧" />
+            <KpiKart etiket="Soru Bankası" deger={sirketMerkezi.soruBankasiToplam} renk={T.accent} ikon="🗂️" />
+            <KpiKart etiket="Bu Ay AI Maliyeti" deger={`~${sirketMerkezi.buAyAiMaliyetTl.toFixed(0)} ₺`} renk={T.amber} ikon="🤖" />
           </div>
         )}
 
