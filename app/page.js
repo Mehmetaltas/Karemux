@@ -1864,7 +1864,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = kelimeKartiDers === "Ingilizce"
         ? `Sen Ingilizce ogretmenisin. "${kelimeKartiUnite}" konusuyla ilgili, ${sinif}. sinif seviyesine uygun 10 Ingilizce kelime karti hazirla. Kalite referansi: Milestone Ingilizce LGS Denemesi (Levent Cilek, TEAM ELT Publishing) ve Marka Yayinlari LGS Ingilizce Deneme serisi tarzinda - LGS formatina uygun, dengeli kelime secimi. Her kart icin: Ingilizce kelime, Turkce anlami, ve o kelimeyi kullanan BASIT bir Ingilizce ornek cumle (parantez icinde Turkce cevirisiyle). SADECE JSON dondur, markdown kullanma:
 [{"kelime":"...","anlam":"...","ornekCumle":"... (Turkce ceviri)"}]`
-        : `Sen Turkce ogretmenisin. ${sinif}. sinif seviyesine uygun, ogrencilerin kelime hazinesini zenginlestirecek 10 Turkce kelime (az bilinen ama seviyeye uygun, edebi metinlerde/LGS'de karsilarina cikabilecek kelimeler) hazirla. Her kart icin: kelime, kisa ve net anlami, ve o kelimeyi kullanan bir ornek cumle. SADECE JSON dondur, markdown kullanma:
+        : `Sen Turkce ogretmenisin. ${sinif}. sinif seviyesine uygun, ogrencilerin kelime hazinesini zenginlestirecek 10 Turkce kelime (az bilinen ama seviyeye uygun, edebi metinlerde/LGS'de karsilarina cikabilecek kelimeler) hazirla. Kalite referansi: ${KALITE_REFERANSLARI["Turkce"]} Her kart icin: kelime, kisa ve net anlami, ve o kelimeyi kullanan bir ornek cumle. SADECE JSON dondur, markdown kullanma:
 [{"kelime":"...","anlam":"...","ornekCumle":"..."}]`;
       const cevap = await aiIstek(p, 1800, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
@@ -1909,6 +1909,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [formulKartDers, setFormulKartDers] = useState(null);
   const [formulKartUnite, setFormulKartUnite] = useState(null);
   const [formulKartCache, setFormulKartCache] = useState({}); // anahtar: ders::unite::sinif -> metin
+  const [formulKartGorselCache, setFormulKartGorselCache] = useState({}); // ayni anahtar -> SVG veya null
   const [formulKartYukleniyor, setFormulKartYukleniyor] = useState(false);
   const [zayifHaritaVeri, setZayifHaritaVeri] = useState(null);
   const [zayifHaritaYukleniyor, setZayifHaritaYukleniyor] = useState(false);
@@ -2568,7 +2569,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setParagrafYukleniyor(true); setHata(""); setParagrafSoru(null); setParagrafCevap(null); setParagrafGonderildi(false);
     try {
       const zorlukMetni = { kolay: "kisa ve net, temel seviyede", orta: "orta uzunlukta, LGS standart zorlukta", zor: "uzun, cok katmanli, ust duzey dusunme gerektiren (LGS'nin en zor sorulari tarzinda)" }[paragrafZorluk];
-      const p = `Sen bir Turkce ogretmenisin ve LGS paragraf sorulari konusunda uzmansin. ${sinif}. sinif seviyesinde, "${paragrafTuru}" turunde, ${zorlukMetni} BIR paragraf sorusu hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} Paragraf gercek bir LGS paragrafi kalitesinde olsun - 100-180 kelime arasi, akici, gercek bir konu (bilim, sanat, tarih, gunluk hayat, cevre vb.) hakkinda olsun, yapay/bosluk doldurma hissi vermesin. Celdiriciler ozellikle bu paragraf turune ozgu tipik hatalari yansitsin (orn. Ana Fikir sorusunda "dogru ama paragrafin butununu kapsamayan" bir secenegi celdirici olarak kullan). SADECE JSON dondur, markdown kullanma:
+      const p = `Sen bir Turkce ogretmenisin ve LGS paragraf sorulari konusunda uzmansin. ${sinif}. sinif seviyesinde, "${paragrafTuru}" turunde, ${zorlukMetni} BIR paragraf sorusu hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} Kalite referansi: ${KALITE_REFERANSLARI["Turkce"]} Paragraf gercek bir LGS paragrafi kalitesinde olsun - 100-180 kelime arasi, akici, gercek bir konu (bilim, sanat, tarih, gunluk hayat, cevre vb.) hakkinda olsun, yapay/bosluk doldurma hissi vermesin. Celdiriciler ozellikle bu paragraf turune ozgu tipik hatalari yansitsin (orn. Ana Fikir sorusunda "dogru ama paragrafin butununu kapsamayan" bir secenegi celdirici olarak kullan). SADECE JSON dondur, markdown kullanma:
 {"paragraf":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}`;
       const cevap = await aiIstek(p, 1800, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").trim();
@@ -2609,11 +2610,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (formulKartCache[anahtar]) return;
     setFormulKartYukleniyor(true);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. "${uniteAdi}" unitesinin EN ONEMLI 8-10 formulunu/kuralini/sinavda-dikkat noktasini, ${sinif}. sinif seviyesinde, COK KISA bir "hizli bakis karti" formatinda listele. HER MADDE TEK SATIR ve EN FAZLA 12 KELIME olsun (formul + 2-4 kelimelik aciklama) - uzun cumle YASAK. SADECE Turkce yaz, markdown kullanma (yildiz vb.), her maddeyi yeni satirda '•' ile basla. Son maddeyi MUTLAKA tamamla, yarim birakma.`;
+      const kaliteMetniFormul = KALITE_REFERANSLARI[dersAdi] ? ` Kalite referansi: ${KALITE_REFERANSLARI[dersAdi]}` : "";
+      const p = `Sen "${dersAdi}" dersi ogretmenisin. "${uniteAdi}" unitesinin EN ONEMLI 8-10 formulunu/kuralini/sinavda-dikkat noktasini, ${sinif}. sinif seviyesinde, COK KISA bir "hizli bakis karti" formatinda listele.${kaliteMetniFormul} HER MADDE TEK SATIR ve EN FAZLA 12 KELIME olsun (formul + 2-4 kelimelik aciklama) - uzun cumle YASAK. SADECE Turkce yaz, markdown kullanma (yildiz vb.), her maddeyi yeni satirda '•' ile basla. Son maddeyi MUTLAKA tamamla, yarim birakma.`;
       const cevap = await aiIstek(p, 1800, cihazIdRef.current);
       const temiz = cevap.replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "")
         .split("\n").filter((satir) => satir.trim().length > 3).join("\n"); // yarim kalmis (sadece "•" gibi) satirlari at
       setFormulKartCache((eski) => ({ ...eski, [anahtar]: temiz }));
+      gorselKararIste(dersAdi, uniteAdi, sinif, cihazIdRef.current).then((svg) => setFormulKartGorselCache((eski) => ({ ...eski, [anahtar]: svg })));
     } catch (e) {
       setFormulKartCache((eski) => ({ ...eski, [anahtar]: "Kart hazırlanamadı, tekrar dene." }));
     } finally {
@@ -3411,7 +3414,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setYukleniyor("paragraf"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
     try {
       const uniteMetni3 = uniteSec ? ` (${uniteSec} unitesinden)` : "";
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni3} "${konu}" konusuyla ilgili once orta uzunlukta (120-180 kelime) bir metin/paragraf yaz, sonra bu metne dayali 20 coktan secmeli soru hazirla (${sinif}. sinif seviyesinde, kolaydan zora dogru sirali). ${BAGLAM_TEMELLI_SORU_TALIMATI} Son olarak bu konuyla ilgili 3-5 maddelik kisa "puf noktalari / altin kurallar" listesi ekle (formul, dikkat edilecek nokta, sik yapilan hatalar gibi). Sorular okudugunu anlama, yorumlama ve dikkat gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme, markdown kullanma:
+      const kaliteMetniParagrafPratik = KALITE_REFERANSLARI[ders] ? ` Kalite referansi: ${KALITE_REFERANSLARI[ders]}` : "";
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni3} "${konu}" konusuyla ilgili once orta uzunlukta (120-180 kelime) bir metin/paragraf yaz, sonra bu metne dayali 20 coktan secmeli soru hazirla (${sinif}. sinif seviyesinde, kolaydan zora dogru sirali). ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteMetniParagrafPratik} Son olarak bu konuyla ilgili 3-5 maddelik kisa "puf noktalari / altin kurallar" listesi ekle (formul, dikkat edilecek nokta, sik yapilan hatalar gibi). Sorular okudugunu anlama, yorumlama ve dikkat gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme, markdown kullanma:
 {"metin":"...","pufNoktalari":["...","..."],"sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]}`;
       const cevap = await aiIstek(p, 8000, cihazIdRef.current, true);
       const temiz = cevap.replace(/```json|```/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ").trim();
@@ -7416,6 +7420,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {formulKartYukleniyor && !formulKartCache[`${formulKartDers}::${formulKartUnite}::${sinif}`] ? (
                   <p style={{ color: "#8A968E", fontSize: 12.5, textAlign: "center" }}>Hazırlanıyor...</p>
                 ) : (
+                  {formulKartGorselCache[`${formulKartDers}::${formulKartUnite}::${sinif}`] && (
+                    <div style={{ background: "#fff", borderRadius: 10, padding: 12, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: formulKartGorselCache[`${formulKartDers}::${formulKartUnite}::${sinif}`] }} />
+                  )}
                   <div style={{ color: "#fff", fontSize: 13, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>
                     {formulKartCache[`${formulKartDers}::${formulKartUnite}::${sinif}`]}
                   </div>
