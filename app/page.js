@@ -2990,22 +2990,38 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [soruSohbetMetni, setSoruSohbetMetni] = useState("");
   const [soruSohbetYukleniyor, setSoruSohbetYukleniyor] = useState(false);
 
-  async function soruSohbetGonder() {
+  async function soruSohbetGonder(gorselDosya) {
     const mesaj = soruSohbetMetni.trim();
-    if (!mesaj || soruSohbetYukleniyor) return;
+    if (!mesaj && !gorselDosya) return;
+    if (soruSohbetYukleniyor) return;
     setSoruSohbetMetni("");
-    setSoruSohbetGecmisi((eski) => [...eski, { rol: "ogrenci", metin: mesaj }]);
+
+    let gorselBase64 = null, gorselMediaType = null, gorselUrl = null;
+    if (gorselDosya) {
+      gorselUrl = URL.createObjectURL(gorselDosya);
+      try {
+        gorselBase64 = await new Promise((resolve, reject) => {
+          const r = new FileReader();
+          r.onload = () => resolve(r.result.split(",")[1]);
+          r.onerror = reject;
+          r.readAsDataURL(gorselDosya);
+        });
+        gorselMediaType = gorselDosya.type;
+      } catch (e) { /* okunamazsa sadece metinle devam */ }
+    }
+
+    setSoruSohbetGecmisi((eski) => [...eski, { rol: "ogrenci", metin: mesaj, gorselUrl }]);
     setSoruSohbetYukleniyor(true);
     try {
       const res = await fetch("/api/soru-coz-devam", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orijinalCozum: soruCozumu, sohbetGecmisi: soruSohbetGecmisi, yeniMesaj: mesaj, ders, sinif, cihazId: cihazIdRef.current }),
+        body: JSON.stringify({ orijinalCozum: soruCozumu, sohbetGecmisi: soruSohbetGecmisi, yeniMesaj: mesaj, ders, sinif, cihazId: cihazIdRef.current, imageBase64: gorselBase64, mediaType: gorselMediaType }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error || "Bir sorun oldu, tekrar sorar mısın?");
       setSoruSohbetGecmisi((eski) => [...eski, { rol: "asistan", metin: data.cevap }]);
     } catch (e) {
-      setSoruSohbetGecmisi((eski) => [...eski, { rol: "asistan", metin: "Bir sorun oldu, tekrar sorar mısın?" }]);
+      setSoruSohbetGecmisi((eski) => [...eski, { rol: "asistan", metin: e.message || "Bir sorun oldu, tekrar sorar mısın?" }]);
     } finally {
       setSoruSohbetYukleniyor(false);
     }
@@ -6010,11 +6026,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ marginBottom: 12, display: "flex", flexDirection: "column", gap: 8 }}>
                     {soruSohbetGecmisi.map((m, i) => (
                       <div key={i} style={{ alignSelf: m.rol === "ogrenci" ? "flex-end" : "flex-start", maxWidth: "85%" }}>
+                        {m.gorselUrl && <img src={m.gorselUrl} alt="Gonderilen fotograf" style={{ maxWidth: 140, borderRadius: 10, marginBottom: 4, display: "block" }} />}
+                        {(m.metin || !m.gorselUrl) && (
                         <div style={{
                           padding: "8px 12px", borderRadius: m.rol === "ogrenci" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
                           background: m.rol === "ogrenci" ? COLORS.coral : "#FAF6EE", color: m.rol === "ogrenci" ? "#fff" : "#1B2430",
                           fontSize: 12.5, lineHeight: 1.6, border: m.rol === "ogrenci" ? "none" : `1px solid ${COLORS.line}`,
                         }}>{m.metin}{m.rol !== "ogrenci" && <SesliOkuButonu metin={m.metin} />}</div>
+                        )}
                       </div>
                     ))}
                     {soruSohbetYukleniyor && (
@@ -6024,11 +6043,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 )}
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <MikrofonButonu alanAdi="soru-sohbet" metinAyarla={setSoruSohbetMetni} />
+                  <label style={{ cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: soruSohbetYukleniyor ? 0.4 : 0.7 }}>
+                    <input type="file" accept="image/*" disabled={soruSohbetYukleniyor} style={{ display: "none" }} aria-label="Fotograf ekle"
+                      onChange={(e) => { const f = e.target.files[0]; if (f) soruSohbetGonder(f); e.target.value = ""; }} />
+                    📎
+                  </label>
                   <input value={soruSohbetMetni} aria-label="Soru hakkinda mesaj" onChange={(e) => setSoruSohbetMetni(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") soruSohbetGonder(); }}
                     placeholder="Örn: 3. adımı anlamadım, tekrar açıklar mısın?"
                     style={{ flex: 1, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
-                  <button className="kx-btn" onClick={soruSohbetGonder} disabled={soruSohbetYukleniyor || !soruSohbetMetni.trim()}
+                  <button className="kx-btn" onClick={() => soruSohbetGonder()} disabled={soruSohbetYukleniyor || !soruSohbetMetni.trim()}
                     style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Sor</button>
                 </div>
               </div>
