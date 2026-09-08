@@ -21,11 +21,11 @@ export async function GET(req) {
     const tarihSeti = new Set(tarihler);
 
     // Guncel seriyi bugunden (ya da hic bugun calisilmadiysa dunden) geriye dogru sayar.
-    function gunFarkStr(gunSayisi) {
+    const gunFarkStr = (gunSayisi) => {
       const d = new Date();
       d.setUTCDate(d.getUTCDate() - gunSayisi);
       return d.toISOString().slice(0, 10);
-    }
+    };
     let guncelSeri = 0;
     let baslangicOfset = tarihSeti.has(gunFarkStr(0)) ? 0 : (tarihSeti.has(gunFarkStr(1)) ? 1 : null);
     if (baslangicOfset !== null) {

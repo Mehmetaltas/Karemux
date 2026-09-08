@@ -1,0 +1,15 @@
+{
+  "extends": ["next/core-web-vitals", "eslint:recommended"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "rules": {
+    "no-undef": "error",
+    "no-unused-vars": "warn",
+    "no-empty": "warn",
+    "no-misleading-character-class": "off",
+    "react/no-unescaped-entities": "off"
+  }
+}
