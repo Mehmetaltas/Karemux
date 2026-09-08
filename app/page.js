@@ -5,6 +5,35 @@ import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
 import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
+
+// Bos, basilabilir Optik Cevap Kagidi sablonu (8 Eylul) - ogrenci/veli
+// yazdirip elle isaretler, sonra fotografini cekip mevcut optikOkumaYap
+// akisina yukler. Ekranda gizli, sadece yazdirirken gorunur (.yazdir-alani
+// deseni). AI'nin okumasi icin standart, net A/B/C/D sutunlu format.
+function OptikFormSablonu({ soruSayisi, baslik }) {
+  const satirlar = Array.from({ length: soruSayisi }, (_, i) => i + 1);
+  return (
+    <div className="yazdir-alani" style={{ background: "#fff", padding: 20 }}>
+      <YazdirmaBasligi />
+      <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 4, textAlign: "center" }}>{baslik || "Optik Cevap Kağıdı"}</p>
+      <p style={{ fontSize: 10.5, color: "#6B7566", marginBottom: 16, textAlign: "center" }}>Her satırda doğru şıkkı KALEM/KURŞUN KALEMLE tamamen doldur. Bitince fotoğrafını çekip "Optik Okuma ile Doldur"a yükle.</p>
+      <div style={{ columnCount: soruSayisi > 20 ? 2 : 1, columnGap: 24 }}>
+        {satirlar.map((n) => (
+          <div key={n} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10, breakInside: "avoid" }}>
+            <span style={{ fontSize: 12, fontWeight: 700, width: 22 }}>{n}.</span>
+            {["A", "B", "C", "D"].map((harf) => (
+              <div key={harf} style={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <span style={{ display: "inline-block", width: 16, height: 16, borderRadius: "50%", border: "1.5px solid #1B2430" }} />
+                <span style={{ fontSize: 10.5 }}>{harf}</span>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <YazdirmaAltligi />
+    </div>
+  );
+}
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 const DUYURULAR = [
@@ -1522,6 +1551,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [denemeCevaplar, setDenemeCevaplar] = useState({});
   const [optikYukleniyor, setOptikYukleniyor] = useState(false);
   const [optikHata, setOptikHata] = useState("");
+
+  const [optikFormGoster, setOptikFormGoster] = useState(false);
 
   async function optikOkumaYap(dosya) {
     if (!dosya || !denemeSorulari) return;
@@ -5014,6 +5045,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </label>
                 <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Kagida isaretlediğin (A/B/C/D) cevapların fotoğrafını yükle, otomatik doldursun.</p>
                 {optikHata && <p style={{ fontSize: 11.5, color: COLORS.coral, marginTop: 6, fontWeight: 600 }}>{optikHata}</p>}
+                <button className="yazdirma-disi" onClick={() => { setOptikFormGoster(true); setTimeout(() => window.print(), 100); }} style={{ marginTop: 8, padding: "6px 12px", borderRadius: 7, border: `1px solid ${COLORS.line}`, background: "#fff", fontSize: 11, cursor: "pointer" }}>🖨️ Boş Optik Form Yazdır</button>
+                {optikFormGoster && <OptikFormSablonu soruSayisi={denemeSorulari.length} baslik={`${ders || ""} Optik Cevap Kağıdı`} />}
               </div>
             )}
             {kronometreSaniye !== null && !denemeGonderildi && (
