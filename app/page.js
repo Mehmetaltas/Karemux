@@ -3971,6 +3971,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>🏠 Ana Sayfa</button>
 
+              <button onClick={() => { setSecilenDers(null); setMod("sorucoz"); setMenuAcik(false); }} style={{
+                display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 14, borderRadius: 8,
+                border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "sorucoz" ? 700 : 500,
+                background: mod === "sorucoz" ? COLORS.page : "transparent", color: mod === "sorucoz" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+              }}>📷 Soru Çöz (Fotoğraf)</button>
+
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 15, marginBottom: 2 }}>📚 Ders Çalışma Odası</p>
               <p style={{ color: COLORS.bgText ? COLORS.bgText + "80" : "#8A968E", fontSize: 10.5, marginBottom: 10 }}>Konu anlat, test coz - asil calisma burada</p>
               {gorunurDersler(sinif).map((d) => (
@@ -3987,6 +3993,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["kocpanel", "🎯 Koc Paneli (Rapor)"],
                 ["zayifharita", "🗺️ Zayif Konu Haritasi"],
                 ["basarilarim", "🏅 Basarilarim"],
+                ["seviyetamamlama", "📶 Seviye Tamamlama"],
+                ["kurumpaneli", "🏆 Sınıf Sıralaman"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -4014,7 +4022,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🧠 Calisma Destek Araclari</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🧠 Hizli Yardimci Araclar</p>
               {[
                 ["formulkart", "📐 Formul ve Kural Kartlari"],
                 ["sinavstratejisi", "🎯 Sinav Stratejisi Rehberi"],
@@ -4048,8 +4056,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>👥 Baglantilar</p>
               {[
-                ["seviyetamamlama", "📶 Seviye Tamamlama"],
-                ["kurumpaneli", "🏆 Sınıf Sıralaman"],
                 ["velipaneli", "👪 Veli Paneli"],
                 ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
                 ["canliders", "👥 Grup Dersi / Kamp / Soru Cozum"],
@@ -4064,7 +4070,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🔧 Diger</p>
               {[
-                ["sorucoz", "📷 Soru Coz (Fotograf)"],
                 ["premium", "💳 Premium"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
