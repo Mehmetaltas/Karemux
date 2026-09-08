@@ -5910,6 +5910,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             ) : (
               <>
+                <div style={{ background: "#fff", borderRadius: 10, border: `1px solid ${COLORS.line}`, marginBottom: 14, overflow: "hidden" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+                    <div style={{ padding: 12, borderRight: `1px solid ${COLORS.line}` }}>
+                      <p style={{ fontSize: 11.5, fontWeight: 700, color: COLORS.muted, marginBottom: 8 }}>ÜCRETSİZ</p>
+                      <p style={{ fontSize: 11.5, lineHeight: 1.9 }}>Günde 20 AI isteği<br />Görsel soru çözme (3/gün)<br />Sınıf/şube sıralaması<br />Temel ilerleme takibi</p>
+                    </div>
+                    <div style={{ padding: 12, background: "#FFF8E8" }}>
+                      <p style={{ fontSize: 11.5, fontWeight: 700, color: COLORS.mustard, marginBottom: 8 }}>💎 PREMIUM</p>
+                      <p style={{ fontSize: 11.5, lineHeight: 1.9, fontWeight: 600 }}>Günde 70 AI isteği (sınırsıza yakın)<br />🧠 Öğrenme Hafızası (seni tanıyan AI)<br />Görsel soru çözme sınırsız<br />Öncelikli destek</p>
+                    </div>
+                  </div>
+                </div>
                 <p style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
                   Sinirsiz konu anlatimi, soru uretimi ve calisma plani icin Premium'a gec.
                   <br /><em>Istedigin an, tek tikla, hic ugrasmadan iptal edebilirsin.</em>
