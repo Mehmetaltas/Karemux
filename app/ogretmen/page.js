@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
-import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 
