@@ -7420,12 +7420,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {formulKartYukleniyor && !formulKartCache[`${formulKartDers}::${formulKartUnite}::${sinif}`] ? (
                   <p style={{ color: "#8A968E", fontSize: 12.5, textAlign: "center" }}>Hazırlanıyor...</p>
                 ) : (
+                  <>
                   {formulKartGorselCache[`${formulKartDers}::${formulKartUnite}::${sinif}`] && (
                     <div style={{ background: "#fff", borderRadius: 10, padding: 12, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: formulKartGorselCache[`${formulKartDers}::${formulKartUnite}::${sinif}`] }} />
                   )}
                   <div style={{ color: "#fff", fontSize: 13, lineHeight: 1.9, whiteSpace: "pre-wrap" }}>
                     {formulKartCache[`${formulKartDers}::${formulKartUnite}::${sinif}`]}
                   </div>
+                  </>
                 )}
               </div>
             )}
