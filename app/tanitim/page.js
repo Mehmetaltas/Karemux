@@ -69,8 +69,8 @@ export default function Tanitim() {
       {/* ==== GERCEK SAYILAR - "notlandirilmis" ==== */}
       <div style={{ padding: "40px 20px", maxWidth: 520, margin: "0 auto" }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 20 }}>
-          <NotladirilmisSayi deger="163" etiket="Ünite / Tema" isaret />
-          <NotladirilmisSayi deger="480+" etiket="Alt Konu" />
+          <NotladirilmisSayi deger={istatistik ? `${istatistik.uniteToplam}` : "…"} etiket="Ünite / Tema" isaret />
+          <NotladirilmisSayi deger={istatistik ? `${istatistik.altKonuToplam}+` : "…"} etiket="Alt Konu" />
           <NotladirilmisSayi deger={istatistik ? `${istatistik.soruBankasiToplam}+` : "…"} etiket="Soru Bankası" />
         </div>
         <p style={{ textAlign: "center", fontSize: 11.5, color: C.inkSoft, marginTop: 20, fontStyle: "italic" }}>
