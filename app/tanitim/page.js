@@ -86,6 +86,7 @@ export default function Tanitim() {
           { ikon: "🗺️", b: "Zayıf Konunu Sana Gösterir", a: "Nerede eksiğin var, tek bakışta gör; sistem otomatik plan çıkarır." },
           { ikon: "🎓", b: "Gerçek Öğretmenle Görüntülü Ders", a: "İstersen özel ders, istersen rehberlik danışmanlığı — tek tıkla randevu." },
           { ikon: "💸", b: "Dershanenin Onda Biri Fiyatına", a: "29.000₺'lik paketler yerine, yıllık 5.000₺'ye tam erişim." },
+          { ikon: "🛡️", b: "Güvenli, Denetimli AI Kullanımı", a: "Her mesaj otomatik içerik denetiminden geçer — çocuğun amaç dışı kullanımına karşı tasarlandı." },
         ].map((m, i) => (
           <div key={i} style={{ display: "flex", gap: 14, marginBottom: 18, alignItems: "flex-start" }}>
             <div style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 10, background: C.paperDeep, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{m.ikon}</div>
@@ -106,7 +107,7 @@ export default function Tanitim() {
           {[
             { baslik: "📖 Öğrenme", ogeler: ["Sınırsız Konu Anlatımı (6 ders)", "Yeni Nesil Soru Çözümü", "Paragraf Stüdyosu (8 tür pratik)", "Formül ve Kural Kartları", "Kelime Kartları (İngilizce + Türkçe)", "Fotoğrafla Soru Çözme"] },
             { baslik: "📝 Sınav Hazırlığı", ogeler: ["Deneme Sınavı", "Yazılı Hazırlığı", "Türkiye Geneli Deneme (gerçek sıralama)", "Bursluluk Sınavı (İOKBS) Hazırlığı", "Sınav Stratejisi Rehberi", "Sınav Kaygısı Desteği"] },
-            { baslik: "🎯 Kişisel Takip", ogeler: ["Zayıf Konu Haritası", "Aralıklı Tekrar Sistemi", "Haftalık Çalışma Planı", "Hedef Okulum ve Puan Hesaplayıcı", "Karne ve İlerleme Raporu", "Ara Tatil ve Yaz Tatili Programları"] },
+            { baslik: "🎯 Kişisel Takip", ogeler: ["Zayıf Konu Haritası", "Aralıklı Tekrar Sistemi", "Haftalık Çalışma Planı", "Hedef Okulum ve Puan Hesaplayıcı", "Karne ve İlerleme Raporu", "Ara Tatil ve Yaz Tatili Programları", "Kütüphanem (geçmiş içeriğin tek yerde)"] },
             { baslik: "👥 İnsan Desteği", ogeler: ["Öğretmenle Görüntülü Özel Ders", "Canlı Grup Dersi", "Canlı Konu Kampı", "Canlı Soru Çözüm Saati", "Rehber Öğretmenle Danışmanlık", "Veli Paneli (canlı takip)", "Kurum/Dershane Paneli (toplu rapor)", "Kurumlara Özel Toplu Lisans", "Kurumlara Özel Deneme Satışı"] },
           ].map((grup, gi) => (
             <div key={gi} style={{ marginBottom: 22 }}>
@@ -122,6 +123,22 @@ export default function Tanitim() {
           ))}
         </div>
       </KareliArkaplan>
+
+      {/* ==== UCRETSIZ / PREMIUM NETLIGI ==== */}
+      <div style={{ padding: "36px 20px", maxWidth: 520, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: 20, marginBottom: 16, textAlign: "center" }}>Ücretsiz mi, Premium mi?</h2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
+          <div style={{ background: C.paper, border: `1px solid ${C.grid}`, borderRadius: 12, padding: 16 }}>
+            <p style={{ fontWeight: 800, fontSize: 13, marginBottom: 8, color: C.inkSoft }}>ÜCRETSİZ</p>
+            <p style={{ fontSize: 12, lineHeight: 1.8 }}>Günde 20 AI isteği ile tüm konu anlatımı, soru çözümü ve çalışma araçları</p>
+          </div>
+          <div style={{ background: "#FFF8E8", border: `1.5px solid ${C.red}`, borderRadius: 12, padding: 16 }}>
+            <p style={{ fontWeight: 800, fontSize: 13, marginBottom: 8, color: C.red }}>💎 PREMIUM</p>
+            <p style={{ fontSize: 12, lineHeight: 1.8, fontWeight: 600 }}>Günde 70 istek (sınırsıza yakın), Öğrenme Hafızası (seni tanıyan AI), sınırsız fotoğrafla soru çözme</p>
+          </div>
+        </div>
+        <p style={{ textAlign: "center", fontSize: 11.5, color: C.inkSoft }}>Kurum/Dershane lisansları koltuk sayısına göre özel fiyatlandırılır — <a href="/iletisim" style={{ color: C.red, textDecoration: "underline" }}>bize yazın</a>, size özel teklif çıkaralım.</p>
+      </div>
 
       {/* ==== RAKIP KARSILASTIRMA ==== */}
       <div style={{ padding: "44px 20px 52px", maxWidth: 520, margin: "0 auto" }}>
@@ -280,6 +297,8 @@ export default function Tanitim() {
           <a href="https://www.instagram.com/karemuxegitim" target="_blank" rel="noopener noreferrer" style={{ color: C.inkSoft, textDecoration: "underline" }}>Instagram</a>
           {" · "}
           <a href="https://www.linkedin.com/in/karemux-e%C4%9Fitim-sistemleri-30a6ba431" target="_blank" rel="noopener noreferrer" style={{ color: C.inkSoft, textDecoration: "underline" }}>LinkedIn</a>
+          {" · "}
+          <a href="https://t.me/karemux_bildirim_bot" target="_blank" rel="noopener noreferrer" style={{ color: C.inkSoft, textDecoration: "underline" }}>Telegram</a>
         </p>
       </div>
 
