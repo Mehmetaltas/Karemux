@@ -53,16 +53,16 @@ export default function Iletisim() {
         <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 4 }}>Bize Ulaş</p>
         <p style={{ fontSize: 13, color: C.inkSoft, marginBottom: 24 }}>Sorun, öneri veya iş birliği için buradan yazabilirsin.</p>
 
-        <label style={etiket}>Ad Soyad</label>
+        <p style={etiket}>Ad Soyad</p>
         <input value={form.ad} onChange={(e) => alan("ad", e.target.value)} style={girdi} />
 
-        <label style={etiket}>E-posta</label>
+        <p style={etiket}>E-posta</p>
         <input type="email" value={form.eposta} onChange={(e) => alan("eposta", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Konu (opsiyonel)</label>
+        <p style={etiket}>Konu (opsiyonel)</p>
         <input value={form.konu} onChange={(e) => alan("konu", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Mesaj</label>
+        <p style={etiket}>Mesaj</p>
         <textarea value={form.mesaj} onChange={(e) => alan("mesaj", e.target.value)} style={{ ...girdi, minHeight: 120 }} />
 
         {hata && <p style={{ color: C.red, fontSize: 12.5, marginBottom: 10 }}>{hata}</p>}

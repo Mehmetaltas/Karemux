@@ -86,21 +86,21 @@ export default function OgretmenBasvuru() {
         <p style={{ fontSize: 22, fontWeight: 900, marginBottom: 4 }}>Karemux Öğretmen Başvurusu</p>
         <p style={{ fontSize: 13, color: C.inkSoft, marginBottom: 24 }}>Karemux'ta ders vermek için başvurunu doldur — inceleyip sana geri döneceğiz.</p>
 
-        <label style={etiket}>Ad Soyad</label>
+        <p style={etiket}>Ad Soyad</p>
         <input value={form.ad} onChange={(e) => alan("ad", e.target.value)} style={girdi} />
 
-        <label style={etiket}>E-posta</label>
+        <p style={etiket}>E-posta</p>
         <input type="email" value={form.eposta} onChange={(e) => alan("eposta", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Telefon (opsiyonel)</label>
+        <p style={etiket}>Telefon (opsiyonel)</p>
         <input value={form.telefon} onChange={(e) => alan("telefon", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Branş</label>
+        <p style={etiket}>Branş</p>
         <select value={form.brans} onChange={(e) => alan("brans", e.target.value)} style={girdi}>
           {["Matematik", "Fen Bilimleri", "Turkce", "Sosyal Bilgiler", "Din Kulturu", "Ingilizce", "Rehberlik"].map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
 
-        <label style={etiket}>Kategori</label>
+        <p style={etiket}>Kategori</p>
         <select value={form.kategori} onChange={(e) => alan("kategori", e.target.value)} style={girdi}>
           <option value="akademisyen">Akademisyen</option>
           <option value="branş_ogretmeni">Branş Öğretmeni</option>
@@ -108,27 +108,27 @@ export default function OgretmenBasvuru() {
           <option value="rehber_koc">Rehberlik/Koçluk</option>
         </select>
 
-        <label style={etiket}>Başvurmak İstediğin Kademe</label>
+        <p style={etiket}>Başvurmak İstediğin Kademe</p>
         <select value={form.istenenKademe} onChange={(e) => alan("istenenKademe", e.target.value)} style={girdi}>
           <option value="C">C — Yeni Mezun / Teknik-Temel (0-2 yıl deneyim)</option>
           <option value="B">B — Deneyimli Branş Öğretmeni (3-7 yıl)</option>
           <option value="A">A — Akademisyen / Uzman (8+ yıl)</option>
         </select>
 
-        <label style={etiket}>Deneyim Yılı</label>
+        <p style={etiket}>Deneyim Yılı</p>
         <input type="number" min="0" value={form.deneyimYili} onChange={(e) => alan("deneyimYili", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Eğitim Seviyesi</label>
+        <p style={etiket}>Eğitim Seviyesi</p>
         <select value={form.egitimSeviyesi} onChange={(e) => alan("egitimSeviyesi", e.target.value)} style={girdi}>
           <option value="Lisans">Lisans</option>
           <option value="Yuksek Lisans">Yüksek Lisans</option>
           <option value="Doktora">Doktora</option>
         </select>
 
-        <label style={etiket}>Eğitim Alanı (bölüm)</label>
+        <p style={etiket}>Eğitim Alanı (bölüm)</p>
         <input value={form.egitimAlani} onChange={(e) => alan("egitimAlani", e.target.value)} placeholder="Örn: Matematik Öğretmenliği" style={girdi} />
 
-        <label style={etiket}>Sertifikalar (varsa)</label>
+        <p style={etiket}>Sertifikalar (varsa)</p>
         <textarea value={form.sertifikalar} onChange={(e) => alan("sertifikalar", e.target.value)} style={{ ...girdi, minHeight: 60 }} />
 
         <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, marginBottom: 14, cursor: "pointer" }}>
@@ -136,12 +136,12 @@ export default function OgretmenBasvuru() {
           LGS/YKS gibi sınav hazırlık deneyimim var
         </label>
 
-        <label style={etiket}>CV (PDF, opsiyonel, maks 5MB)</label>
+        <p style={etiket}>CV (PDF, opsiyonel, maks 5MB)</p>
         <input type="file" accept="application/pdf" onChange={cvSec} disabled={cvYukleniyor} style={{ ...girdi, padding: "8px 12px" }} />
         {cvYukleniyor && <p style={{ fontSize: 12, color: C.inkSoft, marginTop: -6, marginBottom: 12 }}>Yukleniyor...</p>}
         {cvDosyaAdi && !cvYukleniyor && <p style={{ fontSize: 12, color: C.green, marginTop: -6, marginBottom: 12 }}>✓ {cvDosyaAdi} yuklendi</p>}
 
-        <label style={etiket}>Kısa Özgeçmiş</label>
+        <p style={etiket}>Kısa Özgeçmiş</p>
         <textarea value={form.ozgecmisMetni} onChange={(e) => alan("ozgecmisMetni", e.target.value)} style={{ ...girdi, minHeight: 90 }} />
 
         <div style={{ background: "#EEF2F6", borderRadius: 10, padding: 14, marginBottom: 12, border: `1px solid ${C.line}` }}>

@@ -74,43 +74,43 @@ export default function Kariyer() {
           </p>
         </div>
 
-        <label style={etiket}>Başvuru Türü</label>
+        <p style={etiket}>Başvuru Türü</p>
         <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
           <button type="button" onClick={() => turDegistir("tam_zamanli")} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${form.basvuruTuru === "tam_zamanli" ? C.red : C.line}`, background: form.basvuruTuru === "tam_zamanli" ? C.red : "#fff", color: form.basvuruTuru === "tam_zamanli" ? "#fff" : C.ink, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Tam Zamanlı</button>
           <button type="button" onClick={() => turDegistir("danismanlik")} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: `1.5px solid ${form.basvuruTuru === "danismanlik" ? C.red : C.line}`, background: form.basvuruTuru === "danismanlik" ? C.red : "#fff", color: form.basvuruTuru === "danismanlik" ? "#fff" : C.ink, fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Danışmanlık</button>
         </div>
 
-        <label style={etiket}>Departman</label>
+        <p style={etiket}>Departman</p>
         <select value={form.departman} onChange={(e) => alan("departman", e.target.value)} style={girdi}>
           {departmanListesi.map((d) => <option key={d} value={d}>{d}</option>)}
         </select>
 
-        <label style={etiket}>Ad Soyad</label>
+        <p style={etiket}>Ad Soyad</p>
         <input value={form.ad} onChange={(e) => alan("ad", e.target.value)} style={girdi} />
 
-        <label style={etiket}>E-posta</label>
+        <p style={etiket}>E-posta</p>
         <input type="email" value={form.eposta} onChange={(e) => alan("eposta", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Telefon (opsiyonel)</label>
+        <p style={etiket}>Telefon (opsiyonel)</p>
         <input value={form.telefon} onChange={(e) => alan("telefon", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Deneyim Yılı</label>
+        <p style={etiket}>Deneyim Yılı</p>
         <input type="number" min="0" value={form.deneyimYili} onChange={(e) => alan("deneyimYili", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Eğitim Seviyesi</label>
+        <p style={etiket}>Eğitim Seviyesi</p>
         <select value={form.egitimSeviyesi} onChange={(e) => alan("egitimSeviyesi", e.target.value)} style={girdi}>
           <option value="Lisans">Lisans</option>
           <option value="Yuksek Lisans">Yüksek Lisans</option>
           <option value="Doktora">Doktora</option>
         </select>
 
-        <label style={etiket}>Eğitim Alanı</label>
+        <p style={etiket}>Eğitim Alanı</p>
         <input value={form.egitimAlani} onChange={(e) => alan("egitimAlani", e.target.value)} style={girdi} />
 
-        <label style={etiket}>Portfolyo/LinkedIn (varsa)</label>
+        <p style={etiket}>Portfolyo/LinkedIn (varsa)</p>
         <input value={form.portfolyoUrl} onChange={(e) => alan("portfolyoUrl", e.target.value)} placeholder="https://..." style={girdi} />
 
-        <label style={etiket}>Kısa Özgeçmiş</label>
+        <p style={etiket}>Kısa Özgeçmiş</p>
         <textarea value={form.ozgecmisMetni} onChange={(e) => alan("ozgecmisMetni", e.target.value)} style={{ ...girdi, minHeight: 90 }} />
 
         <div style={{ background: "#F1DEDB", borderRadius: 10, padding: 14, marginBottom: 12 }}>

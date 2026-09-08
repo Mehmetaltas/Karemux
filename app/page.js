@@ -4041,7 +4041,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {menuAcik && (
           <>
-            <div onClick={() => setMenuAcik(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40 }} />
+            <div onClick={() => setMenuAcik(false)} role="button" tabIndex={0} aria-label="Menuyu kapat" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setMenuAcik(false); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 40 }} />
             <div style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 260, background: COLORS.bg, borderRight: `1px solid ${COLORS.panelBorder || COLORS.line}`, zIndex: 50, padding: "20px 14px", overflowY: "auto", boxShadow: "4px 0 20px rgba(0,0,0,0.3)" }}>
               <button onClick={() => { setSecilenDers(null); setMod("bos"); setMenuAcik(false); }} style={{
                 display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 14, borderRadius: 8,
@@ -4467,7 +4467,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                   {dersSecimModu === "manuel" && (
                     <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: manuelUnite ? 14 : 0 }}>
                         {dersinUniteleri(secilenDers, sinif).map((u, idx) => {
                           const secili = manuelUnite === u;
@@ -4488,7 +4488,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         if (altBasliklar.length === 0) return null;
                         return (
                           <div>
-                            <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ALT BAŞLIK SEÇ (isteğe bağlı)</label>
+                            <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ALT BAŞLIK SEÇ (isteğe bağlı)</p>
                             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                               {altBasliklar.map((ab) => {
                                 const secili = manuelAltBaslik.includes(ab);
@@ -4862,7 +4862,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && dersinUniteleri(denemeDers, sinif).length > 0 && (
               <div style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {dersinUniteleri(denemeDers, sinif).map((u, idx) => {
                     const secili = kapsamUnite === u;
@@ -4892,9 +4892,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               }
               return (
                 <div style={{ marginBottom: 4 }}>
-                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>
                     ALT BAŞLIK SEÇ (isteğe bağlı, hiç seçmezsen ünitenin tamamı kullanılır)
-                  </label>
+                  </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {altBasliklar.map((ab) => {
                       const secili = kapsamAltBasliklar.includes(ab);
@@ -5001,7 +5001,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {(kapsamTuru === "konu" || kapsamTuru === "unite") && denemeDers && dersinUniteleri(denemeDers, sinif).length > 0 && (
               <div style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {dersinUniteleri(denemeDers, sinif).map((u, idx) => {
                     const secili = kapsamUnite === u;
@@ -6305,7 +6305,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>{ogretmenKategori === "rehberlik" ? "Şu an müsait rehber öğretmen yok." : "Şu an müsait ders öğretmeni yok."}</p>
               ) : (
                 <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>{ogretmenKategori === "rehberlik" ? "REHBER ÖĞRETMEN SEÇ" : "ÖĞRETMEN SEÇ"}</label>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>{ogretmenKategori === "rehberlik" ? "REHBER ÖĞRETMEN SEÇ" : "ÖĞRETMEN SEÇ"}</p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
                     {filtrelenmisOgretmenler.map((o) => (
                       <button key={o.id} onClick={() => ogretmenSecVeSlotlariGetir(o.id)} style={{
@@ -6320,7 +6320,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                   {secilenOgretmen && (
                     <>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>MÜSAİT SAATLER (önümüzdeki 7 gün)</label>
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>MÜSAİT SAATLER (önümüzdeki 7 gün)</p>
                       {musaitSlotlar === null ? (
                         <p aria-live="polite" style={{ fontSize: 12, color: COLORS.muted }}>Yükleniyor...</p>
                       ) : musaitSlotlar.length === 0 ? (
@@ -6364,7 +6364,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
 
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>YENİ ÖĞRENCİ BAĞLA</label>
+                <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>YENİ ÖĞRENCİ BAĞLA</p>
                 <div style={{ display: "flex", gap: 6 }}>
                   <input value={baglantiKoduGir} onChange={(e) => setBaglantiKoduGir(e.target.value)} placeholder="Öğrencinin bağlantı kodu" aria-label="Ogrencinin baglanti kodu"
                     style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
@@ -6751,7 +6751,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
                   <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 10 }}>Kendi Konunu Seç</p>
-                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>DERS</label>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>DERS</p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
                     {Object.keys(MUFREDAT).map((d) => (
                       <button key={d} onClick={() => { setTekKonuDers(d); setTekKonuUnite(""); }} style={{ padding: "7px 12px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${tekKonuDers === d ? COLORS.coral : COLORS.line}`, background: tekKonuDers === d ? "#FFF1EF" : "#fff" }}>{d}</button>
@@ -6760,7 +6760,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                   {tekKonuDers && (
                     <>
-                      <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ÜNİTE (opsiyonel)</label>
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ÜNİTE (opsiyonel)</p>
                       <div style={{ display: "flex", flexDirection: "column", gap: 5, marginBottom: 12, maxHeight: 160, overflowY: "auto" }}>
                         {dersinUniteleri(tekKonuDers, sinif).map((u) => (
                           <button key={u} onClick={() => { const yeni = tekKonuUnite === u ? "" : u; setTekKonuUnite(yeni); if (yeni) altKonulariGetir(tekKonuDers, yeni); }} style={{ padding: "8px 10px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", textAlign: "left", border: `1.5px solid ${tekKonuUnite === u ? COLORS.mustard : COLORS.line}`, background: tekKonuUnite === u ? "#FEF8E8" : "#FAF6EE" }}>{u}</button>
@@ -6776,7 +6776,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     if (!liste || liste.length === 0) return null;
                     return (
                       <div style={{ marginBottom: 10 }}>
-                        <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ALT KONU SEÇ (önerilen)</label>
+                        <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ALT KONU SEÇ (önerilen)</p>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
                           {liste.map((ak) => (
                             <button key={ak} onClick={() => setTekKonuKonu(ak)} style={{ padding: "7px 11px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${tekKonuKonu === ak ? COLORS.coral : COLORS.line}`, background: tekKonuKonu === ak ? "#FFF1EF" : "#fff" }}>{ak}</button>
@@ -6786,7 +6786,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     );
                   })()}
 
-                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>KONU</label>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>KONU</p>
                   <input value={tekKonuKonu} onChange={(e) => setTekKonuKonu(e.target.value)} placeholder="Örn: Üslü Sayılarda Bölme" aria-label="Konu" style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 10 }} />
 
                   <button className="kx-btn" disabled={tekKonuYukleniyor || !tekKonuDers || !tekKonuKonu.trim()} onClick={() => tekKonuBaslat(tekKonuDers, tekKonuUnite, tekKonuKonu)} style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: (tekKonuDers && tekKonuKonu.trim()) ? COLORS.coral : COLORS.line, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
@@ -6916,7 +6916,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {!kelimeKartlari && (
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>DERS</label>
+                <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>DERS</p>
                 <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
                   {[["Ingilizce", "🇬🇧 İngilizce"], ["Turkce", "📖 Türkçe Sözcük Hazinesi"]].map(([k, etiket]) => (
                     <button key={k} onClick={() => { setKelimeKartiDers(k); setKelimeKartiUnite(null); }} style={{ flex: 1, padding: "10px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${kelimeKartiDers === k ? COLORS.coral : COLORS.line}`, background: kelimeKartiDers === k ? "#FFF1EF" : "#fff" }}>{etiket}</button>
@@ -6925,7 +6925,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
                 {kelimeKartiDers === "Ingilizce" && (
                   <>
-                    <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ÜNİTE / KONU</label>
+                    <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ÜNİTE / KONU</p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14, maxHeight: 240, overflowY: "auto" }}>
                       {dersinUniteleri("Ingilizce", sinif).map((u) => (
                         <button key={u} onClick={() => setKelimeKartiUnite(u)} style={{ padding: "9px 12px", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left", border: `1.5px solid ${kelimeKartiUnite === u ? COLORS.mustard : COLORS.line}`, background: kelimeKartiUnite === u ? "#FEF8E8" : "#FAF6EE" }}>{u}</button>
@@ -7183,7 +7183,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {!tatilProgramiListesi && (
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>TATİL TÜRÜ</label>
+                <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>TATİL TÜRÜ</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
                   {TATIL_TURLERI.map((t) => {
                     const secili = tatilTuru === t.key;
@@ -7270,7 +7270,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 12.5, lineHeight: 1.7, color: "#3A4550", marginBottom: 14 }}>
                     İOKBS (Bursluluk Sınavı), devlet okulunda okuyan öğrencilere aylık burs kazandıran resmi bir MEB sınavıdır. Türkçe, Matematik, Fen Bilimleri ve Sosyal Bilgiler'den eşit sayıda soru sorulur.
                   </p>
-                  <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>DERS BAŞINA SORU SAYISI</label>
+                  <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>DERS BAŞINA SORU SAYISI</p>
                   <div style={{ display: "flex", gap: 6, marginBottom: 16 }}>
                     {[5, 10, 20].map((n) => (
                       <button key={n} onClick={() => setBurslulukSoruSayisi(n)} style={{ flex: 1, padding: "9px 0", borderRadius: 8, fontSize: 12.5, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${burslulukSoruSayisi === n ? COLORS.coral : COLORS.line}`, background: burslulukSoruSayisi === n ? "#FFF1EF" : "#fff" }}>
@@ -7386,7 +7386,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
 
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
-              <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>PARAGRAF TÜRÜ</label>
+              <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>PARAGRAF TÜRÜ</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
                 {PARAGRAF_TURLERI.map((t) => {
                   const secili = paragrafTuru === t.ad;
@@ -7402,7 +7402,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 })}
               </div>
 
-              <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ZORLUK</label>
+              <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8 }}>ZORLUK</p>
               <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
                 {[["kolay", "Kolay"], ["orta", "Orta"], ["zor", "Zor"]].map(([k, etiket]) => (
                   <button key={k} onClick={() => setParagrafZorluk(k)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer", border: `1.5px solid ${paragrafZorluk === k ? COLORS.coral : COLORS.line}`, background: paragrafZorluk === k ? "#FFF1EF" : "#fff" }}>{etiket}</button>
@@ -7456,7 +7456,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
 
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
-              <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İL</label>
+              <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İL</p>
               <select value={hedefIl} onChange={(e) => { setHedefIl(e.target.value); setHedefIlce(""); }} aria-label="Il"
                 style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }}>
                 <option value="">İl seç...</option>
@@ -7465,7 +7465,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               {hedefIl && (
                 <>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İLÇE</label>
+                  <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>İLÇE</p>
                   <select value={hedefIlce} onChange={(e) => setHedefIlce(e.target.value)} aria-label="Ilce"
                     style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }}>
                     <option value="">İlçe seç...</option>
@@ -7474,11 +7474,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </>
               )}
 
-              <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF OKUL ADI</label>
+              <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF OKUL ADI</p>
               <input value={hedefOkulAdi} aria-label="Hedef okul adi" onChange={(e) => setHedefOkulAdi(e.target.value)} placeholder="Örn: XYZ Fen Lisesi"
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 14, background: "#FAF6EE" }} />
 
-              <label style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF PUAN (100-500 arası, kendi araştırdığın)</label>
+              <p style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>HEDEF PUAN (100-500 arası, kendi araştırdığın)</p>
               <input type="number" min="100" max="500" value={hedefPuanDeger} aria-label="Hedef puan" onChange={(e) => setHedefPuanDeger(e.target.value)} placeholder="Örn: 470"
                 style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 10, border: `1.5px solid ${COLORS.line}`, fontSize: 13, marginBottom: 16, background: "#FAF6EE" }} />
 
@@ -7515,7 +7515,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
             {formulKartDers && (
               <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
-                <label style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</label>
+                <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 8, letterSpacing: 0.5 }}>ÜNİTE SEÇ</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   {dersinUniteleri(formulKartDers, sinif).map((u, idx) => {
                     const secili = formulKartUnite === u;
@@ -7758,7 +7758,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
               {ders && sinif === 8 && MUFREDAT[ders] && (
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>UNITE SEC (sirayla acilir - MEB mufredati, dogrulanmis)</label>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>UNITE SEC (sirayla acilir - MEB mufredati, dogrulanmis)</p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                     {MUFREDAT[ders].map((u) => {
                       const acikMi = uniteAcikMi(ders, u);

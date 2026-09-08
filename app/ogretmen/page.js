@@ -261,8 +261,9 @@ export default function OgretmenPanel() {
       </div>
 
       {menuAcik && (
-        <div onClick={() => setMenuAcik(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", width: 260, height: "100%", padding: "20px 16px", boxShadow: "2px 0 12px rgba(0,0,0,0.15)" }}>
+        <div onClick={() => setMenuAcik(false)} role="button" tabIndex={0} aria-label="Menuyu kapat" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setMenuAcik(false); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 20 }}>
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
+            <div onClick={(e) => e.stopPropagation()} style={{ background: "#fff", width: 260, height: "100%", padding: "20px 16px", boxShadow: "2px 0 12px rgba(0,0,0,0.15)" }}>
             <p style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>{ogretmen.ad}</p>
             <p style={{ fontSize: 12, color: C.muted, marginBottom: 20 }}>{ogretmen.brans}</p>
             {MENU.map((m) => (
