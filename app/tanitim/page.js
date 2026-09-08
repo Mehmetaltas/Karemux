@@ -49,6 +49,16 @@ export default function Tanitim() {
 
   return (
     <div style={{ background: C.paper, fontFamily: C.bodyFont, color: C.ink, overflowX: "hidden" }}>
+      <style>{`
+        @keyframes kxDuyuruNabiz { 0%, 100% { opacity: 1; } 50% { opacity: 0.75; } }
+        .kx-duyuru-nabiz { animation: kxDuyuruNabiz 2.4s ease-in-out infinite; }
+        @media (prefers-reduced-motion: reduce) { .kx-duyuru-nabiz { animation: none; } }
+      `}</style>
+
+      {/* ==== DUYURU SERIDI ==== */}
+      <div style={{ background: C.red, color: "#fff", textAlign: "center", padding: "8px 14px", fontSize: 12, fontWeight: 700 }}>
+        <span className="kx-duyuru-nabiz">🚀 Yeni Özellikler Sürekli Ekleniyor — Karemux Büyümeye Devam Ediyor</span>
+      </div>
 
       {/* ==== HERO ==== */}
       <KareliArkaplan style={{ padding: "56px 20px 64px", textAlign: "center", borderBottom: `1px solid ${C.grid}` }}>
@@ -64,7 +74,31 @@ export default function Tanitim() {
         <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
           <a href="https://www.karemux.com/" style={{ background: C.red, color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>Hemen Ücretsiz Başla →</a>
         </div>
+        <p style={{ fontSize: 11, color: C.inkSoft, marginTop: 12 }}>
+          <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogrenci-apk-latest/karemux-ogrenci-imzali.apk" style={{ color: C.inkSoft, textDecoration: "underline" }}>📱 Android Uygulamasını İndir</a>
+        </p>
       </KareliArkaplan>
+
+      {/* ==== NASIL CALISIR ==== */}
+      <div style={{ padding: "40px 20px", maxWidth: 520, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 24, textAlign: "center" }}>Nasıl Çalışır?</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          {[
+            { n: "1", b: "Ücretsiz Kayıt Ol", a: "Sınıfını seç, hemen başla — kredi kartı gerekmez." },
+            { n: "2", b: "Seviyeni Öğren", a: "Sistem kısa bir tespitle nerede olduğunu, nerede eksiğin olduğunu bulur." },
+            { n: "3", b: "Kendi Hızında Çalış", a: "Konu anlat, soru çöz, deneme gir — AI seni takip edip yönlendirir." },
+            { n: "4", b: "Gelişimini Gör", a: "Karne, zayıf konu haritası ve ilerleme raporlarıyla nereye geldiğini izle." },
+          ].map((s, i) => (
+            <div key={i} style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+              <span style={{ width: 34, height: 34, flexShrink: 0, borderRadius: 999, background: C.red, color: "#fff", fontWeight: 800, fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center" }}>{s.n}</span>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>{s.b}</p>
+                <p style={{ fontSize: 12.5, color: C.inkSoft, lineHeight: 1.5 }}>{s.a}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ==== GERCEK SAYILAR - "notlandirilmis" ==== */}
       <div style={{ padding: "40px 20px", maxWidth: 520, margin: "0 auto" }}>
@@ -87,6 +121,7 @@ export default function Tanitim() {
           { ikon: "🎓", b: "Gerçek Öğretmenle Görüntülü Ders", a: "İstersen özel ders, istersen rehberlik danışmanlığı — tek tıkla randevu." },
           { ikon: "💸", b: "Dershanenin Onda Biri Fiyatına", a: "29.000₺'lik paketler yerine, yıllık 5.000₺'ye tam erişim." },
           { ikon: "🛡️", b: "Güvenli, Denetimli AI Kullanımı", a: "Her mesaj otomatik içerik denetiminden geçer — çocuğun amaç dışı kullanımına karşı tasarlandı." },
+          { ikon: "🔒", b: "KVKK Uyumlu Veri Güvenliği", a: "Çocuğunuzun verileri şeffaf bir gizlilik politikasıyla korunur, istediğiniz an silinebilir." },
         ].map((m, i) => (
           <div key={i} style={{ display: "flex", gap: 14, marginBottom: 18, alignItems: "flex-start" }}>
             <div style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 10, background: C.paperDeep, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{m.ikon}</div>
