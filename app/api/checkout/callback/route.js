@@ -14,7 +14,7 @@ function iyzipayIstemcisi() {
 }
 
 export async function POST(req) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://karemux-nu.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.karemux.com";
   try {
     const form = await req.formData();
     const token = form.get("token");

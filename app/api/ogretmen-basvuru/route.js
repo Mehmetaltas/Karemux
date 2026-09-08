@@ -63,7 +63,7 @@ export async function POST(req) {
 <p>Eposta: ${eposta.trim()}${telefon ? ` · Telefon: ${telefon}` : ""}</p>
 <p>Brans: ${brans.trim()} · Kategori: ${kategori.trim()} · Kademe: ${istenenKademe}</p>
 <p>Deneyim: ${deneyimYili ?? "?"} yil · Egitim: ${egitimSeviyesi.trim()}${egitimAlani ? ` (${egitimAlani})` : ""}</p>
-<p>Admin panelinden incele: https://karemux-nu.vercel.app/admin</p>`,
+<p>Admin panelinden incele: https://www.karemux.com/admin</p>`,
       });
     } catch (e) { console.error("Basvuru bildirim epostasi gonderilemedi:", e); }
 

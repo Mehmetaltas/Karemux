@@ -35,7 +35,7 @@ export async function POST(req) {
         html: `<p><b>${ad.trim()}</b> (${eposta.trim()}) — ${basvuruTuru === "danismanlik" ? "Danışmanlık" : "Tam Zamanlı"} — ${departman.trim()}</p>
 <p>Deneyim: ${deneyimYili ?? "?"} yıl · Eğitim: ${egitimSeviyesi || "?"}${egitimAlani ? ` (${egitimAlani})` : ""}</p>
 ${portfolyoUrl ? `<p>Portfolyo: ${portfolyoUrl}</p>` : ""}
-<p>Admin panelinden incele: https://karemux-nu.vercel.app/admin</p>`,
+<p>Admin panelinden incele: https://www.karemux.com/admin</p>`,
       });
     } catch (e) { console.error("Kariyer bildirim epostasi gonderilemedi:", e); }
 
