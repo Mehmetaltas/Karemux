@@ -3,6 +3,8 @@ import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { ilgiliBilgiParcalariniGetir } from "@/lib/rag";
 import { hasPackageFeature } from "@/lib/paket";
 import { sql } from "@/lib/db";
+import { kullaniciIdCoz } from "@/lib/kullanici";
+import { ogrenmeHafizasiGetir } from "@/lib/ogrenme-hafizasi";
 
 export const maxDuration = 60; // Vercel fonksiyon zaman asimini mumkun oldugunca uzat
 
@@ -51,6 +53,17 @@ export async function POST(req) {
 
     let sonPrompt = prompt;
     let ragKullanildi = false;
+
+    // Ogrenme Hafizasi (8 Eylul) - SADECE Premium, sessizce dener, basarisiz
+    // olursa (kimlik cozulemez, veri yok vb.) normal akisa devam eder.
+    try {
+      const kullaniciId = await kullaniciIdCoz(req, cihazId);
+      const ogrenmeOzeti = await ogrenmeHafizasiGetir(kullaniciId);
+      if (ogrenmeOzeti) {
+        sonPrompt = `Bu ogrencinin gecmis calisma verisinden cikarilan profil: "${ogrenmeOzeti}" Bu bilgiyi, asagidaki icerigi bu ogrenciye daha uygun hale getirmek icin KULLAN (ozellikle zayif oldugu noktalara biraz daha dikkat et), ama bunu ACIKCA SOYLEME, dogal bir sekilde entegre et.\n\n---\n\n${sonPrompt}`;
+      }
+    } catch (e) { /* hafiza basarisiz olursa sessizce normal akisa devam */ }
+
     if (ragDersi) {
       const parcalar = await ilgiliBilgiParcalariniGetir(prompt.slice(0, 500), ragDersi, 3);
       if (parcalar.length > 0) {
