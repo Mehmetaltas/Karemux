@@ -1554,6 +1554,26 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [optikFormGoster, setOptikFormGoster] = useState(false);
 
+  const [kutuphaneVeri, setKutuphaneVeri] = useState(null);
+  const [kutuphaneYukleniyor, setKutuphaneYukleniyor] = useState(false);
+
+  async function kutuphaneGetir() {
+    setKutuphaneYukleniyor(true);
+    try {
+      const res = await fetch(`/api/kutuphanem?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      setKutuphaneVeri(data);
+    } catch (e) {
+      setKutuphaneVeri({ hatalar: [], sinavlar: [], tekKonular: [] });
+    } finally {
+      setKutuphaneYukleniyor(false);
+    }
+  }
+
+  useEffect(() => {
+    if (mod === "kutuphanem" && !kutuphaneVeri) kutuphaneGetir();
+  }, [mod]);
+
   async function optikOkumaYap(dosya) {
     if (!dosya || !denemeSorulari) return;
     setOptikYukleniyor(true); setOptikHata("");
@@ -4051,6 +4071,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["kocpanel", "🎯 Koc Paneli (Rapor)"],
                 ["zayifharita", "🗺️ Zayif Konu Haritasi"],
                 ["basarilarim", "🏅 Basarilarim"],
+                ["kutuphanem", "📚 Kütüphanem"],
                 ["seviyetamamlama", "📶 Seviye Tamamlama"],
                 ["kurumpaneli", "🏆 Sınıf Sıralaman"],
               ].map(([k, etiket]) => (
@@ -7027,6 +7048,59 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           );
         })()}
 
+        {mod === "kutuphanem" && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>📚 Kütüphanem</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 14 }}>Ürettiğin/gördüğün tüm içerik tek yerde.</p>
+            {kutuphaneYukleniyor ? (
+              <p aria-live="polite" style={{ fontSize: 13, color: COLORS.muted }}>Yükleniyor...</p>
+            ) : kutuphaneVeri ? (
+              <>
+                <div style={{ marginBottom: 18 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>❌ Hata Kitapçığım ({kutuphaneVeri.hatalar.length})</p>
+                  {kutuphaneVeri.hatalar.length === 0 ? (
+                    <p style={{ fontSize: 12, color: COLORS.muted }}>Henüz kayıtlı yanlış yok.</p>
+                  ) : (
+                    Object.entries(kutuphaneVeri.hatalar.reduce((g, h) => { (g[h.ders] = g[h.ders] || []).push(h); return g; }, {})).map(([ders, liste]) => (
+                      <div key={ders} style={{ marginBottom: 8 }}>
+                        <p style={{ fontSize: 12, fontWeight: 700, color: COLORS.coral }}>{ders} ({liste.length})</p>
+                        {liste.slice(0, 5).map((h) => (
+                          <p key={h.id} style={{ fontSize: 11.5, color: "#3A4550", padding: "3px 0", borderBottom: `1px solid ${COLORS.line}` }}>{h.alt_konu || "Genel"} — {h.soru?.slice(0, 60)}{h.soru?.length > 60 ? "..." : ""}</p>
+                        ))}
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div style={{ marginBottom: 18 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>📝 Geçmiş Sınavlarım ({kutuphaneVeri.sinavlar.length})</p>
+                  {kutuphaneVeri.sinavlar.length === 0 ? (
+                    <p style={{ fontSize: 12, color: COLORS.muted }}>Henüz sınav geçmişi yok.</p>
+                  ) : (
+                    kutuphaneVeri.sinavlar.slice(0, 15).map((s) => (
+                      <div key={s.id} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
+                        <span>{s.ders} · {s.tur} · {new Date(s.olusturulma).toLocaleDateString("tr-TR")}</span>
+                        <span style={{ fontWeight: 700 }}>{s.net} net</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <div>
+                  <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>🎯 Tek Konu Geçmişim ({kutuphaneVeri.tekKonular.length})</p>
+                  {kutuphaneVeri.tekKonular.length === 0 ? (
+                    <p style={{ fontSize: 12, color: COLORS.muted }}>Henüz Tek Konu geçmişi yok.</p>
+                  ) : (
+                    kutuphaneVeri.tekKonular.slice(0, 15).map((t) => (
+                      <div key={t.id} style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
+                        <span>{t.ders} · {t.konu}</span>
+                        <span style={{ fontWeight: 700, color: t.net >= 8 ? RENK_BASARI : t.net >= 5 ? COLORS.mustard : COLORS.coral }}>{t.net != null ? `${t.net} net` : t.durum}</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            ) : null}
+          </div>
+        )}
         {mod === "basarilarim" && (() => {
           if (!hesap) {
             return (
