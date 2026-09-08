@@ -4979,7 +4979,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             {!denemeGonderildi && (
               <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
                 <label style={{ cursor: "pointer" }}>
-                  <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} aria-label="Fotograf yukle"
+                  <input type="file" accept="image/*" style={{ display: "none" }} aria-label="Fotograf yukle"
                     onChange={(e) => { const f = e.target.files[0]; if (f) optikOkumaYap(f); }} />
                   <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
                     {optikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
@@ -5940,7 +5940,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>Fotoğraf Yükle</p>
                 <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 12 }}>Kameradan çek ya da galeriden seç</p>
                 <input
-                  type="file" accept="image/*" capture="environment"
+                  type="file" accept="image/*"
                   onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
                   aria-label="Soru fotografi yukle"
                   style={{ display: "none" }}
@@ -6420,7 +6420,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
                 <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
                   <label style={{ cursor: "pointer" }}>
-                    <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} aria-label="Fotograf yukle"
+                    <input type="file" accept="image/*" style={{ display: "none" }} aria-label="Fotograf yukle"
                       onChange={(e) => { const f = e.target.files[0]; if (f) ulusalOptikOkumaYap(f); }} />
                     <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
                       {ulusalOptikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
