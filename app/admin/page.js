@@ -489,6 +489,7 @@ export default function YonetimPaneli() {
   const [impersonateMesaj, setImpersonateMesaj] = useState("");
   const [donusumHuni, setDonusumHuni] = useState(null);
   const [sirketMerkezi, setSirketMerkezi] = useState(null);
+  const [satisLeadleri, setSatisLeadleri] = useState(null);
   const [destekTalepleri, setDestekTalepleri] = useState(null);
   const [destekAcikSayisi, setDestekAcikSayisi] = useState(0);
   const [destekYanitTaslagi, setDestekYanitTaslagi] = useState({});
@@ -758,6 +759,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !donusumHuni) donusumHuniGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "destek") destekGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "genel" && !sirketMerkezi) sirketMerkeziGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !satisLeadleri) satisLeadleriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
@@ -850,6 +852,14 @@ export default function YonetimPaneli() {
       if (!res.ok) throw new Error(data.error);
       havaleleriGetir();
     } catch (e) { setHata(e.message); } finally { setHavaleIslemDurumu(null); }
+  }
+
+  async function satisLeadleriGetir() {
+    try {
+      const res = await fetch(`/api/admin/satis-lead?sifre=${encodeURIComponent(sifre)}`);
+      const data = await res.json();
+      if (res.ok) setSatisLeadleri(data.leadler);
+    } catch (e) {}
   }
 
   async function sirketMerkeziGetir() {
@@ -1946,6 +1956,29 @@ export default function YonetimPaneli() {
                   );
                 })}
                 <button onClick={donusumHuniGetir} style={{ ...butonStil(true), padding: "8px 14px", fontSize: TYPO.caption, marginTop: 8 }}>Yenile</button>
+              </div>
+            )}
+          </Panel>
+        )}
+
+        {sekme === "donusumhuni" && (
+          <Panel baslik={`Satış Lead Listesi ${satisLeadleri ? `(${satisLeadleri.length})` : ""}`} ikon="📈">
+            <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 10 }}>Son 14 günde ilgi göstermiş (fiyat baktı / havale başlattı) ama ödeme yapmamış kişiler — manuel takip için.</p>
+            {!satisLeadleri ? (
+              <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p>
+            ) : satisLeadleri.length === 0 ? (
+              <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Şu an takip edilecek lead yok.</p>
+            ) : (
+              <div>
+                {satisLeadleri.map((l) => (
+                  <div key={l.kullanici_id} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${T.border}` }}>
+                    <div>
+                      <p style={{ fontSize: TYPO.caption, fontWeight: 700, margin: 0 }}>{l.ad || "İsimsiz"} {l.sinif ? `· ${l.sinif}. sınıf` : ""}</p>
+                      <p style={{ fontSize: TYPO.micro, color: T.textMuted, margin: 0 }}>{l.eposta} · {l.son_olay_turu === "satin_alma_baslatildi" ? "Havale başlattı" : "Fiyat inceledi"} · {new Date(l.son_ilgi_tarihi).toLocaleDateString("tr-TR")}</p>
+                    </div>
+                    <span style={{ fontSize: TYPO.micro, color: T.textMuted }}>{l.ilgi_sayisi}x</span>
+                  </div>
+                ))}
               </div>
             )}
           </Panel>
