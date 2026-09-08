@@ -4,6 +4,7 @@ import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
+import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 const DUYURULAR = [
@@ -3775,6 +3776,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   return (
     <main style={{ minHeight: "100vh", background: COLORS.bg, fontFamily: "system-ui, sans-serif", padding: "24px 14px" }}>
       <style>{`
+        @media print {
+          body * { visibility: hidden; }
+          .yazdir-alani, .yazdir-alani * { visibility: visible; }
+          .yazdir-alani { position: absolute; left: 0; top: 0; width: 100%; border: none !important; box-shadow: none !important; }
+          .yazdirma-disi { display: none !important; }
+        }
         @keyframes kxFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes kxFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
         @keyframes kxShine { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
@@ -5048,7 +5055,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </button>
             ) : denemeBelgesi ? (
               <div className="kx-fadein" style={{ marginTop: 16 }}>
-                <div style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                <div className="yazdir-alani" style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
                   <div style={{ background: COLORS.gradient, padding: "18px 20px", textAlign: "center" }}>
                     <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 26, height: 26, borderRadius: 7, marginBottom: 8 }} />
                     <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.page, margin: 0 }}>📄 Sonuç Belgesi</p>
@@ -5125,7 +5132,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       </div>
                     )}
 
-                    <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+                    <YazdirmaAltligi />
+                    <div className="yazdirma-disi" style={{ display: "flex", gap: 8, marginTop: 18 }}>
                       <button className="kx-btn" onClick={() => {
                         setZayifDersler((l) => (l.includes(denemeDers) ? l : [...l, denemeDers]));
                         setOtomatikTespit(true);
@@ -5453,12 +5461,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                               </div>
                             )}
                             {karneYorum && (
-                              <div style={{ background: "#FDFBF6", borderRadius: 10, border: `1px solid ${COLORS.line}`, padding: 16, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
+                              <div className="yazdir-alani" style={{ background: "#FDFBF6", borderRadius: 10, border: `1px solid ${COLORS.line}`, padding: 16, fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 13.5, lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
+                                <YazdirmaBasligi />
                                 {karneYorum}
+                                <YazdirmaAltligi />
                               </div>
                             )}
                             {karneOzet && karneOzet.length > 0 && (
-                              <button onClick={() => window.print()} style={{ width: "100%", marginTop: 10, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                              <button className="yazdirma-disi" onClick={() => window.print()} style={{ width: "100%", marginTop: 10, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
                                 🖨️ PDF / Yazdir
                               </button>
                             )}
@@ -5994,7 +6004,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               const cevapMetni = cevapSatiriIndex !== -1 ? satirlar[cevapSatiriIndex].replace(/^CEVAP\s*:\s*/i, "") : null;
               const adimSatirlari = cevapSatiriIndex !== -1 ? satirlar.slice(0, cevapSatiriIndex) : satirlar;
               return (
-                <div className="kx-fadein" style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
+                <div className="kx-fadein yazdir-alani" style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
                   <div style={{ background: COLORS.gradient, padding: "16px 20px", display: "flex", alignItems: "center", gap: 10 }}>
                     <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0 }} />
                     <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.page, margin: 0 }}>Karemux Çözüm</p>
@@ -6014,7 +6024,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <p style={{ fontSize: 18, fontWeight: 800, color: "#1B2430" }}>{cevapMetni}</p>
                     </div>
                   )}
-                  <div style={{ padding: "0 20px 16px" }}><GeriBildirimWidget ozellik="soru_cozumu" /></div>
+                  <div style={{ padding: "0 20px 16px" }}><GeriBildirimWidget ozellik="soru_cozumu" /><YazdirmaAltligi /></div>
                 </div>
               );
             })()}
@@ -7733,7 +7743,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               );
             })()}
             {quiz && (
-              <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+              <div className="yazdir-alani" style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+                <YazdirmaBasligi />
                 {quiz.map((s, i) => (
                   <div key={i} style={{ marginBottom: 16 }}>
                     <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>
@@ -7753,7 +7764,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ) : (
                   <>
                     <div style={{ textAlign: "center", fontWeight: 700, fontSize: 18, paddingTop: 4, marginBottom: 10 }}>Sonuc: {dogruSayisi} / {quiz.length} dogru</div>
-                    <button onClick={() => window.print()} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🖨️ PDF Olarak Kaydet / Yazdir</button>
+                    <YazdirmaAltligi />
+                    <button className="yazdirma-disi" onClick={() => window.print()} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>🖨️ PDF Olarak Kaydet / Yazdir</button>
                   </>
                 )}
               </div>

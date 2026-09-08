@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
+import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
+import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 
@@ -64,6 +66,7 @@ function karistirVeBKitapciğiUret(sorular) {
 function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster, yonerge, sinavSuresiDk, gorselSvg }) {
   return (
     <div className="yazdir-alani" style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16 }}>
+      <YazdirmaBasligi />
       <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{baslik}</p>
       {gorselSvg && (
         <div style={{ background: "#FAF8F4", borderRadius: 8, padding: 12, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: gorselSvg }} />
@@ -98,6 +101,7 @@ function MateryalGorunumu({ baslik, ozet, sorular, cevapGoster, yonerge, sinavSu
           )}
         </div>
       ))}
+      <YazdirmaAltligi />
     </div>
   );
 }
