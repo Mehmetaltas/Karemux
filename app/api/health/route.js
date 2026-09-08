@@ -35,3 +35,4 @@ export async function GET() {
   return Response.json({ durum: tumuSaglikli ? "saglikli" : "sorun_var", detaylar: sonuclar, zaman: new Date().toISOString() },
     { status: tumuSaglikli ? 200 : 503 });
 }
+// staging test - Tue Sep  8 08:52:23 +03 2026
