@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
 
-// karemux.com (ve www.karemux.com) uzerinden gelen ziyaretciler icin ana
-// sayfayi ("/") gorunmez sekilde /tanitim'e yonlendiriyoruz - URL adres
-// cubugunda degismiyor, sadece o icerik sunuluyor. karemux-nu.vercel.app
-// (gercek calisan sistem) bundan ETKILENMEZ, orada "/" hep gercek uygulama.
+// 8-9 Eylul: ONCEDEN karemux.com'un koku ("/") tanitima yonlendiriliyordu,
+// GERCEK uygulama sadece karemux-nu.vercel.app'te yasiyordu - kullanici
+// panellere girince adres cubugunda "vercel.app" goruyordu. Artik TERSINE:
+// www.karemux.com'un kendisi GERCEK uygulama, tanitim sayfasi kendi
+// /tanitim adresinde ayrica duruyor (kaybolmadi, sadece varsayilan degil).
 export function middleware(req) {
-  const host = req.headers.get("host") || "";
-  const gercekDomain = host === "karemux.com" || host === "www.karemux.com";
-
-  if (gercekDomain && req.nextUrl.pathname === "/") {
-    const url = req.nextUrl.clone();
-    url.pathname = "/tanitim";
-    return NextResponse.rewrite(url);
-  }
-
   return NextResponse.next();
 }
 
