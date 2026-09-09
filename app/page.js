@@ -5,6 +5,7 @@ import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
 import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
+import { listeSatiriStili, bolumBasligiStili } from "@/lib/tasarim-sistemi";
 
 // Bos, basilabilir Optik Cevap Kagidi sablonu (8 Eylul) - ogrenci/veli
 // yazdirip elle isaretler, sonra fotografini cekip mevcut optikOkumaYap
@@ -5830,6 +5831,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Uygulamayı kendine göre kişiselleştir.</p>
             </div>
 
+            <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${COLORS.line}`, marginBottom: 16, padding: "0 16px" }}>
+              <button onClick={() => setMod("hesap")} style={{ ...listeSatiriStili(COLORS, { ilkSatir: true }), width: "100%", background: "none", border: "none", borderTop: "none", fontSize: 15, fontFamily: "inherit" }}>
+                <i className="ti ti-user" style={{ fontSize: 20, color: COLORS.muted }} />
+                <span style={{ flex: 1, textAlign: "left" }}>Hesap ve bildirimler</span>
+                <i className="ti ti-chevron-down" style={{ fontSize: 16, color: COLORS.muted, transform: "rotate(-90deg)" }} />
+              </button>
+              <a href="/gizlilik" target="_blank" rel="noopener noreferrer" style={{ ...listeSatiriStili(COLORS), fontSize: 15 }}>
+                <i className="ti ti-shield" style={{ fontSize: 20, color: COLORS.muted }} />
+                <span style={{ flex: 1 }}>Veri gizliliği</span>
+                <i className="ti ti-external-link" style={{ fontSize: 15, color: COLORS.muted }} />
+              </a>
+            </div>
+
+            <p style={bolumBasligiStili(COLORS)}>Görünüm</p>
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
               <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 3 }}>🎨 Tema</p>
               <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 14 }}>Uygulamanın görünümünü değiştir.</p>
