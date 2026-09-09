@@ -34,8 +34,6 @@ jobs:
 
       - name: Keystore'u geri yukle
         run: echo "${{ secrets.VELI_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
-      - name: SHA256 parmak izini yazdir (gecici)
-        run: keytool -list -v -keystore android.keystore -storepass "${{ secrets.VELI_KEYSTORE_SIFRE }}" | grep "SHA256"
 
       - name: Zipalign + Imzala
         run: |

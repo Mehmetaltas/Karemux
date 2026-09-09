@@ -34,5 +34,29 @@
         "fbe542f5c2242a7e41a29bb5d4839324783ec902058cd2556ba10dd7d0248e91"
       ]
     }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.karemux_nu.veli.twa",
+      "sha256_cert_fingerprints": [
+        "2232857b27ad8244286be65d212680c3fca7edbe2c8c1c048cffc388931de79f"
+      ]
+    }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.karemux_nu.kurum.twa",
+      "sha256_cert_fingerprints": [
+        "f3adf2b10e105f3e89615ad9127d020a31e4ac0ddef2e25ad4ecd7a7fc0105fd"
+      ]
+    }
   }
 ]
