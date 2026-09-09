@@ -4019,6 +4019,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         )}
 
         {mod === "bos" && !secilenDers && (
+          <>
           <div style={{
             background: COLORS.page, borderRadius: 14, padding: "18px 20px", marginBottom: 16,
             border: `1.5px solid ${COLORS.mustard}`, minHeight: 90, position: "relative", overflow: "hidden",
@@ -4052,6 +4053,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <p style={{ fontWeight: 700, fontSize: 13, color: COLORS.ink, margin: "0 0 3px" }}>📖 Karemux'u Tanı</p>
             <p style={{ fontSize: 11.5, color: COLORS.muted, margin: 0 }}>Sistemin tamamını, fiyatları ve daha fazlasını gör →</p>
           </a>
+          </>
         )}
 
         {menuAcik && (
