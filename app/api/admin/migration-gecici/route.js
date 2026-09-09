@@ -1,9 +1,9 @@
 import { sql } from "@/lib/db";
+import { personelAdminMi } from "@/lib/personel";
 
 export async function GET(req) {
-  const sifre = new URL(req.url).searchParams.get("sifre");
-  if (sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI) {
-    return Response.json({ error: "Yetkisiz" }, { status: 401 });
+  if (!(await personelAdminMi(req))) {
+    return Response.json({ error: "Yetkisiz - admin panelde giris yapmis olmalisin" }, { status: 401 });
   }
   try {
     await sql`CREATE TABLE IF NOT EXISTS ai_kullanim_log (
