@@ -6,6 +6,7 @@ import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
 import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { listeSatiriStili, bolumBasligiStili } from "@/lib/tasarim-sistemi";
+import Tanitim from "@/app/tanitim/page";
 
 // Bos, basilabilir Optik Cevap Kagidi sablonu (8 Eylul) - ogrenci/veli
 // yazdirip elle isaretler, sonra fotografini cekip mevcut optikOkumaYap
@@ -1636,6 +1637,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [optikHata, setOptikHata] = useState("");
 
   const [optikFormGoster, setOptikFormGoster] = useState(false);
+  const [reklamKaplamaGoster, setReklamKaplamaGoster] = useState(false);
 
   const [kutuphaneVeri, setKutuphaneVeri] = useState(null);
   const [kutuphaneYukleniyor, setKutuphaneYukleniyor] = useState(false);
@@ -3175,6 +3177,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     // ana adresi (www.karemux.com) direkt uygulamaya (tanitima degil) yonlendiriyor.
     try { document.cookie = "karemux_gorundu=1; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
 
+    // Tam ekran tanitim kaplamasi (9 Eylul) - oturum basina 1 kez, X ile kapatilabilir
+    try {
+      if (!sessionStorage.getItem("karemux_reklam_gorundu")) {
+        setReklamKaplamaGoster(true);
+      }
+    } catch (e) {}
+
     // Satis Donusum Hunisi (7 Eylul) - ziyaret, cihaz basina gunde 1 kez
     try {
       const bugun = new Date().toISOString().slice(0, 10);
@@ -4127,8 +4136,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <style>{`@keyframes duyuruFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }`}</style>
           </div>
 
-          <ReklamAfisi COLORS={COLORS} setMod={setMod} />
           </>
+        )}
+
+        {reklamKaplamaGoster && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "#fff", overflowY: "auto" }}>
+            <button onClick={() => { setReklamKaplamaGoster(false); try { sessionStorage.setItem("karemux_reklam_gorundu", "1"); } catch (e) {} }} aria-label="Kapat" style={{ position: "fixed", top: 12, right: 12, zIndex: 101, width: 40, height: 40, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <Tanitim />
+          </div>
         )}
 
         {menuAcik && (
