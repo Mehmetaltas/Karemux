@@ -4067,7 +4067,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>📊 Karne ve Degerlendirme</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>📊 Karne ve Degerlendirme</p>
               {[
                 ["kocpanel", "🎯 Koc Paneli (Rapor)"],
                 ["zayifharita", "🗺️ Zayif Konu Haritasi"],
@@ -4084,7 +4084,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>📝 Sinavlar</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>📝 Sinavlar</p>
               {[
                 ["yazili", "✏️ Yazili Hazirligi"],
                 ["deneme", "📝 Deneme Sinavi"],
@@ -4102,7 +4102,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🧠 Hizli Yardimci Araclar</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🧠 Hizli Yardimci Araclar</p>
               {[
                 ["formulkart", "📐 Formul ve Kural Kartlari"],
                 ["sinavstratejisi", "🎯 Sinav Stratejisi Rehberi"],
@@ -4119,7 +4119,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🎯 Planlama ve Hedefler</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🎯 Planlama ve Hedefler</p>
               {[
                 ["hedefokul", "🏫 Hedef Okulum"],
                 ["tatilprogrami", "🏖️ Tatil Calisma Programi"],
@@ -4134,7 +4134,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>👥 Baglantilar</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>👥 Baglantilar</p>
               {[
                 ["velipaneli", "👪 Veli Paneli"],
                 ["ogretmenders", "🎓 Ogretmenle Canli Ders"],
@@ -4148,7 +4148,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 13, marginBottom: 4 }}>🔧 Diger</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🔧 Diger</p>
               {[
                 ["premium", "💳 Premium"],
               ].map(([k, etiket]) => (
