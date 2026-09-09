@@ -1,0 +1,63 @@
+name: Admin APK Build
+
+on:
+  push:
+    paths:
+      - 'android-admin/**'
+      - '.github/workflows/build-admin-apk.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: android-admin
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: JDK 17 kur
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Android SDK kur
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle ile derle (imzasiz APK)
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Keystore'u geri yukle
+        run: echo "${{ secrets.OGRETMEN_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
+
+      - name: Zipalign + Imzala
+        run: |
+          BUILD_TOOLS=$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/zipalign -v -p 4 \
+            app/build/outputs/apk/release/app-release-unsigned.apk karemux-admin-aligned.apk
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner sign \
+            --ks android.keystore --ks-key-alias android \
+            --ks-pass "pass:${{ secrets.OGRETMEN_KEYSTORE_SIFRE }}" \
+            --out karemux-admin-imzali.apk karemux-admin-aligned.apk
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner verify karemux-admin-imzali.apk
+
+      - name: APK'yi yukle (indirilebilir cikti)
+        uses: actions/upload-artifact@v4
+        with:
+          name: karemux-admin-apk
+          path: android-admin/karemux-admin-imzali.apk
+
+      - name: Herkese acik GitHub Release'e yayinla
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: admin-apk-latest
+          name: "Karemux Admin APK (guncel)"
+          files: android-admin/karemux-admin-imzali.apk
+          make_latest: false
+          body: "Otomatik yayinlanmis, imzali Karemux Admin APK'si. Her yeni derlemede bu ayni link uzerine guncellenir."
