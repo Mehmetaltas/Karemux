@@ -1640,7 +1640,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [reklamKaplamaGoster, setReklamKaplamaGoster] = useState(false);
   const [girisAnimasyonuGoster, setGirisAnimasyonuGoster] = useState(true);
   useEffect(() => {
-    const t = setTimeout(() => setGirisAnimasyonuGoster(false), 2200);
+    const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);
     return () => clearTimeout(t);
   }, []);
   const [eskiSifre, setEskiSifre] = useState("");
@@ -4169,9 +4169,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
         {girisAnimasyonuGoster && (
           <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "#010F3F", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-            <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "#2AAE7F", filter: "blur(40px)", opacity: 0.35, top: "20%", left: "10%", animation: "kxYanip 3s ease-in-out infinite" }} />
-            <div style={{ position: "absolute", width: 140, height: 140, borderRadius: "50%", background: "#3B82C4", filter: "blur(40px)", opacity: 0.35, top: "55%", right: "5%", animation: "kxYanip 3s ease-in-out infinite 1s" }} />
-            <div style={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "#6B5CE0", filter: "blur(40px)", opacity: 0.35, bottom: "10%", left: "20%", animation: "kxYanip 3s ease-in-out infinite 2s" }} />
+            <div style={{ position: "absolute", width: 180, height: 180, borderRadius: "50%", background: "#2AAE7F", filter: "blur(40px)", opacity: 0.5, top: "18%", left: "8%", animation: "kxYanip 2.4s ease-in-out infinite" }} />
+            <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "#3B82C4", filter: "blur(40px)", opacity: 0.5, top: "52%", right: "3%", animation: "kxYanip 2.4s ease-in-out infinite 0.6s" }} />
+            <div style={{ position: "absolute", width: 140, height: 140, borderRadius: "50%", background: "#6B5CE0", filter: "blur(40px)", opacity: 0.5, bottom: "8%", left: "18%", animation: "kxYanip 2.4s ease-in-out infinite 1.2s" }} />
             <div style={{ position: "relative", zIndex: 2, textAlign: "center", opacity: 0, animation: "kxGiris 1.4s ease-out 0.3s forwards" }}>
               <img src="/icons/icon-512.png" alt="Karemux" style={{ width: 100, height: 100, borderRadius: 20, animation: "kxNefes 2.5s ease-in-out infinite" }} />
               <p style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginTop: 16, opacity: 0, animation: "kxGiris 1s ease-out 1.1s forwards" }}>KAREMUX</p>
