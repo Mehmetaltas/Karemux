@@ -4140,8 +4140,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         )}
 
         {reklamKaplamaGoster && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+            <div style={{ position: "relative", maxWidth: 420, width: "100%" }}>
+              <button onClick={() => { setReklamKaplamaGoster(false); try { sessionStorage.setItem("karemux_reklam_gorundu", "1"); } catch (e) {} }} aria-label="Kapat" style={{ position: "absolute", top: -14, right: -14, zIndex: 101, width: 36, height: 36, borderRadius: 999, border: "none", background: "#fff", color: "#1B2430", fontSize: 18, cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>✕</button>
+              <img src="/reklam/afis-1.jpg" alt="Karemux tanıtım afişi" style={{ width: "100%", borderRadius: 16, display: "block" }} />
+            </div>
+          </div>
+        )}
+
+        {mod === "tanitim-goster" && (
           <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "#fff", overflowY: "auto" }}>
-            <button onClick={() => { setReklamKaplamaGoster(false); try { sessionStorage.setItem("karemux_reklam_gorundu", "1"); } catch (e) {} }} aria-label="Kapat" style={{ position: "fixed", top: 12, right: 12, zIndex: 101, width: 40, height: 40, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            <button onClick={() => setMod("bos")} aria-label="Kapat" style={{ position: "fixed", top: 12, right: 12, zIndex: 101, width: 40, height: 40, borderRadius: 999, border: "none", background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
             <Tanitim />
           </div>
         )}
@@ -4155,6 +4164,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 border: "none", cursor: "pointer", fontSize: 14, fontWeight: 700,
                 background: !secilenDers && mod === "bos" ? COLORS.page : "transparent", color: !secilenDers && mod === "bos" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
               }}>🏠 Ana Sayfa</button>
+
+              <button onClick={() => { setSecilenDers(null); setMod("tanitim-goster"); setMenuAcik(false); }} style={{
+                display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 14, borderRadius: 8,
+                border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === "tanitim-goster" ? 700 : 500,
+                background: mod === "tanitim-goster" ? COLORS.page : "transparent", color: mod === "tanitim-goster" ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+              }}>📖 Karemux Tanıtım</button>
 
               <button onClick={() => { setSecilenDers(null); setMod("sorucoz"); setMenuAcik(false); }} style={{
                 display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 14, borderRadius: 8,
