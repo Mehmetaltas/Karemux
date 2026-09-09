@@ -1,12 +1,26 @@
 import { NextResponse } from "next/server";
 
-// 8-9 Eylul: ONCEDEN karemux.com'un koku ("/") tanitima yonlendiriliyordu,
-// GERCEK uygulama sadece karemux-nu.vercel.app'te yasiyordu - kullanici
-// panellere girince adres cubugunda "vercel.app" goruyordu. Artik TERSINE:
-// www.karemux.com'un kendisi GERCEK uygulama, tanitim sayfasi kendi
-// /tanitim adresinde ayrica duruyor (kaybolmadi, sadece varsayilan degil).
+// 8-9 Eylul: Ana adres (www.karemux.com) - giris yapmis KULLANICIYA (karemux_token)
+// veya daha once uygulamayi kullanmis (karemux_gorundu, anonim/cihaz kullanicilar
+// dahil, sessizce/otomatik set edilir) HERKESE gercek uygulamayi gosterir. Hic
+// gormemis TAMAMEN YENI ziyaretciye tanitim gosterilir. Tanitimdaki "Basla"
+// linkleri ?uygulama=1 ile bu kontrolu bir kere atlar, sonra cihaz kendi
+// cerezini biraktigi icin bir dahaki ziyarette dogal olarak uygulamaya duser.
 export function middleware(req) {
-  return NextResponse.next();
+  const { pathname, searchParams } = req.nextUrl;
+  if (pathname !== "/") return NextResponse.next();
+
+  const gercekGiris = req.cookies.get("karemux_token");
+  const dahaOnceGorulmus = req.cookies.get("karemux_gorundu");
+  const zorlaUygulama = searchParams.get("uygulama") === "1";
+
+  if (gercekGiris || dahaOnceGorulmus || zorlaUygulama) {
+    return NextResponse.next();
+  }
+
+  const url = req.nextUrl.clone();
+  url.pathname = "/tanitim";
+  return NextResponse.rewrite(url);
 }
 
 export const config = {

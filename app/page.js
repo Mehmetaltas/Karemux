@@ -3088,6 +3088,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     cihazIdRef.current = cihazIdAl();
     if (!cihazIdRef.current) return;
 
+    // 8-9 Eylul: uygulamayi bir kez gorenin cihazina sessizce/otomatik
+    // birakilan cerez - middleware.js bunu okuyup bir dahaki ziyarette
+    // ana adresi (www.karemux.com) direkt uygulamaya (tanitima degil) yonlendiriyor.
+    try { document.cookie = "karemux_gorundu=1; path=/; max-age=31536000; SameSite=Lax"; } catch (e) {}
+
     // Satis Donusum Hunisi (7 Eylul) - ziyaret, cihaz basina gunde 1 kez
     try {
       const bugun = new Date().toISOString().slice(0, 10);
