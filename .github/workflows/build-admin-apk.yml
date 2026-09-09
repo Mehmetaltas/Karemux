@@ -34,7 +34,7 @@ jobs:
           ./gradlew assembleRelease
 
       - name: Keystore'u geri yukle
-        run: echo "${{ secrets.OGRETMEN_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
+        run: echo "${{ secrets.ADMIN_KEYSTORE_BASE64 }}" | base64 -d > android.keystore
 
       - name: Zipalign + Imzala
         run: |
@@ -43,7 +43,7 @@ jobs:
             app/build/outputs/apk/release/app-release-unsigned.apk karemux-admin-aligned.apk
           $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner sign \
             --ks android.keystore --ks-key-alias android \
-            --ks-pass "pass:${{ secrets.OGRETMEN_KEYSTORE_SIFRE }}" \
+            --ks-pass "pass:${{ secrets.ADMIN_KEYSTORE_SIFRE }}" \
             --out karemux-admin-imzali.apk karemux-admin-aligned.apk
           $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner verify karemux-admin-imzali.apk
 
