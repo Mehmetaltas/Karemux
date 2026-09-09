@@ -6,7 +6,6 @@ import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
 import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { listeSatiriStili, bolumBasligiStili } from "@/lib/tasarim-sistemi";
-import Tanitim from "@/app/tanitim/page";
 
 // Bos, basilabilir Optik Cevap Kagidi sablonu (8 Eylul) - ogrenci/veli
 // yazdirip elle isaretler, sonra fotografini cekip mevcut optikOkumaYap
@@ -764,6 +763,84 @@ function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ ders, sinif, unite, sorular, kaynakTuru }),
   }).catch(() => {});
+}
+
+function ReklamAfisi({ COLORS, setMod }) {
+  const kareli = {
+    backgroundImage: `linear-gradient(${COLORS.line} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.line} 1px, transparent 1px)`,
+    backgroundSize: "20px 20px",
+  };
+  return (
+    <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: `1px solid ${COLORS.line}`, background: COLORS.page }}>
+      <div style={{ ...kareli, padding: "20px 16px", pointerEvents: "none" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20, textAlign: "center" }}>
+          <div><p style={{ fontWeight: 800, fontSize: 20, margin: 0 }}>196</p><p style={{ fontSize: 9.5, color: COLORS.muted, margin: 0 }}>ÜNİTE/TEMA</p></div>
+          <div><p style={{ fontWeight: 800, fontSize: 20, margin: 0 }}>535+</p><p style={{ fontSize: 9.5, color: COLORS.muted, margin: 0 }}>ALT KONU</p></div>
+          <div><p style={{ fontWeight: 800, fontSize: 20, margin: 0 }}>1690+</p><p style={{ fontSize: 9.5, color: COLORS.muted, margin: 0 }}>SORU BANKASI</p></div>
+        </div>
+
+        <p style={{ fontWeight: 800, fontSize: 14, marginBottom: 10 }}>Nasıl Çalışır?</p>
+        {[
+          ["1", "Ücretsiz Kayıt Ol", "Sınıfını seç, hemen başla."],
+          ["2", "Seviyeni Öğren", "Kısa bir tespitle eksiklerini bulur."],
+          ["3", "Kendi Hızında Çalış", "AI seni takip edip yönlendirir."],
+          ["4", "Gelişimini Gör", "Karne ve raporlarla ilerlemeni izle."],
+        ].map(([n, b, a]) => (
+          <div key={n} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
+            <span style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", fontWeight: 800, fontSize: 11, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>{n}</span>
+            <div><p style={{ fontWeight: 700, fontSize: 12.5, margin: 0 }}>{b}</p><p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>{a}</p></div>
+          </div>
+        ))}
+
+        <p style={{ fontWeight: 800, fontSize: 14, margin: "16px 0 10px" }}>Neden Karemux?</p>
+        {[
+          ["✨", "Sınırsız Üretim", "Her seferinde taze, sana özel içerik."],
+          ["🗺️", "Zayıf Konunu Gösterir", "Sistem otomatik plan çıkarır."],
+          ["🛡️", "Güvenli AI Kullanımı", "Her mesaj otomatik denetimden geçer."],
+        ].map(([e, b, a]) => (
+          <div key={b} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
+            <span style={{ fontSize: 18, flexShrink: 0 }}>{e}</span>
+            <div><p style={{ fontWeight: 700, fontSize: 12.5, margin: 0 }}>{b}</p><p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>{a}</p></div>
+          </div>
+        ))}
+
+        <p style={{ fontWeight: 800, fontSize: 14, margin: "16px 0 10px" }}>Ücretsiz mi, Premium mi?</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+          <div style={{ background: "#fff", border: `1px solid ${COLORS.line}`, borderRadius: 10, padding: 10 }}>
+            <p style={{ fontWeight: 700, fontSize: 10.5, color: COLORS.muted, marginBottom: 4 }}>ÜCRETSİZ</p>
+            <p style={{ fontSize: 10.5, margin: 0 }}>Günde 20 AI isteği</p>
+          </div>
+          <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 10, padding: 10 }}>
+            <p style={{ fontWeight: 700, fontSize: 10.5, color: COLORS.mustard, marginBottom: 4 }}>💎 PREMIUM</p>
+            <p style={{ fontSize: 10.5, fontWeight: 600, margin: 0 }}>Günde 70 istek, Öğrenme Hafızası</p>
+          </div>
+        </div>
+
+        <p style={{ fontWeight: 800, fontSize: 14, margin: "16px 0 8px" }}>Neye Göre Farklı?</p>
+        <p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>Karemux: <b>5.000₺/yıl</b> · Geleneksel Dershane: <b>30.000-180.000₺/yıl</b></p>
+      </div>
+
+      <div style={{ borderTop: `1px solid ${COLORS.line}`, padding: "14px 16px", background: "#fff" }}>
+        <button onClick={() => setMod("sss")} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.coral}`, background: "transparent", color: COLORS.coral, fontWeight: 700, fontSize: 12.5, cursor: "pointer", marginBottom: 10 }}>❓ Sık Sorulan Sorular / Yardım</button>
+        <p style={{ fontSize: 10.5, color: COLORS.muted, textAlign: "center", margin: 0 }}>
+          <a href="/iletisim" style={{ color: COLORS.muted, textDecoration: "underline" }}>İletişim</a>
+          {" · "}
+          <a href="/ogretmen-basvuru" style={{ color: COLORS.muted, textDecoration: "underline" }}>Öğretmen Başvurusu</a>
+          {" · "}
+          <a href="/kariyer" style={{ color: COLORS.muted, textDecoration: "underline" }}>Kariyer</a>
+        </p>
+        <p style={{ fontSize: 10.5, color: COLORS.muted, textAlign: "center", marginTop: 6, marginBottom: 0 }}>
+          <a href="https://www.youtube.com/@KAREMUXEGITIMSISTEMLERI" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.muted, textDecoration: "underline" }}>YouTube</a>
+          {" · "}
+          <a href="https://www.instagram.com/karemuxegitim" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.muted, textDecoration: "underline" }}>Instagram</a>
+          {" · "}
+          <a href="https://www.linkedin.com/in/karemux-e%C4%9Fitim-sistemleri-30a6ba431" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.muted, textDecoration: "underline" }}>LinkedIn</a>
+          {" · "}
+          <a href="https://t.me/karemux_bildirim_bot" target="_blank" rel="noopener noreferrer" style={{ color: COLORS.muted, textDecoration: "underline" }}>Telegram</a>
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default function Ana() {
@@ -4046,9 +4123,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <style>{`@keyframes duyuruFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }`}</style>
           </div>
 
-          <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: `1px solid ${COLORS.line}`, pointerEvents: "none" }} aria-hidden="true">
-            <Tanitim />
-          </div>
+          <ReklamAfisi COLORS={COLORS} setMod={setMod} />
           </>
         )}
 
@@ -7074,6 +7149,26 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             </div>
           );
         })()}
+
+        {mod === "sss" && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 14 }}>❓ Sık Sorulan Sorular</p>
+            {[
+              { s: "Karemux gerçekten sınırsız mı?", c: "Ücretsiz üyelikte günde 20 AI isteği, Premium'da günde 70 istek (pratikte hiçbir öğrencinin ulaşmadığı, çok geniş bir sınır) var. Yani Premium'da fiilen sınırsız hissedersin." },
+              { s: "İstediğim zaman iptal edebilir miyim?", c: "Evet, tek tıkla, hiçbir prosedür olmadan. Kalan süre boyunca erişimin devam eder." },
+              { s: "Memnun kalmazsam param geri gelir mi?", c: "İlk kez satın alan yeni öğrenciler için 7 gün İlk Hafta Memnuniyet Garantimiz var (aylık paketlerde)." },
+              { s: "Verilerimiz güvende mi?", c: "Her mesaj otomatik içerik denetiminden geçer, KVKK'ya uygun şeffaf bir gizlilik politikamız var." },
+              { s: "Hangi sınıflar için uygun?", c: "5, 6, 7 ve 8. sınıf öğrencileri için, LGS'ye hazırlık odaklı." },
+              { s: "Mobil uygulama var mı?", c: "Evet, Android uygulamamızı Hesap ekranından indirebilirsin." },
+            ].map((s, i) => (
+              <div key={i} style={{ borderBottom: `1px solid ${COLORS.line}`, padding: "12px 0" }}>
+                <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{s.s}</p>
+                <p style={{ fontSize: 12, color: COLORS.muted, lineHeight: 1.6 }}>{s.c}</p>
+              </div>
+            ))}
+            <p style={{ fontSize: 12, color: COLORS.muted, marginTop: 14, textAlign: "center" }}>Başka bir sorunun mu var? <a href="/iletisim" style={{ color: COLORS.coral }}>Bize yazabilirsin</a>.</p>
+          </div>
+        )}
 
         {mod === "kutuphanem" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
