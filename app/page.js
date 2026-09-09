@@ -6712,7 +6712,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 10.5, color: COLORS.coral, marginTop: 4, fontWeight: 600 }}>Kapanış: {new Date(ulusalAktif.kapanis).toLocaleString("tr-TR")}</p>
                 </div>
                 <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
-                  <label style={{ cursor: "pointer" }}>
                   <label style={{ cursor: "pointer", marginRight: 8 }}>
                     <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} aria-label="Kamera ile optik oku"
                       onChange={(e) => { const f = e.target.files[0]; if (f) ulusalOptikOkumaYap(f); }} />
