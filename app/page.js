@@ -6,6 +6,7 @@ import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
 import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { listeSatiriStili, bolumBasligiStili } from "@/lib/tasarim-sistemi";
+import Tanitim from "@/app/tanitim/page";
 
 // Bos, basilabilir Optik Cevap Kagidi sablonu (8 Eylul) - ogrenci/veli
 // yazdirip elle isaretler, sonra fotografini cekip mevcut optikOkumaYap
@@ -4045,14 +4046,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <style>{`@keyframes duyuruFadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }`}</style>
           </div>
 
-          <a href="/tanitim" target="_blank" rel="noopener noreferrer" style={{
-            display: "block", marginTop: 12, borderRadius: 12, padding: "16px 18px", textDecoration: "none",
-            backgroundImage: `linear-gradient(${COLORS.line} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.line} 1px, transparent 1px)`,
-            backgroundSize: "20px 20px", backgroundColor: COLORS.page, border: `1px solid ${COLORS.line}`,
-          }}>
-            <p style={{ fontWeight: 700, fontSize: 13, color: COLORS.ink, margin: "0 0 3px" }}>📖 Karemux'u Tanı</p>
-            <p style={{ fontSize: 11.5, color: COLORS.muted, margin: 0 }}>Sistemin tamamını, fiyatları ve daha fazlasını gör →</p>
-          </a>
+          <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: `1px solid ${COLORS.line}`, pointerEvents: "none" }} aria-hidden="true">
+            <Tanitim />
+          </div>
           </>
         )}
 
