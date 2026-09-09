@@ -56,6 +56,29 @@ export async function GET(req) {
 
     const sabitGider = await gercekAylikSabitGider();
 
+    // GERCEK Satis/Donusum Hunisi (8-9 Eylul) - satislar tablosu henuz 0 satir
+    // (lansman oncesi) ama donusum_olayi'nda GERCEK huni verisi var. "Kac satis
+    // olacak" TAHMIN etmiyoruz - sadece gercek asama sayilarini ve aralarindaki
+    // gercek donusum oranini gosteriyoruz.
+    const huniOlaylari = await sql`
+      SELECT olay_turu, COUNT(*)::int AS sayi FROM donusum_olayi GROUP BY olay_turu
+    `;
+    const huniHaritasi = {};
+    huniOlaylari.forEach((r) => { huniHaritasi[r.olay_turu] = r.sayi; });
+    const ziyaret = huniHaritasi["ziyaret"] || 0;
+    const kayit = huniHaritasi["kayit"] || 0;
+    const premiumInceleme = huniHaritasi["premium_inceleme"] || 0;
+    const satinAlmaBaslatildi = huniHaritasi["satin_alma_baslatildi"] || 0;
+    const gercekSatisSayisi = await sql`SELECT COUNT(*)::int AS c FROM satislar`;
+    const gercekHuni = {
+      ziyaret, kayit, premiumInceleme, satinAlmaBaslatildi,
+      tamamlananSatis: gercekSatisSayisi[0].c,
+      ziyaretKayitOraniYuzde: ziyaret > 0 ? Math.round((kayit / ziyaret) * 1000) / 10 : null,
+      kayitPremiumOraniYuzde: kayit > 0 ? Math.round((premiumInceleme / kayit) * 1000) / 10 : null,
+      baslatilanTamamlananOraniYuzde: satinAlmaBaslatildi > 0 ? Math.round((gercekSatisSayisi[0].c / satinAlmaBaslatildi) * 1000) / 10 : null,
+      not: "Bunlar GERCEK olcumlerdir, tahmin degildir. 'tamamlananSatis' hala 0'sa, henuz gercek odeme tamamlanmadigi anlamina gelir (lansman oncesi normal).",
+    };
+
     const personelSayisi = await sql`SELECT COUNT(*)::int AS adet FROM personel WHERE aktif = true`;
 
     const senaryolar = await sql`
@@ -65,6 +88,7 @@ export async function GET(req) {
 
     return Response.json({
       sabitGider,
+      gercekHuni,
       gercekAktifPersonelSayisi: personelSayisi[0]?.adet ?? null,
       senaryolar,
       kdvOraniTaslak: KDV_ORANI_TASLAK,

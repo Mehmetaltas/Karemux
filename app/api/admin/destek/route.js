@@ -14,7 +14,13 @@ export async function GET(req) {
       LIMIT 100
     `;
     const acikSayisi = talepler.filter((t) => t.durum === "acik").length;
-    return Response.json({ talepler, acikSayisi });
+
+    // Destek sistemi 7 Eylul'de kuruldu - "0 talep" cikan sayilar TAHMIN
+    // gerektirmez, sadece BAGLAM gerekir (sistem kac gundur acik).
+    const kurulusTarihi = new Date("2026-09-07");
+    const gecenGun = Math.max(0, Math.floor((Date.now() - kurulusTarihi.getTime()) / 86400000));
+
+    return Response.json({ talepler, acikSayisi, sistemGecenGun: gecenGun });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Getirilemedi" }, { status: 500 });

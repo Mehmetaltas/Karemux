@@ -139,6 +139,35 @@ export async function GET(req) {
       }
     }
 
+    // GERCEK DURUM anlik goruntusu (8-9 Eylul) - ikiz_senaryo tablosuna, admin
+    // elle senaryo calistirmasa bile HER GUN gercek verilerden bir kayit ekler.
+    // Bu bir TAHMIN degil - o gun icin olcumlenebilen ne varsa (gercek gider,
+    // gercek personel/ogretmen/ogrenci sayisi) oldugu gibi kaydedilir, boylece
+    // ikiz_senaryo zamanla GERCEK bir trend biriktirir (once 0 satirdi).
+    try {
+      const gercekPersonel = await sql`SELECT COUNT(*)::int AS c FROM personel WHERE aktif = true`;
+      const gercekGiderSon30Gun = await sql`SELECT COALESCE(SUM(tutar_tl), 0)::numeric AS toplam FROM giderler WHERE tarih >= now() - interval '30 days'`;
+      const tarihEtiketi = new Date().toISOString().slice(0, 10);
+
+      await sql`
+        INSERT INTO ikiz_senaryo (ad, girdi_json, sonuc_json, olusturulma)
+        VALUES (
+          ${`Gercek Durum - ${tarihEtiketi}`},
+          ${JSON.stringify({ tip: "gercek_durum_anlik_goruntu", not: "Bu bir senaryo/tahmin DEGIL, o gunku olculebilir gercek verilerin kaydidir" })},
+          ${JSON.stringify({
+            aktifOgrenciSayisi: aktifOgrenci[0].c,
+            gercekOgretmenSayisi: gercekOgretmenSayisi[0].c,
+            gercekPersonelSayisi: gercekPersonel[0].c,
+            gercekAylikGelirTl: aylikGelir,
+            gercekSon30GunGiderTl: Number(gercekGiderSon30Gun[0].toplam),
+            gercekNetTl: aylikGelir - Number(gercekGiderSon30Gun[0].toplam),
+          })},
+          now()
+        )
+      `;
+      guncellenenler.push("ikiz_senaryo_gercek_durum");
+    } catch (e) { /* gercek durum kaydi basarisiz olsa da ana akis bozulmasin */ }
+
     return Response.json({ ok: true, guncellenenler, aylikGelir, yeniOneriler });
   } catch (e) {
     console.error(e);
