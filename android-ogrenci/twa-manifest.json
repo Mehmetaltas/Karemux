@@ -1,6 +1,6 @@
 {
   "packageId": "app.vercel.karemux_nu.twa",
-  "host": "karemux-nu.vercel.app",
+  "host": "www.karemux.com",
   "name": "Karemux — Eğitim Sistemi",
   "launcherName": "Karemux",
   "display": "standalone",
@@ -13,8 +13,8 @@
   "backgroundColor": "#1F3D2E",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://karemux-nu.vercel.app/icons/icon-512.png",
-  "maskableIconUrl": "https://karemux-nu.vercel.app/icons/icon-512-maskable.png",
+  "iconUrl": "https://www.karemux.com/icons/icon-512.png",
+  "maskableIconUrl": "https://www.karemux.com/icons/icon-512-maskable.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "/data/data/com.termux/files/home/karemux-android/android.keystore",
@@ -24,7 +24,7 @@
   "appVersionCode": 1,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://karemux-nu.vercel.app/manifest.json",
+  "webManifestUrl": "https://www.karemux.com/manifest.json",
   "fallbackType": "customtabs",
   "features": {
     "locationDelegation": {
@@ -37,7 +37,7 @@
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "fullScopeUrl": "https://karemux-nu.vercel.app/",
+  "fullScopeUrl": "https://www.karemux.com/",
   "minSdkVersion": 21,
   "orientation": "portrait",
   "fingerprints": [],
