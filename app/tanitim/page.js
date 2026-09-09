@@ -62,6 +62,7 @@ export default function Tanitim() {
 
       {/* ==== HERO ==== */}
       <KareliArkaplan style={{ padding: "56px 20px 64px", textAlign: "center", borderBottom: `1px solid ${C.grid}` }}>
+        <img src="/icons/icon-192.png" alt="Karemux logo" style={{ width: 56, height: 56, borderRadius: 14, marginBottom: 16, boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }} />
         <div style={{ display: "inline-block", background: C.ink, color: C.paper, padding: "5px 14px", borderRadius: 20, fontSize: 11, fontWeight: 700, letterSpacing: 0.6, marginBottom: 22 }}>
           5. SINIFTAN LGS'YE — TEK SİSTEM
         </div>
