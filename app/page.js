@@ -766,61 +766,65 @@ function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
 }
 
 function ReklamAfisi({ COLORS, setMod }) {
-  const kareli = {
-    backgroundImage: `linear-gradient(${COLORS.line} 1px, transparent 1px), linear-gradient(90deg, ${COLORS.line} 1px, transparent 1px)`,
-    backgroundSize: "20px 20px",
-  };
   return (
-    <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: `1px solid ${COLORS.line}`, background: COLORS.page }}>
-      <div style={{ ...kareli, padding: "20px 16px", pointerEvents: "none" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10, marginBottom: 20, textAlign: "center" }}>
-          <div><p style={{ fontWeight: 800, fontSize: 20, margin: 0 }}>196</p><p style={{ fontSize: 9.5, color: COLORS.muted, margin: 0 }}>ÜNİTE/TEMA</p></div>
-          <div><p style={{ fontWeight: 800, fontSize: 20, margin: 0 }}>535+</p><p style={{ fontSize: 9.5, color: COLORS.muted, margin: 0 }}>ALT KONU</p></div>
-          <div><p style={{ fontWeight: 800, fontSize: 20, margin: 0 }}>1690+</p><p style={{ fontSize: 9.5, color: COLORS.muted, margin: 0 }}>SORU BANKASI</p></div>
-        </div>
-
-        <p style={{ fontWeight: 800, fontSize: 14, marginBottom: 10 }}>Nasıl Çalışır?</p>
-        {[
-          ["1", "Ücretsiz Kayıt Ol", "Sınıfını seç, hemen başla."],
-          ["2", "Seviyeni Öğren", "Kısa bir tespitle eksiklerini bulur."],
-          ["3", "Kendi Hızında Çalış", "AI seni takip edip yönlendirir."],
-          ["4", "Gelişimini Gör", "Karne ve raporlarla ilerlemeni izle."],
-        ].map(([n, b, a]) => (
-          <div key={n} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
-            <span style={{ width: 22, height: 22, borderRadius: 999, background: COLORS.coral, color: "#fff", fontWeight: 800, fontSize: 11, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>{n}</span>
-            <div><p style={{ fontWeight: 700, fontSize: 12.5, margin: 0 }}>{b}</p><p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>{a}</p></div>
-          </div>
-        ))}
-
-        <p style={{ fontWeight: 800, fontSize: 14, margin: "16px 0 10px" }}>Neden Karemux?</p>
-        {[
-          ["✨", "Sınırsız Üretim", "Her seferinde taze, sana özel içerik."],
-          ["🗺️", "Zayıf Konunu Gösterir", "Sistem otomatik plan çıkarır."],
-          ["🛡️", "Güvenli AI Kullanımı", "Her mesaj otomatik denetimden geçer."],
-        ].map(([e, b, a]) => (
-          <div key={b} style={{ display: "flex", gap: 10, marginBottom: 10, alignItems: "flex-start" }}>
-            <span style={{ fontSize: 18, flexShrink: 0 }}>{e}</span>
-            <div><p style={{ fontWeight: 700, fontSize: 12.5, margin: 0 }}>{b}</p><p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>{a}</p></div>
-          </div>
-        ))}
-
-        <p style={{ fontWeight: 800, fontSize: 14, margin: "16px 0 10px" }}>Ücretsiz mi, Premium mi?</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          <div style={{ background: "#fff", border: `1px solid ${COLORS.line}`, borderRadius: 10, padding: 10 }}>
-            <p style={{ fontWeight: 700, fontSize: 10.5, color: COLORS.muted, marginBottom: 4 }}>ÜCRETSİZ</p>
-            <p style={{ fontSize: 10.5, margin: 0 }}>Günde 20 AI isteği</p>
-          </div>
-          <div style={{ background: "#FFF8E8", border: `1px solid ${COLORS.mustard}`, borderRadius: 10, padding: 10 }}>
-            <p style={{ fontWeight: 700, fontSize: 10.5, color: COLORS.mustard, marginBottom: 4 }}>💎 PREMIUM</p>
-            <p style={{ fontSize: 10.5, fontWeight: 600, margin: 0 }}>Günde 70 istek, Öğrenme Hafızası</p>
-          </div>
-        </div>
-
-        <p style={{ fontWeight: 800, fontSize: 14, margin: "16px 0 8px" }}>Neye Göre Farklı?</p>
-        <p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>Karemux: <b>5.000₺/yıl</b> · Geleneksel Dershane: <b>30.000-180.000₺/yıl</b></p>
+    <div style={{ marginTop: 16, borderRadius: 14, overflow: "hidden", border: `1px solid ${COLORS.line}`, background: "#fff" }}>
+      <div style={{ background: COLORS.gradient, padding: "26px 18px", textAlign: "center", pointerEvents: "none" }}>
+        <svg width="56" height="56" viewBox="0 0 64 64" style={{ marginBottom: 10 }} aria-hidden="true">
+          <circle cx="32" cy="32" r="30" fill="none" stroke={COLORS.page} strokeWidth="1.5" opacity="0.3" />
+          <path d="M18 26 L32 18 L46 26 L32 34 Z" fill={COLORS.page} />
+          <path d="M18 26 L18 38 M46 26 L46 38" stroke={COLORS.page} strokeWidth="2" />
+          <path d="M24 30 L24 40 Q32 46 40 40 L40 30" fill="none" stroke={COLORS.page} strokeWidth="2" />
+        </svg>
+        <p style={{ fontSize: 18, fontWeight: 800, color: COLORS.page, margin: "0 0 6px" }}>Dershaneye gitmeden, dershaneden fazlası</p>
+        <p style={{ fontSize: 12, color: COLORS.page, opacity: 0.75, margin: 0 }}>Yapay zekayla sınırsız pratik, gerçek öğretmenle destek</p>
       </div>
 
-      <div style={{ borderTop: `1px solid ${COLORS.line}`, padding: "14px 16px", background: "#fff" }}>
+      <div style={{ padding: 16, pointerEvents: "none" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+          <div style={{ background: "#EFEBFC", borderRadius: 10, padding: 12 }}>
+            <span style={{ fontSize: 20 }}>✨</span>
+            <p style={{ fontSize: 12, fontWeight: 700, margin: "6px 0 2px" }}>Asla tükenmeyen soru havuzu</p>
+            <p style={{ fontSize: 10.5, color: COLORS.muted, margin: 0 }}>Aynı soruyu iki kez görmezsin</p>
+          </div>
+          <div style={{ background: "#E5F5EC", borderRadius: 10, padding: 12 }}>
+            <span style={{ fontSize: 20 }}>🗺️</span>
+            <p style={{ fontSize: 12, fontWeight: 700, margin: "6px 0 2px" }}>Eksiğin nerede, tek bakışta gör</p>
+            <p style={{ fontSize: 10.5, color: COLORS.muted, margin: 0 }}>Doğru konuya çalış</p>
+          </div>
+          <div style={{ background: "#E6F0FA", borderRadius: 10, padding: 12 }}>
+            <span style={{ fontSize: 20 }}>🛡️</span>
+            <p style={{ fontSize: 12, fontWeight: 700, margin: "6px 0 2px" }}>Veliler için güvenli</p>
+            <p style={{ fontSize: 10.5, color: COLORS.muted, margin: 0 }}>Her mesaj denetimden geçer</p>
+          </div>
+          <div style={{ background: "#FFF1EF", borderRadius: 10, padding: 12 }}>
+            <span style={{ fontSize: 20 }}>🎓</span>
+            <p style={{ fontSize: 12, fontWeight: 700, margin: "6px 0 2px" }}>Takıldığın yerde gerçek öğretmen</p>
+            <p style={{ fontSize: 10.5, color: COLORS.muted, margin: 0 }}>Görüntülü ders al</p>
+          </div>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 10, background: COLORS.page, borderRadius: 10, padding: 14, marginBottom: 12, border: `1px solid ${COLORS.line}` }}>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 10.5, color: COLORS.muted, margin: "0 0 3px" }}>Şimdi olduğun yer</p>
+            <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>Ücretsiz</p>
+          </div>
+          <span style={{ fontSize: 16, color: COLORS.muted }}>→</span>
+          <div style={{ flex: 1, textAlign: "right" }}>
+            <p style={{ fontSize: 10.5, color: "#B8860B", margin: "0 0 3px" }}>Dershanenin onda biri</p>
+            <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>5.000₺/yıl</p>
+          </div>
+        </div>
+
+        <div style={{ background: "#FBEAF2", borderRadius: 10, padding: 14, marginBottom: 6, display: "flex", gap: 10, alignItems: "flex-start" }}>
+          <span style={{ fontSize: 20, flexShrink: 0 }}>📖</span>
+          <div>
+            <p style={{ fontSize: 12.5, fontWeight: 700, margin: "0 0 2px" }}>Öğretmen misin? Saniyeler seni bekliyor</p>
+            <p style={{ fontSize: 11, color: COLORS.muted, margin: 0 }}>Çalışma kağıdı, soru seti, yazılı, fasikül — tek tıkla</p>
+          </div>
+        </div>
+      </div>
+
+      <div style={{ borderTop: `1px solid ${COLORS.line}`, padding: "14px 16px" }}>
         <button onClick={() => setMod("sss")} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1.5px solid ${COLORS.coral}`, background: "transparent", color: COLORS.coral, fontWeight: 700, fontSize: 12.5, cursor: "pointer", marginBottom: 10 }}>❓ Sık Sorulan Sorular / Yardım</button>
         <p style={{ fontSize: 10.5, color: COLORS.muted, textAlign: "center", margin: 0 }}>
           <a href="/iletisim" style={{ color: COLORS.muted, textDecoration: "underline" }}>İletişim</a>
