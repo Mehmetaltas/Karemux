@@ -283,6 +283,24 @@ export default function Tanitim() {
         </div>
       </div>
 
+      {/* ==== SSS ==== */}
+      <div style={{ padding: "44px 20px 20px", maxWidth: 520, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: 22, marginBottom: 20, textAlign: "center" }}>Sık Sorulan Sorular</h2>
+        {[
+          { s: "Karemux gerçekten sınırsız mı?", c: "Ücretsiz üyelikte günde 20 AI isteği, Premium'da günde 70 istek (pratikte hiçbir öğrencinin ulaşmadığı, çok geniş bir sınır) var. Yani Premium'da fiilen sınırsız hissedersin." },
+          { s: "İstediğim zaman iptal edebilir miyim?", c: "Evet, tek tıkla, hiçbir prosedür olmadan. Kalan süre boyunca erişimin devam eder." },
+          { s: "Memnun kalmazsam param geri gelir mi?", c: "İlk kez satın alan yeni öğrenciler için 7 gün İlk Hafta Memnuniyet Garantimiz var (aylık paketlerde)." },
+          { s: "Verilerimiz güvende mi?", c: "Her mesaj otomatik içerik denetiminden geçer, KVKK'ya uygun şeffaf bir gizlilik politikamız var. Detaylar için Gizlilik Politikası sayfamıza bakabilirsin." },
+          { s: "Hangi sınıflar için uygun?", c: "5, 6, 7 ve 8. sınıf öğrencileri için, LGS'ye hazırlık odaklı." },
+          { s: "Mobil uygulama var mı?", c: "Evet, Android uygulamamızı yukarıdan indirebilirsin." },
+        ].map((s, i) => (
+          <div key={i} style={{ borderBottom: `1px solid ${C.grid}`, padding: "14px 0" }}>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{s.s}</p>
+            <p style={{ fontSize: 12.5, color: C.inkSoft, lineHeight: 1.6 }}>{s.c}</p>
+          </div>
+        ))}
+      </div>
+
       {/* ==== OGRETMENLER ICIN ==== */}
       <div style={{ padding: "44px 20px", background: "#1F3D2E", textAlign: "center" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5.5vw, 26px)", color: "#fff", marginBottom: 8 }}>Öğretmenler İçin</h2>
