@@ -1,5 +1,11 @@
 import { sql } from "@/lib/db";
 
+// force-dynamic (8-9 Eylul) - bu route Vercel'in KENAR ONBELLEGINE
+// (x-vercel-cache: HIT) dusuyormus, cache-control basligina ragmen -
+// deploy sonrasi bu yuzden YANLIS "eski" zaman damgasi gorulebiliyordu.
+// Bu, deploy dogrulamasinin GUVENILIRLIGINI etkileyen gercek bir bulgu.
+export const dynamic = "force-dynamic";
+
 // Basit ama gercek bir "her sey calisiyor mu" kontrolu. Otomatik "kendini
 // duzeltme" degil - ama bir sey bozulunca (veritabani baglantisi kopar, kritik
 // bir ortam degiskeni silinir vb.) bunu ANINDA, insan mudahalesi beklemeden
