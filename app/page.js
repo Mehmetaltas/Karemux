@@ -1638,6 +1638,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [optikFormGoster, setOptikFormGoster] = useState(false);
   const [reklamKaplamaGoster, setReklamKaplamaGoster] = useState(false);
+  const [girisAnimasyonuGoster, setGirisAnimasyonuGoster] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setGirisAnimasyonuGoster(false), 2200);
+    return () => clearTimeout(t);
+  }, []);
   const [eskiSifre, setEskiSifre] = useState("");
   const [yeniSifre, setYeniSifre] = useState("");
   const [sifreDegistiriliyor, setSifreDegistiriliyor] = useState(false);
@@ -4160,6 +4165,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
 
           </>
+        )}
+
+        {girisAnimasyonuGoster && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 200, background: "#010F3F", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+            <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "#2AAE7F", filter: "blur(40px)", opacity: 0.35, top: "20%", left: "10%", animation: "kxYanip 3s ease-in-out infinite" }} />
+            <div style={{ position: "absolute", width: 140, height: 140, borderRadius: "50%", background: "#3B82C4", filter: "blur(40px)", opacity: 0.35, top: "55%", right: "5%", animation: "kxYanip 3s ease-in-out infinite 1s" }} />
+            <div style={{ position: "absolute", width: 120, height: 120, borderRadius: "50%", background: "#6B5CE0", filter: "blur(40px)", opacity: 0.35, bottom: "10%", left: "20%", animation: "kxYanip 3s ease-in-out infinite 2s" }} />
+            <div style={{ position: "relative", zIndex: 2, textAlign: "center", opacity: 0, animation: "kxGiris 1.4s ease-out 0.3s forwards" }}>
+              <img src="/icons/icon-512.png" alt="Karemux" style={{ width: 100, height: 100, borderRadius: 20, animation: "kxNefes 2.5s ease-in-out infinite" }} />
+              <p style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginTop: 16, opacity: 0, animation: "kxGiris 1s ease-out 1.1s forwards" }}>KAREMUX</p>
+              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginTop: 4, opacity: 0, animation: "kxGiris 1s ease-out 1.5s forwards" }}>Daha iyi bir sen, mümkün!</p>
+            </div>
+            <style>{`
+              @keyframes kxYanip { 0%, 100% { opacity: 0.2; transform: scale(0.9); } 50% { opacity: 0.4; transform: scale(1.1); } }
+              @keyframes kxGiris { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+              @keyframes kxNefes { 0%, 100% { filter: drop-shadow(0 0 20px rgba(76,201,240,0.5)); } 50% { filter: drop-shadow(0 0 32px rgba(76,201,240,0.8)); } }
+            `}</style>
+          </div>
         )}
 
         {reklamKaplamaGoster && (
