@@ -1616,6 +1616,19 @@ export default function YonetimPaneli() {
               ⚠️ Bu sayfadaki AI maliyeti TAHMINIDIR (istek başı ~0.01₺ varsayımıyla) — gerçek fatura değildir. Sağlayıcıların (Anthropic, Google, Groq) kendi konsollarından arada bir gerçek maliyetle karşılaştırıp bu tahmini kalibre etmen önerilir.
             </div>
 
+            {maliyetVeri.gercekKullanim?.length > 0 && (
+              <Panel baslik={`Gercek AI Kullanimi (Son 7 Gun, ${maliyetVeri.gercekToplamBasariliCagriSon7Gun} basarili cagri)`} ikon="📊">
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 10 }}>Bu, tahmin degil - her saglayici denemesinin gercek kaydi.</p>
+                {maliyetVeri.gercekKullanim.map((g, i) => (
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: i < maliyetVeri.gercekKullanim.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
+                    <span style={{ textTransform: "capitalize", fontWeight: 600 }}>{g.saglayici}</span>
+                    <span style={{ fontSize: TYPO.caption, color: T.textMuted }}>{g.ortalamaSureMs ? `~${g.ortalamaSureMs}ms` : ""}</span>
+                    <span style={{ fontFamily: T.mono, fontWeight: 700, color: g.basarili === g.toplamDeneme ? T.success : T.amber }}>{g.basarili}/{g.toplamDeneme}</span>
+                  </div>
+                ))}
+              </Panel>
+            )}
+
             {maliyetVeri.uretimGiderleri?.length > 0 && (
               <Panel baslik="Uretim Gideri Kategorileri (Bu Ay)" ikon="🏭">
                 {maliyetVeri.uretimGiderleri.map((g, i) => (
