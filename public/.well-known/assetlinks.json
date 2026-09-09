@@ -7,7 +7,7 @@
       "namespace": "android_app",
       "package_name": "app.vercel.karemux_nu.twa",
       "sha256_cert_fingerprints": [
-        "24889564f5b92ccc0c5d6e32eb7e9917e7447a66f11db46a908b6d703d9c9bb7"
+        "24:88:95:64:F5:B9:2C:CC:0C:5D:6E:32:EB:7E:99:17:E7:44:7A:66:F1:1D:B4:6A:90:8B:6D:70:3D:9C:9B:B7"
       ]
     }
   },
@@ -19,7 +19,7 @@
       "namespace": "android_app",
       "package_name": "app.vercel.karemux_nu.admin.twa",
       "sha256_cert_fingerprints": [
-        "df64287aa506bf9db11773a372ae5967e09cd7a3e1c7c61deef27996225830d2"
+        "DF:64:28:7A:A5:06:BF:9D:B1:17:73:A3:72:AE:59:67:E0:9C:D7:A3:E1:C7:C6:1D:EE:F2:79:96:22:58:30:D2"
       ]
     }
   },
@@ -31,7 +31,7 @@
       "namespace": "android_app",
       "package_name": "app.vercel.karemux_nu.ogretmen.twa",
       "sha256_cert_fingerprints": [
-        "fbe542f5c2242a7e41a29bb5d4839324783ec902058cd2556ba10dd7d0248e91"
+        "FB:E5:42:F5:C2:24:2A:7E:41:A2:9B:B5:D4:83:93:24:78:3E:C9:02:05:8C:D2:55:6B:A1:0D:D7:D0:24:8E:91"
       ]
     }
   },
@@ -43,7 +43,7 @@
       "namespace": "android_app",
       "package_name": "app.vercel.karemux_nu.veli.twa",
       "sha256_cert_fingerprints": [
-        "2232857b27ad8244286be65d212680c3fca7edbe2c8c1c048cffc388931de79f"
+        "22:32:85:7B:27:AD:82:44:28:6B:E6:5D:21:26:80:C3:FC:A7:ED:BE:2C:8C:1C:04:8C:FF:C3:88:93:1D:E7:9F"
       ]
     }
   },
@@ -55,7 +55,7 @@
       "namespace": "android_app",
       "package_name": "app.vercel.karemux_nu.kurum.twa",
       "sha256_cert_fingerprints": [
-        "f3adf2b10e105f3e89615ad9127d020a31e4ac0ddef2e25ad4ecd7a7fc0105fd"
+        "F3:AD:F2:B1:0E:10:5F:3E:89:61:5A:D9:12:7D:02:0A:31:E4:AC:0D:DE:F2:E2:5A:D4:EC:D7:A7:FC:01:05:FD"
       ]
     }
   }
