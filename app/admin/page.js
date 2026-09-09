@@ -97,6 +97,29 @@ export default function YonetimPaneli() {
   const [unutumModuAdmin, setUnutumModuAdmin] = useState(false);
   const [unutumMesajAdmin, setUnutumMesajAdmin] = useState("");
   const [personelAd, setPersonelAd] = useState("");
+  const [pEskiSifre, setPEskiSifre] = useState("");
+  const [pYeniSifre, setPYeniSifre] = useState("");
+  const [pSifreYukleniyor, setPSifreYukleniyor] = useState(false);
+  const [pSifreSonuc, setPSifreSonuc] = useState(null);
+
+  async function personelSifreDegistir() {
+    setPSifreYukleniyor(true);
+    setPSifreSonuc(null);
+    try {
+      const r = await fetch("/api/personel/sifre-degistir", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eskiSifre: pEskiSifre, yeniSifre: pYeniSifre }),
+      });
+      const d = await r.json();
+      if (!r.ok) { setPSifreSonuc({ hata: d.error || "Sifre degistirilemedi" }); return; }
+      setPSifreSonuc({ basari: true });
+      setPEskiSifre(""); setPYeniSifre("");
+    } catch (e) {
+      setPSifreSonuc({ hata: "Baglanti hatasi" });
+    } finally {
+      setPSifreYukleniyor(false);
+    }
+  }
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [sekme, setSekme] = useState("genel");
   const [tema, setTemaState] = useState("orman");
@@ -1216,6 +1239,15 @@ export default function YonetimPaneli() {
                 ))}
               </div>
             ))}
+            <div style={{ background: T.surfaceMuted || "#F3F1EA", borderRadius: 10, padding: 12, marginTop: 14, marginBottom: 4 }}>
+              <p style={{ fontWeight: 700, fontSize: 12.5, marginBottom: 8 }}>🔒 Şifreni Değiştir</p>
+              <input type="password" placeholder="Eski şifre" value={pEskiSifre} onChange={(e) => setPEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1px solid #ddd", marginBottom: 6, fontSize: 12 }} />
+              <input type="password" placeholder="Yeni şifre (en az 6 karakter)" value={pYeniSifre} onChange={(e) => setPYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1px solid #ddd", marginBottom: 8, fontSize: 12 }} />
+              {pSifreSonuc?.hata && <p role="alert" style={{ color: "#C0392B", fontSize: 11, marginBottom: 6 }}>{pSifreSonuc.hata}</p>}
+              {pSifreSonuc?.basari && <p style={{ color: "#1E7A46", fontSize: 11, marginBottom: 6 }}>Güncellendi ✓</p>}
+              <button onClick={personelSifreDegistir} disabled={pSifreYukleniyor || !pEskiSifre || !pYeniSifre} style={{ width: "100%", padding: "7px 0", borderRadius: 6, border: "none", background: T.accent, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer", opacity: (pSifreYukleniyor || !pEskiSifre || !pYeniSifre) ? 0.5 : 1 }}>{pSifreYukleniyor ? "..." : "Güncelle"}</button>
+            </div>
+
             <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }}
               style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 10px", borderRadius: 8, border: "none", background: "none", color: T.danger, fontSize: 13.5, fontWeight: 600, cursor: "pointer", marginTop: 10 }}>
               Çıkış Yap

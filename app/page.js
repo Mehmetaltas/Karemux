@@ -1638,6 +1638,29 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const [optikFormGoster, setOptikFormGoster] = useState(false);
   const [reklamKaplamaGoster, setReklamKaplamaGoster] = useState(false);
+  const [eskiSifre, setEskiSifre] = useState("");
+  const [yeniSifre, setYeniSifre] = useState("");
+  const [sifreDegistiriliyor, setSifreDegistiriliyor] = useState(false);
+  const [sifreSonuc, setSifreSonuc] = useState(null);
+
+  async function sifreDegistir() {
+    setSifreDegistiriliyor(true);
+    setSifreSonuc(null);
+    try {
+      const r = await fetch(`/api/auth/sifre-degistir?cihazId=${cihazIdRef.current}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eskiSifre, yeniSifre }),
+      });
+      const d = await r.json();
+      if (!r.ok) { setSifreSonuc({ hata: d.error || "Sifre degistirilemedi" }); return; }
+      setSifreSonuc({ basari: true });
+      setEskiSifre(""); setYeniSifre("");
+    } catch (e) {
+      setSifreSonuc({ hata: "Baglanti hatasi" });
+    } finally {
+      setSifreDegistiriliyor(false);
+    }
+  }
 
   const [kutuphaneVeri, setKutuphaneVeri] = useState(null);
   const [kutuphaneYukleniyor, setKutuphaneYukleniyor] = useState(false);
@@ -5707,6 +5730,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     <button onClick={talepGonder} style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Talep Et</button>
                   </div>
                   {talepMesaj && <p style={{ fontSize: 11.5, marginTop: 8, color: COLORS.muted }}>{talepMesaj}</p>}
+                </div>
+
+                <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 16 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>🔒 Şifreni Değiştir</p>
+                  <input type="password" placeholder="Eski şifren" value={eskiSifre} onChange={(e) => setEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 8, fontSize: 13 }} />
+                  <input type="password" placeholder="Yeni şifren (en az 6 karakter)" value={yeniSifre} onChange={(e) => setYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 10, fontSize: 13 }} />
+                  {sifreSonuc?.hata && <p role="alert" style={{ color: "#C0392B", fontSize: 12, marginBottom: 8 }}>{sifreSonuc.hata}</p>}
+                  {sifreSonuc?.basari && <p style={{ color: "#1E7A46", fontSize: 12, marginBottom: 8 }}>Şifren güncellendi ✓</p>}
+                  <button onClick={sifreDegistir} disabled={sifreDegistiriliyor || !eskiSifre || !yeniSifre} style={{ width: "100%", padding: "9px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (sifreDegistiriliyor || !eskiSifre || !yeniSifre) ? 0.5 : 1 }}>{sifreDegistiriliyor ? "Güncelleniyor..." : "Şifreyi Güncelle"}</button>
                 </div>
 
                 <button onClick={cikisYap} style={{ padding: "8px 14px", borderRadius: 8, border: `1.5px solid ${COLORS.ink}`, background: "transparent", fontWeight: 600, cursor: "pointer" }}>Çıkış Yap</button>
