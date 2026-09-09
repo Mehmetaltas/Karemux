@@ -6,11 +6,16 @@ export async function GET(req) {
     return Response.json({ error: "Yetkisiz" }, { status: 401 });
   }
   try {
-    const kolonlar = await sql`
-      SELECT column_name, data_type FROM information_schema.columns
-      WHERE table_name = 'ai_kullanim_log' ORDER BY ordinal_position
-    `;
-    return Response.json({ kolonlar });
+    await sql`CREATE TABLE IF NOT EXISTS ai_saglayici_log (
+      id SERIAL PRIMARY KEY,
+      saglayici TEXT NOT NULL,
+      basarili BOOLEAN NOT NULL,
+      sure_ms INTEGER,
+      json_modu BOOLEAN,
+      olusturulma TIMESTAMPTZ DEFAULT now()
+    )`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_ai_saglayici_log_olusturulma ON ai_saglayici_log(olusturulma)`;
+    return Response.json({ ok: true, tablo: "ai_saglayici_log olusturuldu (dogru isimle)" });
   } catch (e) {
     return Response.json({ error: e.message }, { status: 500 });
   }

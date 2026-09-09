@@ -70,19 +70,19 @@ export async function GET(req) {
       ORDER BY toplamIstek DESC
     `;
 
-    // GERCEK AI kullanim ozeti (9 Eylul, ai_kullanim_log tablosundan - teorik
+    // GERCEK AI kullanim ozeti (9 Eylul, ai_saglayici_log tablosundan - teorik
     // formul degil, her gercek saglayici cagrisinin kaydi). Son 7 gun.
     const gercekKullanim = await sql`
       SELECT saglayici,
         COUNT(*)::int AS toplamDeneme,
         COUNT(*) FILTER (WHERE basarili)::int AS basarili,
         ROUND(AVG(sure_ms))::int AS ortalamaSureMs
-      FROM ai_kullanim_log
+      FROM ai_saglayici_log
       WHERE olusturulma >= now() - interval '7 days'
       GROUP BY saglayici ORDER BY toplamDeneme DESC
     `;
     const gercekToplamBasariliCagri = await sql`
-      SELECT COUNT(*)::int AS c FROM ai_kullanim_log WHERE basarili = true AND olusturulma >= now() - interval '7 days'
+      SELECT COUNT(*)::int AS c FROM ai_saglayici_log WHERE basarili = true AND olusturulma >= now() - interval '7 days'
     `;
 
     return Response.json({
