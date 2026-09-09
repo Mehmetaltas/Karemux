@@ -5202,11 +5202,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             {sinavKapsamMetni && <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 10, fontStyle: "italic" }}>{sinavKapsamMetni}</p>}
             {!denemeGonderildi && (
               <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
-                <label style={{ cursor: "pointer" }}>
-                  <input type="file" accept="image/*" style={{ display: "none" }} aria-label="Fotograf yukle"
-                    onChange={(e) => { const f = e.target.files[0]; if (f) optikOkumaYap(f); }} />
+                  <label style={{ cursor: "pointer", marginRight: 8 }}>
+                    <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} aria-label="Kamera ile optik oku"
+                      onChange={(e) => { const f = e.target.files[0]; if (f) optikOkumaYap(f); }} />
+                    <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
+                      {optikYukleniyor ? "Okunuyor..." : "📷 Kamerayla Çek"}
+                    </span>
+                  </label>
+                  <label style={{ cursor: "pointer" }}>
+                    <input type="file" accept="image/*" style={{ display: "none" }} aria-label="Galeriden optik oku"
+                      onChange={(e) => { const f = e.target.files[0]; if (f) optikOkumaYap(f); }} />
                   <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
-                    {optikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
+                    {optikYukleniyor ? "Okunuyor..." : "🖼️ Galeriden Seç"}
                   </span>
                 </label>
                 <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Kagida isaretlediğin (A/B/C/D) cevapların fotoğrafını yükle, otomatik doldursun.</p>
@@ -6204,12 +6211,21 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>Fotoğraf Yükle</p>
                 <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 12 }}>Kameradan çek ya da galeriden seç</p>
                 <input
-                  type="file" accept="image/*"
+                  type="file" accept="image/*" capture="environment"
                   onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
-                  aria-label="Soru fotografi yukle"
+                  aria-label="Kamera ile soru fotografi cek"
                   style={{ display: "none" }}
                 />
-                <span className="kx-btn" style={{ display: "inline-block", padding: "9px 20px", borderRadius: 10, background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5 }}>Dosya Seç</span>
+                <span className="kx-btn" style={{ display: "inline-block", padding: "9px 20px", borderRadius: 10, background: COLORS.coral, color: "#fff", fontWeight: 600, fontSize: 12.5, marginRight: 8 }}>📷 Kamerayla Çek</span>
+              </label>
+              <label style={{ cursor: "pointer", display: "block", marginTop: 8 }}>
+                <input
+                  type="file" accept="image/*"
+                  onChange={(e) => { const f = e.target.files[0]; if (f) { setSoruGorseli(URL.createObjectURL(f)); soruGorseliCoz(f); } }}
+                  aria-label="Galeriden soru fotografi sec"
+                  style={{ display: "none" }}
+                />
+                <span className="kx-btn" style={{ display: "inline-block", padding: "9px 20px", borderRadius: 10, background: "transparent", border: `1.5px solid ${COLORS.coral}`, color: COLORS.coral, fontWeight: 600, fontSize: 12.5 }}>🖼️ Galeriden Seç</span>
               </label>
             </div>
 
@@ -6291,11 +6307,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 )}
                 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                   <MikrofonButonu alanAdi="soru-sohbet" metinAyarla={setSoruSohbetMetni} />
-                  <label style={{ cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: soruSohbetYukleniyor ? 0.4 : 0.7 }}>
-                    <input type="file" accept="image/*" disabled={soruSohbetYukleniyor} style={{ display: "none" }} aria-label="Fotograf ekle"
-                      onChange={(e) => { const f = e.target.files[0]; if (f) soruSohbetGonder(f); e.target.value = ""; }} />
-                    📎
-                  </label>
+                    <label style={{ cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: soruSohbetYukleniyor ? 0.4 : 0.7 }}>
+                      <input type="file" accept="image/*" capture="environment" disabled={soruSohbetYukleniyor} style={{ display: "none" }} aria-label="Kamera ile fotograf cek"
+                        onChange={(e) => { const f = e.target.files[0]; if (f) soruSohbetGonder(f); e.target.value = ""; }} />
+                      📷
+                    </label>
+                    <label style={{ cursor: "pointer", fontSize: 15, flexShrink: 0, opacity: soruSohbetYukleniyor ? 0.4 : 0.7 }}>
+                      <input type="file" accept="image/*" disabled={soruSohbetYukleniyor} style={{ display: "none" }} aria-label="Galeriden fotograf ekle"
+                        onChange={(e) => { const f = e.target.files[0]; if (f) soruSohbetGonder(f); e.target.value = ""; }} />
+                      🖼️
+                    </label>
                   <input value={soruSohbetMetni} aria-label="Soru hakkinda mesaj" onChange={(e) => setSoruSohbetMetni(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") soruSohbetGonder(); }}
                     placeholder="Örn: 3. adımı anlamadım, tekrar açıklar mısın?"
@@ -6692,10 +6713,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 </div>
                 <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 12, marginBottom: 14, border: `1.5px dashed ${COLORS.line}`, textAlign: "center" }}>
                   <label style={{ cursor: "pointer" }}>
-                    <input type="file" accept="image/*" style={{ display: "none" }} aria-label="Fotograf yukle"
+                  <label style={{ cursor: "pointer", marginRight: 8 }}>
+                    <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} aria-label="Kamera ile optik oku"
                       onChange={(e) => { const f = e.target.files[0]; if (f) ulusalOptikOkumaYap(f); }} />
                     <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
-                      {ulusalOptikYukleniyor ? "Okunuyor..." : "📷 Optik Okuma ile Doldur"}
+                      {ulusalOptikYukleniyor ? "Okunuyor..." : "📷 Kamerayla Çek"}
+                    </span>
+                  </label>
+                  <label style={{ cursor: "pointer" }}>
+                    <input type="file" accept="image/*" style={{ display: "none" }} aria-label="Galeriden optik oku"
+                      onChange={(e) => { const f = e.target.files[0]; if (f) ulusalOptikOkumaYap(f); }} />
+                    <span className="kx-btn" style={{ display: "inline-block", padding: "8px 16px", borderRadius: 8, background: COLORS.mustard, color: "#fff", fontWeight: 600, fontSize: 12 }}>
+                      {ulusalOptikYukleniyor ? "Okunuyor..." : "🖼️ Galeriden Seç"}
                     </span>
                   </label>
                   <p style={{ fontSize: 10.5, color: COLORS.muted, marginTop: 6 }}>Kagida isaretlediğin (A/B/C/D) cevapların fotoğrafını yükle, otomatik doldursun.</p>
