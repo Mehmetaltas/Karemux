@@ -189,6 +189,7 @@ export default function VeliPaneli() {
         </div>
         <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/veli-apk-latest/karemux-veli-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}>📱 Uygulamayı İndir</a>
 
+        <p style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: "#8A8A8E", letterSpacing: 0.5, marginBottom: 6 }}>KAREMUX VELİ</p>
         <svg viewBox="0 0 380 190" style={{ width: "100%", maxWidth: 220, display: "block", margin: "0 auto 16px" }}>
           <defs>
             <linearGradient id="kxMaviMuhur" x1="0%" y1="0%" x2="100%" y2="100%">

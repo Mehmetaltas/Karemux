@@ -111,6 +111,7 @@ export default function Tanitim() {
         <p style={{ textAlign: "center", fontSize: 11.5, color: C.inkSoft, marginTop: 20, fontStyle: "italic" }}>
           + anlık, sınırsız soru üretimi
         </p>
+        <p style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: "#8A8A8E", letterSpacing: 0.5, marginBottom: 6 }}>KAREMUX </p>
         <svg viewBox="0 0 380 190" style={{ width: "100%", maxWidth: 220, display: "block", margin: "16px auto 0" }}>
           <defs>
             <linearGradient id="kxMaviMuhur" x1="0%" y1="0%" x2="100%" y2="100%">
