@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import { bolumBasligiStili, listeSatiriStili } from "@/lib/tasarim-sistemi";
 
 const T = {
   bg: "#F5F5F7", page: "#fff", ink: "#1D1D1F", muted: "#76767A",
@@ -11,6 +12,7 @@ export default function VeliPaneli() {
   const [vYeniSifre, setVYeniSifre] = useState("");
   const [vSifreYukleniyor, setVSifreYukleniyor] = useState(false);
   const [vSifreSonuc, setVSifreSonuc] = useState(null);
+  const [sifreFormAcik, setSifreFormAcik] = useState(false);
   async function hesapSifreDegistir() {
     setVSifreYukleniyor(true);
     setVSifreSonuc(null);
@@ -240,14 +242,25 @@ export default function VeliPaneli() {
           </g>
         </svg>
 
-        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>🔒 Hesap - Şifreni Değiştir</h2>
-          <input type="password" placeholder="Eski şifre" value={vEskiSifre} onChange={(e) => setVEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13, boxSizing: "border-box" }} />
-          <input type="password" placeholder="Yeni şifre (en az 6 karakter)" value={vYeniSifre} onChange={(e) => setVYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 13, boxSizing: "border-box" }} />
-          {vSifreSonuc?.hata && <p role="alert" style={{ color: "#C0392B", fontSize: 12, marginBottom: 8 }}>{vSifreSonuc.hata}</p>}
-          {vSifreSonuc?.basari && <p style={{ color: "#1E7A46", fontSize: 12, marginBottom: 8 }}>Şifren güncellendi ✓</p>}
-          <button onClick={hesapSifreDegistir} disabled={vSifreYukleniyor || !vEskiSifre || !vYeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: T.accent || "#B85C38", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (vSifreYukleniyor || !vEskiSifre || !vYeniSifre) ? 0.5 : 1 }}>{vSifreYukleniyor ? "Güncelleniyor..." : "Şifreyi Güncelle"}</button>
-        </section>
+        <p style={bolumBasligiStili(T)}>HESAP</p>
+        <div style={{ background: T.page, borderRadius: 12, border: `1px solid ${T.line}`, marginBottom: 16, padding: "0 16px" }}>
+          <div onClick={() => setSifreFormAcik((a) => !a)} style={{ ...listeSatiriStili(T, { ilkSatir: true }), justifyContent: "space-between" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <i className="ti ti-lock" style={{ fontSize: 20, color: T.muted }} />
+              <span style={{ fontSize: 14 }}>Şifreni değiştir</span>
+            </div>
+            <i className={`ti ti-chevron-${sifreFormAcik ? "up" : "down"}`} style={{ fontSize: 16, color: T.muted }} />
+          </div>
+          {sifreFormAcik && (
+            <div style={{ paddingBottom: 16 }}>
+              <input type="password" placeholder="Eski şifre" value={vEskiSifre} onChange={(e) => setVEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13, boxSizing: "border-box" }} />
+              <input type="password" placeholder="Yeni şifre (en az 6 karakter)" value={vYeniSifre} onChange={(e) => setVYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 13, boxSizing: "border-box" }} />
+              {vSifreSonuc?.hata && <p role="alert" style={{ color: "#C0392B", fontSize: 12, marginBottom: 8 }}>{vSifreSonuc.hata}</p>}
+              {vSifreSonuc?.basari && <p style={{ color: "#1E7A46", fontSize: 12, marginBottom: 8 }}>Şifren güncellendi ✓</p>}
+              <button onClick={hesapSifreDegistir} disabled={vSifreYukleniyor || !vEskiSifre || !vYeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: T.accent || "#B85C38", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (vSifreYukleniyor || !vEskiSifre || !vYeniSifre) ? 0.5 : 1 }}>{vSifreYukleniyor ? "Güncelleniyor..." : "Şifreyi Güncelle"}</button>
+            </div>
+          )}
+        </div>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ogrenci Bagla</h2>
