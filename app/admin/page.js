@@ -114,7 +114,14 @@ export default function YonetimPaneli() {
   const [sekme, setSekme] = useState("genel");
   const [tema, setTemaState] = useState("orman");
   const [menuAcik, setMenuAcik] = useState(false);
-  const [cikisToastGoster, setCikisToastGoster] = useState(false);
+  const [cikisToastGoster, setCikisToastGoster] = useState(false);  const [twaIcindeMi, setTwaIcindeMi] = useState(false);
+  useEffect(() => {
+    try {
+      if (document.referrer && document.referrer.startsWith("android-app://")) setTwaIcindeMi(true);
+      if (window.navigator && window.navigator.standalone === true) setTwaIcindeMi(true); // iOS "Ana Ekrana Ekle" ile acilmis
+    } catch (e) {}
+  }, []);
+
   const [girisAnimasyonuGoster, setGirisAnimasyonuGoster] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);

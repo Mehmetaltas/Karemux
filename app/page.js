@@ -1537,6 +1537,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);
     return () => clearTimeout(t);
   }, []);
+  const [twaIcindeMi, setTwaIcindeMi] = useState(false);
+  useEffect(() => {
+    try {
+      if (document.referrer && document.referrer.startsWith("android-app://")) setTwaIcindeMi(true);
+      if (window.navigator && window.navigator.standalone === true) setTwaIcindeMi(true); // iOS "Ana Ekrana Ekle" ile acilmis
+    } catch (e) {}
+  }, []);
 
   // Genel Android geri tusu yonetimi (9 Eylul, kullanicinin bildirdigi gercek
   // hata - geri tusu her yerde direkt uygulamadan cikiyordu). Herhangi bir
@@ -5157,7 +5164,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   )}
                 </p>
+                {!twaIcindeMi && (
                 <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogrenci-apk-latest/karemux-ogrenci-imzali.apk" style={{ display: "inline-block", padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, color: COLORS.ink, fontSize: 12, fontWeight: 600, textDecoration: "none", marginBottom: 8 }}>📱 Uygulamayı İndir</a>
+                )}
+                {!twaIcindeMi && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
+                    <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/veli-apk-latest/karemux-veli-imzali.apk" style={{ display: "inline-block", padding: "5px 10px", borderRadius: 6, border: `1px solid ${COLORS.line}`, color: COLORS.muted, fontSize: 11, textDecoration: "none" }}>📱 Veli</a>
+                    <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogretmen-apk-latest/karemux-ogretmen-imzali.apk" style={{ display: "inline-block", padding: "5px 10px", borderRadius: 6, border: `1px solid ${COLORS.line}`, color: COLORS.muted, fontSize: 11, textDecoration: "none" }}>📱 Öğretmen</a>
+                    <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/kurum-apk-latest/karemux-kurum-imzali.apk" style={{ display: "inline-block", padding: "5px 10px", borderRadius: 6, border: `1px solid ${COLORS.line}`, color: COLORS.muted, fontSize: 11, textDecoration: "none" }}>📱 Kurum</a>
+                  </div>
+                )}
                 {kurumDuyurulari && kurumDuyurulari.length > 0 && (
                   <div style={{ background: "#FDF6E8", borderRadius: 10, padding: 12, marginTop: 12, border: "1px solid #E8D9A8" }}>
                     <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>📢 Kurum Duyuruları</p>

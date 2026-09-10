@@ -227,7 +227,14 @@ export default function OgretmenPanel() {
   function temaSec(t) { temayiUygula(t); temaKaydet(t); setTema(t); }
   const [ogretmen, setOgretmen] = useState(null);
   const [menuAcik, setMenuAcik] = useState(false);
-  const [cikisToastGoster, setCikisToastGoster] = useState(false);
+  const [cikisToastGoster, setCikisToastGoster] = useState(false);  const [twaIcindeMi, setTwaIcindeMi] = useState(false);
+  useEffect(() => {
+    try {
+      if (document.referrer && document.referrer.startsWith("android-app://")) setTwaIcindeMi(true);
+      if (window.navigator && window.navigator.standalone === true) setTwaIcindeMi(true); // iOS "Ana Ekrana Ekle" ile acilmis
+    } catch (e) {}
+  }, []);
+
   const [girisAnimasyonuGoster, setGirisAnimasyonuGoster] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);
@@ -328,7 +335,9 @@ export default function OgretmenPanel() {
           <div>
             <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Hoş geldin, {ogretmen.ad}</h1>
             <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 12 }}>{ogretmen.brans} branşında Karemux'un 11 materyal üretim aracına erişimin var.</p>
+            {!twaIcindeMi && (
             <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogretmen-apk-latest/karemux-ogretmen-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${C.cizgi || "#E5E5EA"}`, color: C.ink || "#1D1D1F", fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 20 }}>📱 Uygulamayı İndir</a>
+            )}
             <p style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: "#8A8A8E", letterSpacing: 0.5, marginBottom: 6 }}>KAREMUX ÖĞRETMEN</p>
             <svg viewBox="0 0 380 190" style={{ width: "100%", maxWidth: 220, display: "block", margin: "0 auto 16px" }}>
               <defs>

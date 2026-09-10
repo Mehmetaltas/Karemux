@@ -29,7 +29,14 @@ export default function VeliPaneli() {
     finally { setVSifreYukleniyor(false); }
   }
 
-  const [cikisToastGoster, setCikisToastGoster] = useState(false);
+  const [cikisToastGoster, setCikisToastGoster] = useState(false);  const [twaIcindeMi, setTwaIcindeMi] = useState(false);
+  useEffect(() => {
+    try {
+      if (document.referrer && document.referrer.startsWith("android-app://")) setTwaIcindeMi(true);
+      if (window.navigator && window.navigator.standalone === true) setTwaIcindeMi(true); // iOS "Ana Ekrana Ekle" ile acilmis
+    } catch (e) {}
+  }, []);
+
   const [girisAnimasyonuGoster, setGirisAnimasyonuGoster] = useState(true);
   useEffect(() => {
     const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);
@@ -211,7 +218,9 @@ export default function VeliPaneli() {
             {cikisYukleniyor ? "..." : "Çıkış Yap"}
           </button>
         </div>
+        {!twaIcindeMi && (
         <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/veli-apk-latest/karemux-veli-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}>📱 Uygulamayı İndir</a>
+        )}
 
         <p style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: "#8A8A8E", letterSpacing: 0.5, marginBottom: 6 }}>KAREMUX VELİ</p>
         <svg viewBox="0 0 380 190" style={{ width: "100%", maxWidth: 220, display: "block", margin: "0 auto 16px" }}>
