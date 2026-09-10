@@ -1643,6 +1643,34 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);
     return () => clearTimeout(t);
   }, []);
+
+  // Genel Android geri tusu yonetimi (9 Eylul, kullanicinin bildirdigi gercek
+  // hata - geri tusu her yerde direkt uygulamadan cikiyordu). Herhangi bir
+  // ekran/kaplama acikken geri tusu once onu kapatir. Tam ana ekrandayken
+  // (hicbir sey acik degilken) geri tusuna basinca "tekrar bas, cikilsin"
+  // toast'i gosterilir, 2sn icinde tekrar basilirsa gercekten cikilir.
+  const [cikisToastGoster, setCikisToastGoster] = useState(false);
+  const sonGeriBasimRef = useRef(0);
+  useEffect(() => {
+    window.history.pushState({ kxSahte: true }, "");
+    const geriTusu = () => {
+      if (menuAcik) { setMenuAcik(false); window.history.pushState({ kxSahte: true }, ""); return; }
+      if (mod === "tanitim-goster") { setMod("bos"); window.history.pushState({ kxSahte: true }, ""); return; }
+      if (secilenDers) { setSecilenDers(null); window.history.pushState({ kxSahte: true }, ""); return; }
+      if (mod !== "bos") { setMod("bos"); window.history.pushState({ kxSahte: true }, ""); return; }
+      const simdi = Date.now();
+      if (simdi - sonGeriBasimRef.current < 2000) {
+        // Ikinci hizli basim - gercekten cik, tekrar pushState YAPMA.
+        return;
+      }
+      sonGeriBasimRef.current = simdi;
+      setCikisToastGoster(true);
+      setTimeout(() => setCikisToastGoster(false), 2000);
+      window.history.pushState({ kxSahte: true }, "");
+    };
+    window.addEventListener("popstate", geriTusu);
+    return () => window.removeEventListener("popstate", geriTusu);
+  }, [menuAcik, mod, secilenDers]);
   const [eskiSifre, setEskiSifre] = useState("");
   const [yeniSifre, setYeniSifre] = useState("");
   const [sifreDegistiriliyor, setSifreDegistiriliyor] = useState(false);
@@ -4165,6 +4193,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
 
           </>
+        )}
+
+        {cikisToastGoster && (
+          <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: "rgba(0,0,0,0.8)", color: "#fff", padding: "10px 18px", borderRadius: 999, fontSize: 13, whiteSpace: "nowrap" }}>
+            Çıkmak için tekrar geri tuşuna bas
+          </div>
         )}
 
         {girisAnimasyonuGoster && (
