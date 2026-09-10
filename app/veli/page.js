@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const T = {
   bg: "#F5F5F7", page: "#fff", ink: "#1D1D1F", muted: "#76767A",
@@ -140,6 +140,11 @@ export default function VeliPaneli() {
 
   return (
     <main style={{ minHeight: "100vh", background: T.bg, padding: "24px 16px", fontFamily: "system-ui, sans-serif" }}>
+      {cikisToastGoster && (
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: "rgba(0,0,0,0.8)", color: "#fff", padding: "10px 18px", borderRadius: 999, fontSize: 13, whiteSpace: "nowrap" }}>
+          Çıkmak için tekrar geri tuşuna bas
+        </div>
+      )}
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <h1 style={{ fontSize: 20, fontWeight: 700 }}>Veli Paneli</h1>

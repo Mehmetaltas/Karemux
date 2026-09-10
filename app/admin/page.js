@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
@@ -124,6 +124,22 @@ export default function YonetimPaneli() {
   const [sekme, setSekme] = useState("genel");
   const [tema, setTemaState] = useState("orman");
   const [menuAcik, setMenuAcik] = useState(false);
+  const [cikisToastGoster, setCikisToastGoster] = useState(false);
+  const sonGeriBasimRef = useRef(0);
+  useEffect(() => {
+    window.history.pushState({ kxSahte: true }, "");
+    const geriTusu = () => {
+      if (menuAcik) { setMenuAcik(false); window.history.pushState({ kxSahte: true }, ""); return; }
+      const simdi = Date.now();
+      if (simdi - sonGeriBasimRef.current < 2000) return;
+      sonGeriBasimRef.current = simdi;
+      setCikisToastGoster(true);
+      setTimeout(() => setCikisToastGoster(false), 2000);
+      window.history.pushState({ kxSahte: true }, "");
+    };
+    window.addEventListener("popstate", geriTusu);
+    return () => window.removeEventListener("popstate", geriTusu);
+  }, [menuAcik]);
   useEffect(() => { const t = temaOku("orman"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
   const [hata, setHata] = useState("");
@@ -1221,6 +1237,12 @@ export default function YonetimPaneli() {
           </div>
         </div>
       </div>
+
+      {cikisToastGoster && (
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: "rgba(0,0,0,0.8)", color: "#fff", padding: "10px 18px", borderRadius: 999, fontSize: 13, whiteSpace: "nowrap" }}>
+          Çıkmak için tekrar geri tuşuna bas
+        </div>
+      )}
 
       {menuAcik && (
         <div onClick={() => setMenuAcik(false)} role="button" tabIndex={0} aria-label="Menuyu kapat" onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setMenuAcik(false); }} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 20 }}>
