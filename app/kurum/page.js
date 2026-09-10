@@ -367,8 +367,13 @@ export default function KurumPaneli() {
             {cikisYukleniyor ? "..." : "Çıkış Yap"}
           </button>
         </div>
-        {!twaIcindeMi && (
-        <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/kurum-apk-latest/karemux-kurum-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}>📱 Uygulamayı İndir</a>
+        {!twaIcindeMi && iosMu && (
+          <div style={{ background: T.page, border: `1px solid ${T.line}`, borderRadius: 8, padding: "10px 12px", marginBottom: 12, fontSize: 12, color: T.ink }}>
+            <i className="ti ti-brand-apple" style={{ fontSize: 14, marginRight: 6 }} /> iPhone'a eklemek için Safari'de Paylaş simgesine dokun, "Ana Ekrana Ekle"yi seç.
+          </div>
+        )}
+        {!twaIcindeMi && !iosMu && (
+          <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/kurum-apk-latest/karemux-kurum-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}><i className="ti ti-brand-android" style={{ fontSize: 13, marginRight: 4 }} /> Uygulamayı İndir</a>
         )}
 
         <p style={{ textAlign: "center", fontSize: 11, fontWeight: 700, color: "#8A8A8E", letterSpacing: 0.5, marginBottom: 6 }}>KAREMUX KURUM</p>

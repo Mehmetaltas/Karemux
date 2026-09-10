@@ -5164,8 +5164,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   )}
                 </p>
-                {!twaIcindeMi && (
-                <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogrenci-apk-latest/karemux-ogrenci-imzali.apk" style={{ display: "inline-block", padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, color: COLORS.ink, fontSize: 12, fontWeight: 600, textDecoration: "none", marginBottom: 8 }}>📱 Uygulamayı İndir</a>
+                {!twaIcindeMi && iosMu && (
+                  <div style={{ background: "#fff", border: `1.5px solid ${COLORS.line}`, borderRadius: 8, padding: "9px 12px", marginBottom: 8, fontSize: 11.5, color: COLORS.ink }}>
+                    <i className="ti ti-brand-apple" style={{ fontSize: 14, marginRight: 6 }} /> iPhone'a eklemek için Safari'de Paylaş simgesine dokun, "Ana Ekrana Ekle"yi seç.
+                  </div>
+                )}
+                {!twaIcindeMi && !iosMu && (
+                  <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogrenci-apk-latest/karemux-ogrenci-imzali.apk" style={{ display: "inline-block", padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, color: COLORS.ink, fontSize: 12, fontWeight: 600, textDecoration: "none", marginBottom: 8 }}><i className="ti ti-brand-android" style={{ fontSize: 13, marginRight: 4 }} /> Uygulamayı İndir</a>
                 )}
                 {!twaIcindeMi && (
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
