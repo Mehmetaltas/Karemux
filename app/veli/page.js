@@ -189,19 +189,33 @@ export default function VeliPaneli() {
         </div>
         <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/veli-apk-latest/karemux-veli-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}>📱 Uygulamayı İndir</a>
 
-        <div className="kx-maarif-rozet" style={{ background: "#EAF6EE", border: "1px solid #A8D9B8", borderRadius: 10, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 22 }} className="kx-maarif-isik">✓</span>
-          <div>
-            <p style={{ fontWeight: 700, fontSize: 12.5, color: "#1E5C33", margin: 0 }}>Türkiye Yüzyılı Maarif Modeli'ne Uyumlu</p>
-            <p style={{ fontSize: 11, color: "#3A7350", margin: "2px 0 0" }}>Çocuğunuzun müfredatı MEB'in güncel resmi modeline göre işleniyor.</p>
-          </div>
-        </div>
-        <style>{`
-          @keyframes kxMaarifNabiz { 0%, 100% { box-shadow: 0 0 0 0 rgba(30,92,51,0.25); } 50% { box-shadow: 0 0 0 6px rgba(30,92,51,0.08); } }
-          .kx-maarif-rozet { animation: kxMaarifNabiz 2.6s ease-in-out infinite; }
-          @keyframes kxMaarifIsik { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
-          .kx-maarif-isik { animation: kxMaarifIsik 2.6s ease-in-out infinite; display: inline-block; }
-        `}</style>
+        <svg viewBox="0 0 380 190" style={{ width: "100%", maxWidth: 220, display: "block", margin: "0 auto 16px" }}>
+          <defs>
+            <linearGradient id="kxMaviMuhur" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#7FC4E8" />
+              <stop offset="55%" stopColor="#3B82C4" />
+              <stop offset="100%" stopColor="#215E96" />
+            </linearGradient>
+          </defs>
+          <style>{`
+            @keyframes kxPariltiYanSon { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+            @keyframes kxMuhurNefes { 0%, 100% { filter: drop-shadow(0 0 3px rgba(59,130,196,0.5)); } 50% { filter: drop-shadow(0 0 14px rgba(59,130,196,0.9)); } }
+            .kx-isik { animation: kxPariltiYanSon 1.4s ease-in-out infinite; }
+            .kx-isik2 { animation: kxPariltiYanSon 1.4s ease-in-out infinite 0.4s; }
+            .kx-isik3 { animation: kxPariltiYanSon 1.4s ease-in-out infinite 0.8s; }
+            .kx-muhur-grup { animation: kxMuhurNefes 2.2s ease-in-out infinite; }
+          `}</style>
+          <g className="kx-muhur-grup" transform="translate(190,95)">
+            <polygon points="0,-75 12,-50 40,-62 30,-36 62,-40 42,-18 75,0 42,18 62,40 30,36 40,62 12,50 0,75 -12,50 -40,62 -30,36 -62,40 -42,18 -75,0 -42,-18 -62,-40 -30,-36 -40,-62 -12,-50" fill="url(#kxMaviMuhur)" stroke="#215E96" strokeWidth="1.5" />
+            <circle r="52" fill="#FFFFFF" stroke="#3B82C4" strokeWidth="2.5" />
+            <circle className="kx-isik" r="3" cx="-30" cy="-38" fill="#FFFFFF" />
+            <circle className="kx-isik2" r="2.5" cx="34" cy="-30" fill="#FFFFFF" />
+            <circle className="kx-isik3" r="3" cx="0" cy="-46" fill="#FFFFFF" />
+            <text x="0" y="-2" textAnchor="middle" fontSize="14" fontWeight="700" fill="#215E96">MAARİF</text>
+            <text x="0" y="16" textAnchor="middle" fontSize="14" fontWeight="700" fill="#215E96">MODELİ</text>
+            <text x="0" y="40" textAnchor="middle" fontSize="20" fill="#3B82C4">✓</text>
+          </g>
+        </svg>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>🔒 Hesap - Şifreni Değiştir</h2>
