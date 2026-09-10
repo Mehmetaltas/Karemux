@@ -228,6 +228,11 @@ export default function OgretmenPanel() {
   const [ogretmen, setOgretmen] = useState(null);
   const [menuAcik, setMenuAcik] = useState(false);
   const [cikisToastGoster, setCikisToastGoster] = useState(false);
+  const [girisAnimasyonuGoster, setGirisAnimasyonuGoster] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);
+    return () => clearTimeout(t);
+  }, []);
   const sonGeriBasimRef = useRef(0);
   useEffect(() => {
     window.history.pushState({ kxSahte: true }, "");
@@ -275,6 +280,23 @@ export default function OgretmenPanel() {
         <p style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>Karemux Öğretmen</p>
         <div style={{ width: 22 }} />
       </div>
+
+      {girisAnimasyonuGoster && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 250, background: "#010F3F", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+          <div style={{ position: "absolute", width: 180, height: 180, borderRadius: "50%", background: "#2AAE7F", filter: "blur(40px)", opacity: 0.5, top: "18%", left: "8%", animation: "kxYanip 2.4s ease-in-out infinite" }} />
+          <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "#3B82C4", filter: "blur(40px)", opacity: 0.5, top: "52%", right: "3%", animation: "kxYanip 2.4s ease-in-out infinite 0.6s" }} />
+          <div style={{ position: "absolute", width: 140, height: 140, borderRadius: "50%", background: "#6B5CE0", filter: "blur(40px)", opacity: 0.5, bottom: "8%", left: "18%", animation: "kxYanip 2.4s ease-in-out infinite 1.2s" }} />
+          <div style={{ position: "relative", zIndex: 2, textAlign: "center", opacity: 0, animation: "kxGiris 1.4s ease-out 0.3s forwards" }}>
+            <img src="/icons/icon-512.png" alt="Karemux" style={{ width: 100, height: 100, borderRadius: 20, animation: "kxNefes 2.5s ease-in-out infinite" }} />
+            <p style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginTop: 16, opacity: 0, animation: "kxGiris 1s ease-out 1.1s forwards" }}>KAREMUX</p>
+          </div>
+          <style>{`
+            @keyframes kxYanip { 0%, 100% { opacity: 0.2; transform: scale(0.9); } 50% { opacity: 0.4; transform: scale(1.1); } }
+            @keyframes kxGiris { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+            @keyframes kxNefes { 0%, 100% { filter: drop-shadow(0 0 20px rgba(76,201,240,0.5)); } 50% { filter: drop-shadow(0 0 32px rgba(76,201,240,0.8)); } }
+          `}</style>
+        </div>
+      )}
 
       {cikisToastGoster && (
         <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: "rgba(0,0,0,0.8)", color: "#fff", padding: "10px 18px", borderRadius: 999, fontSize: 13, whiteSpace: "nowrap" }}>
