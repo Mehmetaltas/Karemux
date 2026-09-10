@@ -244,7 +244,7 @@ export default function VeliPaneli() {
 
         <p style={bolumBasligiStili(T)}>HESAP</p>
         <div style={{ background: T.page, borderRadius: 12, border: `1px solid ${T.line}`, marginBottom: 16, padding: "0 16px" }}>
-          <div onClick={() => setSifreFormAcik((a) => !a)} style={{ ...listeSatiriStili(T, { ilkSatir: true }), justifyContent: "space-between" }}>
+          <button onClick={() => setSifreFormAcik((a) => !a)} aria-expanded={sifreFormAcik} style={{ ...listeSatiriStili(T, { ilkSatir: true }), justifyContent: "space-between", width: "100%", background: "none", border: "none", font: "inherit" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <i className="ti ti-lock" style={{ fontSize: 20, color: T.muted }} />
               <span style={{ fontSize: 14 }}>Şifreni değiştir</span>
