@@ -705,7 +705,7 @@ function konuKatmanlaraAyir(metin) {
 // konuKatmanlaraAyir()'dan gelir - varsa bu bileseni goster, yoksa (null ise)
 // cagiran taraf eski tek-blok gorunume geri duser (JSX'te "if (katmanlar) return"
 // ile - bu bilesen ESKI kodu DEGISTIRMEZ, ona ek bir yeni yol acar).
-function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, sorulariGoster, sorularAcikMi, onMiniTestTikla }) {
+function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, onMiniTestTikla }) {
   const KATMANLAR_META = [
     { anahtar: "hizliOgren", baslik: "⚡ Hızlı Öğren", altbaslik: "30 saniyede özet" },
     { anahtar: "temelAnlatim", baslik: "📘 Temel Anlatım", altbaslik: "Ana kavramlar" },
@@ -771,7 +771,6 @@ export default function Ana() {
   const [secilenDers, setSecilenDers] = useState(null);
   const secilenDersRef = useRef(null);
   useEffect(() => { secilenDersRef.current = secilenDers; }, [secilenDers]);
-  const [kocPaneliAcik, setKocPaneliAcik] = useState(false);
   const [kocPaneliDers, setKocPaneliDers] = useState(null);
 
   // Dersler ekraninda: gecmis yil zayifsa konu tekrari + test dongusu burada calisir.
@@ -1287,27 +1286,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const tamamlanan = tamamlananUniteler[dersAdi] || [];
     return tumUniteler.find((u) => !tamamlanan.includes(u)) || null;
   }
-
-  async function gecmisYilTakviyesiAnlat() {
-    const oncekiSinif = Math.max(1, sinif - 1);
-    setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
-    try {
-      const p = `Sen deneyimli, alaninda uzman bir "${kocPaneliDers}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${kocPaneliDers}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille OZETLE - once tanim, sonra somut ornek. Toplamda 350-450 kelime, konu basliklarina ayirarak yaz. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
-      const cevap = await aiIstek(p, 3000, cihazIdRef.current);
-      const temizMetin = cevap
-        .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
-        .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
-      setAciklama(temizMetin);
-      gorselKararIste(kocPaneliDers, `${oncekiSinif}. sinif temel kavramlar`, oncekiSinif, cihazIdRef.current).then(setAciklamaGorselSvg);
-    } catch (e) { setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
-    finally { setYukleniyor(null); }
-  }
-
-  async function gecmisYilTestiTekrarla() {
-    setGecenYilRaporu(null); setGecenYilTamamlandiMi(false); setGecenYilSorulari(null); setGecenYilGonderildi(false);
-  }
-
   async function teknikleriGetir(dersAdi) {
     setTeknikPaneliAcik(true);
     if (teknikler && teknikler.ders === dersAdi) return; // zaten yuklu
@@ -1530,7 +1508,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   // Sinav (Yazili/Deneme ortak) - Kapsam: konu | unite | donem
   const [denemeDers, setDenemeDers] = useState(null);
-  const [denemeTuru, setDenemeTuru] = useState("deneme"); // "deneme" | "yazili1" | "yazili2" | "yazili3"
   const [kapsamTuru, setKapsamTuru] = useState("donem"); // "konu" | "unite" | "donem"
   const [kapsamUnite, setKapsamUnite] = useState(null);
   const [kapsamKonu, setKapsamKonu] = useState("");
@@ -1547,7 +1524,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   // Seviye Tespit Sinavi
   const [seviyeSorulari, setSeviyeSorulari] = useState(null);
   const [seviyeCevaplar, setSeviyeCevaplar] = useState({});
-  const [seviyeGonderildi, setSeviyeGonderildi] = useState(false);
   const [seviyeRaporu, setSeviyeRaporu] = useState(null); // { [ders]: { dogru, toplam, seviye } }
   const [denemeSorulari, setDenemeSorulari] = useState(null);
   const [denemeCevaplar, setDenemeCevaplar] = useState({});
@@ -1920,7 +1896,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [profilGunlukGorevler, setProfilGunlukGorevler] = useState(null);
   const [karneAcik, setKarneAcik] = useState(false);
   const [netTrendVeri, setNetTrendVeri] = useState(null);
-  const [netTrendYukleniyor, setNetTrendYukleniyor] = useState(false);
 
   const [tekrarSorulari, setTekrarSorulari] = useState(null);
   const [tekrarIndex, setTekrarIndex] = useState(0);
@@ -1991,7 +1966,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function netTrendiGetir() {
-    setNetTrendYukleniyor(true);
     try {
       const res = await fetch(`/api/sinav-sonuc?cihazId=${cihazIdRef.current}`);
       const data = await res.json();
@@ -2002,7 +1976,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     } catch (e) {
       setNetTrendVeri([]);
     } finally {
-      setNetTrendYukleniyor(false);
     }
   }
   useEffect(() => {
@@ -2411,7 +2384,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const secilenTatil = TATIL_TURLERI.find((t) => t.key === tatilTuru);
     setTatilProgramiYukleniyor(true); setHata(""); setTatilProgramiMesaj(""); setTatilProgramiListesi(null);
     try {
-      const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const zayifMetni = zayifDersler.length > 0 ? `Ozellikle zayif oldugu dersler: ${zayifDersler.join(", ")}.` : "";
       const p = `Sen bir LGS calisma kocususun. ${zayifMetni} Ogrenci ${sinif}. sinifta, "${secilenTatil.ad}" donemine giriyor (${secilenTatil.gun} gunluk). ${secilenTatil.key === "yaz" ? `Yaz tatili UZUN oldugu icin, tempo dusuk-orta tutulmali, her gun 1-1.5 saatlik hafif ama DUZENLI bir aliskanlik kurmali, tukenmisligi onlemek icin haftada 1 gun tam dinlenme olmali. Once zayif konulara odaklan (eksik kapatma), ama sure uzun oldugu icin ILERI HAZIRLIK da ekle: gorevlerin bir kismi bir sonraki sinifin/donemin konularina hafif bir on bakis olsun. Gorev cesitliligi onemli - sirayla konu anlatimi, soru cozumu, kisa test, fasikul calismasi, deneme/tekrar gibi FARKLI turlerde gorevler dagit, hep ayni turden gorev verme.` : secilenTatil.key === "yariyil" ? "Yariyil tatili orta uzunlukta, once zayif konulari kapatmaya, sonra 2. donem'e hazirliga odaklanmali." : "Ara tatil kisa, sadece son donemdeki zayif konulari toparlamaya ve dinlenmeye odaklanmali, agir yeni konu YOK."} Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (120-160 kelime) bir konusma - tatilin ruhuna uygun (dinlenmeyi de onemsediginizi belirt). (2) "program": ${secilenTatil.gun} GUNUN HER BIRI icin bir gorev nesnesi - {"gunNo":1,"ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev"}. Haftada en az 1 gun "Dinlenme" olarak ayarla (agir calisma yok). SADECE JSON dondur, markdown kullanma:
 {"mesaj":"...","program":[{"gunNo":1,"ders":"...","gorev":"..."}, ...]}`;
@@ -2593,7 +2565,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         return;
       }
 
-      const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const veriMetni = ozet.map((o) => `${o.ders}: ${o.testSayisi} test, ortalama net ${o.ortalamaNet}, en son net ${o.sonNet}`).join("; ");
       const p = `Sen bir egitim kocususun. Su gercek sinav verilerine dayanarak DERIN, KISISEL bir karne/durum degerlendirmesi yaz: ${veriMetni}. Su noktalara deg: (1) En guclu oldugu 1-2 dersi somut sayilarla ovun, (2) En cok destege ihtiyaci olan 1-2 dersi nazik ama net sekilde belirt, (3) Son sinav ile ortalamasini kiyaslayip bir trend yorumu yap (yukseliyor mu, sabit mi, dususte mi), (4) Somut, uygulanabilir 2-3 tavsiye ver. Sicak, samimi, gercekci bir mentor tonu kullan - ne asiri ovucu ne cesaret kirici ol. 250-320 kelime, SADECE Turkce duz metin, markdown kullanma. Turkce'ye ozgu noktali/simgeli karakterleri DOGRU ve EKSIKSIZ kullan.`;
       const yorum = await aiIstek(p, 1600, cihazIdRef.current);
@@ -2745,15 +2716,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     tanima.onerror = () => setDinleniyor(null);
     tanima.onend = () => setDinleniyor(null);
     tanima.start();
-  }
-
-  function sesliOku(metin) {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel(); // onceki okumayi durdur
-    const konusma = new SpeechSynthesisUtterance(metin);
-    konusma.lang = "tr-TR";
-    konusma.rate = 0.95;
-    window.speechSynthesis.speak(konusma);
   }
 
   function MikrofonButonu({ alanAdi, metinAyarla }) {
@@ -3378,7 +3340,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (zayifDersler.length === 0) return;
     setYukleniyor("plan"); setHata(""); setPlan(""); setHaftalikGorevListesi(null);
     try {
-      const ogrenciAdi = hesap?.ad ? hesap.ad.split(" ")[0] : null;
       const ilerlemeOzeti = zayifDersler.map((d) => {
         const tamamlanan = (tamamlananUniteler[d] || []).length;
         const toplam = dersinUniteleri(d, sinif).length;
@@ -3581,7 +3542,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const res = await fetch("/api/sinav-sonuc", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, tur: sinavKayitTuru || denemeTuru, ders: kayitDersAdi, dogru, yanlis, bos, net }),
+        body: JSON.stringify({ cihazId: cihazIdRef.current, tur: sinavKayitTuru || "deneme", ders: kayitDersAdi, dogru, yanlis, bos, net }),
       });
       const data = await res.json();
       if (res.ok) { oncekiNet = data.oncekiNet; testNo = data.testNo || 1; }
@@ -3591,7 +3552,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   async function seviyeTespitiYap() {
-    setYukleniyor("seviye"); setHata(""); setSeviyeCevaplar({}); setSeviyeGonderildi(false); setSeviyeSorulari(null); setSeviyeRaporu(null);
+    setYukleniyor("seviye"); setHata(""); setSeviyeCevaplar({}); setSeviyeSorulari(null); setSeviyeRaporu(null);
     try {
       const dersListesi = gorunurDersler(sinif).map((d) => d.ad).join(", ");
       const p = `Sen bir egitim kurumunda seviye tespit sinavi hazirlayan bir olcme-degerlendirme uzmanisin. Su derslerin HER BIRINDEN 2'ser soru olmak uzere toplam 12 soruluk bir SEVIYE TESPIT SINAVI hazirla: ${dersListesi}. ${sinif}. sinif seviyesinde, her dersten 1 kolay 1 orta zorlukta soru olsun. Her sorunun hangi derse ait oldugunu "ders" alaninda MUTLAKA belirt (yukaridaki isimlerle BIREBIR ayni yaz). Sorular mantik yurutme gerektirsin, ezber bilgi sorma. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, ayrica Ingilizce/Almanca/Fransizca/Portekizce gibi baska dilden TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
@@ -3611,7 +3572,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   function seviyeGonder() {
-    setSeviyeGonderildi(true);
     const rapor = {};
     seviyeSorulari.forEach((s, i) => {
       if (!rapor[s.ders]) rapor[s.ders] = { dogru: 0, toplam: 0 };
