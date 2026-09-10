@@ -228,10 +228,12 @@ export default function OgretmenPanel() {
   const [ogretmen, setOgretmen] = useState(null);
   const [menuAcik, setMenuAcik] = useState(false);
   const [cikisToastGoster, setCikisToastGoster] = useState(false);  const [twaIcindeMi, setTwaIcindeMi] = useState(false);
+  const [iosMu, setIosMu] = useState(false);
   useEffect(() => {
     try {
       if (document.referrer && document.referrer.startsWith("android-app://")) setTwaIcindeMi(true);
       if (window.navigator && window.navigator.standalone === true) setTwaIcindeMi(true); // iOS "Ana Ekrana Ekle" ile acilmis
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) setIosMu(true);
     } catch (e) {}
   }, []);
 

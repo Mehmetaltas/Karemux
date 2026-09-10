@@ -1538,10 +1538,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     return () => clearTimeout(t);
   }, []);
   const [twaIcindeMi, setTwaIcindeMi] = useState(false);
+  const [iosMu, setIosMu] = useState(false);
   useEffect(() => {
     try {
       if (document.referrer && document.referrer.startsWith("android-app://")) setTwaIcindeMi(true);
       if (window.navigator && window.navigator.standalone === true) setTwaIcindeMi(true); // iOS "Ana Ekrana Ekle" ile acilmis
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) setIosMu(true);
     } catch (e) {}
   }, []);
 
