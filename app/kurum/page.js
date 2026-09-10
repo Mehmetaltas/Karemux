@@ -340,6 +340,20 @@ export default function KurumPaneli() {
         </div>
         <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/kurum-apk-latest/karemux-kurum-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}>📱 Uygulamayı İndir</a>
 
+        <div className="kx-maarif-rozet" style={{ background: "#EAF6EE", border: "1px solid #A8D9B8", borderRadius: 10, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 22 }} className="kx-maarif-isik">✓</span>
+          <div>
+            <p style={{ fontWeight: 700, fontSize: 12.5, color: "#1E5C33", margin: 0 }}>Türkiye Yüzyılı Maarif Modeli'ne Uyumlu</p>
+            <p style={{ fontSize: 11, color: "#3A7350", margin: "2px 0 0" }}>Kurumunuzun müfredatı MEB'in güncel resmi modeline göre işleniyor.</p>
+          </div>
+        </div>
+        <style>{`
+          @keyframes kxMaarifNabiz { 0%, 100% { box-shadow: 0 0 0 0 rgba(30,92,51,0.25); } 50% { box-shadow: 0 0 0 6px rgba(30,92,51,0.08); } }
+          .kx-maarif-rozet { animation: kxMaarifNabiz 2.6s ease-in-out infinite; }
+          @keyframes kxMaarifIsik { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+          .kx-maarif-isik { animation: kxMaarifIsik 2.6s ease-in-out infinite; display: inline-block; }
+        `}</style>
+
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>🔒 Hesap - Şifreni Değiştir</h2>
           <input type="password" placeholder="Eski şifre" value={vEskiSifre} onChange={(e) => setVEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13, boxSizing: "border-box" }} />

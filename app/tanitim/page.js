@@ -111,6 +111,16 @@ export default function Tanitim() {
         <p style={{ textAlign: "center", fontSize: 11.5, color: C.inkSoft, marginTop: 20, fontStyle: "italic" }}>
           + anlık, sınırsız soru üretimi
         </p>
+        <div className="kx-maarif-rozet" style={{ background: "#EAF6EE", border: "1px solid #A8D9B8", borderRadius: 10, padding: "10px 14px", marginTop: 16, display: "flex", alignItems: "center", gap: 10, maxWidth: 340, marginLeft: "auto", marginRight: "auto" }}>
+          <span style={{ fontSize: 20 }} className="kx-maarif-isik">✓</span>
+          <p style={{ fontWeight: 700, fontSize: 12, color: "#1E5C33", margin: 0 }}>Türkiye Yüzyılı Maarif Modeli'ne Uyumlu Müfredat</p>
+        </div>
+        <style>{`
+          @keyframes kxMaarifNabiz { 0%, 100% { box-shadow: 0 0 0 0 rgba(30,92,51,0.25); } 50% { box-shadow: 0 0 0 6px rgba(30,92,51,0.08); } }
+          .kx-maarif-rozet { animation: kxMaarifNabiz 2.6s ease-in-out infinite; }
+          @keyframes kxMaarifIsik { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+          .kx-maarif-isik { animation: kxMaarifIsik 2.6s ease-in-out infinite; display: inline-block; }
+        `}</style>
       </div>
 
       {/* ==== NEDEN KAREMUX ==== */}

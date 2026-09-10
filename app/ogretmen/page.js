@@ -307,6 +307,19 @@ export default function OgretmenPanel() {
             <h1 style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Hoş geldin, {ogretmen.ad}</h1>
             <p style={{ fontSize: 13.5, color: C.muted, marginBottom: 12 }}>{ogretmen.brans} branşında Karemux'un 11 materyal üretim aracına erişimin var.</p>
             <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogretmen-apk-latest/karemux-ogretmen-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${C.cizgi || "#E5E5EA"}`, color: C.ink || "#1D1D1F", fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 20 }}>📱 Uygulamayı İndir</a>
+            <div className="kx-maarif-rozet" style={{ background: "#EAF6EE", border: "1px solid #A8D9B8", borderRadius: 10, padding: "10px 14px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 22 }} className="kx-maarif-isik">✓</span>
+              <div>
+                <p style={{ fontWeight: 700, fontSize: 12.5, color: "#1E5C33", margin: 0 }}>Türkiye Yüzyılı Maarif Modeli'ne Uyumlu</p>
+                <p style={{ fontSize: 11, color: "#3A7350", margin: "2px 0 0" }}>Materyallerin, MEB'in güncel resmi modeline göre üretiliyor.</p>
+              </div>
+            </div>
+            <style>{`
+              @keyframes kxMaarifNabiz { 0%, 100% { box-shadow: 0 0 0 0 rgba(30,92,51,0.25); } 50% { box-shadow: 0 0 0 6px rgba(30,92,51,0.08); } }
+              .kx-maarif-rozet { animation: kxMaarifNabiz 2.6s ease-in-out infinite; }
+              @keyframes kxMaarifIsik { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+              .kx-maarif-isik { animation: kxMaarifIsik 2.6s ease-in-out infinite; display: inline-block; }
+            `}</style>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {MENU.filter((m) => m.tur).map((m) => (
                 <button key={m.kod} onClick={() => setSekme(m.kod)} style={{ textAlign: "left", background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 12, cursor: "pointer" }}>
