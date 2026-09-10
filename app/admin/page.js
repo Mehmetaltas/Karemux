@@ -73,16 +73,6 @@ function Panel({ baslik, ikon, children, sagUst }) {
   );
 }
 
-// Onaylanan/tamamlanan kayitlar icin kucuk, yuvarlak "kase" rozeti - Kayit
-// Defteri konseptinin imza ogesi.
-function KaseRozeti({ metin }) {
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 9px", borderRadius: 999, border: `1.5px solid ${T.accent}`, color: T.accent, fontSize: TYPO.micro, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.3 }}>
-      ✓ {metin}
-    </span>
-  );
-}
-
 const girdiStil = { width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.border}`, background: T.inputBg, color: T.text, fontSize: TYPO.bodyStrong, fontFamily: T.font };
 const etiketStil = { fontSize: TYPO.micro, fontWeight: 600, color: T.textMuted, marginBottom: 5, display: "block", textTransform: "uppercase", letterSpacing: 0.3 };
 function butonStil(aktif, renk) {
@@ -1219,7 +1209,6 @@ export default function YonetimPaneli() {
     { baslik: "📢 İletişim", sekmeler: [["duyuru", "📢 Duyuru"], ["talepler", "💡 Kullanıcı Talepleri"]] },
     { baslik: "⚙️ Sistem", sekmeler: [["ikiz", "🐋 Sistem İkizi"], ["tema", "🎨 Tema"], ["hesabim", "👤 Hesabım"]] },
   ];
-  const SEKMELER = SEKME_GRUPLARI.flatMap((g) => g.sekmeler);
 
   return (
     <main style={{ minHeight: "100vh", background: T.bg, fontFamily: T.font, color: T.text, paddingBottom: 60 }}>
@@ -1828,7 +1817,6 @@ export default function YonetimPaneli() {
                 const gelirTl = v.finans.gunlukGelirTl ?? v.finans.haftalikGelirTl ?? v.finans.donemGelirTl;
                 const satisAdedi = v.finans.gunlukSatisAdedi ?? v.finans.haftalikSatisAdedi ?? v.finans.donemSatisAdedi;
                 const oncekiGelirTl = v.finans.dunkuGelirTl ?? v.finans.oncekiHaftaGelirTl ?? v.finans.oncekiDonemGelirTl;
-                const giderTl = v.finans.gunlukGiderTl ?? v.finans.haftalikGiderTl ?? v.finans.donemGiderTl;
                 const yeniKayit = v.kullanici.yeniKayitBugun ?? v.kullanici.yeniKayitBuHafta ?? v.kullanici.yeniKayitBuDonem;
                 const aiTl = v.aiMaliyeti.bugunTl ?? v.aiMaliyeti.buHaftaTl ?? v.aiMaliyeti.buDonemTl;
                 const aiCagri = v.aiMaliyeti.bugunCagriSayisi ?? v.aiMaliyeti.buHaftaCagriSayisi ?? v.aiMaliyeti.buDonemCagriSayisi;
