@@ -25,7 +25,7 @@ export default function VeliPaneli() {
       if (!r.ok) { setVSifreSonuc({ hata: d.error || "Sifre degistirilemedi" }); return; }
       setVSifreSonuc({ basari: true });
       setVEskiSifre(""); setVYeniSifre("");
-    } catch (e) { setVSifreSonuc({ hata: "Baglanti hatasi" }); }
+    } catch (e) { setVSifreSonuc({ hata: "Bağlantı hatası" }); }
     finally { setVSifreYukleniyor(false); }
   }
 
@@ -111,7 +111,7 @@ export default function VeliPaneli() {
       setBaglantiKodu("");
       ogrencileriGetir();
     } catch (e) {
-      setBaglantiMesaj(e.message || "Baglanti kurulamadi");
+      setBaglantiMesaj(e.message || "Bağlantı kurulamadı");
     }
   }
 
@@ -263,10 +263,10 @@ export default function VeliPaneli() {
         </div>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ogrenci Bagla</h2>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Öğrenci Bağla</h2>
           <div style={{ display: "flex", gap: 6 }}>
-            <input aria-label="Ogrencinin baglanti kodu" value={baglantiKodu} onChange={(e) => setBaglantiKodu(e.target.value)} placeholder="Ogrencinin baglanti kodu" style={{ flex: 1, padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, fontSize: 13 }} />
-            <button onClick={baglan} style={{ padding: "9px 16px", borderRadius: 6, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Bagla</button>
+            <input aria-label="Öğrencinin bağlantı kodu" value={baglantiKodu} onChange={(e) => setBaglantiKodu(e.target.value)} placeholder="Öğrencinin bağlantı kodu" style={{ flex: 1, padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, fontSize: 13 }} />
+            <button onClick={baglan} style={{ padding: "9px 16px", borderRadius: 6, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Bağla</button>
           </div>
           {baglantiMesaj && <p style={{ fontSize: 12, marginTop: 8, color: T.muted }}>{baglantiMesaj}</p>}
         </section>
@@ -274,7 +274,7 @@ export default function VeliPaneli() {
         {!ogrenciler ? (
           <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p>
         ) : ogrenciler.length === 0 ? (
-          <p style={{ fontSize: 13, color: T.muted }}>Henuz bagli bir ogrenci yok.</p>
+          <p style={{ fontSize: 13, color: T.muted }}>Henüz bağlı bir öğrenci yok.</p>
         ) : ogrenciler.map((o) => (
           <section key={o.ogrenci.id} style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
             <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>{o.ogrenci.ad} <span style={{ fontWeight: 400, color: T.muted, fontSize: 12 }}>({o.ogrenci.sinif}. sinif)</span></h2>
@@ -340,7 +340,7 @@ export default function VeliPaneli() {
             )}
 
             <button onClick={() => { setAcikPaketOgrenci(acikPaketOgrenci === o.ogrenci.id ? null : o.ogrenci.id); setHavaleBilgi(null); setHata(""); }} style={{ padding: "8px 14px", borderRadius: 6, border: `1.5px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
-              {acikPaketOgrenci === o.ogrenci.id ? "Paketleri Gizle" : "Bu Ogrenci Icin Paket Satin Al"}
+              {acikPaketOgrenci === o.ogrenci.id ? "Paketleri Gizle" : "Bu Öğrenci İçin Paket Satın Al"}
             </button>
 
             {acikPaketOgrenci === o.ogrenci.id && (
@@ -373,7 +373,7 @@ export default function VeliPaneli() {
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ödeme Geçmişim</h2>
           {!odemeGecmisi ? <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p> : odemeGecmisi.length === 0 ? (
-            <p style={{ fontSize: 13, color: T.muted }}>Henuz bir odeme yapmadin.</p>
+            <p style={{ fontSize: 13, color: T.muted }}>Henüz bir ödeme yapmadın.</p>
           ) : odemeGecmisi.map((o) => (
             <div key={o.id} style={{ borderBottom: `1px solid ${T.line}`, padding: "10px 0" }}>
               <p style={{ fontWeight: 700, fontSize: 13 }}>{o.ogrenci_ad} — {o.plan}</p>
