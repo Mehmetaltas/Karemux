@@ -76,7 +76,7 @@ export default function Tanitim() {
           <a href="https://www.karemux.com/?uygulama=1" style={{ background: C.red, color: "#fff", padding: "13px 26px", borderRadius: 10, fontWeight: 700, fontSize: 14.5, textDecoration: "none" }}>Hemen Ücretsiz Başla →</a>
         </div>
         <p style={{ fontSize: 11, color: C.inkSoft, marginTop: 12 }}>
-          <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogrenci-apk-latest/karemux-ogrenci-imzali.apk" style={{ color: C.inkSoft, textDecoration: "underline" }}>📱 Android Uygulamasını İndir</a>
+          <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/ogrenci-apk-latest/karemux-ogrenci-imzali.apk" style={{ color: C.inkSoft, textDecoration: "underline" }}><i className="ti ti-brand-android" style={{ fontSize: 14, marginRight: 4, verticalAlign: "-2px" }} /> Android Uygulamasını İndir</a>
         </p>
       </KareliArkaplan>
 

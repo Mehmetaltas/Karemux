@@ -2987,6 +2987,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function hesapGonder() {
     setHesapHata("");
+    if (hesapModu !== "giris" && rolSec === "ogrenci" && !veliEpostaGir.trim()) {
+      setHesapHata("Veli/ebeveyn e-postası zorunludur - ilerlemeni takip edebilmesi için gerekli.");
+      return;
+    }
     const url = hesapModu === "giris" ? "/api/auth/login" : "/api/auth/register";
     try {
       const res = await fetch(url, {
