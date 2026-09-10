@@ -250,7 +250,7 @@ export default function VeliPaneli() {
               <span style={{ fontSize: 14 }}>Şifreni değiştir</span>
             </div>
             <i className={`ti ti-chevron-${sifreFormAcik ? "up" : "down"}`} style={{ fontSize: 16, color: T.muted }} />
-          </div>
+          </button>
           {sifreFormAcik && (
             <div style={{ paddingBottom: 16 }}>
               <input type="password" placeholder="Eski şifre" value={vEskiSifre} onChange={(e) => setVEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13, boxSizing: "border-box" }} />
