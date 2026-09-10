@@ -7,6 +7,21 @@ const T = {
 };
 
 export default function KurumPaneli() {
+  const [cikisToastGoster, setCikisToastGoster] = useState(false);
+  const sonGeriBasimRef = useRef(0);
+  useEffect(() => {
+    window.history.pushState({ kxSahte: true }, "");
+    const geriTusu = () => {
+      const simdi = Date.now();
+      if (simdi - sonGeriBasimRef.current < 2000) return;
+      sonGeriBasimRef.current = simdi;
+      setCikisToastGoster(true);
+      setTimeout(() => setCikisToastGoster(false), 2000);
+      window.history.pushState({ kxSahte: true }, "");
+    };
+    window.addEventListener("popstate", geriTusu);
+    return () => window.removeEventListener("popstate", geriTusu);
+  }, []);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [kullanici, setKullanici] = useState(null);
   const [kurum, setKurum] = useState(null);
