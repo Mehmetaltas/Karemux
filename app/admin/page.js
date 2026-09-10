@@ -135,7 +135,7 @@ export default function YonetimPaneli() {
     window.addEventListener("popstate", geriTusu);
     return () => window.removeEventListener("popstate", geriTusu);
   }, [menuAcik]);
-  useEffect(() => { const t = temaOku("orman"); adminTemayiUygula(t); setTemaState(t); }, []);
+  useEffect(() => { const t = temaOku("minimal"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
   const [hata, setHata] = useState("");
   const [basari, setBasari] = useState("");

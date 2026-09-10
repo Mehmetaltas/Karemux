@@ -10,7 +10,7 @@ import CerezBildirimi from "@/lib/CerezBildirimi";
 // guncelleniyor. Boylece modul-seviyesinde C.xxx kullanan alt bilesenler
 // (MateryalUreticisi, MateryalGorunumu vb.) props gecirmeye/Context'e gerek
 // kalmadan otomatik yeni renkleri gorur (render zamaninda okunuyor).
-let C = { yesil: "#1F3D2E", turuncu: "#FF6B5E", altin: "#E8B339", metin: "#2A2A2A", muted: "#8A8A8A", bg: "#FDFBF6" };
+let C = { yesil: "#0A84FF", turuncu: "#FF6B5E", altin: "#E8B339", metin: "#2A2A2A", muted: "#8A8A8A", bg: "#FDFBF6" };
 
 function temayiUygula(temaAdi) {
   const t = TEMALAR[temaAdi];
@@ -223,7 +223,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
 
 export default function OgretmenPanel() {
   const [tema, setTema] = useState("orman");
-  useEffect(() => { const t = temaOku("orman"); temayiUygula(t); setTema(t); }, []);
+  useEffect(() => { const t = temaOku("minimal"); temayiUygula(t); setTema(t); }, []);
   function temaSec(t) { temayiUygula(t); temaKaydet(t); setTema(t); }
   const [ogretmen, setOgretmen] = useState(null);
   const [menuAcik, setMenuAcik] = useState(false);
