@@ -253,30 +253,6 @@ export default function OgretmenPanel() {
     }).then((d) => { if (d) setOgretmen(d.ogretmen); });
   }, []);
 
-  const [ogEskiSifre, setOgEskiSifre] = useState("");
-  const [ogYeniSifre, setOgYeniSifre] = useState("");
-  const [ogSifreYukleniyor, setOgSifreYukleniyor] = useState(false);
-  const [ogSifreSonuc, setOgSifreSonuc] = useState(null);
-
-  async function ogretmenSifreDegistir() {
-    setOgSifreYukleniyor(true);
-    setOgSifreSonuc(null);
-    try {
-      const r = await fetch("/api/ogretmen/sifre-degistir", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eskiSifre: ogEskiSifre, yeniSifre: ogYeniSifre }),
-      });
-      const d = await r.json();
-      if (!r.ok) { setOgSifreSonuc({ hata: d.error || "Sifre degistirilemedi" }); return; }
-      setOgSifreSonuc({ basari: true });
-      setOgEskiSifre(""); setOgYeniSifre("");
-    } catch (e) {
-      setOgSifreSonuc({ hata: "Baglanti hatasi" });
-    } finally {
-      setOgSifreYukleniyor(false);
-    }
-  }
-
   async function cikisYap() {
     await fetch("/api/ogretmen/cikis", { method: "POST" });
     router.push("/ogretmen-giris");
@@ -318,15 +294,6 @@ export default function OgretmenPanel() {
                 {m.ad}{!m.hazir && <span style={{ fontSize: 10, marginLeft: 6, color: C.turuncu }}>(yakında)</span>}
               </button>
             ))}
-            <div style={{ background: "#F7F5EF", borderRadius: 10, padding: 12, marginTop: 16, marginBottom: 4 }}>
-              <p style={{ fontWeight: 700, fontSize: 12.5, marginBottom: 8 }}>🔒 Şifreni Değiştir</p>
-              <input type="password" placeholder="Eski şifre" value={ogEskiSifre} onChange={(e) => setOgEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1px solid #ddd", marginBottom: 6, fontSize: 12 }} />
-              <input type="password" placeholder="Yeni şifre (en az 6 karakter)" value={ogYeniSifre} onChange={(e) => setOgYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1px solid #ddd", marginBottom: 8, fontSize: 12 }} />
-              {ogSifreSonuc?.hata && <p role="alert" style={{ color: "#C0392B", fontSize: 11, marginBottom: 6 }}>{ogSifreSonuc.hata}</p>}
-              {ogSifreSonuc?.basari && <p style={{ color: "#1E7A46", fontSize: 11, marginBottom: 6 }}>Güncellendi ✓</p>}
-              <button onClick={ogretmenSifreDegistir} disabled={ogSifreYukleniyor || !ogEskiSifre || !ogYeniSifre} style={{ width: "100%", padding: "7px 0", borderRadius: 6, border: "none", background: C.turuncu, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer", opacity: (ogSifreYukleniyor || !ogEskiSifre || !ogYeniSifre) ? 0.5 : 1 }}>{ogSifreYukleniyor ? "..." : "Güncelle"}</button>
-            </div>
-
             <button onClick={cikisYap} style={{ display: "block", width: "100%", textAlign: "left", padding: "11px 10px", borderRadius: 8, border: "none", background: "none", color: C.turuncu, fontSize: 13.5, fontWeight: 600, cursor: "pointer", marginTop: 20 }}>
               Çıkış Yap
             </button>

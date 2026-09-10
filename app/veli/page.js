@@ -7,6 +7,26 @@ const T = {
 };
 
 export default function VeliPaneli() {
+  const [vEskiSifre, setVEskiSifre] = useState("");
+  const [vYeniSifre, setVYeniSifre] = useState("");
+  const [vSifreYukleniyor, setVSifreYukleniyor] = useState(false);
+  const [vSifreSonuc, setVSifreSonuc] = useState(null);
+  async function hesapSifreDegistir() {
+    setVSifreYukleniyor(true);
+    setVSifreSonuc(null);
+    try {
+      const r = await fetch("/api/auth/sifre-degistir", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eskiSifre: vEskiSifre, yeniSifre: vYeniSifre }),
+      });
+      const d = await r.json();
+      if (!r.ok) { setVSifreSonuc({ hata: d.error || "Sifre degistirilemedi" }); return; }
+      setVSifreSonuc({ basari: true });
+      setVEskiSifre(""); setVYeniSifre("");
+    } catch (e) { setVSifreSonuc({ hata: "Baglanti hatasi" }); }
+    finally { setVSifreYukleniyor(false); }
+  }
+
   const [cikisToastGoster, setCikisToastGoster] = useState(false);
   const sonGeriBasimRef = useRef(0);
   useEffect(() => {
@@ -168,6 +188,15 @@ export default function VeliPaneli() {
           </button>
         </div>
         <a href="https://github.com/Mehmetaltas/KAREMUX/releases/download/veli-apk-latest/karemux-veli-imzali.apk" style={{ display: "inline-block", padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, color: T.ink, fontSize: 11.5, fontWeight: 600, textDecoration: "none", marginBottom: 12 }}>📱 Uygulamayı İndir</a>
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>🔒 Hesap - Şifreni Değiştir</h2>
+          <input type="password" placeholder="Eski şifre" value={vEskiSifre} onChange={(e) => setVEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13, boxSizing: "border-box" }} />
+          <input type="password" placeholder="Yeni şifre (en az 6 karakter)" value={vYeniSifre} onChange={(e) => setVYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 13, boxSizing: "border-box" }} />
+          {vSifreSonuc?.hata && <p role="alert" style={{ color: "#C0392B", fontSize: 12, marginBottom: 8 }}>{vSifreSonuc.hata}</p>}
+          {vSifreSonuc?.basari && <p style={{ color: "#1E7A46", fontSize: 12, marginBottom: 8 }}>Şifren güncellendi ✓</p>}
+          <button onClick={hesapSifreDegistir} disabled={vSifreYukleniyor || !vEskiSifre || !vYeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: T.accent || "#B85C38", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (vSifreYukleniyor || !vEskiSifre || !vYeniSifre) ? 0.5 : 1 }}>{vSifreYukleniyor ? "Güncelleniyor..." : "Şifreyi Güncelle"}</button>
+        </section>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ogrenci Bagla</h2>

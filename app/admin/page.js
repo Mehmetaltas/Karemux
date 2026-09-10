@@ -1217,7 +1217,7 @@ export default function YonetimPaneli() {
     { baslik: "🎥 Canlı Hizmetler", sekmeler: [["canliders", "🎥 Canlı Ders"], ["randevuodeme", "📅 Randevu Ödemeleri"], ["kurumlar", "🏢 Kurumlar"]] },
     { baslik: "👥 İnsan Kaynakları", sekmeler: [["ik", "🗂️ Personel Yönetimi"], ["kariyer", "🧑‍💼 Kariyer Havuzu"]] },
     { baslik: "📢 İletişim", sekmeler: [["duyuru", "📢 Duyuru"], ["talepler", "💡 Kullanıcı Talepleri"]] },
-    { baslik: "⚙️ Sistem", sekmeler: [["ikiz", "🐋 Sistem İkizi"], ["tema", "🎨 Tema"]] },
+    { baslik: "⚙️ Sistem", sekmeler: [["ikiz", "🐋 Sistem İkizi"], ["tema", "🎨 Tema"], ["hesabim", "👤 Hesabım"]] },
   ];
   const SEKMELER = SEKME_GRUPLARI.flatMap((g) => g.sekmeler);
 
@@ -1261,15 +1261,6 @@ export default function YonetimPaneli() {
                 ))}
               </div>
             ))}
-            <div style={{ background: T.surfaceMuted || "#F3F1EA", borderRadius: 10, padding: 12, marginTop: 14, marginBottom: 4 }}>
-              <p style={{ fontWeight: 700, fontSize: 12.5, marginBottom: 8 }}>🔒 Şifreni Değiştir</p>
-              <input type="password" placeholder="Eski şifre" value={pEskiSifre} onChange={(e) => setPEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1px solid #ddd", marginBottom: 6, fontSize: 12 }} />
-              <input type="password" placeholder="Yeni şifre (en az 6 karakter)" value={pYeniSifre} onChange={(e) => setPYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "7px 10px", borderRadius: 6, border: "1px solid #ddd", marginBottom: 8, fontSize: 12 }} />
-              {pSifreSonuc?.hata && <p role="alert" style={{ color: "#C0392B", fontSize: 11, marginBottom: 6 }}>{pSifreSonuc.hata}</p>}
-              {pSifreSonuc?.basari && <p style={{ color: "#1E7A46", fontSize: 11, marginBottom: 6 }}>Güncellendi ✓</p>}
-              <button onClick={personelSifreDegistir} disabled={pSifreYukleniyor || !pEskiSifre || !pYeniSifre} style={{ width: "100%", padding: "7px 0", borderRadius: 6, border: "none", background: T.accent, color: "#fff", fontWeight: 700, fontSize: 12, cursor: "pointer", opacity: (pSifreYukleniyor || !pEskiSifre || !pYeniSifre) ? 0.5 : 1 }}>{pSifreYukleniyor ? "..." : "Güncelle"}</button>
-            </div>
-
             <button onClick={async () => { await fetch("/api/personel/cikis", { method: "POST" }); setGirisYapildi(false); setSifre(""); setPersonelEposta(""); setPersonelSifre(""); setPersonelAd(""); }}
               style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 10px", borderRadius: 8, border: "none", background: "none", color: T.danger, fontSize: 13.5, fontWeight: 600, cursor: "pointer", marginTop: 10 }}>
               Çıkış Yap
@@ -1765,6 +1756,19 @@ export default function YonetimPaneli() {
                 </button>
               ))}
             </div>
+          </div>
+        )}
+
+        {sekme === "hesabim" && (
+          <div style={{ background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 16, maxWidth: 360 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>👤 Hesabım</p>
+            <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 14 }}>{personelAd}</p>
+            <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>Şifreni Değiştir</p>
+            <input type="password" placeholder="Eski şifre" value={pEskiSifre} onChange={(e) => setPEskiSifre(e.target.value)} aria-label="Eski şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.border}`, marginBottom: 8, fontSize: 13 }} />
+            <input type="password" placeholder="Yeni şifre (en az 6 karakter)" value={pYeniSifre} onChange={(e) => setPYeniSifre(e.target.value)} aria-label="Yeni şifre" style={{ width: "100%", padding: "9px 12px", borderRadius: 8, border: `1px solid ${T.border}`, marginBottom: 10, fontSize: 13 }} />
+            {pSifreSonuc?.hata && <p role="alert" style={{ color: T.danger, fontSize: 12, marginBottom: 8 }}>{pSifreSonuc.hata}</p>}
+            {pSifreSonuc?.basari && <p style={{ color: T.success || "#1E7A46", fontSize: 12, marginBottom: 8 }}>Şifren güncellendi ✓</p>}
+            <button onClick={personelSifreDegistir} disabled={pSifreYukleniyor || !pEskiSifre || !pYeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: T.accent, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (pSifreYukleniyor || !pEskiSifre || !pYeniSifre) ? 0.5 : 1 }}>{pSifreYukleniyor ? "Güncelleniyor..." : "Şifreyi Güncelle"}</button>
           </div>
         )}
 
