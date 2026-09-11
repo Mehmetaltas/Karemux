@@ -20,8 +20,10 @@ export async function GET(req) {
     if (kullanici[0].veli_onay_verildi) {
       return basitSayfa("Zaten Onaylanmış", `${kullanici[0].ad} için hesap zaten önceden onaylanmış.`);
     }
-    await sql`UPDATE kullanicilar SET veli_onay_verildi = true, veli_onay_token = NULL WHERE id = ${kullanici[0].id}`;
-    return basitSayfa("Onaylandı ✓", `${kullanici[0].ad} artık Karemux'u kullanabilir. Bu sayfayı kapatabilirsiniz.`);
+    // 10-11 Eylul: onay isaretini burada koymuyoruz - bunu artik
+    // /veli-hesap-olustur (gercek hesap acma) yapiyor, aksi halde veli
+    // "onaylandi" gorunup hicbir zaman giris yapamiyordu.
+    return Response.redirect(new URL(`/veli-hesap-olustur?token=${token}`, req.url), 302);
   } catch (e) {
     console.error(e);
     return basitSayfa("Bir Sorun Oluştu", "Onay işlemi tamamlanamadı, lütfen tekrar deneyin.");

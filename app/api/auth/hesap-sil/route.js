@@ -29,9 +29,10 @@ export async function POST(req) {
     await sql`DELETE FROM gunluk_kullanim WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM gunluk_gorevler WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM veli_ogrenci WHERE veli_id = ${kullaniciId} OR ogrenci_id = ${kullaniciId}`;
+    await sql`DELETE FROM randevular WHERE ogrenci_id = ${kullaniciId}`;
     await sql`DELETE FROM guvenlik_denemeleri WHERE anahtar = ${kullanici[0].eposta}`;
 
-    const silinenKategoriler = "hata_kitapcigi, ilerleme, sinav_sonuclari, seviye_tespit_kademe, seviye_tespit_sonuc, ulusal_deneme_sonuclari, gunluk_kullanim, gunluk_gorevler, veli_ogrenci";
+    const silinenKategoriler = "hata_kitapcigi, ilerleme, sinav_sonuclari, seviye_tespit_kademe, seviye_tespit_sonuc, ulusal_deneme_sonuclari, gunluk_kullanim, gunluk_gorevler, veli_ogrenci, randevular";
 
     const maliKayit = await sql`SELECT 1 FROM odemeler WHERE kullanici_id = ${kullaniciId} LIMIT 1`;
     if (maliKayit.length > 0) {
