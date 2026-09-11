@@ -1654,6 +1654,39 @@ export default function YonetimPaneli() {
               </Panel>
             )}
 
+            {maliyetVeri.kullaniciTakip && (
+              <Panel baslik="Kullanici / Abone Takip" ikon="👥">
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 10 }}>
+                  <div style={{ background: T.bg, borderRadius: 8, padding: 10 }}>
+                    <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Gercek Kayitli Kullanici</p>
+                    <p style={{ fontSize: 20, fontWeight: 700, margin: "2px 0 0" }}>{maliyetVeri.kullaniciTakip.gerceKkayitlikullanici ?? maliyetVeri.kullaniciTakip.gerceklerkayitlikullanici ?? maliyetVeri.kullaniciTakip.gerceKKayitliKullanici}</p>
+                  </div>
+                  <div style={{ background: T.bg, borderRadius: 8, padding: 10 }}>
+                    <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Anonim Cihaz Izi</p>
+                    <p style={{ fontSize: 20, fontWeight: 700, margin: "2px 0 0" }}>{maliyetVeri.kullaniciTakip.anonimcihazizi}</p>
+                  </div>
+                  <div style={{ background: T.bg, borderRadius: 8, padding: 10 }}>
+                    <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Gercek Ogrenci</p>
+                    <p style={{ fontSize: 18, fontWeight: 700, margin: "2px 0 0" }}>{maliyetVeri.kullaniciTakip.gercekogrenci}</p>
+                  </div>
+                  <div style={{ background: T.bg, borderRadius: 8, padding: 10 }}>
+                    <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Gercek Veli / Kurum</p>
+                    <p style={{ fontSize: 18, fontWeight: 700, margin: "2px 0 0" }}>{maliyetVeri.kullaniciTakip.gercekveli} / {maliyetVeri.kullaniciTakip.gercekkurum}</p>
+                  </div>
+                </div>
+                {maliyetVeri.aboneDurumDagilimi?.length > 0 ? (
+                  maliyetVeri.aboneDurumDagilimi.map((a, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < maliyetVeri.aboneDurumDagilimi.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
+                      <span>Abonelik - {a.durum}</span>
+                      <strong>{a.sayi}</strong>
+                    </div>
+                  ))
+                ) : (
+                  <p style={{ fontSize: 12, color: T.muted, margin: 0 }}>Henuz hic abonelik kaydi yok.</p>
+                )}
+              </Panel>
+            )}
+
             {maliyetVeri.uretimGiderleri?.length > 0 && (
               <Panel baslik="Uretim Gideri Kategorileri (Bu Ay)" ikon="🏭">
                 {maliyetVeri.uretimGiderleri.map((g, i) => (
