@@ -75,15 +75,15 @@ export default function VeliHesapOlustur() {
               <p style={{ fontSize: 13, color: "#76767A", margin: 0 }}><strong>{ogrenciAdi}</strong> onaylandı. Kendi hesabını kurmak için bir şifre belirle.</p>
             </div>
 
-            <label style={{ fontSize: 12.5, color: "#76767A", display: "block", marginBottom: 6 }}>E-posta</label>
-            <input value={veliEposta} disabled aria-label="E-posta" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: "1.5px solid #E5E5EA", marginBottom: 12, background: "#F5F5F7", color: "#76767A" }} />
+            <label htmlFor="veli-eposta" style={{ fontSize: 12.5, color: "#76767A", display: "block", marginBottom: 6 }}>E-posta</label>
+            <input id="veli-eposta" value={veliEposta} disabled aria-label="E-posta" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: "1.5px solid #E5E5EA", marginBottom: 12, background: "#F5F5F7", color: "#76767A" }} />
 
-            <label style={{ fontSize: 12.5, color: "#76767A", display: "block", marginBottom: 6 }}>Şifre belirle</label>
-            <GosterGizleInput placeholder="En az 6 karakter" value={sifre} onChange={(e) => setSifre(e.target.value)} aria-label="Şifre"
+            <label htmlFor="veli-sifre" style={{ fontSize: 12.5, color: "#76767A", display: "block", marginBottom: 6 }}>Şifre belirle</label>
+            <GosterGizleInput id="veli-sifre" placeholder="En az 6 karakter" value={sifre} onChange={(e) => setSifre(e.target.value)} aria-label="Şifre"
               style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: "1.5px solid #E5E5EA", marginBottom: 12 }} />
 
-            <label style={{ fontSize: 12.5, color: "#76767A", display: "block", marginBottom: 6 }}>Şifreyi tekrar gir</label>
-            <GosterGizleInput placeholder="Şifreni tekrar yaz" value={sifreTekrar} onChange={(e) => setSifreTekrar(e.target.value)} aria-label="Şifre tekrar"
+            <label htmlFor="veli-sifre-tekrar" style={{ fontSize: 12.5, color: "#76767A", display: "block", marginBottom: 6 }}>Şifreyi tekrar gir</label>
+            <GosterGizleInput id="veli-sifre-tekrar" placeholder="Şifreni tekrar yaz" value={sifreTekrar} onChange={(e) => setSifreTekrar(e.target.value)} aria-label="Şifre tekrar"
               style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: "1.5px solid #E5E5EA", marginBottom: 16 }} />
 
             {hata && <p role="alert" style={{ color: "#B23A2E", fontSize: 12.5, marginBottom: 12 }}>{hata}</p>}
