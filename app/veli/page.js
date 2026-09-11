@@ -375,14 +375,6 @@ export default function VeliPaneli() {
                   </a>'i okudum, kabul ediyorum.
                 </label>
               </div>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: 10, background: T.page, border: `1px solid ${T.line}`, borderRadius: 10, padding: 12, marginBottom: 12 }}>
-                <input type="checkbox" checked={sozlesmeOnayli} onChange={(e) => setSozlesmeOnayli(e.target.checked)} id={`sozlesme-${o.ogrenci.id}`} style={{ marginTop: 2, width: 16, height: 16, flexShrink: 0 }} />
-                <label htmlFor={`sozlesme-${o.ogrenci.id}`} style={{ fontSize: 12.5, color: T.ink, cursor: "pointer" }}>
-                  <a href="/mesafeli-satis" target="_blank" rel="noopener noreferrer" style={{ color: T.coral, fontWeight: 600, textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                    <i className="ti ti-file-text" style={{ fontSize: 14 }} />Mesafeli Satış Sözleşmesi
-                  </a>'i okudum, kabul ediyorum.
-                </label>
-              </div>
                 {!paketler ? (
                   <p style={{ fontSize: 12, color: T.muted }}>Paketler yukleniyor...</p>
                 ) : paketler.filter((p) => !p.anahtar?.startsWith("yillik_") || p.anahtar === ({ 5: "yillik_5_sinif", 6: "yillik_6_sinif", 7: "yillik_7_sinif", 8: "yillik_8_sinif_lgs" }[o.ogrenci.sinif])).map((p) => (
