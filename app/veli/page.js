@@ -355,8 +355,12 @@ export default function VeliPaneli() {
               </div>
             )}
 
-            <button onClick={() => { setAcikPaketOgrenci(acikPaketOgrenci === o.ogrenci.id ? null : o.ogrenci.id); setHavaleBilgi(null); setHata(""); }} style={{ padding: "8px 14px", borderRadius: 6, border: `1.5px solid ${T.line}`, background: "none", color: T.ink, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
-              {acikPaketOgrenci === o.ogrenci.id ? "Paketleri Gizle" : "Bu Öğrenci İçin Paket Satın Al"}
+            <button onClick={() => { setAcikPaketOgrenci(acikPaketOgrenci === o.ogrenci.id ? null : o.ogrenci.id); setHavaleBilgi(null); setHata(""); }} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 0", border: "none", background: "none", cursor: "pointer", textAlign: "left" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <i className="ti ti-shopping-bag" style={{ fontSize: 18, color: T.muted }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: T.ink }}>Bu öğrenci için paket satın al</span>
+              </span>
+              <i className={`ti ti-chevron-${acikPaketOgrenci === o.ogrenci.id ? "up" : "down"}`} style={{ fontSize: 16, color: T.muted }} />
             </button>
 
             {acikPaketOgrenci === o.ogrenci.id && (
@@ -387,7 +391,7 @@ export default function VeliPaneli() {
         ))}
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Ödeme Geçmişim</h2>
+          <p style={bolumBasligiStili(T)}>ÖDEME GEÇMİŞİM</p>
           {!odemeGecmisi ? <p aria-live="polite" style={{ fontSize: 13, color: T.muted }}>Yukleniyor...</p> : odemeGecmisi.length === 0 ? (
             <p style={{ fontSize: 13, color: T.muted }}>Henüz bir ödeme yapmadın.</p>
           ) : odemeGecmisi.map((o) => (
