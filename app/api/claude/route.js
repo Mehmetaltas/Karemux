@@ -31,7 +31,7 @@ function aiKullanimLoglaSessizce(ciktiMetin, ragKullanildi) {
 
 export async function POST(req) {
   try {
-    const { prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket } = await req.json();
+    const { prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket, tur } = await req.json();
     if (!prompt || typeof prompt !== "string" || prompt.length > 4000) {
       return Response.json({ error: "Gecersiz istek" }, { status: 400 });
     }
@@ -73,7 +73,7 @@ export async function POST(req) {
       }
     }
 
-    const metin = await aiCagir({ prompt: sonPrompt, maxTokens, jsonModu });
+    const metin = await aiCagir({ prompt: sonPrompt, maxTokens, jsonModu, tur });
     aiKullanimLoglaSessizce(metin, ragKullanildi);
     return Response.json({ text: metin, kalanHak: Math.max(0, limit.limit - limit.kullanim), ragKullanildi });
   } catch (e) {

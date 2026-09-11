@@ -530,7 +530,7 @@ Gorsel gerekmiyorsa gerekli:false don. SADECE JSON dondur: {"gerekli":true veya 
 async function gorselKararIste(ders, konu, sinif, cihazId) {
   try {
     const p = `"${ders}" dersinden "${konu}" konusu, ${sinif}. sinif seviyesinde. ${GORSEL_TIPI_REHBERI}`;
-    const cevap = await aiIstek(p, 600, cihazId, true);
+    const cevap = await aiIstek(p, 600, cihazId, true, null, null, "gorsel_karar");
     const temiz = cevap.replace(/```json|```/g, "").trim();
     const baslangic = temiz.indexOf("{");
     const bitis = temiz.lastIndexOf("}");
@@ -543,11 +543,11 @@ async function gorselKararIste(ders, konu, sinif, cihazId) {
   }
 }
 
-async function aiIstek(prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket) {
+async function aiIstek(prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket, tur) {
   const res = await fetch("/api/claude", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket }),
+    body: JSON.stringify({ prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket, tur }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "AI istegi basarisiz");
@@ -3418,6 +3418,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [sinavKapsamMetni, setSinavKapsamMetni] = useState("");
   const [sinavKayitTuru, setSinavKayitTuru] = useState("");
 
+  // Deneme/Yazili sorularina gorsel eklenmesi (10 Eylul) - AI'ya HER soru icin
+  // sormak maliyetli olur, once ucretsiz bir anahtar kelime filtresiyle
+  // "gorsel gerekebilir" olasiligi olan sorular elenir, sadece onlar icin
+  // AI'ya (gorselKararIste) sorulur. Simdilik SADECE Matematik/Fen Bilimleri
+  // (kullanicinin karari) - diger dersler ileride genisletilecek.
+  const GORSEL_ANAHTAR_KELIMELER = ["ucgen", "dortgen", "kare", "dikdortgen", "cember", "daire", "aci", "acisi", "cokgen", "prizma", "kup", "silindir", "koni", "piramit", "sayi dogrusu", "koordinat", "grafik", "tablo", "sekil", "sekildeki", "yandaki", "asagidaki sekil"];
+  function soruGorselGerekebilirMi(soruMetni) {
+    const t = soruMetni.toLowerCase().replace(/İ/g, "i").replace(/ı/g, "i").replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s").replace(/ö/g, "o").replace(/ç/g, "c");
+    return GORSEL_ANAHTAR_KELIMELER.some((k) => t.includes(k));
+  }
+
   async function sinavOlustur(sinavTuru) { // "yazili" | "deneme"
     if (!denemeDers) return;
     setYukleniyor(sinavTuru); setHata(""); setDenemeCevaplar({}); setDenemeGonderildi(false); setDenemeSorulari(null); setDenemeBelgesi(null);
@@ -3471,6 +3482,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const uretilenSinavSorulari = soruJsonAyikla(temiz);
       setDenemeSorulari(uretilenSinavSorulari);
       sorulariBankayaKaydet(denemeDers, sinif, kapsamUnite, uretilenSinavSorulari, sinavTuru);
+
+      // Matematik/Fen Bilimleri'nde gorsel olabilecek sorulara (anahtar kelime
+      // filtresinden gecenlere) arka planda gorsel ekle - kullaniciyi bekletmez,
+      // gorsel gelince soru kartinda otomatik belirir.
+      if (denemeDers === "Matematik" || denemeDers === "Fen Bilimleri") {
+        uretilenSinavSorulari.forEach((s, idx) => {
+          if (soruGorselGerekebilirMi(s.soru)) {
+            gorselKararIste(denemeDers, s.altKonu || denemeDers, sinif, cihazIdRef.current).then((svg) => {
+              if (!svg) return;
+              setDenemeSorulari((eski) => {
+                if (!eski) return eski;
+                const kopya = [...eski];
+                if (kopya[idx]) kopya[idx] = { ...kopya[idx], gorselSvg: svg };
+                return kopya;
+              });
+            });
+          }
+        });
+      }
       // Deneme gercek sinav kosullarini simule etsin diye kronometre baslatilir
       // (Yazili'da bu kadar kati bir zaman baskisi olmadigi icin baslatilmaz).
       if (sinavTuru === "deneme") kronometreyiBaslat(Math.round(sinavSoruSayisi * 1.5));

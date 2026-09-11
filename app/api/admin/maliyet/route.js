@@ -85,9 +85,19 @@ export async function GET(req) {
       SELECT COUNT(*)::int AS c FROM ai_saglayici_log WHERE basarili = true AND olusturulma >= now() - interval '7 days'
     `;
 
+    // Tur bazinda kirilim (10 Eylul) - orn. "gorsel_karar" gibi ozelliklerin
+    // maliyetini normal soru/anlatim uretiminden AYRI gorebilmek icin.
+    const turBazindaKullanim = await sql`
+      SELECT tur, COUNT(*)::int AS toplamDeneme, COUNT(*) FILTER (WHERE basarili)::int AS basarili
+      FROM ai_saglayici_log
+      WHERE tur IS NOT NULL AND olusturulma >= now() - interval '7 days'
+      GROUP BY tur ORDER BY toplamDeneme DESC
+    `;
+
     return Response.json({
       gercekKullanim: gercekKullanim.map((g) => ({ saglayici: g.saglayici, toplamDeneme: g.toplamdeneme, basarili: g.basarili, ortalamaSureMs: g.ortalamasurems })),
       gercekToplamBasariliCagriSon7Gun: gercekToplamBasariliCagri[0].c,
+      turBazindaKullanim: turBazindaKullanim.map((t) => ({ tur: t.tur, toplamDeneme: t.toplamdeneme, basarili: t.basarili })),
       uretimGiderleri,
       uretimToplam,
       tahminiAiMaliyetTl,
