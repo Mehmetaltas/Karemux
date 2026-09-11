@@ -1,5 +1,5 @@
 import { sql } from "@/lib/db";
-import { sifreDogrula, altiHaneliKodUret } from "@/lib/auth";
+import { sifreDogrula, altiHaneliKodUret, tokenUret, oturumCookieBaslik } from "@/lib/auth";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { resendIstemcisi } from "@/lib/email";
 
@@ -19,7 +19,7 @@ export async function POST(req) {
       return Response.json({ error: "Çok fazla başarısız deneme yapıldı. 15 dakika sonra tekrar dene." }, { status: 429 });
     }
 
-    const sonuc = await sql`SELECT id, ad, sifre_hash FROM kullanicilar WHERE eposta = ${eposta}`;
+    const sonuc = await sql`SELECT id, ad, sifre_hash, rol FROM kullanicilar WHERE eposta = ${eposta}`;
     const kullanici = sonuc[0];
     // Kullanıcı yoksa da (zamanlama saldırılarını zorlaştırmak için) aynı hata mesajını dön
     if (!kullanici || kullanici.sifre_hash === "anon") {
@@ -37,6 +37,18 @@ export async function POST(req) {
 
     await denemeKaydet(eposta.toLowerCase(), "login", true);
     await denemeKaydet(ip, "login", true);
+
+    // E-posta 2FA (11 Eylul) - SIMDILIK SADECE ogrenci rolu icin (pilot).
+    // Veli/kurum girisleri henuz bu 2 adimli akisi bilmiyor (kendi UI'lari
+    // guncellenmedi) - digerlerine yayilana kadar onlari eski (tek adimli)
+    // akista birakiyoruz, yoksa giris yapamaz hale gelirler.
+    if (kullanici.rol !== "ogrenci") {
+      const token = tokenUret(kullanici.id);
+      return new Response(JSON.stringify({ ok: true, ad: kullanici.ad }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(token, beniHatirla !== false) },
+      });
+    }
 
     // E-posta 2FA (11 Eylul) - sifre dogru olsa da oturum HENUZ acilmiyor,
     // once 6 haneli koda ihtiyac var. beniHatirla degeri dogrulama adimina
