@@ -1682,8 +1682,8 @@ export default function YonetimPaneli() {
                     </div>
                   ))
                 ) : (
-                <>
                   <p style={{ fontSize: 12, color: T.muted, margin: 0 }}>Henuz hic abonelik kaydi yok.</p>
+                )}
                 {maliyetVeri.maliyetKategoriBazinda?.length > 0 && (
                   <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${T.border}` }}>
                     <p style={{ fontSize: 11, color: T.muted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Bu Ay - Kategoriye Gore AI Maliyeti</p>
@@ -1694,8 +1694,6 @@ export default function YonetimPaneli() {
                       </div>
                     ))}
                   </div>
-                )}
-                  </>
                 )}
               </Panel>
             )}
