@@ -15,7 +15,7 @@ export async function POST(req) {
     if (paketSonuc.length === 0) return Response.json({ error: "Gecersiz veya lisanslanamayan paket" }, { status: 400 });
     const paket = paketSonuc[0];
 
-    const kurumSonuc = await sql`SELECT vergi_no, vergi_dairesi FROM kurumlar WHERE id = ${yonetici.kurumId}`;
+    const kurumSonuc = await sql`SELECT ad, vergi_no, vergi_dairesi FROM kurumlar WHERE id = ${yonetici.kurumId}`;
     const kurum = kurumSonuc[0];
     if (!kurum.vergi_no || !kurum.vergi_dairesi) {
       return Response.json({ error: "Fatura kesebilmemiz icin once kurum profilinden vergi bilgilerini tamamlamalisin" }, { status: 400 });
@@ -43,6 +43,9 @@ export async function POST(req) {
       iban: process.env.HAVALE_IBAN,
       hesapSahibi: process.env.HAVALE_HESAP_SAHIBI,
       bankaAdi: process.env.HAVALE_BANKA_ADI,
+      kurumAdi: kurum.ad,
+      paketAdi: paket.ad,
+      koltukSayisi,
     });
   } catch (e) {
     console.error(e);

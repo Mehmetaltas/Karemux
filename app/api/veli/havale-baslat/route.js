@@ -62,6 +62,9 @@ export async function POST(req) {
       paketAdi: paketSonuc[0].ad,
       ogrenciAdi: ogrenciAdiSonuc[0]?.ad || "",
       veliAdi: veliAdiSonuc[0]?.ad || "",
+      orijinalFiyat: orijinalFiyat.toFixed(2),
+      indirimTutari: indirimTutari.toFixed(2),
+      indirimKodu: uygulananKod?.kod || null,
     });
   } catch (e) {
     console.error(e);

@@ -403,8 +403,14 @@ export default function VeliPaneli() {
                       <div style={{ borderTop: `1px solid ${T.line}`, paddingTop: 10, marginBottom: 10 }}>
                         <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 4 }}>
                           <span>{havaleBilgi.paketAdi}</span>
-                          <span>{havaleBilgi.tutar}₺</span>
+                          <span>{havaleBilgi.orijinalFiyat}₺</span>
                         </div>
+                        {Number(havaleBilgi.indirimTutari) > 0 && (
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 4, color: T.coral }}>
+                            <span>İndirim ({havaleBilgi.indirimKodu})</span>
+                            <span>−{havaleBilgi.indirimTutari}₺</span>
+                          </div>
+                        )}
                         <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Fiyata KDV dahildir.</p>
                       </div>
                       <div style={{ borderTop: `1px solid ${T.line}`, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
