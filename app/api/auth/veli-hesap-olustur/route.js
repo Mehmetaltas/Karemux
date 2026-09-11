@@ -24,6 +24,17 @@ export async function POST(req) {
 
     // Ayni eposta ile ONCEDEN acilmis bir veli hesabi var mi kontrol et.
     const mevcutVeli = await sql`SELECT id FROM kullanicilar WHERE eposta = ${veliEposta} AND rol = 'veli'`;
+
+    // 11 Eylul: eposta BASKA bir rolle (ogrenci/kurum) zaten kayitliysa, DB'nin
+    // "eposta tekil" kurali INSERT'i sessizce patlatirdi - bunun yerine acik,
+    // anlasilir bir hata donuyoruz. (Ayni epostanin birden fazla role
+    // sahip olabilmesi ayri, daha buyuk bir mimari karar - simdilik desteklenmiyor.)
+    if (mevcutVeli.length === 0) {
+      const baskaRol = await sql`SELECT rol FROM kullanicilar WHERE eposta = ${veliEposta}`;
+      if (baskaRol.length > 0) {
+        return Response.json({ error: `Bu e-posta (${veliEposta}) zaten baska bir hesap turunde (${baskaRol[0].rol}) kayitli. Veli hesabi icin farkli bir e-posta kullanman gerekiyor - once ogrencinin profilinden veli e-postasini guncelleyip onay mailini tekrar gonder.` }, { status: 409 });
+      }
+    }
     let veliId;
 
     if (mevcutVeli.length > 0) {
