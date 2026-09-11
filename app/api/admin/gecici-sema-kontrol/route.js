@@ -6,13 +6,11 @@ export async function GET(req) {
     return Response.json({ error: "Yetkisiz" }, { status: 401 });
   }
   try {
-    const disKullanicilar = await sql`
-      SELECT id, eposta, ad, rol, olusturulma
-      FROM kullanicilar
-      WHERE eposta NOT ILIKE '%mehmetaltas%' AND eposta NOT ILIKE '%karemuxegitim%'
-      ORDER BY olusturulma ASC
+    const kolonlar = await sql`
+      SELECT column_name, data_type FROM information_schema.columns
+      WHERE table_name = 'abonelikler' ORDER BY ordinal_position
     `;
-    return Response.json({ toplam: disKullanicilar.length, kullanicilar: disKullanicilar });
+    return Response.json({ kolonlar });
   } catch (e) {
     return Response.json({ error: e.message }, { status: 500 });
   }
