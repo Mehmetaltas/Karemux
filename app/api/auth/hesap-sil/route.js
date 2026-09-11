@@ -40,7 +40,7 @@ export async function POST(req) {
           eposta = ${`silinmis-${kullaniciId}@karemux-anon.com`},
           ad = 'Silinmis Kullanici',
           sifre_hash = 'silindi',
-          telefon = NULL, il = NULL, ilce = NULL, okul = NULL, sinif = NULL,
+          telefon = NULL, il = NULL, okul = NULL, sinif = NULL,
           veli_eposta = NULL, veli_baglanti_kodu = NULL, veli_onay_token = NULL,
           telegram_chat_id = NULL, telegram_baglanti_kodu = NULL,
           hedef_il = NULL, hedef_ilce = NULL, hedef_okul = NULL, hedef_puan = NULL
