@@ -30,11 +30,24 @@ export async function POST(req) {
     await sql`DELETE FROM gunluk_gorevler WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM veli_ogrenci WHERE veli_id = ${kullaniciId} OR ogrenci_id = ${kullaniciId}`;
     await sql`DELETE FROM randevular WHERE ogrenci_id = ${kullaniciId}`;
+    await sql`DELETE FROM canli_ders_katilimcilari WHERE ogrenci_id = ${kullaniciId}`;
+    await sql`DELETE FROM geri_bildirimler WHERE kullanici_id = ${kullaniciId}`;
+    await sql`DELETE FROM konu_hakimiyet WHERE kullanici_id = ${kullaniciId}`;
+    await sql`DELETE FROM tek_konu_oturumu WHERE kullanici_id = ${kullaniciId}`;
+    await sql`DELETE FROM ucretli_deneme_sonuclari WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM guvenlik_denemeleri WHERE anahtar = ${kullanici[0].eposta}`;
 
-    const silinenKategoriler = "hata_kitapcigi, ilerleme, sinav_sonuclari, seviye_tespit_kademe, seviye_tespit_sonuc, ulusal_deneme_sonuclari, gunluk_kullanim, gunluk_gorevler, veli_ogrenci, randevular";
+    const silinenKategoriler = "hata_kitapcigi, ilerleme, sinav_sonuclari, seviye_tespit_kademe, seviye_tespit_sonuc, ulusal_deneme_sonuclari, gunluk_kullanim, gunluk_gorevler, veli_ogrenci, randevular, canli_ders_katilimcilari, geri_bildirimler, konu_hakimiyet, tek_konu_oturumu, ucretli_deneme_sonuclari";
 
-    const maliKayit = await sql`SELECT 1 FROM odemeler WHERE kullanici_id = ${kullaniciId} LIMIT 1`;
+    // 11 Eylul: sadece odemeler DEGIL, satislar/abonelikler/kullanici_kredileri de
+    // mali/degerli kayit sayilir - herhangi birinde satir varsa anonimlestir, direkt silme.
+    const maliKayit = await sql`
+      SELECT 1 FROM odemeler WHERE kullanici_id = ${kullaniciId}
+      UNION SELECT 1 FROM satislar WHERE kullanici_id = ${kullaniciId}
+      UNION SELECT 1 FROM abonelikler WHERE kullanici_id = ${kullaniciId}
+      UNION SELECT 1 FROM kullanici_kredileri WHERE kullanici_id = ${kullaniciId}
+      LIMIT 1
+    `;
     if (maliKayit.length > 0) {
       await sql`
         UPDATE kullanicilar SET
