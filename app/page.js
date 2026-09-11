@@ -2609,6 +2609,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [epostaGir, setEpostaGir] = useState("");
   const [sifreGir, setSifreGir] = useState("");
   const [beniHatirlaOgrenci, setBeniHatirlaOgrenci] = useState(true);
+  const [girisIkinciAdim, setGirisIkinciAdim] = useState(false);
+  const [girisKodGir, setGirisKodGir] = useState("");
   const [kurumDuyurulari, setKurumDuyurulari] = useState(null);
 
   const [tekKonuAsama, setTekKonuAsama] = useState("secim");
@@ -2985,6 +2987,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     } catch (e) { /* sessizce gec - ilerleme kaydi kritik degil */ }
   }
 
+  async function girisTamamlandiktanSonra() {
+    try {
+      if (beniHatirlaOgrenci) {
+        localStorage.setItem("karemux_hatirla_ana", JSON.stringify({ eposta: epostaGir, sifre: sifreGir }));
+      } else {
+        localStorage.removeItem("karemux_hatirla_ana");
+      }
+    } catch (e) {}
+    const me = await fetch("/api/auth/me").then((r) => r.json());
+    if (me.girisYapmis) setHesap(me.kullanici);
+    const p = await fetch(`/api/ilerleme?cihazId=${cihazIdRef.current}`).then((r) => r.json());
+    if (p.zayifDersler?.length) { setZayifDersler(p.zayifDersler); setOtomatikTespit(true); }
+  }
+
   async function hesapGonder() {
     setHesapHata("");
     if (hesapModu !== "giris" && rolSec === "ogrenci" && !veliEpostaGir.trim()) {
@@ -3000,23 +3016,35 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      // Tam kullanici bilgisini (rol, dogrulama durumu, veli kodu dahil) tazele
-      try {
-        if (hesapModu === "giris") {
-          if (beniHatirlaOgrenci) {
-            localStorage.setItem("karemux_hatirla_ana", JSON.stringify({ eposta: epostaGir, sifre: sifreGir }));
-          } else {
-            localStorage.removeItem("karemux_hatirla_ana");
-          }
-        }
-      } catch (e) {}
 
-      const me = await fetch("/api/auth/me").then((r) => r.json());
-      if (me.girisYapmis) setHesap(me.kullanici);
-      const p = await fetch(`/api/ilerleme?cihazId=${cihazIdRef.current}`).then((r) => r.json());
-      if (p.zayifDersler?.length) { setZayifDersler(p.zayifDersler); setOtomatikTespit(true); }
+      // E-posta 2FA (11 Eylul) - giriste sifre dogru olsa da oturum henuz
+      // acilmadi, once kod dogrulanmali. Kayitta bu adim yok, direkt devam eder.
+      if (hesapModu === "giris" && data.ikinciAdimGerekli) {
+        setGirisIkinciAdim(true);
+        return;
+      }
+
+      if (hesapModu === "giris") await girisTamamlandiktanSonra();
     } catch (e) {
       setHesapHata(e.message || "Islem basarisiz");
+    }
+  }
+
+  async function girisKoduDogrula() {
+    setHesapHata("");
+    if (!girisKodGir.trim()) { setHesapHata("Kodu gir."); return; }
+    try {
+      const res = await fetch("/api/auth/login-dogrula", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: epostaGir, kod: girisKodGir.trim(), beniHatirla: beniHatirlaOgrenci }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setGirisIkinciAdim(false); setGirisKodGir("");
+      await girisTamamlandiktanSonra();
+    } catch (e) {
+      setHesapHata(e.message || "Dogrulanamadi");
     }
   }
 
@@ -5582,6 +5610,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               </div>
             ) : (
               <div>
+                {girisIkinciAdim ? (
+                  <div>
+                    <p style={{ fontSize: 13, marginBottom: 10 }}>{epostaGir} adresine gönderilen 6 haneli kodu gir.</p>
+                    <input value={girisKodGir} onChange={(e) => setGirisKodGir(e.target.value)} placeholder="6 haneli kod" aria-label="Dogrulama kodu" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8, fontSize: 18, textAlign: "center", letterSpacing: 4 }} />
+                    {hesapHata && <p style={{ color: COLORS.coral, fontSize: 13, marginBottom: 8 }}>{hesapHata}</p>}
+                    <button onClick={girisKoduDogrula} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer", marginBottom: 8 }}>Kodu Doğrula</button>
+                    <button onClick={() => { setGirisIkinciAdim(false); setGirisKodGir(""); setHesapHata(""); }} style={{ width: "100%", padding: "8px 0", borderRadius: 8, border: "none", background: "none", color: COLORS.muted, fontSize: 12.5, cursor: "pointer" }}>Vazgeç</button>
+                  </div>
+                ) : (
+                  <>
                 <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
                   <button onClick={() => setHesapModu("giris")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "giris" ? COLORS.coral : "#fff", color: hesapModu === "giris" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Giriş Yap</button>
                   <button onClick={() => setHesapModu("kayit")} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: hesapModu === "kayit" ? COLORS.coral : "#fff", color: hesapModu === "kayit" ? "#fff" : COLORS.ink, fontWeight: 600, cursor: "pointer" }}>Kayıt Ol</button>
@@ -5613,6 +5651,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 <button onClick={hesapGonder} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   {hesapModu === "giris" ? "Giris Yap" : "Hesap Olustur"}
                 </button>
+                  </>
+                )}
 
                 {hesapModu === "giris" && !sifreUnutAcik && (
                   <button onClick={() => setSifreUnutAcik(true)} style={{ display: "block", margin: "10px auto 0", border: "none", background: "none", color: COLORS.muted, fontSize: 12.5, cursor: "pointer", textDecoration: "underline" }}>

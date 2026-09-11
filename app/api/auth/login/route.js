@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
-import { sifreDogrula, tokenUret, oturumCookieBaslik } from "@/lib/auth";
+import { sifreDogrula, altiHaneliKodUret } from "@/lib/auth";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
+import { resendIstemcisi } from "@/lib/email";
 
 export async function POST(req) {
   try {
@@ -36,11 +37,27 @@ export async function POST(req) {
 
     await denemeKaydet(eposta.toLowerCase(), "login", true);
     await denemeKaydet(ip, "login", true);
-    const token = tokenUret(kullanici.id);
-    return new Response(JSON.stringify({ ok: true, ad: kullanici.ad }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(token, beniHatirla !== false) },
-    });
+
+    // E-posta 2FA (11 Eylul) - sifre dogru olsa da oturum HENUZ acilmiyor,
+    // once 6 haneli koda ihtiyac var. beniHatirla degeri dogrulama adimina
+    // tasinmasi icin gecici olarak koda gomulur (ayri bir kayit gerektirmez).
+    const kod = altiHaneliKodUret();
+    const sonTarih = new Date(Date.now() + 10 * 60 * 1000);
+    await sql`UPDATE kullanicilar SET giris_dogrulama_kodu = ${kod}, giris_dogrulama_son_tarih = ${sonTarih} WHERE id = ${kullanici.id}`;
+
+    try {
+      await resendIstemcisi().emails.send({
+        from: "Karemux <bildirim@karemux.com>",
+        to: eposta,
+        subject: `Karemux giris kodun: ${kod}`,
+        text: `Merhaba,\n\nKaremux'a giris yapmak icin dogrulama kodun: ${kod}\n\nBu kod 10 dakika gecerlidir. Bu girisi sen yapmadiysan, bu e-postayi yok sayabilirsin.\n\nKaremux Ekibi`,
+      });
+    } catch (e) {
+      console.error("2FA e-posta gonderilemedi:", e.message);
+      return Response.json({ error: "Dogrulama kodu gonderilemedi, tekrar dene." }, { status: 502 });
+    }
+
+    return Response.json({ ok: true, ikinciAdimGerekli: true, eposta, beniHatirla: beniHatirla !== false });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Giriş yapılamadı" }, { status: 500 });
