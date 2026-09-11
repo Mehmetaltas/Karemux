@@ -16,7 +16,7 @@ export async function GET(req) {
     const ogretmenler = await sql`SELECT COUNT(*)::int AS adet FROM ogretmenler`;
     const kurumlar = await sql`SELECT COUNT(*)::int AS adet FROM kurumlar`;
     const bugunZiyaret = await sql`SELECT COUNT(DISTINCT cihaz_id)::int AS adet FROM donusum_olayi WHERE olay_turu = 'ziyaret' AND olusturulma >= CURRENT_DATE`;
-    const buAyGelir = await sql`SELECT COALESCE(SUM(tutar_tl), 0)::float AS toplam FROM odemeler WHERE durum = 'basarili' AND olusturulma >= date_trunc('month', CURRENT_DATE)`;
+    const buAyGelir = await sql`SELECT COALESCE(SUM(tutar), 0)::float AS toplam FROM odemeler WHERE durum = 'basarili' AND olusturulma >= date_trunc('month', CURRENT_DATE)`;
     const buAyGider = await sql`SELECT COALESCE(SUM(tutar_tl), 0)::float AS toplam FROM giderler WHERE tarih >= date_trunc('month', CURRENT_DATE)`;
     const acikDestek = await sql`SELECT COUNT(*)::int AS adet FROM destek_talebi WHERE durum = 'acik'`;
     const buAyAiMaliyet = await sql`SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS toplam FROM ai_kullanim_log WHERE olusturulma >= date_trunc('month', CURRENT_DATE)`;
