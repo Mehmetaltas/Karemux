@@ -1659,7 +1659,7 @@ export default function YonetimPaneli() {
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 10, marginBottom: 10 }}>
                   <div style={{ background: T.bg, borderRadius: 8, padding: 10 }}>
                     <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Gercek Kayitli Kullanici</p>
-                    <p style={{ fontSize: 20, fontWeight: 700, margin: "2px 0 0" }}>{maliyetVeri.kullaniciTakip.gerceKkayitlikullanici ?? maliyetVeri.kullaniciTakip.gerceklerkayitlikullanici ?? maliyetVeri.kullaniciTakip.gerceKKayitliKullanici}</p>
+                    <p style={{ fontSize: 20, fontWeight: 700, margin: "2px 0 0" }}>{maliyetVeri.kullaniciTakip.gercekkayitlikullanici}</p>
                   </div>
                   <div style={{ background: T.bg, borderRadius: 8, padding: 10 }}>
                     <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Anonim Cihaz Izi</p>
@@ -1683,6 +1683,17 @@ export default function YonetimPaneli() {
                   ))
                 ) : (
                   <p style={{ fontSize: 12, color: T.muted, margin: 0 }}>Henuz hic abonelik kaydi yok.</p>
+                {maliyetVeri.maliyetKategoriBazinda?.length > 0 && (
+                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${T.border}` }}>
+                    <p style={{ fontSize: 11, color: T.muted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Bu Ay - Kategoriye Gore AI Maliyeti</p>
+                    {maliyetVeri.maliyetKategoriBazinda.map((m, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: i < maliyetVeri.maliyetKategoriBazinda.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
+                        <span>{m.kategori === "kendim" ? "🧑‍💻 Kendim (test)" : m.kategori === "ucretli" ? "💎 Ucretli abone" : m.kategori === "anonim" ? "👻 Anonim (kayitsiz)" : "🆓 Ucretsiz kayitli"} ({m.kullaniciSayisi})</span>
+                        <strong>{m.toplamIstek} istek · ~{m.tahminiMaliyetTl}₺</strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 )}
               </Panel>
             )}

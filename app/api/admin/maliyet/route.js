@@ -48,6 +48,27 @@ export async function GET(req) {
     // Kullaniciya gore grupla (k.id), isme gore DEGIL - birden fazla
     // kullanici ayni ada ("Anonim" vb.) sahip olabilir, isme gore gruplamak
     // onlari yanlislikla tek satirda birlestirir.
+    // Ucretsiz/Ucretli/Kendim maliyet ayrimi (11 Eylul) - kullanicinin net
+    // istegi: "ucretsiz kullanicinin sayisi ve maliyetine erismek". Her
+    // kullanici_id, aktif abonelik varsa 'ucretli', mehmetaltas/karemuxegitim
+    // e-postasi ise 'kendim', anon.karemux.com ise 'anonim', digerleri
+    // 'ucretsiz' olarak sinifllandirilip bu ayki AI istek/maliyeti toplanir.
+    const maliyetKategoriBazinda = await sql`
+      SELECT
+        CASE
+          WHEN k.eposta LIKE '%mehmetaltas%' OR k.eposta LIKE '%karemuxegitim%' THEN 'kendim'
+          WHEN k.eposta LIKE '%@anon.karemux.com%' THEN 'anonim'
+          WHEN EXISTS (SELECT 1 FROM abonelikler a WHERE a.kullanici_id = k.id AND a.durum = 'aktif') THEN 'ucretli'
+          ELSE 'ucretsiz'
+        END AS kategori,
+        COUNT(DISTINCT g.kullanici_id)::int AS kullaniciSayisi,
+        SUM(g.ai_istek_sayisi)::int AS toplamIstek
+      FROM gunluk_kullanim g
+      JOIN kullanicilar k ON k.id = g.kullanici_id
+      WHERE g.tarih >= date_trunc('month', CURRENT_DATE)
+      GROUP BY kategori
+    `;
+
     const enCokKullananlar = await sql`
       SELECT g.kullanici_id, k.ad, SUM(g.ai_istek_sayisi)::int AS istekSayisi
       FROM gunluk_kullanim g
@@ -118,6 +139,7 @@ export async function GET(req) {
       turBazindaKullanim: turBazindaKullanim.map((t) => ({ tur: t.tur, toplamDeneme: t.toplamdeneme, basarili: t.basarili })),
       kullaniciTakip: kullaniciTakip[0],
       aboneDurumDagilimi: aboneSonuc.map((a) => ({ durum: a.durum, sayi: a.sayi })),
+      maliyetKategoriBazinda: maliyetKategoriBazinda.map((m) => ({ kategori: m.kategori, kullaniciSayisi: m.kullanicisayisi, toplamIstek: m.toplamistek, tahminiMaliyetTl: Math.round(m.toplamistek * 0.01 * 100) / 100 })),
       uretimGiderleri,
       uretimToplam,
       tahminiAiMaliyetTl,
