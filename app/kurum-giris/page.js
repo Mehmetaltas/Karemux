@@ -132,7 +132,7 @@ export default function KurumGiris() {
             <input
               aria-label="E-posta"
               type="email"
-              value={eposta}
+              value={eposta} autoComplete="off"
               onChange={(e) => setEposta(e.target.value)}
               placeholder="E-posta"
               onKeyDown={(e) => e.key === "Enter" && girisYap()}
@@ -140,7 +140,7 @@ export default function KurumGiris() {
             />
             <GosterGizleInput
               aria-label="Sifre"
-              value={sifre}
+              value={sifre} autoComplete="off"
               onChange={(e) => setSifre(e.target.value)}
               placeholder="Şifre"
               onKeyDown={(e) => e.key === "Enter" && girisYap()}

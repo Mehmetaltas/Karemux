@@ -5639,8 +5639,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     )}
                   </>
                 )}
-                <input value={epostaGir} aria-label="E-posta" onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
-                <GosterGizleInput value={sifreGir} onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 6 }} />
+                <input value={epostaGir} autoComplete="off" aria-label="E-posta" onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                <GosterGizleInput value={sifreGir} autoComplete="off" onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 6 }} />
                 {hesapModu === "giris" && (
                   <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, fontSize: 11.5, color: COLORS.muted, cursor: "pointer" }}>
                     <input type="checkbox" checked={beniHatirlaOgrenci} aria-label="Beni hatirla" onChange={(e) => setBeniHatirlaOgrenci(e.target.checked)} />

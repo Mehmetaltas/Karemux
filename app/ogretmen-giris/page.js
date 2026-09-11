@@ -114,7 +114,7 @@ export default function OgretmenGiris() {
             style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: `1px solid ${C.grid}`, marginBottom: 10, fontSize: 14, boxSizing: "border-box", fontFamily: C.bodyFont }} />
         )}
 
-        <input type="email" placeholder="E-posta" value={eposta} onChange={(e) => setEposta(e.target.value)}
+        <input type="email" placeholder="E-posta" value={eposta} autoComplete="off" onChange={(e) => setEposta(e.target.value)}
           style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: `1px solid ${C.grid}`, marginBottom: 10, fontSize: 14, boxSizing: "border-box", fontFamily: C.bodyFont }} />
 
         {sekme === "kaydol" && (
@@ -124,7 +124,7 @@ export default function OgretmenGiris() {
           </select>
         )}
 
-        <GosterGizleInput placeholder="Şifre" value={sifre} onChange={(e) => setSifre(e.target.value)}
+        <GosterGizleInput placeholder="Şifre" value={sifre} autoComplete="off" onChange={(e) => setSifre(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (sekme === "giris" ? girisYap() : kaydolYap())}
           style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: `1px solid ${C.grid}`, marginBottom: 10, fontSize: 14, boxSizing: "border-box", fontFamily: C.bodyFont }} />
 
