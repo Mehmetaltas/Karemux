@@ -87,6 +87,24 @@ export async function GET(req) {
 
     // Tur bazinda kirilim (10 Eylul) - orn. "gorsel_karar" gibi ozelliklerin
     // maliyetini normal soru/anlatim uretiminden AYRI gorebilmek icin.
+    // Kullanici/Abone Takip Paneli (11 Eylul) - gercek kayitli kullanicilari
+    // (anon cihaz izleri ve test hesaplari haric) ve ucretli abone sayisini
+    // ayirt eder. Maliyet muhasebesine baglanmasi icin aktifKullanici (AI
+    // kullanan) ile bu sayilar YAN YANA gosterilir - "kisi basi maliyet"i
+    // gercek/anon/ucretli kirilimina gore yorumlamak icin.
+    const kullaniciTakip = await sql`
+      SELECT
+        COUNT(*) FILTER (WHERE eposta LIKE '%@anon.karemux.com%')::int AS anonimCihazIzi,
+        COUNT(*) FILTER (WHERE eposta NOT LIKE '%@anon.karemux.com%' AND eposta NOT LIKE '%mehmetaltas%' AND eposta NOT LIKE '%karemuxegitim%' AND eposta NOT LIKE '%example.com%' AND eposta NOT LIKE 'test-%')::int AS gercekKayitliKullanici,
+        COUNT(*) FILTER (WHERE rol = 'ogrenci' AND eposta NOT LIKE '%@anon.karemux.com%' AND eposta NOT LIKE '%mehmetaltas%' AND eposta NOT LIKE '%karemuxegitim%')::int AS gercekOgrenci,
+        COUNT(*) FILTER (WHERE rol = 'veli' AND eposta NOT LIKE '%mehmetaltas%' AND eposta NOT LIKE '%karemuxegitim%')::int AS gercekVeli,
+        COUNT(*) FILTER (WHERE rol = 'kurum_yoneticisi' AND eposta NOT LIKE '%mehmetaltas%' AND eposta NOT LIKE '%karemuxegitim%')::int AS gercekKurum
+      FROM kullanicilar
+    `;
+    const aboneSonuc = await sql`
+      SELECT durum, COUNT(*)::int AS sayi FROM abonelikler GROUP BY durum
+    `;
+
     const turBazindaKullanim = await sql`
       SELECT tur, COUNT(*)::int AS toplamDeneme, COUNT(*) FILTER (WHERE basarili)::int AS basarili
       FROM ai_saglayici_log
@@ -98,6 +116,8 @@ export async function GET(req) {
       gercekKullanim: gercekKullanim.map((g) => ({ saglayici: g.saglayici, toplamDeneme: g.toplamdeneme, basarili: g.basarili, ortalamaSureMs: g.ortalamasurems })),
       gercekToplamBasariliCagriSon7Gun: gercekToplamBasariliCagri[0].c,
       turBazindaKullanim: turBazindaKullanim.map((t) => ({ tur: t.tur, toplamDeneme: t.toplamdeneme, basarili: t.basarili })),
+      kullaniciTakip: kullaniciTakip[0],
+      aboneDurumDagilimi: aboneSonuc.map((a) => ({ durum: a.durum, sayi: a.sayi })),
       uretimGiderleri,
       uretimToplam,
       tahminiAiMaliyetTl,
