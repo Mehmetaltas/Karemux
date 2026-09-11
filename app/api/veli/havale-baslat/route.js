@@ -15,6 +15,8 @@ export async function POST(req) {
     }
 
     const paketSonuc = await sql`SELECT ad, fiyat_tl FROM paketler WHERE anahtar = ${plan} AND aktif = true`;
+    const ogrenciAdiSonuc = await sql`SELECT ad FROM kullanicilar WHERE id = ${ogrenciId}`;
+    const veliAdiSonuc = await sql`SELECT ad FROM kullanicilar WHERE id = ${veliId}`;
     if (paketSonuc.length === 0) return Response.json({ error: "Gecersiz plan" }, { status: 400 });
 
     const orijinalFiyat = Number(paketSonuc[0].fiyat_tl);
@@ -57,6 +59,9 @@ export async function POST(req) {
       iban: process.env.HAVALE_IBAN,
       hesapSahibi: process.env.HAVALE_HESAP_SAHIBI,
       bankaAdi: process.env.HAVALE_BANKA_ADI,
+      paketAdi: paketSonuc[0].ad,
+      ogrenciAdi: ogrenciAdiSonuc[0]?.ad || "",
+      veliAdi: veliAdiSonuc[0]?.ad || "",
     });
   } catch (e) {
     console.error(e);

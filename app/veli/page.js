@@ -386,14 +386,40 @@ export default function VeliPaneli() {
                 ))}
                 {hata && <p style={{ color: "#B23A2E", fontSize: 12.5, marginTop: 6 }}>{hata}</p>}
                 {havaleBilgi && (
-                  <div role="alert" style={{ background: "#FFF8E8", border: `1.5px solid ${T.mustard}`, borderRadius: 10, padding: 14, marginTop: 10 }}>
-                    <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 8 }}>Havale/EFT Bilgileri</p>
-                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Banka:</b> {havaleBilgi.bankaAdi}</p>
-                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Hesap Sahibi:</b> {havaleBilgi.hesapSahibi}</p>
-                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>IBAN:</b> {havaleBilgi.iban}</p>
-                    <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Tutar:</b> {havaleBilgi.tutar}₺</p>
-                    <p style={{ fontSize: 12.5, marginBottom: 0, color: "#B23A2E", fontWeight: 700 }}>Aciklama alanina MUTLAKA su kodu yaz: {havaleBilgi.referans}</p>
-                  </div>
+                  <>
+                    <div style={{ background: T.page, border: `1px solid ${T.line}`, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                        <p style={{ fontSize: 11, color: T.muted, textTransform: "uppercase", letterSpacing: 0.5, margin: 0 }}>Sipariş Özeti</p>
+                        <span style={{ fontSize: 11, color: T.coral, background: "#FFF1EF", padding: "2px 8px", borderRadius: 6 }}>Havale/EFT</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 4 }}>
+                        <span style={{ color: T.muted }}>Öğrenci</span>
+                        <span style={{ fontWeight: 600 }}>{havaleBilgi.ogrenciAdi}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 10 }}>
+                        <span style={{ color: T.muted }}>Veli</span>
+                        <span style={{ fontWeight: 600 }}>{havaleBilgi.veliAdi}</span>
+                      </div>
+                      <div style={{ borderTop: `1px solid ${T.line}`, paddingTop: 10, marginBottom: 10 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, marginBottom: 4 }}>
+                          <span>{havaleBilgi.paketAdi}</span>
+                          <span>{havaleBilgi.tutar}₺</span>
+                        </div>
+                        <p style={{ fontSize: 11, color: T.muted, margin: 0 }}>Fiyata KDV dahildir.</p>
+                      </div>
+                      <div style={{ borderTop: `1px solid ${T.line}`, paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                        <span style={{ fontSize: 12.5, fontWeight: 700 }}>Ödenecek Toplam</span>
+                        <span style={{ fontSize: 18, fontWeight: 700 }}>{havaleBilgi.tutar}₺</span>
+                      </div>
+                    </div>
+                    <div role="alert" style={{ background: "#FFF8E8", border: `1.5px solid ${T.mustard}`, borderRadius: 10, padding: 14, marginTop: 10 }}>
+                      <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 8 }}>Havale/EFT Bilgileri</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Banka:</b> {havaleBilgi.bankaAdi}</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>Hesap Sahibi:</b> {havaleBilgi.hesapSahibi}</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 4 }}><b>IBAN:</b> {havaleBilgi.iban}</p>
+                      <p style={{ fontSize: 12.5, marginBottom: 0, color: "#B23A2E", fontWeight: 700 }}>Aciklama alanina MUTLAKA su kodu yaz: {havaleBilgi.referans}</p>
+                    </div>
+                  </>
                 )}
               </div>
             )}
