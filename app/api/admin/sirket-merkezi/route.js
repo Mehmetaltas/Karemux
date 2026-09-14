@@ -12,15 +12,39 @@ export async function GET(req) {
       return Response.json({ error: "Yetkisiz" }, { status: 401 });
     }
 
-    const kullanicilar = await sql`SELECT COUNT(*)::int AS adet FROM kullanicilar WHERE sifre_hash != 'anon'`;
-    const ogretmenler = await sql`SELECT COUNT(*)::int AS adet FROM ogretmenler`;
-    const kurumlar = await sql`SELECT COUNT(*)::int AS adet FROM kurumlar`;
+    // Gercek/test ayrimi (14 Eylul) - "Kullanici/Abone Takip" panelindeki AYNI
+    // desen: anon.karemux.com (anonim cihaz izi) ve mehmetaltas/karemuxegitim
+    // (kendi test hesaplari) sayimlardan HARIC tutulur - bu ekran YATIRIMCIYA/
+    // gercek karar icin GERCEK musteri sayisini gostermeli, test verisi degil.
+    const kullanicilar = await sql`
+      SELECT COUNT(*)::int AS adet FROM kullanicilar
+      WHERE sifre_hash != 'anon'
+        AND eposta NOT LIKE '%@anon.karemux.com%'
+        AND eposta NOT LIKE '%mehmetaltas%' AND eposta NOT LIKE '%karemuxegitim%'
+        AND eposta NOT LIKE '%example.com%' AND eposta NOT LIKE 'test-%'
+    `;
+    const ogretmenler = await sql`
+      SELECT COUNT(*)::int AS adet FROM ogretmenler
+      WHERE eposta NOT LIKE '%mehmetaltas%' AND eposta NOT LIKE '%karemuxegitim%' AND eposta NOT LIKE 'test%'
+    `;
+    const kurumlar = await sql`
+      SELECT COUNT(*)::int AS adet FROM kurumlar k
+      WHERE NOT EXISTS (
+        SELECT 1 FROM kullanicilar u WHERE u.kurum_id = k.id
+        AND (u.eposta LIKE '%mehmetaltas%' OR u.eposta LIKE '%karemuxegitim%')
+      )
+    `;
     const bugunZiyaret = await sql`SELECT COUNT(DISTINCT cihaz_id)::int AS adet FROM donusum_olayi WHERE olay_turu = 'ziyaret' AND olusturulma >= CURRENT_DATE`;
     const buAyGelir = await sql`SELECT COALESCE(SUM(tutar), 0)::float AS toplam FROM odemeler WHERE durum = 'basarili' AND olusturulma >= date_trunc('month', CURRENT_DATE)`;
     const buAyGider = await sql`SELECT COALESCE(SUM(tutar_tl), 0)::float AS toplam FROM giderler WHERE tarih >= date_trunc('month', CURRENT_DATE)`;
     const acikDestek = await sql`SELECT COUNT(*)::int AS adet FROM destek_talebi WHERE durum = 'acik'`;
     const buAyAiMaliyet = await sql`SELECT COALESCE(SUM(tahmini_maliyet_tl), 0)::float AS toplam FROM ai_kullanim_log WHERE olusturulma >= date_trunc('month', CURRENT_DATE)`;
-    const aktifAbonelik = await sql`SELECT COUNT(*)::int AS adet FROM abonelikler WHERE durum = 'aktif'`;
+    const aktifAbonelik = await sql`
+      SELECT COUNT(*)::int AS adet FROM abonelikler a
+      JOIN kullanicilar u ON u.id = a.kullanici_id
+      WHERE a.durum = 'aktif'
+        AND u.eposta NOT LIKE '%mehmetaltas%' AND u.eposta NOT LIKE '%karemuxegitim%'
+    `;
     const soruBankasi = await sql`SELECT COUNT(*)::int AS adet FROM soru_bankasi`;
 
     return Response.json({
