@@ -2188,6 +2188,18 @@ export default function YonetimPaneli() {
                 </div>
               </Panel>
             )}
+
+            {mufredatVeri.kaliteReferanslari && (
+              <Panel baslik="Kalite Referanslari (Ders Bazinda)" ikon="🏆">
+                <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 10 }}>Her dersin kolay/orta/zor soru uretiminde referans alinan gercek yayin/marka (7 Eylul arastirmasi) - resmi MEB kaynagi degil, piyasa kalite benzetmesi.</p>
+                {Object.entries(mufredatVeri.kaliteReferanslari).map(([ders, aciklama]) => (
+                  <div key={ders} style={{ padding: "8px 0", borderBottom: `1px solid ${T.border}` }}>
+                    <p style={{ fontWeight: 700, fontSize: 12.5, marginBottom: 3 }}>{ders}</p>
+                    <p style={{ fontSize: 11.5, color: T.textMuted, lineHeight: 1.5 }}>{aciklama}</p>
+                  </div>
+                ))}
+              </Panel>
+            )}
           </>
         )}
 

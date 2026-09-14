@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { personelAdminMi } from "@/lib/personel";
+import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
@@ -53,5 +54,5 @@ export async function GET(req) {
     ORDER BY toplam DESC
   `;
 
-  return Response.json({ ozet, eksikDetay, soruBankasiOzet });
+  return Response.json({ ozet, eksikDetay, soruBankasiOzet, kaliteReferanslari: KALITE_REFERANSLARI });
 }
