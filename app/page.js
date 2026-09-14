@@ -527,6 +527,17 @@ const GORSEL_TIPI_REHBERI = `Eger bu konu icin bir egitim gorseli GERCEKTEN fayd
 - fen_semasi: {anahtar:"su_dongusu"|"gunes_sistemi"|"elektrik_devresi"|"hucre_yapisi"|"sindirim_sistemi"}
 Gorsel gerekmiyorsa gerekli:false don. SADECE JSON dondur: {"gerekli":true veya false,"gorselTipi":"...","parametreler":{...}}`;
 
+// AI'nin JSON cevaplarini ayiklamak icin (18 yerde 3 varyantli tekrar
+// ediyordu - 14 Eylul, TEK KONU MOTORU'nun 2. adimi) merkezi hale getirildi.
+// Modul seviyesinde (component disinda) - gorselKararIste gibi diger
+// modul-seviyesi fonksiyonlar da bunu kullanabilsin diye.
+function jsonMetniTemizle(cevap, opts) {
+  let t = cevap.replace(/```json|```/g, "");
+  if (opts && opts.dilFiltresi) t = t.replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
+  if (opts && opts.parantezTemizle) t = t.replace(/\s*\(\d{1,4}\)\s*/g, " ");
+  return t.trim();
+}
+
 async function gorselKararIste(ders, konu, sinif, cihazId) {
   try {
     const p = `"${ders}" dersinden "${konu}" konusu, ${sinif}. sinif seviyesinde. ${GORSEL_TIPI_REHBERI}`;
@@ -934,15 +945,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   // (12 Eylul, TEK KONU MOTORU envanterinin ilk somut adimi - amaclar farkli
   // oldugu icin tek mega-fonksiyona birlestirilmedi, ama paylasilan boilerplate
   // artik TEK yerden yonetiliyor).
-  // AI'nin JSON cevaplarini ayiklamak icin (18 yerde 3 varyantli tekrar
-  // ediyordu - 14 Eylul, TEK KONU MOTORU'nun 2. adimi) merkezi hale getirildi.
-  function jsonMetniTemizle(cevap, opts) {
-    let t = cevap.replace(/```json|```/g, "");
-    if (opts && opts.dilFiltresi) t = t.replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
-    if (opts && opts.parantezTemizle) t = t.replace(/\s*\(\d{1,4}\)\s*/g, " ");
-    return t.trim();
-  }
-
   function metinTemizle(cevap) {
     return cevap
       .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
