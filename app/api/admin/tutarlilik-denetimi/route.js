@@ -9,7 +9,9 @@ import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 // referanslari otomatik isaretler - insan "fark edince" degil, sistem
 // KENDISI soyler.
 export async function GET(req) {
-  if (!(await personelAdminMi(req))) {
+  const sifreParam = new URL(req.url).searchParams.get("sifre");
+  const otomasyonGecerli = sifreParam && sifreParam === process.env.ULUSAL_DENEME_YONETICI_SIFRESI;
+  if (!otomasyonGecerli && !(await personelAdminMi(req))) {
     return Response.json({ error: "Yetkisiz" }, { status: 401 });
   }
   try {
