@@ -7,6 +7,10 @@ import { sql } from "@/lib/db";
 //
 // GET: cache'te var mi kontrol eder, varsa kullanim_sayisi/son_kullanim gunceller.
 // POST: yeni uretilen icerigi cache'e kaydeder (varsa uzerine yazmaz, atlar).
+//
+// icerik_json (14 Eylul): duz metnin (icerik) YANINDA, ilgili konunun ek
+// yapisal verisini (ornegin tek-konu-motoru'nda uretilen soru seti) tek
+// pakette saklamak icin. Opsiyonel - eski satirlarda NULL olabilir.
 
 export async function GET(req) {
   try {
@@ -23,7 +27,7 @@ export async function GET(req) {
     }
 
     const sonuc = await sql`
-      SELECT id, icerik FROM icerik_onbellek
+      SELECT id, icerik, icerik_json FROM icerik_onbellek
       WHERE sinif = ${Number(sinif)} AND ders = ${ders} AND unite = ${unite}
         AND konu = ${konu} AND zorluk_seviyesi = ${zorlukSeviyesi} AND icerik_turu = ${icerikTuru}
       LIMIT 1
@@ -39,7 +43,7 @@ export async function GET(req) {
       WHERE id = ${sonuc[0].id}
     `;
 
-    return Response.json({ bulundu: true, icerik: sonuc[0].icerik });
+    return Response.json({ bulundu: true, icerik: sonuc[0].icerik, icerikJson: sonuc[0].icerik_json || null });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Getirilemedi" }, { status: 500 });
@@ -49,7 +53,7 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { sinif, ders, unite, konu, zorlukSeviyesi, icerikTuru, icerik } = body;
+    const { sinif, ders, unite, konu, zorlukSeviyesi, icerikTuru, icerik, icerikJson } = body;
 
     if (!sinif || !ders || !konu || !icerikTuru || !icerik) {
       return Response.json({ error: "sinif, ders, konu, icerikTuru, icerik zorunlu" }, { status: 400 });
@@ -66,8 +70,8 @@ export async function POST(req) {
     }
 
     await sql`
-      INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, kullanim_sayisi, olusturulma, son_kullanim)
-      VALUES (${Number(sinif)}, ${ders}, ${unite || ""}, ${konu}, ${zorlukSeviyesi || ""}, ${icerikTuru}, ${icerik}, 1, now(), now())
+      INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, icerik_json, kullanim_sayisi, olusturulma, son_kullanim)
+      VALUES (${Number(sinif)}, ${ders}, ${unite || ""}, ${konu}, ${zorlukSeviyesi || ""}, ${icerikTuru}, ${icerik}, ${icerikJson ? JSON.stringify(icerikJson) : null}, 1, now(), now())
     `;
 
     return Response.json({ kaydedildi: true });
