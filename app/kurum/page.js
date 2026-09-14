@@ -1,12 +1,23 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
+import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
+
 const T = {
   bg: "#F5F5F7", page: "#fff", ink: "#1D1D1F", muted: "#76767A",
   coral: "#0974E0", line: "#E5E5EA", mustard: "#A36606",
 };
 
+function temayiUygula(temaAdi) {
+  const t = TEMALAR[temaAdi];
+  if (!t) return;
+  Object.assign(T, { bg: t.bg, page: t.page, ink: t.ink, muted: t.muted, coral: t.coral, mustard: t.mustard });
+}
+
 export default function KurumPaneli() {
+  const [tema, setTema] = useState("minimal");
+  useEffect(() => { const t = temaOku("minimal"); temayiUygula(t); setTema(t); }, []);
+  function temaSec(t) { temayiUygula(t); temaKaydet(t); setTema(t); }
   const [vEskiSifre, setVEskiSifre] = useState("");
   const [vYeniSifre, setVYeniSifre] = useState("");
   const [vSifreYukleniyor, setVSifreYukleniyor] = useState(false);
@@ -406,6 +417,23 @@ export default function KurumPaneli() {
             <text x="0" y="40" textAnchor="middle" fontSize="20" fill="#3B82C4">✓</text>
           </g>
         </svg>
+
+        <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
+          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>🎨 Tema</h2>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {Object.keys(TEMALAR).map((t) => (
+              <button key={t} onClick={() => temaSec(t)} style={{
+                padding: "14px 8px", borderRadius: 10, cursor: "pointer", textAlign: "center",
+                border: `2px solid ${tema === t ? TEMALAR[t].mustard : "transparent"}`,
+                background: TEMALAR[t].gradient, color: TEMALAR[t].page, fontSize: 12, fontWeight: 700,
+              }}>
+                <div style={{ fontSize: 20, marginBottom: 4 }}>{TEMALAR[t].ikon}</div>
+                {TEMALAR[t].isim}
+                {tema === t && <div style={{ fontSize: 9, marginTop: 2, opacity: 0.85 }}>✓ Aktif</div>}
+              </button>
+            ))}
+          </div>
+        </section>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginBottom: 16, border: `1px solid ${T.line}` }}>
           <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>🔒 Hesap - Şifreni Değiştir</h2>
