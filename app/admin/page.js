@@ -2189,7 +2189,7 @@ export default function YonetimPaneli() {
               </Panel>
             )}
 
-            {mufredatVeri.kaliteReferanslari && (
+            {mufredatVeri?.kaliteReferanslari && (
               <Panel baslik="Kalite Referanslari (Ders Bazinda)" ikon="🏆">
                 <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 10 }}>Her dersin kolay/orta/zor soru uretiminde referans alinan gercek yayin/marka (7 Eylul arastirmasi) - resmi MEB kaynagi degil, piyasa kalite benzetmesi.</p>
                 {Object.entries(mufredatVeri.kaliteReferanslari).map(([ders, aciklama]) => (
