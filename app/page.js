@@ -929,6 +929,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     } catch { setTeknikOnerisi(null); }
   }
 
+  // Tum konu-anlatimi uretim fonksiyonlarinin (5+ yerde) AYNI AI ciktisi
+  // temizleme zincirini tekrarlamasi onlemek icin merkezi hale getirildi
+  // (12 Eylul, TEK KONU MOTORU envanterinin ilk somut adimi - amaclar farkli
+  // oldugu icin tek mega-fonksiyona birlestirilmedi, ama paylasilan boilerplate
+  // artik TEK yerden yonetiliyor).
+  function metinTemizle(cevap) {
+    return cevap
+      .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
+      .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
+      .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
+  }
+
   async function dersKonuTekrariAnlat(dersAdi) {
     const oncekiSinif = Math.max(1, sinif - 1);
     const durum = dersTekrarDurumuHesapla(dersAdi);
@@ -951,10 +963,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra "Ornek:" diye etiketlenmis somut ornek, gerekirse formul/kural. Konu basliklarina ayirarak yaz. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 350-450 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
       const cevap = await aiIstek(p, durum.tur >= 2 ? 4200 : 3000, cihazIdRef.current);
       if (secilenDersRef.current !== dersAdi) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
-      const temizMetin = cevap
-        .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
-        .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
+      const temizMetin = metinTemizle(cevap);
       const uyari = await icerikDenetle(temizMetin, `Bu "${dersAdi}" dersi ${oncekiSinif}. sinif temel konu tekrari anlatimi.`, cihazIdRef.current);
       const finalMetin = uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin;
       setAciklama(finalMetin);
@@ -1315,10 +1324,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, piyasadaki en iyi LGS yayinlarindan daha derin ve daha kullanisli bir sekilde anlat.${temelUyarisi}${kapsamSiniri} SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Anlatimi ASAGIDAKI 6 BASLIK ALTINDA yaz - HER BASLIK BUYUK HARFLERLE, KENDI SATIRINDA, BASKA HICBIR KELIME OLMADAN yazilmali: HIZLI OGREN (2-3 cumlelik cok kisa ozet, ana fikri 30 saniyede yakalatir), TEMEL ANLATIM (konunun temel mantigi, ana kavramlar, TANIM+SOMUT ORNEK ile, 150-200 kelime), DERIN ANLATIM (konunun NEDEN ve NASIL calistigi, daha derin bakisla, birden fazla cozum yontemi varsa dahil et, 200-250 kelime), PUF NOKTALARI (sinavda zaman kazandiran 3-4 pratik kisayol/teknik, her biri "- " ile baslayan ayri satir), SIK YAPILAN HATALAR (ogrencilerin bu konuda sik yaptigi 3-4 hata, her biri "- " ile baslayan ayri satir), YENI NESIL UYGULAMA (bu bilgiyi gercek bir yeni nesil LGS tarzi problemde nasil kullanacagini gosteren somut bir ornek, 120-150 kelime). SADECE bu 6 baslik ve icerikleriyle yaz, baska hicbir aciklama/giris cumlesi ekleme, markdown kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
       const cevap = await aiIstek(p, 5500, cihazIdRef.current, false, secilenDers);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
-      const temizMetin = cevap
-        .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
-        .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-        .replace(/\\[a-zA-Z]+/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
+      const temizMetin = metinTemizle(cevap);
       const uyari = await icerikDenetle(temizMetin, `Bu "${secilenDers}" dersi "${unite}" konusu anlatimi.`, cihazIdRef.current);
       setAciklama(uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin);
       gorselKararIste(secilenDers, unite, sinif, cihazIdRef.current).then(setAciklamaGorselSvg);
@@ -3183,14 +3189,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       } catch (onbellekHata) { /* cache erisilemezse normal AI akisina devam et, sessizce gec */ }
       const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusunu${uniteMetni}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
-      const temizMetin = cevap
-        .replace(/\*\*/g, "")
-        .replace(/#+\s?/g, "")
-        .replace(/\$\$?/g, "")
-        .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1")
-        .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-        .replace(/\\[a-zA-Z]+/g, "")
-        .replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
+      const temizMetin = metinTemizle(cevap);
       const uyari = await icerikDenetle(temizMetin, `Bu "${ders}" dersi "${konu}" konusu anlatimi.`, cihazIdRef.current);
       const nihaiMetin = uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin;
       setAciklama(nihaiMetin);
@@ -3244,15 +3243,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
         const pAnlatim = `Sen deneyimli, alaninda uzman bir "${dersSec}" ogretmenisin. "${konuSec.trim()}" konusunu${uniteSec ? ` (${uniteSec} unitesinden)` : ""}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye orta seviyede, ders kitabi diline uygun ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
         anlatimMetni = await aiIstek(pAnlatim, 3200, cihazIdRef.current);
-        anlatimMetni = anlatimMetni
-          .replace(/\*\*/g, "")
-          .replace(/#+\s?/g, "")
-          .replace(/\$\$?/g, "")
-          .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1")
-          .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
-          .replace(/\\[a-zA-Z]+/g, "")
-          .replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "")
-          .replace(/\s*\(\d{1,4}\)\s*/g, " ");
+        anlatimMetni = metinTemizle(anlatimMetni);
         fetch("/api/icerik-onbellek", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sinif, ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), zorlukSeviyesi: "", icerikTuru: "tek_konu_anlatimi", icerik: anlatimMetni }),
