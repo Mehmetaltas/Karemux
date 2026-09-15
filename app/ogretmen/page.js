@@ -266,6 +266,7 @@ export default function OgretmenPanel() {
       if (!r.ok) { router.push("/ogretmen-giris"); return null; }
       return r.json();
     }).then((d) => { if (d) setOgretmen(d.ogretmen); });
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece mount'ta oturum kontrolu, router degismez
   }, []);
 
   async function cikisYap() {
