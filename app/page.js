@@ -871,6 +871,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!tekrarAnlatimOnbellek[anahtar] && !aciklama && yukleniyor !== "aciklama") {
       dersKonuTekrariAnlat(secilenDers);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli guard deseni, aciklama/yukleniyor kontrol degiskeni
   }, [secilenDers, dersGecenYilZayifMi, dersTekrarKontrolYukleniyor, dersTekrarSonuclari]);
 
   function dersTekrarSonucuKaydet(dersAdi, tur, dogru, toplam) {
@@ -1534,6 +1535,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   // basliklarini onceden getirir - kullanici hemen tik isaretleyebilsin diye.
   useEffect(() => {
     if (kapsamUnite && denemeDers) { altKonulariGetir(denemeDers, kapsamUnite); setKapsamAltBasliklar([]); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: mount-once, altKonulariGetir her render'da yeniden olusuyor
   }, [kapsamUnite, denemeDers]);
   const [sinavSoruSayisi, setSinavSoruSayisi] = useState(10);
   const [yaziliDonemNo, setYaziliDonemNo] = useState("yazili1"); // "yazili1" | "yazili2" | "yazili3"
@@ -1634,6 +1636,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   useEffect(() => {
     if (mod === "kutuphanem" && !kutuphaneVeri) kutuphaneGetir();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: mod degisince veri cek deseni
   }, [mod]);
 
   async function optikOkumaYap(dosya) {
@@ -2363,6 +2366,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
   useEffect(() => { if (mod === "ulusaldeneme") ulusalDenemeyiGetir(); }, [mod]);
   useEffect(() => { if (mod === "ucretlideneme" && hesap) ucretliDenemeleriGetir(); }, [mod, hesap]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli guard deseni, tekKonuAsama/tekKonuSorular kontrol degiskeni
   useEffect(() => { if (mod === "tekkonu" && hesap && tekKonuAsama === "secim" && !tekKonuSorular) tekKonuVeriGetir(); }, [mod, hesap]);
   useEffect(() => { if (mod === "hesap") donusumLogla("premium_inceleme", cihazIdRef.current); }, [mod]);
 
@@ -2569,6 +2573,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }, [manuelUnite, manuelAltBaslik, dersSecimModu]);
   useEffect(() => {
     if (manuelUnite && secilenDers) { altKonulariGetir(secilenDers, manuelUnite); setManuelAltBaslik([]); }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: mount-once, altKonulariGetir her render'da yeniden olusuyor
   }, [manuelUnite, secilenDers]);
   const [karneOzet, setKarneOzet] = useState(null);
   const [karneYorum, setKarneYorum] = useState("");
@@ -3637,13 +3642,15 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   function kronometreyiDurdur() {
     setKronometreSaniye(null);
   }
+  const kronometreDurduMu = kronometreSaniye === null;
   useEffect(() => {
-    if (kronometreSaniye === null) { if (kronometreRef.current) clearInterval(kronometreRef.current); return; }
+    if (kronometreDurduMu) { if (kronometreRef.current) clearInterval(kronometreRef.current); return; }
     kronometreRef.current = setInterval(() => {
       setKronometreSaniye((eski) => (eski !== null && eski > 0 ? eski - 1 : eski));
     }, 1000);
     return () => clearInterval(kronometreRef.current);
-  }, [kronometreSaniye === null]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece durdu/basladi GECISINDE interval yeniden kurulsun, her saniye degil (fonksiyonel setState ile guncel deger kullanilir)
+  }, [kronometreDurduMu]);
   function sureFormatla(saniye) {
     const dk = Math.floor(saniye / 60);
     const sn = saniye % 60;
@@ -3653,6 +3660,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (kronometreSaniye !== 0) return;
     if (denemeSorulari && !denemeGonderildi) denemeGonder();
     if (burslulukSorular && !burslulukGonderildi) setBurslulukGonderildi(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece kronometreSaniye tetiklesin, digerleri guard/kontrol degiskeni
   }, [kronometreSaniye]);
 
   async function denemeGonder() {
