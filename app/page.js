@@ -3553,7 +3553,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           const buPartiSayisi = Math.min(PARTI_BUYUKLUGU, kalan);
           const partiP = p
             .replace(`toplam ${sinavSoruSayisi} soru olsun`, `bu parti icin TAM ${buPartiSayisi} soru olsun (${partiNo + 1}. parti, farkli ornekler/sayilar kullan, onceki partilerle AYNI soruyu tekrar etme)`)
-            .replace(new RegExp(`orn\. ${Math.round(sinavSoruSayisi * 0.2)} kolay, ~${Math.round(sinavSoruSayisi * 0.55)} orta, ~${Math.round(sinavSoruSayisi * 0.25)} zor`), `orn. ${Math.round(buPartiSayisi * 0.2)} kolay, ~${Math.round(buPartiSayisi * 0.55)} orta, ~${Math.round(buPartiSayisi * 0.25)} zor`);
+            .replace(new RegExp(`orn. ${Math.round(sinavSoruSayisi * 0.2)} kolay, ~${Math.round(sinavSoruSayisi * 0.55)} orta, ~${Math.round(sinavSoruSayisi * 0.25)} zor`), `orn. ${Math.round(buPartiSayisi * 0.2)} kolay, ~${Math.round(buPartiSayisi * 0.55)} orta, ~${Math.round(buPartiSayisi * 0.25)} zor`);
           const partiCevap = await aiIstek(partiP, Math.min(8000, 500 + buPartiSayisi * 480), cihazIdRef.current, true);
           const partiTemiz = jsonMetniTemizle(partiCevap, { dilFiltresi: true, parantezTemizle: true });
           const partiSorular = soruJsonAyikla(partiTemiz);
