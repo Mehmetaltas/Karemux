@@ -6857,9 +6857,18 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       <div style={{ marginBottom: 10 }}>
                         <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.muted, display: "block", marginBottom: 6 }}>ALT KONU SEÇ (önerilen)</p>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                          {liste.map((ak) => (
-                            <button key={ak} onClick={() => setTekKonuKonu(ak)} style={{ padding: "7px 11px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${tekKonuKonu === ak ? COLORS.coral : COLORS.line}`, background: tekKonuKonu === ak ? "#FFF1EF" : "#fff" }}>{ak}</button>
-                          ))}
+                          {(() => {
+                            const secilenler = tekKonuKonu.split(",").map((s) => s.trim()).filter(Boolean);
+                            return liste.map((ak) => {
+                              const secili = secilenler.includes(ak);
+                              return (
+                                <button key={ak} onClick={() => {
+                                  const yeni = secili ? secilenler.filter((x) => x !== ak) : [...secilenler, ak];
+                                  setTekKonuKonu(yeni.join(", "));
+                                }} style={{ padding: "7px 11px", borderRadius: 8, fontSize: 11.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${secili ? COLORS.coral : COLORS.line}`, background: secili ? "#FFF1EF" : "#fff" }}>{ak}</button>
+                              );
+                            });
+                          })()}
                         </div>
                       </div>
                     );
