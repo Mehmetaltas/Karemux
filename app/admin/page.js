@@ -768,14 +768,19 @@ export default function YonetimPaneli() {
   }
 
   useEffect(() => { if (basari) { const t = setTimeout(() => setBasari(""), 4000); return () => clearTimeout(t); } }, [basari]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "cari" && !cariler) carileriGetir(); }, [girisYapildi, sekme]);
   useEffect(() => {
     if (girisYapildi && sekme === "genel" && !ogretmenTestSonuclari) {
       fetch("/api/cron/ogretmen-test-sonuc").then((r) => r.json()).then((d) => setOgretmenTestSonuclari(d.sonuclar || []));
     }
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && (sekme === "kasa" || sekme === "cari" || sekme === "giderler") && !kasaHesaplari) kasaGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "maliyet" && !maliyetVeri) maliyetGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "simulasyon" && !simulasyonVeri) simulasyonGetir(); }, [girisYapildi, sekme]);
 
   async function simulasyonGetir() {
@@ -785,26 +790,47 @@ export default function YonetimPaneli() {
       if (res.ok) setSimulasyonVeri(data);
     } catch {}
   }
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "planlama" && !planlamaVeri) planlamaGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "kurumlar") { if (!kurumlarVeri) kurumlariGetir(); if (!ucretliDenemelerVeri) ucretliDenemeleriGetir(); } }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "indirimkodlari" && !indirimKodlariVeri) indirimKodlariGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "mufredat" && !mufredatVeri) mufredatGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "iadeler" && !iadeVeri) iadeleriGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "havaleler" && !havaleVeri) havaleleriGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !donusumHuni) donusumHuniGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "destek") destekGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "genel" && !sirketMerkezi) sirketMerkeziGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !satisLeadleri) satisLeadleriGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !senaryoVeri) senaryoVeriGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "canliders") { if (!canliDersOturumlari) canliDersleriGetir(); if (!ogretmenlerListesi) ogretmenleriGetir(); } }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "randevuodeme" && !randevuOdemeVeri) randevuOdemeGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBasvurulari) basvurulariGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenListesi) aktifOgretmenleriGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ogretmen" && !ogretmenBekleyenler) bekleyenOgretmenleriGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "talepler" && !talepler) talepleriGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "kariyer" && !kariyerBasvurulari) kariyerBasvurulariGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ik") { if (!mesaiVeri) mesaiGetir(); if (!izinlerim) izinleriGetir(); if (!gorevlerim) gorevleriGetir(); if (!ikYonetimVeri) ikYonetimGetir(); } }, [girisYapildi, sekme]);
 
   async function kurumlariGetir() {
