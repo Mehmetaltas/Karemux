@@ -3198,6 +3198,22 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           return;
         }
       } catch (onbellekHata) { /* cache erisilemezse normal AI akisina devam et, sessizce gec */ }
+
+      // TEK KONU MOTORU (14 Eylul, Adim 2) - konu_paketi cache'i de kontrol
+      // edilir. Bulunursa AI'ya HIC gidilmeden onun anlatimi kullanilir.
+      // Bulunamazsa asagidaki ESKI akis (kendi AI cagrisi) aynen devam eder -
+      // sifir regresyon riski, sadece EK bir hizli-yol.
+      try {
+        const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(ders)}&konu=${encodeURIComponent(konu.trim())}&unite=${encodeURIComponent(uniteSec || "")}`);
+        const paketData = await paketRes.json();
+        if (paketData.paket?.anlatim?.temelAnlatim) {
+          setAciklama(paketData.paket.anlatim.temelAnlatim);
+          setYukleniyor(null);
+          gorselKararIste(ders, konu.trim(), sinif, cihazIdRef.current).then(setAciklamaGorselSvg);
+          return;
+        }
+      } catch (paketHata) { /* konu_paketi erisilemezse eski akisa devam et */ }
+
       const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusunu${uniteMetni}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
       const cevap = await aiIstek(p, 3200, cihazIdRef.current);
       const temizMetin = metinTemizle(cevap);
