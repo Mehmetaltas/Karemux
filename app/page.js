@@ -1907,11 +1907,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   useEffect(() => {
     if (mod !== "hesap" || !hesap) return;
     fetch(`/api/telegram/kod?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setTelegramDurum).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
   const [seriVeri, setSeriVeri] = useState(null); // {guncelSeri, enUzunSeri, toplamAktifGun}
   useEffect(() => {
     if (!hesap) return;
     fetch(`/api/streak?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setSeriVeri).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [hesap?.eposta]);
   // KRITIK: hesabin gercek sinifi (kayitta/profilde secilen) buraya kadar hic
   // yansitilmiyordu - "sinif" state'i hep varsayilan 8'de kaliyordu. Hesap
@@ -1919,6 +1921,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   // "sinif" state'ini gercek degerle senkronize ediyoruz.
   useEffect(() => {
     if (hesap && hesap.sinif) setSinif(Number(hesap.sinif));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [hesap?.sinif]);
   const [profilGunlukGorevler, setProfilGunlukGorevler] = useState(null);
   const [karneAcik, setKarneAcik] = useState(false);
@@ -1943,6 +1946,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
   useEffect(() => { if (mod === "tekrarzamani") tekrarSorulariniGetir(); }, [mod]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   useEffect(() => { if (hesap) fetch(`/api/aralikli-tekrar?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setTekrarSayisi((d.kayitlar || []).length)).catch(() => {}); }, [hesap?.eposta]);
 
   async function tekrarCevapVer(secilenIndex) {
@@ -2007,6 +2011,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
   useEffect(() => {
     if (mod === "hesap" && hesap) netTrendiGetir();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
 
   const [dersSecimModu, setDersSecimModu] = useState("koc"); // "koc" | "manuel"
@@ -2038,6 +2043,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         setHedefOkulAdi(d.hedef.hedef_okul || ""); setHedefPuanDeger(d.hedef.hedef_puan || "");
       }
     }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
 
   async function hedefOkuluKaydet() {
@@ -2087,6 +2093,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       fetch(`/api/basarilar?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
       fetch(`/api/streak?cihazId=${cihazIdRef.current}`).then((r) => r.json()),
     ]).then(([b, s]) => setBasariVeri({ ...b, enUzunSeri: s.enUzunSeri || 0 })).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
 
   const [kurumBaglanKodu, setKurumBaglanKodu] = useState("");
@@ -2110,6 +2117,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if ((mod === "seviyetamamlama" || mod === "bos") && hesap) {
       fetch(`/api/seviye-tespit/durum?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setSeviyeDurum).catch(() => {});
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
 
   function seviyeTestKonulariniSec() {
@@ -2233,6 +2241,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   useEffect(() => {
     if (mod !== "kurumpaneli" || !hesap || hesap.rol !== "ogrenci") return;
     fetch(`/api/kurum/liderlik?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then(setLiderlikVeri).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
 
   const [ogretmenler, setOgretmenler] = useState(null);
@@ -2247,6 +2256,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (mod !== "ogretmenders" || !hesap) return;
     fetch("/api/randevu/musaitlik").then((r) => r.json()).then((d) => setOgretmenler(d.ogretmenler || [])).catch(() => setOgretmenler([]));
     fetch(`/api/randevu/al?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => setRandevularim(d.randevular || [])).catch(() => setRandevularim([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
 
   async function ogretmenSecVeSlotlariGetir(ogretmenId) {
