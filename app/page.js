@@ -1333,7 +1333,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         ? ` SADECE su alt basliklara odaklan: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarina girme.`
         : "";
       const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, piyasadaki en iyi LGS yayinlarindan daha derin ve daha kullanisli bir sekilde anlat.${temelUyarisi}${kapsamSiniri} SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Anlatimi ASAGIDAKI 6 BASLIK ALTINDA yaz - HER BASLIK BUYUK HARFLERLE, KENDI SATIRINDA, BASKA HICBIR KELIME OLMADAN yazilmali: HIZLI OGREN (2-3 cumlelik cok kisa ozet, ana fikri 30 saniyede yakalatir), TEMEL ANLATIM (konunun temel mantigi, ana kavramlar, TANIM+SOMUT ORNEK ile, 150-200 kelime), DERIN ANLATIM (konunun NEDEN ve NASIL calistigi, daha derin bakisla, birden fazla cozum yontemi varsa dahil et, 200-250 kelime), PUF NOKTALARI (sinavda zaman kazandiran 3-4 pratik kisayol/teknik, her biri "- " ile baslayan ayri satir), SIK YAPILAN HATALAR (ogrencilerin bu konuda sik yaptigi 3-4 hata, her biri "- " ile baslayan ayri satir), YENI NESIL UYGULAMA (bu bilgiyi gercek bir yeni nesil LGS tarzi problemde nasil kullanacagini gosteren somut bir ornek, 120-150 kelime). SADECE bu 6 baslik ve icerikleriyle yaz, baska hicbir aciklama/giris cumlesi ekleme, markdown kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
-      const cevap = await aiIstek(p, 5500, cihazIdRef.current, false, secilenDers);
+      const altBaslikEkSayisi = Math.max(0, (manuelAltBaslik?.length || 1) - 1);
+      const cevap = await aiIstek(p, 5500 + altBaslikEkSayisi * 1200, cihazIdRef.current, false, secilenDers);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = metinTemizle(cevap);
       const uyari = await icerikDenetle(temizMetin, `Bu "${secilenDers}" dersi "${unite}" konusu anlatimi.`, cihazIdRef.current);
@@ -3275,7 +3276,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       if (!anlatimMetni) {
         const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
         const pAnlatim = `Sen deneyimli, alaninda uzman bir "${dersSec}" ogretmenisin. "${konuSec.trim()}" konusunu${uniteSec ? ` (${uniteSec} unitesinden)` : ""}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye orta seviyede, ders kitabi diline uygun ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
-        anlatimMetni = await aiIstek(pAnlatim, 3200, cihazIdRef.current);
+        const konuSayisi = konuSec.split(",").filter((s) => s.trim()).length || 1;
+        anlatimMetni = await aiIstek(pAnlatim, 3200 + Math.max(0, konuSayisi - 1) * 1200, cihazIdRef.current);
         anlatimMetni = metinTemizle(anlatimMetni);
       }
       setTekKonuAnlatim(anlatimMetni);
@@ -3533,11 +3535,35 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
       const p = `Sen bir LGS/ortaokul olcme-degerlendirme uzmanisin. "${denemeDers}" dersi icin ${baslikMetni} hazirla, ${sinif}. sinif seviyesinde, toplam ${sinavSoruSayisi} soru olsun. ${kapsamAciklama} Sorulari, 2022-2026 yillari arasindaki gercek sinavlarin soru tarzina, uslubuna ve zorluk seviyesine birebir benzet - ama sorularin kendisi ozgun olsun, gercek gecmis sorulari birebir kopyalama ya da "gecmis yil cikti" diye sunma. 2026 LGS onceki yillara gore belirgin sekilde daha zor ve secici geldi (uzmanlar hemfikir) - sorulari buna gore kalibre et: ezber bilgiden cok dikkat, zaman yonetimi, yorumlama ve strateji gerektiren sorular olsun, Turkce'de uzun paragraflar/celdiriciler, Matematik'te islem degil dikkat ve mantik agirlikli sorular kullan. Zorluk dagilimi GERCEK 2026 LGS oranina yakin olsun: soru sayisinin yaklasik %20'si kolay, %55'i orta, %25'i zor olsun (orn. 20 soruda ~4 kolay, ~11 orta, ~5 zor). ${BAGLAM_TEMELLI_SORU_TALIMATI} Her sorunun hangi ALT KONUYU/KAZANIMI olctugunu 2-4 kelimeyle "altKonu" alaninda belirt (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa ve spesifik). Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, dogru ve tutarli bir sekilde anlat. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
 [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"...","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, Math.min(8000, 500 + sinavSoruSayisi * 480), cihazIdRef.current, true);
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
+      // Parcali uretim (15 Eylul) - tek AI cagrisinda cok soru istemek (60+)
+      // JSON'un 8000 token tavaninda kesilmesine/bozulmasina yol aciyordu.
+      // 16'dan fazla soru istenirse, ~15'lik partiler halinde AYRI AI
+      // cagrilariyla uretilip TEK bir listede birlestirilir - hicbir parti
+      // token tavanina yaklasmaz, JSON hep tam kalir.
+      const PARTI_BUYUKLUGU = 15;
+      let uretilenSinavSorulari = [];
+      if (sinavSoruSayisi <= PARTI_BUYUKLUGU) {
+        const cevap = await aiIstek(p, Math.min(8000, 500 + sinavSoruSayisi * 480), cihazIdRef.current, true);
+        const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
+        uretilenSinavSorulari = soruJsonAyikla(temiz);
+      } else {
+        let kalan = sinavSoruSayisi;
+        let partiNo = 0;
+        while (kalan > 0) {
+          const buPartiSayisi = Math.min(PARTI_BUYUKLUGU, kalan);
+          const partiP = p
+            .replace(`toplam ${sinavSoruSayisi} soru olsun`, `bu parti icin TAM ${buPartiSayisi} soru olsun (${partiNo + 1}. parti, farkli ornekler/sayilar kullan, onceki partilerle AYNI soruyu tekrar etme)`)
+            .replace(new RegExp(`orn\. ${Math.round(sinavSoruSayisi * 0.2)} kolay, ~${Math.round(sinavSoruSayisi * 0.55)} orta, ~${Math.round(sinavSoruSayisi * 0.25)} zor`), `orn. ${Math.round(buPartiSayisi * 0.2)} kolay, ~${Math.round(buPartiSayisi * 0.55)} orta, ~${Math.round(buPartiSayisi * 0.25)} zor`);
+          const partiCevap = await aiIstek(partiP, Math.min(8000, 500 + buPartiSayisi * 480), cihazIdRef.current, true);
+          const partiTemiz = jsonMetniTemizle(partiCevap, { dilFiltresi: true, parantezTemizle: true });
+          const partiSorular = soruJsonAyikla(partiTemiz);
+          if (Array.isArray(partiSorular)) uretilenSinavSorulari = uretilenSinavSorulari.concat(partiSorular);
+          kalan -= buPartiSayisi;
+          partiNo++;
+        }
+      }
       setSinavKapsamMetni(kapsamAciklama);
       setSinavKayitTuru(kayitTuru);
-      const uretilenSinavSorulari = soruJsonAyikla(temiz);
       setDenemeSorulari(uretilenSinavSorulari);
       sorulariBankayaKaydet(denemeDers, sinif, kapsamUnite, uretilenSinavSorulari, sinavTuru);
 
