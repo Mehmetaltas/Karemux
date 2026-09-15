@@ -42,7 +42,9 @@ export async function GET(req) {
     const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
     const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin, ${sinif}. sinif seviyesinde TAM bir konu paketi hazirla.
 
-SESIN COK ONEMLI: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta/ozel derste, karsisindaki tek bir ogrenciye soyleyecegi cumle gibi olmali. "Once X hesaplanir" gibi SOGUK cumleleri KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun.
+SESIN COK ONEMLI: Bu bir DERS KITABI DEGIL, gercek bir ogretmenin sinifta/ozel derste, karsisindaki TEK BIR ogrenciyle yaptigi CANLI bir diyalog. "Once X hesaplanir" gibi SOGUK cumleleri KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun.
+
+GERCEK DIYALOG HISSI ICIN (bu, sadece hitap kelimesi eklemekten farkli, DAHA DERIN bir sey): Ara sira ogrenciye soru sor ve HEMEN cevapla - "Peki bu sayi neden negatif oldu, dersin? Cunku ustu tek sayi." gibi. Bazen kisa bir onay/tesvik cumlesi kullan - "Aferin, tam da bunu bekliyordum." ya da "Zorlandin mi burada? Normal, herkes ilk basta zorlanir." gibi. Bir yerde ogrencinin YAPABILECEGI bir hata tahmin edip ONCEDEN uyar - "Simdi burada cok kisi X yapar, sen yapma." gibi. Bu, mekanik bir "bak/simdi" tekrari DEGIL, gercekten kar­sinda oturan bir ogrenciyle konusuyormus gibi DOGAL bir akis olmali - duraksama, gecis, ic gecirme cumleleri de olabilir ("Hmm, burasi biraz kafa karistirici olabilir, yavas gidelim.").
 
 Kalite referansi: ${kaliteReferansi}
 
