@@ -531,6 +531,7 @@ export default function YonetimPaneli() {
   const [destekYanitTaslagi, setDestekYanitTaslagi] = useState({});
   const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
+  const [butunlukVeri, setButunlukVeri] = useState(null);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
   const [sirketRaporDonem, setSirketRaporDonem] = useState("gunluk");
   const [senaryoVeri, setSenaryoVeri] = useState(null);
@@ -813,6 +814,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !satisLeadleri) satisLeadleriGetir(); }, [girisYapildi, sekme]);
                   // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
+  useEffect(() => { if (girisYapildi && sekme === "butunluk" && !butunlukVeri) butunlukGetir(); }, [girisYapildi, sekme]);
                   // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
                   // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
@@ -847,6 +849,14 @@ export default function YonetimPaneli() {
       const res = await fetch(`/api/admin/sistem-ikizi?sifre=${encodeURIComponent(sifre)}`);
       const data = await res.json();
       if (res.ok) setIkizVeri(data);
+    } catch {}
+  }
+
+  async function butunlukGetir() {
+    try {
+      const res = await fetch(`/api/admin/sistem-butunluk`);
+      const data = await res.json();
+      if (res.ok) setButunlukVeri(data);
     } catch {}
   }
 
@@ -1840,6 +1850,53 @@ export default function YonetimPaneli() {
             <button onClick={personelSifreDegistir} disabled={pSifreYukleniyor || !pEskiSifre || !pYeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: T.accent, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (pSifreYukleniyor || !pEskiSifre || !pYeniSifre) ? 0.5 : 1 }}>{pSifreYukleniyor ? "Güncelleniyor..." : "Şifreyi Güncelle"}</button>
           </div>
         )}
+
+        {sekme === "butunluk" && butunlukVeri && (() => {
+          const tamSayisi = butunlukVeri.departmanlar.filter((d) => d.durum === "tam").length;
+          const toplam = butunlukVeri.departmanlar.length;
+          const durumRenk = { tam: "#2AAE7F", kismi: "#E8B339", eksik: T.danger };
+          const durumEtiket = { tam: "Tam", kismi: "Kısmi", eksik: "Eksik" };
+          return (
+            <div style={{ animation: "adminPanelFadeIn 0.3s" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 4 }}>
+                <span style={{ fontSize: TYPO.display, fontWeight: 800, color: tamSayisi === toplam ? "#2AAE7F" : T.text }}>{tamSayisi}/{toplam}</span>
+                <span style={{ fontSize: TYPO.body, color: T.textMuted }}>departman tam durumda</span>
+              </div>
+              <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 20 }}>
+                Son kontrol: {new Date(butunlukVeri.tutarlilikSonKontrol).toLocaleString("tr-TR")}
+              </p>
+
+              {butunlukVeri.tutarlilikBulgulari.length > 0 && (
+                <div style={{ background: "#FFF1EF", border: `1px solid ${T.danger}55`, borderRadius: 10, padding: 14, marginBottom: 20 }}>
+                  <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, color: T.danger, marginBottom: 8 }}>
+                    ⚠ {butunlukVeri.tutarlilikBulgulari.length} açık bulgu (Tutarlılık Denetimi)
+                  </p>
+                  {butunlukVeri.tutarlilikBulgulari.map((b, i) => (
+                    <p key={i} style={{ fontSize: TYPO.caption, color: T.text, margin: "4px 0", lineHeight: 1.5 }}>
+                      • <strong>{b.konu || b.kaynakTuru || b.tur}</strong>{b.ders ? ` (${b.ders}, ${b.sinif}.sınıf)` : ""}: {b.detay}
+                    </p>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ display: "grid", gap: 10 }}>
+                {butunlukVeri.departmanlar.map((d) => (
+                  <div key={d.ad} style={{
+                    background: T.surface, borderRadius: 10, padding: "14px 16px",
+                    borderLeft: `4px solid ${durumRenk[d.durum]}`, border: `1px solid ${T.border}`, borderLeftWidth: 4,
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                      <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, color: T.text }}>{d.ikon} {d.ad}</p>
+                      <span style={{ fontSize: TYPO.micro, fontWeight: 700, color: durumRenk[d.durum], background: `${durumRenk[d.durum]}18`, padding: "3px 10px", borderRadius: 999 }}>{durumEtiket[d.durum]}</span>
+                    </div>
+                    <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 2 }}>{d.kaynak}</p>
+                    <p style={{ fontSize: TYPO.caption, color: T.text, lineHeight: 1.5 }}>{d.detay}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {sekme === "ikiz" && (
           <>
