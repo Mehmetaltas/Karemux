@@ -123,23 +123,13 @@ export default function YonetimPaneli() {
     return () => clearTimeout(t);
   }, []);
   const sonGeriBasimRef = useRef(0);
-  const sekmeGecmisiRef = useRef([]);
-  const sekmeRef = useRef(sekme);
-  useEffect(() => { sekmeRef.current = sekme; }, [sekme]);
   function sekmeyeGecVeGecmisiKaydet(yeniSekme) {
-    sekmeGecmisiRef.current.push(sekmeRef.current);
     setSekme(yeniSekme);
   }
   useEffect(() => {
     window.history.pushState({ kxSahte: true }, "");
     const geriTusu = () => {
       if (menuAcik) { setMenuAcik(false); window.history.pushState({ kxSahte: true }, ""); return; }
-      if (sekmeGecmisiRef.current.length > 0) {
-        const onceki = sekmeGecmisiRef.current.pop();
-        setSekme(onceki);
-        window.history.pushState({ kxSahte: true }, "");
-        return;
-      }
       const simdi = Date.now();
       if (simdi - sonGeriBasimRef.current < 2000) return;
       sonGeriBasimRef.current = simdi;
