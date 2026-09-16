@@ -4,7 +4,6 @@ import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { SEKME_GRUPLARI } from "@/lib/admin-sekmeleri";
-import { useRouter, usePathname } from "next/navigation";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -123,23 +122,11 @@ export default function YonetimPaneli() {
     const t = setTimeout(() => setGirisAnimasyonuGoster(false), 3400);
     return () => clearTimeout(t);
   }, []);
-  const sonGeriBasimRef = useRef(0);
-  const kxRouter = useRouter();
-  const kxYol = usePathname();
   function sekmeyeGecVeGecmisiKaydet(yeniSekme) {
     setSekme(yeniSekme);
   }
   useEffect(() => {
-    kxRouter.push(kxYol);
-    const geriTusu = () => {
-      if (menuAcik) { setMenuAcik(false); kxRouter.push(kxYol); return; }
-      const simdi = Date.now();
-      if (simdi - sonGeriBasimRef.current < 2000) return;
-      sonGeriBasimRef.current = simdi;
-      setCikisToastGoster(true);
-      setTimeout(() => setCikisToastGoster(false), 2000);
-      kxRouter.push(kxYol);
-    };
+    const geriTusu = () => { if (menuAcik) setMenuAcik(false); };
     window.addEventListener("popstate", geriTusu);
     return () => window.removeEventListener("popstate", geriTusu);
   }, [menuAcik]);
