@@ -12,7 +12,14 @@ export async function GET(req) {
     const tutarlilikRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || "https://www.karemux.com"}/api/admin/tutarlilik-denetimi?sifre=${encodeURIComponent(process.env.ULUSAL_DENEME_YONETICI_SIFRESI)}`);
     const tutarlilik = await tutarlilikRes.json();
 
-    const kasaToplam = await sql`SELECT COALESCE(SUM(bakiye), 0)::float AS toplam FROM kasa_hesaplari`;
+    const kasaToplam = await sql`
+      SELECT COALESCE(SUM(h.baslangic_bakiyesi + COALESCE(hareket.net, 0)), 0)::float AS toplam
+      FROM banka_hesaplari h
+      LEFT JOIN (
+        SELECT hesap_id, SUM(CASE WHEN tur = 'giris' THEN tutar_tl WHEN tur = 'cikis' THEN -tutar_tl ELSE 0 END) AS net
+        FROM kasa_hareketleri GROUP BY hesap_id
+      ) hareket ON hareket.hesap_id = h.id
+    `;
     const personelSayisi = await sql`SELECT COUNT(*)::int AS adet FROM personel`;
     const mufredatOzet = await sql`SELECT COUNT(*)::int AS adet FROM mufredat`;
     const konuPaketiSayisi = await sql`SELECT COUNT(*)::int AS adet FROM icerik_onbellek WHERE icerik_turu = 'konu_paketi'`;
