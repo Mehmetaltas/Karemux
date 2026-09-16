@@ -4144,6 +4144,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["kutuphanem", "📚 Kütüphanem"],
                 ["seviyetamamlama", "📶 Seviye Tamamlama"],
                 ["kurumpaneli", "🏆 Sınıf Sıralaman"],
+                ["tekrarzamani", "🔁 Bugun Tekrar Zamani"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
@@ -4159,7 +4160,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 ["deneme", "📝 Deneme Sinavi"],
                 ["ulusaldeneme", "🇹🇷 Turkiye Geneli Deneme"],
         ["ucretlideneme", "🏫 Kurum Denemesi"],
-        ["tekkonu", "🎯 Tek Konu Motoru"],
                 ["burslulukdeneme", "🎓 Bursluluk Sinavi (IOKBS)"],
                 ["seviyetespit", "🎯 Seviye Tespit Sinavi"],
               ].map(([k, etiket]) => (
@@ -4171,13 +4171,24 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               ))}
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
-              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🧠 Hizli Yardimci Araclar</p>
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🎯 Tek Konu ve Ogrenme Araclari</p>
               {[
+                ["tekkonu", "🎯 Tek Konu Motoru"],
                 ["formulkart", "📐 Formul ve Kural Kartlari"],
-                ["sinavstratejisi", "🎯 Sinav Stratejisi Rehberi"],
-                ["paragrafstudyo", "📝 Paragraf Studyosu"],
                 ["kelimekartlari", "🗂️ Kelime Kartlari"],
-                ["tekrarzamani", "🔁 Bugun Tekrar Zamani"],
+                ["paragrafstudyo", "📝 Paragraf Studyosu"],
+              ].map(([k, etiket]) => (
+                <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
+                  display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
+                  border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
+                  background: mod === k ? COLORS.page : "transparent", color: mod === k ? COLORS.ink : (COLORS.bgText ? COLORS.bgText + "99" : "#C9D4C7"),
+                }}>{etiket}</button>
+              ))}
+
+              <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
+              <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🧘 Sinav Destegi</p>
+              {[
+                ["sinavstratejisi", "🎯 Sinav Stratejisi Rehberi"],
                 ["sinavkaygisi", "🧘 Sinav Kaygisi Destegi"],
               ].map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
