@@ -125,11 +125,35 @@ export default function YonetimPaneli() {
   function sekmeyeGecVeGecmisiKaydet(yeniSekme) {
     setSekme(yeniSekme);
   }
+  // Geri Tusu / Navigasyon (16 Eylul) - app/page.js'teki (ogrenci ana ekrani,
+  // kanitlanmis calisan) AYNI desen: ilk mount'ta replaceState (yeni kayit
+  // EKLEMEZ), her gercek sekme/menu degisiminde pushState (state objesinin
+  // ICINE sekme/menuAcik gomulur), popstate geldiginde bu state objesinden
+  // okunur. Once denenen "her mount'ta pushState" hatasi (yigin buyuyup
+  // sonunda sifirdan sayfa yuklemesine/login ekranina gitmesine sebep
+  // oluyordu) bu yuzden DUZELTILDI - artik pushState SADECE gercek
+  // degisimde, replaceState ile karistirilmiyor.
+  const skipPopRef = useRef(false);
+  const ilkKurulumRef = useRef(true);
   useEffect(() => {
-    const geriTusu = () => { if (menuAcik) setMenuAcik(false); };
-    window.addEventListener("popstate", geriTusu);
-    return () => window.removeEventListener("popstate", geriTusu);
-  }, [menuAcik]);
+    if (ilkKurulumRef.current) {
+      ilkKurulumRef.current = false;
+      window.history.replaceState({ kxSekme: sekme, kxMenu: menuAcik }, "");
+      return;
+    }
+    if (skipPopRef.current) { skipPopRef.current = false; return; }
+    window.history.pushState({ kxSekme: sekme, kxMenu: menuAcik }, "");
+  }, [sekme, menuAcik]);
+  useEffect(() => {
+    function popstateIsle(e) {
+      skipPopRef.current = true;
+      const durum = e.state || {};
+      setSekme(durum.kxSekme || "genel");
+      setMenuAcik(!!durum.kxMenu);
+    }
+    window.addEventListener("popstate", popstateIsle);
+    return () => window.removeEventListener("popstate", popstateIsle);
+  }, []);
   useEffect(() => { const t = temaOku("minimal"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
   const [hata, setHata] = useState("");
