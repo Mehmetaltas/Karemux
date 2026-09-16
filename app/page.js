@@ -4138,7 +4138,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>📊 Karne ve Degerlendirme</p>
-              KARNE_DEGERLENDIRME_MENU.map(([k, etiket]) => (
+              {KARNE_DEGERLENDIRME_MENU.map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
@@ -4148,7 +4148,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>📝 Sinavlar</p>
-              SINAVLAR_MENU.map(([k, etiket]) => (
+              {SINAVLAR_MENU.map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
@@ -4158,7 +4158,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🎯 Tek Konu ve Ogrenme Araclari</p>
-              TEK_KONU_OGRENME_ARACLARI_MENU.map(([k, etiket]) => (
+              {TEK_KONU_OGRENME_ARACLARI_MENU.map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
@@ -4168,7 +4168,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🧘 Sinav Destegi</p>
-              SINAV_DESTEGI_MENU.map(([k, etiket]) => (
+              {SINAV_DESTEGI_MENU.map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
@@ -4178,7 +4178,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>🎯 Planlama ve Hedefler</p>
-              PLANLAMA_HEDEFLER_MENU.map(([k, etiket]) => (
+              {PLANLAMA_HEDEFLER_MENU.map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
@@ -4188,7 +4188,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
               <div style={{ borderTop: `1px solid ${COLORS.panelBorder || COLORS.line}`, margin: "16px 0" }} />
               <p style={{ color: COLORS.bgText || COLORS.page, fontWeight: 700, fontSize: 11, marginBottom: 6, marginTop: 4, textTransform: "uppercase", letterSpacing: 0.6 }}>👥 Baglantilar</p>
-              BAGLANTILAR_MENU.map(([k, etiket]) => (
+              {BAGLANTILAR_MENU.map(([k, etiket]) => (
                 <button key={k} onClick={() => { setSecilenDers(null); setMod(k); setMenuAcik(false); }} style={{
                   display: "block", width: "100%", textAlign: "left", padding: "11px 12px", marginBottom: 4, borderRadius: 8,
                   border: "none", cursor: "pointer", fontSize: 14, fontWeight: mod === k ? 700 : 500,
