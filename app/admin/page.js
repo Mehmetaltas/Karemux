@@ -133,6 +133,19 @@ export default function YonetimPaneli() {
   // sonunda sifirdan sayfa yuklemesine/login ekranina gitmesine sebep
   // oluyordu) bu yuzden DUZELTILDI - artik pushState SADECE gercek
   // degisimde, replaceState ile karistirilmiyor.
+  // GECICI TESHIS ARACI (16 Eylul) - ?debug=1 ile acilinca telefonun kendi
+  // ekraninda yuzen bir konsol butonu (Eruda) yukler, bilgisayar/chrome://inspect
+  // gerektirmez. Sorun cozulunce KALDIRILACAK.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (new URLSearchParams(window.location.search).get("debug") !== "1") return;
+    if (document.getElementById("eruda-script")) return;
+    const s = document.createElement("script");
+    s.id = "eruda-script";
+    s.src = "https://cdn.jsdelivr.net/npm/eruda";
+    s.onload = () => { if (window.eruda) window.eruda.init(); };
+    document.body.appendChild(s);
+  }, []);
   const skipPopRef = useRef(false);
   const ilkKurulumRef = useRef(true);
   useEffect(() => {
