@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { personelAdminMi } from "@/lib/personel";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { paketKaliteKontrol } from "@/app/api/konu-paketi/route";
 
 // Tutarlilik Denetimi (14 Eylul) - "Ingilizce'nin tek-seviyeli kaldigi
 // fark edilmeden kalmasi" turunden zafiyetlerin OTOMATIK yakalanmasi icin.
@@ -51,6 +52,27 @@ export async function GET(req) {
     const dersSinifKombinasyonlari = await sql`
       SELECT DISTINCT sinif, ders FROM mufredat ORDER BY sinif, ders
     `;
+
+    // 4. konu_paketi kayitlarinin kalite kontrolu (16 Eylul) - eski kayitlarda
+    // kaliteKontrol alani hic yok, yeni kayitlarda var ama gecti:false olabilir.
+    // Her ikisini de tek seferde taze calistirip yakalar.
+    const konuPaketleri = await sql`
+      SELECT id, ders, sinif, konu, icerik_json FROM icerik_onbellek
+      WHERE icerik_turu = 'konu_paketi'
+    `;
+    for (const kp of konuPaketleri) {
+      const sonuc = paketKaliteKontrol(kp.icerik_json);
+      if (!sonuc.gecti) {
+        bulgular.push({
+          tur: "konu_paketi_kalite_sorunu",
+          id: kp.id,
+          ders: kp.ders,
+          sinif: kp.sinif,
+          konu: kp.konu,
+          detay: sonuc.uyarilar.join("; "),
+        });
+      }
+    }
 
     return Response.json({
       calistirilmaZamani: new Date().toISOString(),

@@ -20,7 +20,7 @@ function jsonAyikla(cevap) {
 // ogrenciye gostermeyi durdurmaz) - admin'in gorebilecegi bir "uyarilar"
 // listesi olusturur. Ileride bu liste admin panelde goruntulenip
 // ogretmen onayina cikacak.
-function paketKaliteKontrol(paket) {
+export function paketKaliteKontrol(paket) {
   const uyarilar = [];
   const yabanciKarakter = /[一-鿿؀-ۿЀ-ӿऀ-ॿ฀-๿֐-׿]/;
 
