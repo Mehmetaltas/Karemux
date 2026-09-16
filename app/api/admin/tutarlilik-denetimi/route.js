@@ -74,6 +74,48 @@ export async function GET(req) {
       }
     }
 
+    // 5. soru_bankasi'nda yabanci karakter iceren sorular (16 Eylul,
+    // kutuphanenin en buyuk parcasi - SQL regex ile hizli/olceklenebilir tarama,
+    // 2777+ satiri JS'e cekmeden)
+    const yabanciKarakterliSorular = await sql`
+      SELECT COUNT(*)::int AS adet FROM soru_bankasi
+      WHERE soru ~ '[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]'
+    `;
+    if (yabanciKarakterliSorular[0].adet > 0) {
+      bulgular.push({
+        tur: "soru_bankasi_yabanci_karakter",
+        detay: `${yabanciKarakterliSorular[0].adet} soruda yabanci karakter tespit edildi`,
+      });
+    }
+
+    // 6. soru_bankasi'nda secenek sayisi 4 olmayan veya dogru_index gecersiz sorular
+    const bozukYapiliSorular = await sql`
+      SELECT COUNT(*)::int AS adet FROM soru_bankasi
+      WHERE jsonb_array_length(secenekler) != 4 OR dogru_index < 0 OR dogru_index > 3
+    `;
+    if (bozukYapiliSorular[0].adet > 0) {
+      bulgular.push({
+        tur: "soru_bankasi_bozuk_yapi",
+        detay: `${bozukYapiliSorular[0].adet} soruda secenek sayisi 4 degil veya dogru_index gecersiz`,
+      });
+    }
+
+    // 7. icerik_onbellek'in DIGER turlerinde (konu_anlatimi, tek_konu_anlatimi vb.)
+    // yabanci karakter veya cok kisa icerik
+    const bozukAnlatimlar = await sql`
+      SELECT icerik_turu, COUNT(*)::int AS adet FROM icerik_onbellek
+      WHERE icerik_turu != 'konu_paketi'
+        AND (icerik ~ '[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]' OR LENGTH(icerik) < 80)
+      GROUP BY icerik_turu
+    `;
+    for (const b of bozukAnlatimlar) {
+      bulgular.push({
+        tur: "icerik_onbellek_kalite_sorunu",
+        icerikTuru: b.icerik_turu,
+        detay: `${b.adet} kayitta yabanci karakter veya cok kisa icerik (80 karakterden az)`,
+      });
+    }
+
     return Response.json({
       calistirilmaZamani: new Date().toISOString(),
       toplamBulgu: bulgular.length,
