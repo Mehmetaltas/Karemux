@@ -1891,7 +1891,10 @@ export default function YonetimPaneli() {
 
               <div style={{ display: "grid", gap: 10 }}>
                 {butunlukVeri.departmanlar.map((d) => (
-                  <div key={d.ad} onClick={() => d.hedefSekme && setSekme(d.hedefSekme)} style={{
+                  <div key={d.ad} onClick={() => d.hedefSekme && setSekme(d.hedefSekme)}
+                    role={d.hedefSekme ? "button" : undefined} tabIndex={d.hedefSekme ? 0 : undefined}
+                    onKeyDown={(e) => { if (d.hedefSekme && (e.key === "Enter" || e.key === " ")) setSekme(d.hedefSekme); }}
+                    style={{
                     background: T.surface, borderRadius: 10, padding: "14px 16px",
                     borderLeft: `4px solid ${durumRenk[d.durum]}`, border: `1px solid ${T.border}`, borderLeftWidth: 4,
                     cursor: d.hedefSekme ? "pointer" : "default",
