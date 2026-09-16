@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
+import { SEKME_GRUPLARI } from "@/lib/admin-sekmeleri";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -1227,20 +1228,6 @@ export default function YonetimPaneli() {
       </div>
     );
   }
-
-  const SEKME_GRUPLARI = [
-    { baslik: null, sekmeler: [["genel", "📊 Genel Bakış"]] },
-    { baslik: "💰 Finans", sekmeler: [
-      ["paketler", "💰 Paketler"], ["giderler", "🧾 Giderler"], ["cari", "🤝 Cari"], ["kasa", "🏦 Kasa/Banka"],
-      ["maliyet", "🤖 Üretim Maliyeti"], ["simulasyon", "🧮 Simülasyon"], ["planlama", "📈 Finansal Planlama"],
-      ["indirimkodlari", "🏷️ İndirim Kodları"], ["iadeler", "🛡️ İade Talepleri"], ["havaleler", "🏦 Havale Onayları"], ["impersonate", "👤 Kullanıcı Görüntüle"], ["donusumhuni", "📊 Satış Hunisi"], ["destek", "🎧 Destek"],
-    ]},
-    { baslik: "🎓 Eğitim", sekmeler: [["mufredat", "📚 Müfredat"], ["ogretmen", "🎓 Öğretmenler"]] },
-    { baslik: "🎥 Canlı Hizmetler", sekmeler: [["canliders", "🎥 Canlı Ders"], ["randevuodeme", "📅 Randevu Ödemeleri"], ["kurumlar", "🏢 Kurumlar"]] },
-    { baslik: "👥 İnsan Kaynakları", sekmeler: [["ik", "🗂️ Personel Yönetimi"], ["kariyer", "🧑‍💼 Kariyer Havuzu"]] },
-    { baslik: "📢 İletişim", sekmeler: [["duyuru", "📢 Duyuru"], ["talepler", "💡 Kullanıcı Talepleri"]] },
-    { baslik: "⚙️ Sistem", sekmeler: [["ikiz", "🐋 Sistem İkizi"], ["tema", "🎨 Tema"], ["hesabim", "👤 Hesabım"]] },
-  ];
 
   return (
     <main style={{ minHeight: "100vh", background: T.bg, fontFamily: T.font, color: T.text, paddingBottom: 60 }}>
