@@ -123,10 +123,21 @@ export default function YonetimPaneli() {
     return () => clearTimeout(t);
   }, []);
   const sonGeriBasimRef = useRef(0);
+  const sekmeGecmisiRef = useRef([]);
+  function sekmeyeGecVeGecmisiKaydet(yeniSekme) {
+    sekmeGecmisiRef.current.push(sekme);
+    setSekme(yeniSekme);
+  }
   useEffect(() => {
     window.history.pushState({ kxSahte: true }, "");
     const geriTusu = () => {
       if (menuAcik) { setMenuAcik(false); window.history.pushState({ kxSahte: true }, ""); return; }
+      if (sekmeGecmisiRef.current.length > 0) {
+        const onceki = sekmeGecmisiRef.current.pop();
+        setSekme(onceki);
+        window.history.pushState({ kxSahte: true }, "");
+        return;
+      }
       const simdi = Date.now();
       if (simdi - sonGeriBasimRef.current < 2000) return;
       sonGeriBasimRef.current = simdi;
@@ -136,7 +147,7 @@ export default function YonetimPaneli() {
     };
     window.addEventListener("popstate", geriTusu);
     return () => window.removeEventListener("popstate", geriTusu);
-  }, [menuAcik]);
+  }, [menuAcik, sekme]);
   useEffect(() => { const t = temaOku("minimal"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
   const [hata, setHata] = useState("");
@@ -1891,9 +1902,9 @@ export default function YonetimPaneli() {
 
               <div style={{ display: "grid", gap: 10 }}>
                 {butunlukVeri.departmanlar.map((d) => (
-                  <div key={d.ad} onClick={() => d.hedefSekme && setSekme(d.hedefSekme)}
+                  <div key={d.ad} onClick={() => d.hedefSekme && sekmeyeGecVeGecmisiKaydet(d.hedefSekme)}
                     role={d.hedefSekme ? "button" : undefined} tabIndex={d.hedefSekme ? 0 : undefined}
-                    onKeyDown={(e) => { if (d.hedefSekme && (e.key === "Enter" || e.key === " ")) setSekme(d.hedefSekme); }}
+                    onKeyDown={(e) => { if (d.hedefSekme && (e.key === "Enter" || e.key === " ")) sekmeyeGecVeGecmisiKaydet(d.hedefSekme); }}
                     style={{
                     background: T.surface, borderRadius: 10, padding: "14px 16px",
                     borderLeft: `4px solid ${durumRenk[d.durum]}`, border: `1px solid ${T.border}`, borderLeftWidth: 4,
