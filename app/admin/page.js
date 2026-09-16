@@ -4,6 +4,7 @@ import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { SEKME_GRUPLARI } from "@/lib/admin-sekmeleri";
+import { useRouter, usePathname } from "next/navigation";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -123,44 +124,24 @@ export default function YonetimPaneli() {
     return () => clearTimeout(t);
   }, []);
   const sonGeriBasimRef = useRef(0);
-  const [geriTusuLog, setGeriTusuLog] = useState([]);
-  function logEkle(mesaj) {
-    const satir = `${new Date().toLocaleTimeString("tr-TR")} sekme=${sekme} menuAcik=${menuAcik} histLen=${window.history.length} :: ${mesaj}`;
-    setGeriTusuLog((onceki) => [...onceki.slice(-9), satir]);
-    if (typeof document !== "undefined") {
-      let kutu = document.getElementById("kx-debug-kutu");
-      if (!kutu) {
-        kutu = document.createElement("div");
-        kutu.id = "kx-debug-kutu";
-        kutu.style.cssText = "position:fixed;bottom:0;left:0;right:0;z-index:99999;background:rgba(0,0,0,0.92);color:#0f0;font-size:10px;font-family:monospace;max-height:45vh;overflow-y:auto;padding:6px;line-height:1.4;";
-        document.body.appendChild(kutu);
-      }
-      const p = document.createElement("div");
-      p.textContent = satir;
-      kutu.appendChild(p);
-      while (kutu.children.length > 15) kutu.removeChild(kutu.firstChild);
-      kutu.scrollTop = kutu.scrollHeight;
-    }
-  }
+  const kxRouter = useRouter();
+  const kxYol = usePathname();
   function sekmeyeGecVeGecmisiKaydet(yeniSekme) {
     setSekme(yeniSekme);
   }
   useEffect(() => {
-    logEkle("MOUNT: pushState");
-    window.history.pushState({ kxSahte: true }, "");
+    kxRouter.push(kxYol);
     const geriTusu = () => {
-      logEkle("POPSTATE TETIKLENDI");
-      if (menuAcik) { logEkle("-> menuAcik=true, kapatiliyor"); setMenuAcik(false); window.history.pushState({ kxSahte: true }, ""); return; }
+      if (menuAcik) { setMenuAcik(false); kxRouter.push(kxYol); return; }
       const simdi = Date.now();
-      if (simdi - sonGeriBasimRef.current < 2000) { logEkle("-> cift-basis penceresi, gercek cikisa birakiliyor"); return; }
+      if (simdi - sonGeriBasimRef.current < 2000) return;
       sonGeriBasimRef.current = simdi;
-      logEkle("-> ilk basis, toast gosteriliyor + pushState");
       setCikisToastGoster(true);
       setTimeout(() => setCikisToastGoster(false), 2000);
-      window.history.pushState({ kxSahte: true }, "");
+      kxRouter.push(kxYol);
     };
     window.addEventListener("popstate", geriTusu);
-    return () => { logEkle("EFFECT CLEANUP (listener kaldirildi)"); window.removeEventListener("popstate", geriTusu); };
+    return () => window.removeEventListener("popstate", geriTusu);
   }, [menuAcik]);
   useEffect(() => { const t = temaOku("minimal"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
