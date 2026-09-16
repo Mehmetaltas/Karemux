@@ -124,8 +124,10 @@ export default function YonetimPaneli() {
   }, []);
   const sonGeriBasimRef = useRef(0);
   const sekmeGecmisiRef = useRef([]);
+  const sekmeRef = useRef(sekme);
+  useEffect(() => { sekmeRef.current = sekme; }, [sekme]);
   function sekmeyeGecVeGecmisiKaydet(yeniSekme) {
-    sekmeGecmisiRef.current.push(sekme);
+    sekmeGecmisiRef.current.push(sekmeRef.current);
     setSekme(yeniSekme);
   }
   useEffect(() => {
@@ -147,7 +149,7 @@ export default function YonetimPaneli() {
     };
     window.addEventListener("popstate", geriTusu);
     return () => window.removeEventListener("popstate", geriTusu);
-  }, [menuAcik, sekme]);
+  }, [menuAcik]);
   useEffect(() => { const t = temaOku("minimal"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
   const [hata, setHata] = useState("");
