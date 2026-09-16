@@ -532,6 +532,7 @@ export default function YonetimPaneli() {
   const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
   const [butunlukVeri, setButunlukVeri] = useState(null);
+  const [butunlukTazeleniyor, setButunlukTazeleniyor] = useState(false);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
   const [sirketRaporDonem, setSirketRaporDonem] = useState("gunluk");
   const [senaryoVeri, setSenaryoVeri] = useState(null);
@@ -1858,12 +1859,21 @@ export default function YonetimPaneli() {
           const durumEtiket = { tam: "Tam", kismi: "Kısmi", eksik: "Eksik" };
           return (
             <div style={{ animation: "adminPanelFadeIn 0.3s" }}>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 14, marginBottom: 4 }}>
-                <span style={{ fontSize: TYPO.display, fontWeight: 800, color: tamSayisi === toplam ? "#2AAE7F" : T.text }}>{tamSayisi}/{toplam}</span>
-                <span style={{ fontSize: TYPO.body, color: T.textMuted }}>departman tam durumda</span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 14 }}>
+                  <span style={{ fontSize: TYPO.display, fontWeight: 800, color: tamSayisi === toplam ? "#2AAE7F" : T.text }}>{tamSayisi}/{toplam}</span>
+                  <span style={{ fontSize: TYPO.body, color: T.textMuted }}>departman tam durumda</span>
+                </div>
+                <button onClick={async () => { setButunlukTazeleniyor(true); await butunlukGetir(); setButunlukTazeleniyor(false); }} disabled={butunlukTazeleniyor} style={{
+                  background: T.accentSoft, color: T.accent, border: "none", borderRadius: 8, padding: "7px 14px",
+                  fontSize: TYPO.caption, fontWeight: 700, cursor: butunlukTazeleniyor ? "default" : "pointer", opacity: butunlukTazeleniyor ? 0.6 : 1,
+                }}>{butunlukTazeleniyor ? "Taranıyor..." : "🔄 Şimdi Yeniden Tara"}</button>
               </div>
-              <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 20 }}>
-                Son kontrol: {new Date(butunlukVeri.tutarlilikSonKontrol).toLocaleString("tr-TR")}
+              <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 4 }}>
+                Son kontrol: {new Date(butunlukVeri.tutarlilikSonKontrol).toLocaleString("tr-TR")} · Haftalık otomasyon Pazartesi 06:00'da kendiliğinden çalışır
+              </p>
+              <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 20, lineHeight: 1.5 }}>
+                Not: GitHub Actions ekranında bu tarama "başarısız (failed)" görünebilir — bu bir hata değil, bulgu bulduğunda böyle işaretlenmesi kasıtlı (görmezden gelinmesin diye). Asıl durum her zaman burada.
               </p>
 
               {butunlukVeri.tutarlilikBulgulari.length > 0 && (
@@ -1881,9 +1891,10 @@ export default function YonetimPaneli() {
 
               <div style={{ display: "grid", gap: 10 }}>
                 {butunlukVeri.departmanlar.map((d) => (
-                  <div key={d.ad} style={{
+                  <div key={d.ad} onClick={() => d.hedefSekme && setSekme(d.hedefSekme)} style={{
                     background: T.surface, borderRadius: 10, padding: "14px 16px",
                     borderLeft: `4px solid ${durumRenk[d.durum]}`, border: `1px solid ${T.border}`, borderLeftWidth: 4,
+                    cursor: d.hedefSekme ? "pointer" : "default",
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
                       <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, color: T.text }}>{d.ikon} {d.ad}</p>
@@ -1891,6 +1902,7 @@ export default function YonetimPaneli() {
                     </div>
                     <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 2 }}>{d.kaynak}</p>
                     <p style={{ fontSize: TYPO.caption, color: T.text, lineHeight: 1.5 }}>{d.detay}</p>
+                    {d.hedefSekme && <p style={{ fontSize: TYPO.micro, color: T.accent, fontWeight: 700, marginTop: 6 }}>→ Detaya git</p>}
                   </div>
                 ))}
               </div>

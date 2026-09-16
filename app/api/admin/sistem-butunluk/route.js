@@ -27,17 +27,17 @@ export async function GET(req) {
     const sonSenaryo = await sql`SELECT sonuc_json, olusturulma FROM ikiz_senaryo ORDER BY olusturulma DESC LIMIT 1`;
 
     const departmanlar = [
-      { ad: "Finans", ikon: "💰", durum: "tam", kaynak: "Company Twin (finansal boyut) + Kasa/Banka", detay: `Kasa toplamı: ${kasaToplam[0].toplam.toFixed(0)}₺, günlük gerçek veri akıyor` },
-      { ad: "İnsan Kaynakları", ikon: "👥", durum: "kismi", kaynak: "Personel tablosu", detay: `${personelSayisi[0].adet} personel kaydı var, performans/KPI ölçümü YOK` },
-      { ad: "Hukuk / KVKK", ikon: "⚖️", durum: "eksik", kaynak: "—", detay: "Merkezi ekran yok, bilinçli ertelendi (launch öncesi profesyonel kontrol gerekiyor)" },
-      { ad: "Ürün / Eğitim", ikon: "📚", durum: "tam", kaynak: "Müfredat + İçerik Havuzu + Kalite Kontrolü", detay: `${mufredatOzet[0].adet} müfredat kaydı, ${konuPaketiSayisi[0].adet} konu paketi üretildi, otomatik kalite denetimi aktif` },
-      { ad: "Teknoloji", ikon: "🖥️", durum: "tam", kaynak: "Company Twin (güvenlik+altyapı boyutu)", detay: "20.000 kişi kapasite testi kanıtlı, yedekli AI sağlayıcı, otomatik yedekleme" },
-      { ad: "Satış", ikon: "📈", durum: "kismi", kaynak: "Company Twin (müşteri boyutu) + Dönüşüm Hunisi", detay: "Altyapı hazır, henüz gerçek satış/launch yok" },
-      { ad: "Pazarlama", ikon: "📣", durum: "eksik", kaynak: "Company Twin (pazar boyutu)", detay: "Boyut var ama YouTube/reklam verisi henüz akmıyor" },
-      { ad: "Operasyon", ikon: "⚙️", durum: "tam", kaynak: "Teknoloji boyutuyla birleşik", detay: "Günlük kapasite/kullanım izleniyor" },
-      { ad: "Veri / AI", ikon: "🤖", durum: "tam", kaynak: "AI Kullanım Log + Sağlayıcı Sıralaması", detay: "Maliyet, sağlayıcı performansı gerçek zamanlı izleniyor" },
-      { ad: "İç Kontrol / Risk", ikon: "🛡️", durum: tutarlilik.toplamBulgu === 0 ? "tam" : "kismi", kaynak: "Tutarlılık Denetimi (haftalık otomasyon)", detay: tutarlilik.toplamBulgu === 0 ? "Son taramada bulgu yok" : `Son taramada ${tutarlilik.toplamBulgu} açık bulgu var` },
-      { ad: "Şirket Yönetimi", ikon: "🏛️", durum: "kismi", kaynak: "Dijital İkiz Senaryoları", detay: `${ikizBoyutSayisi[0].adet} boyut izleniyor, resmi karar/kurul süreci henüz yok` },
+      { ad: "Finans", ikon: "💰", durum: "tam", kaynak: "Company Twin (finansal boyut) + Kasa/Banka", detay: `Kasa toplamı: ${kasaToplam[0].toplam.toFixed(0)}₺, günlük gerçek veri akıyor`, hedefSekme: "kasa" },
+      { ad: "İnsan Kaynakları", ikon: "👥", durum: "kismi", kaynak: "Personel tablosu", detay: `${personelSayisi[0].adet} personel kaydı var, performans/KPI ölçümü YOK`, hedefSekme: "ik" },
+      { ad: "Hukuk / KVKK", ikon: "⚖️", durum: "eksik", kaynak: "—", detay: "Merkezi ekran yok, bilinçli ertelendi (launch öncesi profesyonel kontrol gerekiyor)", hedefSekme: null },
+      { ad: "Ürün / Eğitim", ikon: "📚", durum: "tam", kaynak: "Müfredat + İçerik Havuzu + Kalite Kontrolü", detay: `${mufredatOzet[0].adet} müfredat kaydı, ${konuPaketiSayisi[0].adet} konu paketi üretildi, otomatik kalite denetimi aktif`, hedefSekme: "mufredat" },
+      { ad: "Teknoloji", ikon: "🖥️", durum: "tam", kaynak: "Company Twin (güvenlik+altyapı boyutu)", detay: "20.000 kişi kapasite testi kanıtlı, yedekli AI sağlayıcı, otomatik yedekleme", hedefSekme: "ikiz" },
+      { ad: "Satış", ikon: "📈", durum: "kismi", kaynak: "Company Twin (müşteri boyutu) + Dönüşüm Hunisi", detay: "Altyapı hazır, henüz gerçek satış/launch yok", hedefSekme: "donusumhuni" },
+      { ad: "Pazarlama", ikon: "📣", durum: "eksik", kaynak: "Company Twin (pazar boyutu)", detay: "Boyut var ama YouTube/reklam verisi henüz akmıyor", hedefSekme: "ikiz" },
+      { ad: "Operasyon", ikon: "⚙️", durum: "tam", kaynak: "Teknoloji boyutuyla birleşik", detay: "Günlük kapasite/kullanım izleniyor", hedefSekme: "ikiz" },
+      { ad: "Veri / AI", ikon: "🤖", durum: "tam", kaynak: "AI Kullanım Log + Sağlayıcı Sıralaması", detay: "Maliyet, sağlayıcı performansı gerçek zamanlı izleniyor", hedefSekme: "ikiz" },
+      { ad: "İç Kontrol / Risk", ikon: "🛡️", durum: tutarlilik.toplamBulgu === 0 ? "tam" : "kismi", kaynak: "Tutarlılık Denetimi (haftalık otomasyon)", detay: tutarlilik.toplamBulgu === 0 ? "Son taramada bulgu yok" : `Son taramada ${tutarlilik.toplamBulgu} açık bulgu var`, hedefSekme: null },
+      { ad: "Şirket Yönetimi", ikon: "🏛️", durum: "kismi", kaynak: "Dijital İkiz Senaryoları", detay: `${ikizBoyutSayisi[0].adet} boyut izleniyor, resmi karar/kurul süreci henüz yok`, hedefSekme: "ikiz" },
     ];
 
     return Response.json({
