@@ -6940,7 +6940,16 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   {tekKonuGorselSvg && (
                     <div style={{ background: "#fff", borderRadius: 10, border: `1px solid ${COLORS.line}`, padding: 12, marginTop: 10, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: tekKonuGorselSvg }} />
                   )}
-                  <p style={{ fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap", marginTop: 10 }}>{tekKonuAnlatim}</p>
+                  {tekKonuAnlatim.split(/(?=📌 )/).map((parca, pIdx) => {
+                    const esleme = parca.match(/^📌 (.+)\n\n([\s\S]*)$/);
+                    if (!esleme) return <p key={pIdx} style={{ fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap", marginTop: 10 }}>{parca}</p>;
+                    return (
+                      <div key={pIdx} style={{ marginTop: pIdx === 0 ? 10 : 20 }}>
+                        <p style={{ fontSize: 13.5, fontWeight: 800, color: COLORS.coral, marginBottom: 8, paddingBottom: 6, borderBottom: `2px solid ${COLORS.coral}` }}>📌 {esleme[1]}</p>
+                        <p style={{ fontSize: 13, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{esleme[2]}</p>
+                      </div>
+                    );
+                  })}
                 </div>
                 <button className="kx-btn" onClick={() => setTekKonuAsama("sorular")} style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
                   Sorulara Geç
@@ -6957,7 +6966,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {tekKonuSorular.map((s, i) => (
                   <div key={i}>
                     {s.altKonu && s.altKonu !== tekKonuSorular[i - 1]?.altKonu && (
-                      <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.coral, textTransform: "uppercase", letterSpacing: 0.5, marginTop: i === 0 ? 0 : 10, marginBottom: 6 }}>📌 {s.altKonu}</p>
+                      <p style={{ fontSize: 13.5, fontWeight: 800, color: COLORS.coral, marginTop: i === 0 ? 0 : 20, marginBottom: 8, paddingBottom: 6, borderBottom: `2px solid ${COLORS.coral}` }}>📌 {s.altKonu}</p>
                     )}
                   <div style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
                     <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 8 }}>{i + 1}. {s.soru}</p>
