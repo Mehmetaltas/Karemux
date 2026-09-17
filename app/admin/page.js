@@ -497,6 +497,8 @@ export default function YonetimPaneli() {
   const [yeniCariTelefon, setYeniCariTelefon] = useState("");
   const [cariEkleniyor, setCariEkleniyor] = useState(false);
   const [secilenCariId, setSecilenCariId] = useState(null);
+  const [cariFiltre, setCariFiltre] = useState("tumu");
+  const [cariKimlik, setCariKimlik] = useState(null);
   const [cariHareketleri, setCariHareketleri] = useState(null);
   const [hareketTur, setHareketTur] = useState("satis_veresiye");
   const [hareketTutar, setHareketTutar] = useState("");
@@ -780,12 +782,20 @@ export default function YonetimPaneli() {
   }
 
   async function cariSec(id) {
-    setSecilenCariId(id); setCariHareketleri(null);
+    setSecilenCariId(id); setCariHareketleri(null); setCariKimlik(null);
     try {
       const res = await fetch(`/api/admin/cari/hareket?sifre=${encodeURIComponent(sifre)}&cariId=${id}`);
       const data = await res.json();
       if (res.ok) setCariHareketleri(data.hareketler);
     } catch {}
+    const cariKaydi = cariler?.find((c) => c.id === id);
+    if (cariKaydi?.kaynak_tablo === "kullanicilar") {
+      try {
+        const res2 = await fetch(`/api/admin/kullanici-profil-detay?id=${cariKaydi.kaynak_id}`);
+        const data2 = await res2.json();
+        if (res2.ok) setCariKimlik(data2.kullanici);
+      } catch {}
+    }
   }
 
   async function hareketEkle() {
@@ -1585,9 +1595,17 @@ export default function YonetimPaneli() {
             </Panel>
 
             <Panel baslik="Cari Listesi" ikon="🤝">
-              {!cariler ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : cariler.length === 0 ? (
-                <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Henüz cari yok.</p>
-              ) : cariler.map((c) => (
+              <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+                {[["tumu", "Tümü"], ["ogrenci", "Öğrenci"], ["veli", "Veli"], ["ogretmen", "Öğretmen"], ["kurum", "Kurum"], ["tedarikci", "Tedarikçi"], ["diger", "Diğer"]].map(([k, ad]) => (
+                  <button key={k} onClick={() => setCariFiltre(k)} style={{
+                    padding: "5px 10px", borderRadius: 999, fontSize: TYPO.micro, fontWeight: 700, cursor: "pointer",
+                    border: `1px solid ${cariFiltre === k ? T.accent : T.border}`, background: cariFiltre === k ? T.accentSoft : "transparent", color: cariFiltre === k ? T.accent : T.textMuted,
+                  }}>{ad}</button>
+                ))}
+              </div>
+              {!cariler ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : cariler.filter((c) => cariFiltre === "tumu" || c.tur === cariFiltre).length === 0 ? (
+                <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Bu grupta cari yok.</p>
+              ) : cariler.filter((c) => cariFiltre === "tumu" || c.tur === cariFiltre).map((c) => (
                 <div key={c.id} onClick={() => cariSec(c.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); cariSec(c.id); } }} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 0", borderBottom: `1px solid ${T.border}`, cursor: "pointer", background: secilenCariId === c.id ? T.surfaceHover : "transparent" }}>
                   <div>
                     <p style={{ fontSize: TYPO.body, fontWeight: 600 }}>{c.ad}</p>
@@ -1599,6 +1617,14 @@ export default function YonetimPaneli() {
                 </div>
               ))}
             </Panel>
+
+            {secilenCariId && cariKimlik && (
+              <Panel baslik="Kimlik Bilgisi" ikon="👤">
+                <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{cariKimlik.ad}</p>
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{cariKimlik.eposta} · {cariKimlik.rol}</p>
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>Kayıt: {new Date(cariKimlik.olusturulma).toLocaleDateString("tr-TR")}</p>
+              </Panel>
+            )}
 
             {secilenCariId && (
               <Panel baslik="Hareket Ekle" ikon="📝">

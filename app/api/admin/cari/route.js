@@ -25,13 +25,13 @@ export async function GET(req) {
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
     const cariler = await sql`
-      SELECT c.id, c.ad, c.tur, c.telefon, c.eposta, c.notlar,
+      SELECT c.id, c.ad, c.tur, c.telefon, c.eposta, c.notlar, c.kaynak_tablo, c.kaynak_id,
         COALESCE(SUM(CASE WHEN h.tur IN ('satis_veresiye', 'odeme') THEN h.tutar_tl
                           WHEN h.tur IN ('tahsilat', 'tedarik_borcu') THEN -h.tutar_tl
                           ELSE 0 END), 0)::numeric AS bakiye
       FROM cariler c
       LEFT JOIN cari_hareketleri h ON h.cari_id = c.id
-      GROUP BY c.id, c.ad, c.tur, c.telefon, c.eposta, c.notlar
+      GROUP BY c.id, c.ad, c.tur, c.telefon, c.eposta, c.notlar, c.kaynak_tablo, c.kaynak_id
       ORDER BY c.ad ASC
     `;
     return Response.json({ cariler });
