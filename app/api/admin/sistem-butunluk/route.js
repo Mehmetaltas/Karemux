@@ -23,6 +23,8 @@ export async function GET(req) {
     const personelSayisi = await sql`SELECT COUNT(*)::int AS adet FROM personel`;
     const mufredatOzet = await sql`SELECT COUNT(*)::int AS adet FROM mufredat`;
     const konuPaketiSayisi = await sql`SELECT COUNT(*)::int AS adet FROM icerik_onbellek WHERE icerik_turu = 'konu_paketi'`;
+    const incelemeBekleyen = await sql`SELECT COUNT(*)::int AS adet FROM icerik_onbellek WHERE onay_durumu = 'bekliyor'`;
+    const sonRedler = await sql`SELECT COUNT(*)::int AS adet FROM icerik_red_log WHERE red_tarihi > now() - interval '30 days'`.catch(() => [{ adet: 0 }]);
     const ikizBoyutSayisi = await sql`SELECT COUNT(*)::int AS adet FROM ikiz_boyut`;
     const sonSenaryo = await sql`SELECT sonuc_json, olusturulma FROM ikiz_senaryo ORDER BY olusturulma DESC LIMIT 1`;
 
@@ -30,7 +32,7 @@ export async function GET(req) {
       { ad: "Finans", ikon: "💰", durum: "tam", kaynak: "Company Twin (finansal boyut) + Kasa/Banka", detay: `Kasa toplamı: ${kasaToplam[0].toplam.toFixed(0)}₺, günlük gerçek veri akıyor`, hedefSekme: "kasa" },
       { ad: "İnsan Kaynakları", ikon: "👥", durum: "kismi", kaynak: "Personel tablosu", detay: `${personelSayisi[0].adet} personel kaydı var, performans/KPI ölçümü YOK`, hedefSekme: "ik" },
       { ad: "Hukuk / KVKK", ikon: "⚖️", durum: "eksik", kaynak: "—", detay: "Merkezi ekran yok, bilinçli ertelendi (launch öncesi profesyonel kontrol gerekiyor)", hedefSekme: null },
-      { ad: "Ürün / Eğitim", ikon: "📚", durum: "tam", kaynak: "Müfredat + İçerik Havuzu + Kalite Kontrolü", detay: `${mufredatOzet[0].adet} müfredat kaydı, ${konuPaketiSayisi[0].adet} konu paketi üretildi, otomatik kalite denetimi aktif`, hedefSekme: "mufredat" },
+      { ad: "Ürün / Eğitim", ikon: "📚", durum: incelemeBekleyen[0].adet > 0 ? "kismi" : "tam", kaynak: "Müfredat + İçerik Havuzu + Kalite Kontrolü + Öğretmen İncelemesi", detay: `${mufredatOzet[0].adet} müfredat kaydı, ${konuPaketiSayisi[0].adet} konu paketi üretildi. ${incelemeBekleyen[0].adet > 0 ? `⚠ ${incelemeBekleyen[0].adet} içerik öğretmen incelemesi bekliyor.` : "Öğretmen incelemesi bekleyen içerik yok."} Son 30 günde ${sonRedler[0].adet} içerik reddedildi.`, hedefSekme: "mufredat" },
       { ad: "Teknoloji", ikon: "🖥️", durum: "tam", kaynak: "Company Twin (güvenlik+altyapı boyutu)", detay: "20.000 kişi kapasite testi kanıtlı, yedekli AI sağlayıcı, otomatik yedekleme", hedefSekme: "ikiz" },
       { ad: "Satış", ikon: "📈", durum: "kismi", kaynak: "Company Twin (müşteri boyutu) + Dönüşüm Hunisi", detay: "Altyapı hazır, henüz gerçek satış/launch yok", hedefSekme: "donusumhuni" },
       { ad: "Pazarlama", ikon: "📣", durum: "eksik", kaynak: "Company Twin (pazar boyutu)", detay: "Boyut var ama YouTube/reklam verisi henüz akmıyor", hedefSekme: "ikiz" },
