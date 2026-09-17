@@ -32,6 +32,7 @@ const MENU = [
   { kod: "eksik-konu-paketi", ad: "🧩 Eksik Konu Paketi", hazir: true, tur: "eksik_konu_paketi" },
   { kod: "veli-ozeti", ad: "👨‍👩‍👧 Veli Bilgilendirme Özeti", hazir: true, tur: "veli_ozeti" },
   { kod: "sinif-analizi", ad: "📈 Sınıf Başarı Analizi", hazir: true, tur: "sinif_analizi" },
+  { kod: "ders-plani", ad: "📋 Ders Planı Üret (Maarif Modeli)", hazir: true },
   { kod: "materyallerim", ad: "🗂️ Materyallerim", hazir: true },
   { kod: "inceleme", ad: "🔍 İçerik İncelemesi", hazir: true },
   { kod: "profil", ad: "⚙️ Profil / Şifre", hazir: true },
@@ -390,6 +391,7 @@ export default function OgretmenPanel() {
         )}
         {sekme === "materyallerim" && <Materyallerim />}
         {sekme === "inceleme" && <IcerikIncelemesi />}
+        {sekme === "ders-plani" && <DersPlaniUret />}
         {sekme === "profil" && <ProfilSifreDegistir />}
         {sekme === "ayarlar" && (
           <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16, maxWidth: 360 }}>
@@ -413,6 +415,112 @@ export default function OgretmenPanel() {
       </div>
       <CerezBildirimi renkler={{ bg: C.yesil, metin: "#fff", buton: C.turuncu }} />
     </main>
+  );
+}
+
+function DersPlaniUret() {
+  const [ders, setDers] = useState(MATERYAL_DERSLER[0]);
+  const [sinif, setSinif] = useState(8);
+  const [unite, setUnite] = useState("");
+  const [konu, setKonu] = useState("");
+  const [uretiliyor, setUretiliyor] = useState(false);
+  const [sonucPlan, setSonucPlan] = useState(null);
+  const [hata, setHata] = useState("");
+  const [gecmis, setGecmis] = useState(null);
+  const [acikPlanId, setAcikPlanId] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/ogretmen/ders-planlarim").then((r) => r.json()).then((d) => setGecmis(d.planlar || []));
+  }, []);
+
+  async function uret() {
+    if (!konu.trim()) return;
+    setUretiliyor(true); setHata(""); setSonucPlan(null);
+    try {
+      const res = await fetch("/api/ogretmen/ders-plani-uret", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ders, sinif, unite, konu: konu.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSonucPlan(data.plan);
+        setGecmis((eski) => [{ id: data.id, ders, sinif, unite, ogrenme_ciktisi: data.plan.ogrenmeCiktisi, icerik_json: data.plan, onay_durumu: data.kaliteSonucu.gecti ? "taslak" : "bekliyor", kalite_kontrol: data.kaliteSonucu, olusturulma: new Date().toISOString() }, ...(eski || [])]);
+      } else setHata(data.error || "Üretilemedi.");
+    } catch (e) { setHata("Bağlantı hatası, tekrar dene."); }
+    setUretiliyor(false);
+  }
+
+  function PlanGoster({ plan }) {
+    const bolumler = [
+      ["🎯 Öğrenme Çıktısı", plan.ogrenmeCiktisi],
+      ["📌 Ön Koşul Bilgileri", plan.onKosul],
+      ["📖 Ders Anlatımı", plan.dersAnlatimi],
+      ["🛠️ Etkinlik", plan.etkinlik],
+      ["🔵 Geliştir (temel eksik için)", plan.gelistir],
+      ["🟣 Derinleştir (ileri seviye için)", plan.derinlestir],
+      ["📊 Ölçme", plan.olcme],
+    ];
+    return (
+      <div>
+        {bolumler.map(([baslik, metin], i) => (
+          <div key={i} style={{ marginBottom: 12 }}>
+            <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{baslik}</p>
+            <p style={{ fontSize: 12.5, lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{metin}</p>
+          </div>
+        ))}
+        <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 6 }}>❓ Soru Seti ({plan.soruSeti?.length || 0})</p>
+        {(plan.soruSeti || []).map((s, i) => (
+          <div key={i} style={{ background: "#fff", borderRadius: 8, border: "1px solid #E5DFD3", padding: 10, marginBottom: 6 }}>
+            <p style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4 }}>{i + 1}. {s.soru}</p>
+            {(s.secenekler || []).map((sec, j) => (
+              <p key={j} style={{ fontSize: 12, color: j === s.dogruIndex ? "#2AAE7F" : "#555", fontWeight: j === s.dogruIndex ? 700 : 400 }}>{sec}{j === s.dogruIndex ? " ✓" : ""}</p>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (acikPlanId) {
+    const p = gecmis?.find((x) => x.id === acikPlanId);
+    return (
+      <div>
+        <button onClick={() => setAcikPlanId(null)} style={{ marginBottom: 12, padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>← Geri</button>
+        {p && <PlanGoster plan={p.icerik_json} />}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <p style={{ fontSize: 12.5, color: "#888", marginBottom: 14 }}>Bir konu seç, sistem TEK zincirde tam ders planı üretsin: Öğrenme Çıktısı → Ön Koşul → Anlatım → Etkinlik → Geliştir → Derinleştir → Soru Seti → Ölçme (Maarif Modeli terminolojisiyle).</p>
+      <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+        <select value={ders} onChange={(e) => setDers(e.target.value)} style={{ flex: 1, padding: 8, borderRadius: 6, border: "1px solid #ddd", fontSize: 12.5 }}>
+          {MATERYAL_DERSLER.map((d) => <option key={d} value={d}>{d}</option>)}
+        </select>
+        <select value={sinif} onChange={(e) => setSinif(Number(e.target.value))} style={{ padding: 8, borderRadius: 6, border: "1px solid #ddd", fontSize: 12.5 }}>
+          {[5, 6, 7, 8].map((s) => <option key={s} value={s}>{s}. sınıf</option>)}
+        </select>
+      </div>
+      <input value={unite} onChange={(e) => setUnite(e.target.value)} placeholder="Ünite adı (opsiyonel)" style={{ width: "100%", boxSizing: "border-box", padding: 8, borderRadius: 6, border: "1px solid #ddd", fontSize: 12.5, marginBottom: 10 }} />
+      <input value={konu} onChange={(e) => setKonu(e.target.value)} placeholder="Konu (örn: Üslü İfadeler)" style={{ width: "100%", boxSizing: "border-box", padding: 8, borderRadius: 6, border: "1px solid #ddd", fontSize: 12.5, marginBottom: 10 }} />
+      <button onClick={uret} disabled={uretiliyor || !konu.trim()} style={{ width: "100%", padding: "10px 0", borderRadius: 7, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", marginBottom: 16 }}>
+        {uretiliyor ? "Üretiliyor (biraz sürebilir)..." : "Ders Planı Üret"}
+      </button>
+      {hata && <p style={{ color: "#E8503F", fontSize: 12.5, marginBottom: 12 }}>{hata}</p>}
+      {sonucPlan && (
+        <div style={{ background: "#F7F4EC", borderRadius: 10, padding: 14, marginBottom: 20 }}>
+          <PlanGoster plan={sonucPlan} />
+        </div>
+      )}
+      <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Geçmiş Planlarım</p>
+      {!gecmis ? <p style={{ fontSize: 12.5, color: "#888" }}>Yükleniyor...</p> : gecmis.length === 0 ? <p style={{ fontSize: 12.5, color: "#888" }}>Henüz plan üretilmedi.</p> : gecmis.map((g) => (
+        <div key={g.id} onClick={() => setAcikPlanId(g.id)} style={{ background: "#fff", borderRadius: 8, border: "1px solid #E5DFD3", padding: 10, marginBottom: 6, cursor: "pointer" }}>
+          <p style={{ fontSize: 12.5, fontWeight: 600 }}>{g.ders} · {g.sinif}. sınıf</p>
+          <p style={{ fontSize: 11.5, color: "#888" }}>{g.ogrenme_ciktisi?.slice(0, 60)}{g.ogrenme_ciktisi?.length > 60 ? "..." : ""}</p>
+        </div>
+      ))}
+    </div>
   );
 }
 
