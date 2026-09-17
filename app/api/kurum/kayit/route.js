@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { sifreHashle, tokenUret, oturumCookieBaslik, altiHaneliKodUret, veliBaglantiKoduUret } from "@/lib/auth";
 import { resendIstemcisi } from "@/lib/email";
+import { cariBulYaDaAc } from "@/lib/cari";
 
 // Kurum yoneticisi kaydi (Faz 14'un onkosulu): kurum/olustur'un aksine,
 // "herhangi biri" kod uretmiyor - gercek bir hesap (eposta+sifre) olusuyor.
@@ -44,6 +45,9 @@ export async function POST(req) {
     `;
     const kullanici = sonuc[0];
     const token = tokenUret(kullanici.id);
+
+    // Cari Merkezi Mimari (17 Eylul)
+    cariBulYaDaAc({ ad: kullanici.ad, tur: "kurum", kaynakTablo: "kullanicilar", kaynakId: kullanici.id, eposta }).catch(() => {});
 
     if (!testModu) {
       try {

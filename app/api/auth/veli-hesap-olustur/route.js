@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { sifreHashle, tokenUret, oturumCookieBaslik } from "@/lib/auth";
+import { cariBulYaDaAc } from "@/lib/cari";
 
 // Veli onay token'iyla GERCEK bir veli hesabi acar (10-11 Eylul, kullanicinin
 // bildirdigi gercek bosluk - once sadece onay isareti guncelleniyordu, veli
@@ -51,6 +52,9 @@ export async function POST(req) {
       `;
       veliId = yeniVeli[0].id;
     }
+
+    // Cari Merkezi Mimari (17 Eylul) - idempotent, mevcut veliye de zararsiz
+    cariBulYaDaAc({ ad: "Veli", tur: "veli", kaynakTablo: "kullanicilar", kaynakId: veliId, eposta: veliEposta }).catch(() => {});
 
     await sql`
       INSERT INTO veli_ogrenci (veli_id, ogrenci_id)

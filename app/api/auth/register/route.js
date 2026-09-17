@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { sifreHashle, tokenUret, oturumCookieBaslik, altiHaneliKodUret, veliBaglantiKoduUret, veliOnayTokenUret } from "@/lib/auth";
 import { resendIstemcisi } from "@/lib/email";
+import { cariBulYaDaAc } from "@/lib/cari";
 
 export async function POST(req) {
   try {
@@ -35,6 +36,9 @@ export async function POST(req) {
 
     // Satis Donusum Hunisi (7 Eylul) - sessizce, kaydi hic etkilemesin
     sql`INSERT INTO donusum_olayi (kullanici_id, olay_turu, meta) VALUES (${kullanici.id}, 'kayit', ${JSON.stringify({ rol: rolTemiz })})`.catch(() => {});
+
+    // Cari Merkezi Mimari (17 Eylul) - musteri tarafi icin otomatik cari acilir, sessizce
+    cariBulYaDaAc({ ad: kullanici.ad, tur: rolTemiz, kaynakTablo: "kullanicilar", kaynakId: kullanici.id, eposta }).catch(() => {});
 
     if (!testModu) {
       try {
