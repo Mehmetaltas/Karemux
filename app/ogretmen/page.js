@@ -515,7 +515,7 @@ function DersPlaniUret() {
       )}
       <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Geçmiş Planlarım</p>
       {!gecmis ? <p style={{ fontSize: 12.5, color: "#888" }}>Yükleniyor...</p> : gecmis.length === 0 ? <p style={{ fontSize: 12.5, color: "#888" }}>Henüz plan üretilmedi.</p> : gecmis.map((g) => (
-        <div key={g.id} onClick={() => setAcikPlanId(g.id)} style={{ background: "#fff", borderRadius: 8, border: "1px solid #E5DFD3", padding: 10, marginBottom: 6, cursor: "pointer" }}>
+        <div key={g.id} onClick={() => setAcikPlanId(g.id)} role="button" tabIndex={0} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setAcikPlanId(g.id); }} style={{ background: "#fff", borderRadius: 8, border: "1px solid #E5DFD3", padding: 10, marginBottom: 6, cursor: "pointer" }}>
           <p style={{ fontSize: 12.5, fontWeight: 600 }}>{g.ders} · {g.sinif}. sınıf</p>
           <p style={{ fontSize: 11.5, color: "#888" }}>{g.ogrenme_ciktisi?.slice(0, 60)}{g.ogrenme_ciktisi?.length > 60 ? "..." : ""}</p>
         </div>
