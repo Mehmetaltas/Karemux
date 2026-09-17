@@ -559,6 +559,11 @@ export default function YonetimPaneli() {
   const [havaleIslemDurumu, setHavaleIslemDurumu] = useState(null);
   const [ikizVeri, setIkizVeri] = useState(null);
   const [butunlukVeri, setButunlukVeri] = useState(null);
+  const [kpAramaMetni, setKpAramaMetni] = useState("");
+  const [kpSonuclar, setKpSonuclar] = useState([]);
+  const [kpAraniyor, setKpAraniyor] = useState(false);
+  const [kpSecilenId, setKpSecilenId] = useState(null);
+  const [kpDetay, setKpDetay] = useState(null);
   const [butunlukTazeleniyor, setButunlukTazeleniyor] = useState(false);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
   const [sirketRaporDonem, setSirketRaporDonem] = useState("gunluk");
@@ -885,6 +890,27 @@ export default function YonetimPaneli() {
       const res = await fetch(`/api/admin/sistem-butunluk`);
       const data = await res.json();
       if (res.ok) setButunlukVeri(data);
+    } catch {}
+  }
+
+  async function kpAra(metin) {
+    setKpAramaMetni(metin);
+    if (metin.trim().length < 2) { setKpSonuclar([]); return; }
+    setKpAraniyor(true);
+    try {
+      const res = await fetch(`/api/admin/kullanici-ara?q=${encodeURIComponent(metin.trim())}`);
+      const data = await res.json();
+      setKpSonuclar(data.sonuclar || []);
+    } catch {}
+    setKpAraniyor(false);
+  }
+
+  async function kpDetayGetir(id) {
+    setKpSecilenId(id); setKpDetay(null);
+    try {
+      const res = await fetch(`/api/admin/kullanici-profil-detay?id=${id}`);
+      const data = await res.json();
+      if (res.ok) setKpDetay(data);
     } catch {}
   }
 
@@ -1845,6 +1871,55 @@ export default function YonetimPaneli() {
             </>
           );
         })()}
+        {sekme === "kullaniciprofili" && (
+          <div>
+            <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 12 }}>Bir kullaniciyi isim veya e-posta ile ara. Bu ekran Maliyet/Genel Bakis'tan BAGIMSIZ - tek kullanicinin TAM gecmisini (abonelik, odeme, kullanim, destek) gosterir.</p>
+            <input value={kpAramaMetni} onChange={(e) => kpAra(e.target.value)} placeholder="Isim veya e-posta yaz..." style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.border}`, fontSize: TYPO.body, marginBottom: 12 }} />
+            {kpAraniyor && <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>Araniyor...</p>}
+            {!kpSecilenId && kpSonuclar.map((k) => (
+              <div key={k.id} role="button" tabIndex={0} onClick={() => kpDetayGetir(k.id)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") kpDetayGetir(k.id); }} style={{
+                background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 12, marginBottom: 8, cursor: "pointer",
+              }}>
+                <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong }}>{k.ad}</p>
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{k.eposta} · {k.rol}{k.sinif ? ` · ${k.sinif}. sinif` : ""}</p>
+              </div>
+            ))}
+            {kpSecilenId && !kpDetay && <p style={{ fontSize: TYPO.body, color: T.textMuted }}>Yukleniyor...</p>}
+            {kpDetay && (
+              <div>
+                <button onClick={() => { setKpSecilenId(null); setKpDetay(null); }} style={{ background: "none", border: "none", color: T.accent, fontSize: TYPO.caption, fontWeight: 700, cursor: "pointer", marginBottom: 10, padding: 0 }}>&larr; Aramaya don</button>
+                <div style={{ background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 14, marginBottom: 12 }}>
+                  <p style={{ fontWeight: 800, fontSize: TYPO.title }}>{kpDetay.kullanici.ad}</p>
+                  <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 8 }}>{kpDetay.kullanici.eposta} · {kpDetay.kullanici.rol}</p>
+                  <p style={{ fontSize: TYPO.caption }}>Kayit: {new Date(kpDetay.kullanici.olusturulma).toLocaleDateString("tr-TR")} · E-posta dogrulandi: {kpDetay.kullanici.eposta_dogrulandi ? "Evet" : "Hayir"}</p>
+                  {kpDetay.kullanici.il && <p style={{ fontSize: TYPO.caption }}>{kpDetay.kullanici.il}{kpDetay.kullanici.okul ? ` · ${kpDetay.kullanici.okul}` : ""}</p>}
+                </div>
+
+                <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, marginBottom: 6 }}>💎 Abonelik Gecmisi</p>
+                {kpDetay.abonelikGecmisi.length === 0 ? <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 12 }}>Hic abonelik kaydi yok.</p> :
+                  kpDetay.abonelikGecmisi.map((a, i) => (
+                    <p key={i} style={{ fontSize: TYPO.caption, marginBottom: 4 }}>{a.plan} · {a.durum} · {new Date(a.baslangic).toLocaleDateString("tr-TR")}{a.bitis ? ` - ${new Date(a.bitis).toLocaleDateString("tr-TR")}` : ""}</p>
+                  ))}
+
+                <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, marginTop: 12, marginBottom: 6 }}>💰 Odeme Gecmisi</p>
+                {kpDetay.satisGecmisi.length === 0 ? <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 12 }}>Hic odeme kaydi yok.</p> :
+                  kpDetay.satisGecmisi.map((s, i) => (
+                    <p key={i} style={{ fontSize: TYPO.caption, marginBottom: 4 }}>{Number(s.tutar_tl).toFixed(0)}TL · {new Date(s.olusturulma).toLocaleDateString("tr-TR")}</p>
+                  ))}
+
+                {kpDetay.destekTalepleri.length > 0 && (
+                  <>
+                    <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, marginTop: 12, marginBottom: 6 }}>🎧 Destek Talepleri</p>
+                    {kpDetay.destekTalepleri.map((d, i) => (
+                      <p key={i} style={{ fontSize: TYPO.caption, marginBottom: 4 }}>{d.konu} · {d.durum} · {new Date(d.olusturulma).toLocaleDateString("tr-TR")}</p>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
 
         {sekme === "tema" && (
           <div style={{ background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 16, maxWidth: 360 }}>
