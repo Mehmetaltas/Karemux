@@ -1,6 +1,7 @@
 import { aiCagir } from "@/lib/ai";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { resendIstemcisi } from "@/lib/email";
 
 // TEK KONU MOTORU - Adim 1 (14 Eylul). Bir konu icin TEK AI cagrisiyla
 // anlatim+soru havuzu+odev URETIP icerik_onbellek'e icerik_json olarak
@@ -117,12 +118,30 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     if (!kaliteSonucu.gecti) console.warn("konu_paketi kalite uyarisi:", ders, konu, kaliteSonucu.uyarilar);
 
     // 3. Cache'e kaydet (basit metin alani icin anlatim.temelAnlatim kullanilir)
+    // Kalite kontrolunden gecemeyen paketler 'bekliyor' olarak isaretlenir -
+    // ogretmen inceleme kuyruguna girer (16 Eylul, Quality Control Motoru adim 2).
+    const onayDurumu = kaliteSonucu.gecti ? null : "bekliyor";
     try {
       await sql`
-        INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, icerik_json, kullanim_sayisi, olusturulma, son_kullanim)
-        VALUES (${Number(sinif)}, ${ders}, ${unite}, ${konu}, '', 'konu_paketi', ${paket.anlatim.temelAnlatim || ""}, ${JSON.stringify(paket)}, 1, now(), now())
+        INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, icerik_json, kullanim_sayisi, olusturulma, son_kullanim, onay_durumu)
+        VALUES (${Number(sinif)}, ${ders}, ${unite}, ${konu}, '', 'konu_paketi', ${paket.anlatim.temelAnlatim || ""}, ${JSON.stringify(paket)}, 1, now(), now(), ${onayDurumu})
       `;
     } catch (e) { console.error("konu_paketi cache yazilamadi:", e); }
+
+    // Isaretlenen paket icin eslesen branstaki ogretmen(ler)e bildirim gonder
+    if (onayDurumu === "bekliyor") {
+      try {
+        const ilgiliOgretmenler = await sql`SELECT eposta, ad FROM ogretmenler WHERE brans = ${ders} AND aktif = true`;
+        for (const o of ilgiliOgretmenler) {
+          await resendIstemcisi().emails.send({
+            from: "Karemux <bildirim@karemux.com>",
+            to: o.eposta,
+            subject: `İnceleme bekleyen içerik: ${ders} - ${konu}`,
+            text: `Merhaba ${o.ad},\n\n"${konu}" (${ders}, ${sinif}. sınıf) konusu için otomatik üretilen içerik, kalite kontrolünde bazı uyarılar aldı ve senin incelemeni bekliyor.\n\nUyarılar: ${kaliteSonucu.uyarilar.join("; ")}\n\nÖğretmen panelindeki "İçerik İncelemesi" sekmesinden inceleyip onaylayabilir veya reddedebilirsin.\n\nKaremux Ekibi`,
+          }).catch((e) => console.error("Inceleme bildirimi gonderilemedi:", e.message));
+        }
+      } catch (e) { console.error("Ogretmen bildirimi hatasi:", e); }
+    }
 
     return Response.json({ kaynak: "yeni_uretim", paket });
   } catch (e) {

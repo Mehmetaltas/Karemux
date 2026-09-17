@@ -33,6 +33,7 @@ const MENU = [
   { kod: "veli-ozeti", ad: "👨‍👩‍👧 Veli Bilgilendirme Özeti", hazir: true, tur: "veli_ozeti" },
   { kod: "sinif-analizi", ad: "📈 Sınıf Başarı Analizi", hazir: true, tur: "sinif_analizi" },
   { kod: "materyallerim", ad: "🗂️ Materyallerim", hazir: true },
+  { kod: "inceleme", ad: "🔍 İçerik İncelemesi", hazir: true },
   { kod: "profil", ad: "⚙️ Profil / Şifre", hazir: true },
   { kod: "is-basvuru", ad: "💼 İş Başvurusu Yap", hazir: true, dis: true, link: "/ogretmen-basvuru" },
   { kod: "ayarlar", ad: "⚙️ Ayarlar (Tema)", hazir: true },
@@ -388,6 +389,7 @@ export default function OgretmenPanel() {
           <MateryalUreticisi key={sekme} tur={MENU.find((m) => m.kod === sekme)?.tur} dersVarsayilan={ogretmen.brans} />
         )}
         {sekme === "materyallerim" && <Materyallerim />}
+        {sekme === "inceleme" && <IcerikIncelemesi />}
         {sekme === "profil" && <ProfilSifreDegistir />}
         {sekme === "ayarlar" && (
           <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16, maxWidth: 360 }}>
@@ -411,6 +413,71 @@ export default function OgretmenPanel() {
       </div>
       <CerezBildirimi renkler={{ bg: C.yesil, metin: "#fff", buton: C.turuncu }} />
     </main>
+  );
+}
+
+function IcerikIncelemesi() {
+  const [liste, setListe] = useState(null);
+  const [redFormAcik, setRedFormAcik] = useState(null);
+  const [redNotu, setRedNotu] = useState("");
+  const [islemYapiliyor, setIslemYapiliyor] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/ogretmen/inceleme-kuyrugu").then((r) => r.json()).then((d) => setListe(d.kayitlar || []));
+  }, []);
+
+  async function karaVer(id, karar, not) {
+    setIslemYapiliyor(true);
+    try {
+      await fetch("/api/ogretmen/inceleme-karar", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, karar, not }),
+      });
+      setListe((eski) => eski.filter((k) => k.id !== id));
+      setRedFormAcik(null); setRedNotu("");
+    } catch (e) {}
+    setIslemYapiliyor(false);
+  }
+
+  if (liste === null) return <p style={{ fontSize: 13, color: "#888" }}>Yükleniyor...</p>;
+  if (liste.length === 0) return (
+    <div style={{ textAlign: "center", padding: "40px 16px" }}>
+      <p style={{ fontSize: 32, marginBottom: 8 }}>✅</p>
+      <p style={{ fontSize: 14, fontWeight: 600 }}>İnceleme bekleyen içerik yok</p>
+      <p style={{ fontSize: 12.5, color: "#888", marginTop: 4 }}>Otomatik kalite kontrolünden geçemeyen içerikler burada, senin branşına göre listelenir.</p>
+    </div>
+  );
+
+  return (
+    <div>
+      <p style={{ fontSize: 12.5, color: "#888", marginBottom: 14 }}>Otomatik kalite kontrolü bu içeriklerde bazı sorunlar tespit etti (yabancı karakter, eksik/bozuk soru yapısı, çok kısa metin gibi). İnceleyip onaylayabilir veya reddedebilirsin — reddedersen içerik silinir ve bir dahaki istekte yeniden üretilir.</p>
+      {liste.map((k) => (
+        <div key={k.id} style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 14, marginBottom: 10 }}>
+          <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 4 }}>{k.ders} — {k.konu}</p>
+          <p style={{ fontSize: 11.5, color: "#888", marginBottom: 8 }}>{k.sinif}. sınıf{k.unite ? ` · ${k.unite}` : ""}</p>
+          <div style={{ background: "#FFF8E8", borderRadius: 6, padding: 8, marginBottom: 10 }}>
+            <p style={{ fontSize: 11.5, fontWeight: 600, color: "#8A6D1F", marginBottom: 4 }}>⚠ Tespit edilen uyarılar:</p>
+            {(k.icerik_json?.kaliteKontrol?.uyarilar || []).map((u, i) => (
+              <p key={i} style={{ fontSize: 11, color: "#6B5A2E", margin: "2px 0" }}>• {u}</p>
+            ))}
+          </div>
+          {redFormAcik === k.id ? (
+            <div>
+              <textarea value={redNotu} onChange={(e) => setRedNotu(e.target.value)} placeholder="Red gerekçesi (opsiyonel)..." style={{ width: "100%", boxSizing: "border-box", padding: 8, borderRadius: 6, border: "1px solid #ddd", fontSize: 12.5, marginBottom: 8, minHeight: 60 }} />
+              <div style={{ display: "flex", gap: 8 }}>
+                <button onClick={() => karaVer(k.id, "reddet", redNotu)} disabled={islemYapiliyor} style={{ flex: 1, padding: "8px 0", borderRadius: 7, border: "none", background: "#E8503F", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Reddet ve Sil</button>
+                <button onClick={() => { setRedFormAcik(null); setRedNotu(""); }} style={{ flex: 1, padding: "8px 0", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12.5, cursor: "pointer" }}>Vazgeç</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={() => karaVer(k.id, "onayla")} disabled={islemYapiliyor} style={{ flex: 1, padding: "8px 0", borderRadius: 7, border: "none", background: "#2AAE7F", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>✓ Onayla</button>
+              <button onClick={() => setRedFormAcik(k.id)} disabled={islemYapiliyor} style={{ flex: 1, padding: "8px 0", borderRadius: 7, border: "1px solid #E8503F", background: "#fff", color: "#E8503F", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>✕ Reddet</button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
 
