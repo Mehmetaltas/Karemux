@@ -253,6 +253,7 @@ async function senaryoTestiCalistir() {
   if (process.env.DATABASE_URL) {
     try {
       const sql = neon(process.env.DATABASE_URL);
+      await sql`DELETE FROM cariler WHERE kaynak_tablo = 'kullanicilar' AND kaynak_id IN (SELECT id FROM kullanicilar WHERE eposta = ${testEposta} OR eposta LIKE ${"healthcheck-veli-%@example.com"})`;
       await sql`DELETE FROM kullanicilar WHERE eposta = ${testEposta} OR eposta LIKE ${"healthcheck-veli-%@example.com"}`;
       console.log("  TEMIZ Test hesabi veritabanindan silindi");
     } catch (e) {
@@ -360,6 +361,7 @@ async function entegrasyonTestiCalistir() {
     try {
       const sql = neon(process.env.DATABASE_URL);
       await sql`DELETE FROM hata_kitapcigi WHERE alt_konu = ${isaretKonu}`;
+      await sql`DELETE FROM cariler WHERE kaynak_tablo = 'kullanicilar' AND kaynak_id IN (SELECT id FROM kullanicilar WHERE eposta = ${testEposta} OR eposta LIKE ${"healthcheck-entegrasyon-veli-%@example.com"})`;
       await sql`DELETE FROM kullanicilar WHERE eposta = ${testEposta} OR eposta LIKE ${"healthcheck-entegrasyon-veli-%@example.com"}`;
       console.log("  TEMIZ Test verisi silindi");
     } catch (e) {
@@ -457,6 +459,7 @@ async function rolYetkiTestiCalistir() {
     try {
       const sql = neon(process.env.DATABASE_URL);
       await sql`DELETE FROM hata_kitapcigi WHERE alt_konu = ${isaretKonu}`;
+      await sql`DELETE FROM cariler WHERE kaynak_tablo = 'kullanicilar' AND kaynak_id IN (SELECT id FROM kullanicilar WHERE eposta IN (${epostaA}, ${epostaB}) OR eposta LIKE ${`healthcheck-yetki-veli-${zamanDamgasi}%`})`;
       await sql`DELETE FROM kullanicilar WHERE eposta IN (${epostaA}, ${epostaB}) OR eposta LIKE ${`healthcheck-yetki-veli-${zamanDamgasi}%`}`;
       console.log("  TEMIZ Test verisi silindi");
     } catch (e) {
