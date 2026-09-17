@@ -146,26 +146,36 @@ export default function YonetimPaneli() {
     s.onload = () => { if (window.eruda) window.eruda.init(); };
     document.body.appendChild(s);
   }, []);
-  const skipPopRef = useRef(false);
+  // Geri Tusu / Navigasyon (16 Eylul, 6. deneme) - onceki 5 deneme
+  // (window.history.pushState/replaceState + popstate) Next.js App Router'in
+  // kendi RSC/Next-Router-State-Tree onbellek mekanizmasiyla cakisip sayfayi
+  // sunucudan sifirdan yeniden yuklemesine sebep oluyordu (canli Eruda
+  // konsoluyla kanitlandi - geri basinca /api/personel/giris'in kendisi
+  // tekrar tetikleniyordu). Bu YENI yontem pushState/replaceState'e HIC
+  // DOKUNMUYOR - sadece URL HASH'ini (#sekme-adi) degistiriyor. Next.js hash
+  // degisikliklerini "gezinme" saymaz, RSC yeniden istegi TETIKLEMEZ.
+  const skipHashRef = useRef(false);
   const ilkKurulumRef = useRef(true);
   useEffect(() => {
     if (ilkKurulumRef.current) {
       ilkKurulumRef.current = false;
-      window.history.replaceState({ kxSekme: sekme, kxMenu: menuAcik }, "");
+      if (typeof window !== "undefined" && !window.location.hash) {
+        window.history.replaceState(null, "", `#${sekme}`);
+      }
       return;
     }
-    if (skipPopRef.current) { skipPopRef.current = false; return; }
-    window.history.pushState({ kxSekme: sekme, kxMenu: menuAcik }, "");
-  }, [sekme, menuAcik]);
+    if (skipHashRef.current) { skipHashRef.current = false; return; }
+    window.location.hash = sekme;
+  }, [sekme]);
   useEffect(() => {
-    function popstateIsle(e) {
-      skipPopRef.current = true;
-      const durum = e.state || {};
-      setSekme(durum.kxSekme || "genel");
-      setMenuAcik(!!durum.kxMenu);
+    function hashDegisti() {
+      skipHashRef.current = true;
+      const yeniSekme = window.location.hash.replace("#", "") || "genel";
+      setSekme(yeniSekme);
+      setMenuAcik(false);
     }
-    window.addEventListener("popstate", popstateIsle);
-    return () => window.removeEventListener("popstate", popstateIsle);
+    window.addEventListener("hashchange", hashDegisti);
+    return () => window.removeEventListener("hashchange", hashDegisti);
   }, []);
   useEffect(() => { const t = temaOku("minimal"); adminTemayiUygula(t); setTemaState(t); }, []);
   function temaSec(t) { adminTemayiUygula(t); temaKaydet(t); setTemaState(t); }
