@@ -1,6 +1,17 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { personelAdminMi } from "@/lib/personel";
+import { sql as sqlCari } from "@/lib/db";
+import { cariHareketEkle } from "@/lib/cari";
+
+async function cariyeTahsilatYaz(kullaniciId, tutar) {
+  try {
+    const cari = await sqlCari`SELECT id FROM cariler WHERE kaynak_tablo = 'kullanicilar' AND kaynak_id = ${kullaniciId}`;
+    if (cari.length > 0) {
+      await cariHareketEkle({ cariId: cari[0].id, tur: "tahsilat", tutarTl: tutar, aciklama: "Havale ile odeme" });
+    }
+  } catch (e) { /* Cari Merkezi Mimari (17 Eylul) - sessizce, satisi ETKILEMESIN */ }
+}
 
 async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
@@ -66,18 +77,21 @@ export async function POST(req) {
     if (randevuId) {
       await sql`UPDATE randevular SET odendi = true WHERE id = ${randevuId} AND ogrenci_id = ${kullaniciId}`;
       await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      cariyeTahsilatYaz(kullaniciId, tutar);
       return Response.json({ ok: true, durum: "onaylandi" });
     }
 
     if (oturumId) {
       await sql`UPDATE canli_ders_katilimcilari SET odendi = true WHERE oturum_id = ${oturumId} AND ogrenci_id = ${kullaniciId}`;
       await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      cariyeTahsilatYaz(kullaniciId, tutar);
       return Response.json({ ok: true, durum: "onaylandi" });
     }
 
     if (lisansId) {
       await sql`UPDATE kurum_lisans_satin_alma SET odendi = true WHERE id = ${lisansId}`;
       await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      cariyeTahsilatYaz(kullaniciId, tutar);
       return Response.json({ ok: true, durum: "onaylandi" });
     }
 
