@@ -3311,7 +3311,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       let yeniUretim = false;
       if (!sorularVeri) {
         yeniUretim = true;
-        const pSorular = `Sen bir LGS/ortaokul ogretmenisin. "${dersSec}" dersinden${uniteSec ? ` (${uniteSec} unitesinden)` : ""} "${konuSec.trim()}" konusuyla ilgili ${sinif}. sinif seviyesinde TAM 10 coktan secmeli soru hazirla: ILK 4 SORU KOLAY, SONRAKI 4 SORU ORTA, SON 2 SORU ZOR olsun (sirali ver). Sorular mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma: [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]`;
+        const konuListesiSoru = konuSec.split(",").map((s) => s.trim()).filter(Boolean);
+        const cokluKonuTalimati = konuListesiSoru.length > 1
+          ? ` SECILEN ALT KONULAR: ${konuListesiSoru.join(", ")}. Sorulari bu alt konulara ORANTILI dagit (her alt konudan en az 1 soru), VE HER SORU ICIN "altKonu" alaninda SORUNUN HANGI ALT KONUYA ait oldugunu (yukaridaki listeden BIREBIR AYNI yaziliş) MUTLAKA belirt - bu, ogrenciye sorularin hangi konudan geldigini gostermek icin ZORUNLU.`
+          : ` Her soru icin "altKonu" alanina "${konuListesiSoru[0] || konuSec.trim()}" yaz.`;
+        const pSorular = `Sen bir LGS/ortaokul ogretmenisin. "${dersSec}" dersinden${uniteSec ? ` (${uniteSec} unitesinden)` : ""} "${konuSec.trim()}" konusuyla ilgili ${sinif}. sinif seviyesinde TAM 10 coktan secmeli soru hazirla: ILK 4 SORU KOLAY, SONRAKI 4 SORU ORTA, SON 2 SORU ZOR olsun (sirali ver).${cokluKonuTalimati} Sorular mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma: [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"..."}]`;
         const cevapSorular = await aiIstek(pSorular, 5000, cihazIdRef.current, true);
         const temiz = jsonMetniTemizle(cevapSorular);
         const parcaTemiz = temiz.slice(temiz.indexOf("["), temiz.lastIndexOf("]") + 1)
@@ -6954,7 +6958,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <p style={{ fontSize: 11, color: COLORS.muted }}>{tekKonuSorular.length} soru</p>
                 </div>
                 {tekKonuSorular.map((s, i) => (
-                  <div key={i} style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
+                  <div key={i}>
+                    {s.altKonu && s.altKonu !== tekKonuSorular[i - 1]?.altKonu && (
+                      <p style={{ fontSize: 10.5, fontWeight: 700, color: COLORS.coral, textTransform: "uppercase", letterSpacing: 0.5, marginTop: i === 0 ? 0 : 10, marginBottom: 6 }}>📌 {s.altKonu}</p>
+                    )}
+                  <div style={{ background: COLORS.page, borderRadius: 10, padding: 14, border: `1px solid ${COLORS.line}`, marginBottom: 8 }}>
                     <p style={{ fontWeight: 600, fontSize: 12.5, marginBottom: 8 }}>{i + 1}. {s.soru}</p>
                     {(s.secenekler || []).map((sec, j) => (
                       <button key={j} onClick={() => setTekKonuCevaplar((eski) => ({ ...eski, [i]: j }))} style={{
@@ -6962,6 +6970,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         border: `1.5px solid ${tekKonuCevaplar[i] === j ? COLORS.coral : COLORS.line}`, background: tekKonuCevaplar[i] === j ? "#FFF1EF" : "#fff",
                       }}>{sec}{(tekKonuCevaplar[i] === j) ? " ●" : ""}</button>
                     ))}
+                  </div>
                   </div>
                 ))}
                 <button className="kx-btn" onClick={tekKonuGonder} disabled={tekKonuYukleniyor || Object.keys(tekKonuCevaplar).length === 0} style={{ width: "100%", padding: "12px 0", borderRadius: 10, border: "none", background: "#1B2430", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
