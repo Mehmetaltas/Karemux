@@ -564,6 +564,7 @@ export default function YonetimPaneli() {
   const [kpAraniyor, setKpAraniyor] = useState(false);
   const [kpSecilenId, setKpSecilenId] = useState(null);
   const [kpDetay, setKpDetay] = useState(null);
+  const [kpEkstreAcik, setKpEkstreAcik] = useState(false);
   const [butunlukTazeleniyor, setButunlukTazeleniyor] = useState(false);
   const [sirketRaporVeri, setSirketRaporVeri] = useState(null);
   const [sirketRaporDonem, setSirketRaporDonem] = useState("gunluk");
@@ -1893,6 +1894,48 @@ export default function YonetimPaneli() {
                   <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 8 }}>{kpDetay.kullanici.eposta} · {kpDetay.kullanici.rol}</p>
                   <p style={{ fontSize: TYPO.caption }}>Kayit: {new Date(kpDetay.kullanici.olusturulma).toLocaleDateString("tr-TR")} · E-posta dogrulandi: {kpDetay.kullanici.eposta_dogrulandi ? "Evet" : "Hayir"}</p>
                   {kpDetay.kullanici.il && <p style={{ fontSize: TYPO.caption }}>{kpDetay.kullanici.il}{kpDetay.kullanici.okul ? ` · ${kpDetay.kullanici.okul}` : ""}</p>}
+                </div>
+
+                <div style={{ background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 14, marginBottom: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 4 }}>Cari Bakiye</p>
+                      <p style={{ fontSize: TYPO.title, fontWeight: 800, color: kpDetay.cariBakiye > 0 ? "#2AAE7F" : kpDetay.cariBakiye < 0 ? T.danger : T.text }}>
+                        {kpDetay.cariBakiye === null ? "Cari yok" : `${Math.abs(kpDetay.cariBakiye).toFixed(0)}₺`}
+                      </p>
+                      {kpDetay.cariBakiye !== null && <p style={{ fontSize: TYPO.micro, color: T.textMuted }}>{kpDetay.cariBakiye > 0 ? "Bize borclu" : kpDetay.cariBakiye < 0 ? "Biz borcluyuz" : "Kapali"}</p>}
+                    </div>
+                    {kpDetay.cariBakiye !== null && (
+                      <button onClick={() => setKpEkstreAcik((eski) => !eski)} style={{ background: T.accentSoft, color: T.accent, border: "none", borderRadius: 7, padding: "7px 12px", fontSize: TYPO.caption, fontWeight: 700, cursor: "pointer" }}>
+                        📄 {kpEkstreAcik ? "Ekstreyi Gizle" : "Cari Ekstresi"}
+                      </button>
+                    )}
+                  </div>
+                  {kpEkstreAcik && (() => {
+                    const kronolojik = [...kpDetay.cariHareketleri].reverse();
+                    let kosanBakiye = 0;
+                    const satirlar = kronolojik.map((h) => {
+                      const etki = (h.tur === "satis_veresiye" || h.tur === "odeme") ? Number(h.tutar_tl) : -Number(h.tutar_tl);
+                      kosanBakiye += etki;
+                      return { ...h, etki, kosanBakiye };
+                    }).reverse();
+                    return (
+                      <div style={{ marginTop: 12, borderTop: `1px solid ${T.border}`, paddingTop: 10 }}>
+                        {satirlar.length === 0 ? <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>Hic hareket yok.</p> : satirlar.map((h, i) => (
+                          <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "5px 0", borderBottom: i < satirlar.length - 1 ? `1px solid ${T.border}` : "none" }}>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ fontSize: TYPO.caption, fontWeight: 600 }}>{h.tur}</p>
+                              <p style={{ fontSize: TYPO.micro, color: T.textMuted }}>{new Date(h.tarih).toLocaleDateString("tr-TR")}{h.aciklama ? ` · ${h.aciklama}` : ""}</p>
+                            </div>
+                            <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 8 }}>
+                              <p style={{ fontSize: TYPO.caption, fontWeight: 700, color: h.etki > 0 ? "#2AAE7F" : T.danger }}>{h.etki > 0 ? "+" : ""}{h.etki.toFixed(0)}₺</p>
+                              <p style={{ fontSize: TYPO.micro, color: T.textMuted }}>Bakiye: {h.kosanBakiye.toFixed(0)}₺</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <p style={{ fontWeight: 700, fontSize: TYPO.bodyStrong, marginBottom: 6 }}>💎 Abonelik Gecmisi</p>
