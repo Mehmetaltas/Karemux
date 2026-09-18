@@ -42,7 +42,7 @@ SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda
   "etkinlik": "sinif ici uygulanabilir, somut bir etkinlik tanimi (materyal+adimlar), 100-150 kelime",
   "gelistir": "TEMEL EKSIGI olan ogrenci icin: basitten karmasiga adim adim ornek + yanlis anlama tespiti + kisa tekrar onerisi, 120-150 kelime",
   "derinlestir": "OGRENMIS ogrenciyi ILERI tasimak icin: yeni nesil/coklu adimli problem + disiplinler arasi baglanti + acik uclu gorev onerisi, 120-150 kelime",
-  "soruSeti": [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","kontrolIfadesi":"SADECE Matematik/Fen Bilimleri icin: sorunun cevabini veren TEMIZ bir matematik ifadesi (orn. 3^2*3^4), sayisal olmayan sorularda BOS STRING birak"}],
+  "soruSeti": [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","kontrolIfadesi":"SADECE sonucu TEK BIR SAYI olan sorularda: cevabi veren, degisken (x/y/a harfleri) ICERMEYEN, TAMAMEN SAYISAL bir ifade (orn. 3^2*3^4). Cebirsel/degiskenli sorularda (ozdeslik, carpanlara ayirma, denklem) BOS STRING birak - bu alan SADECE nihai sayisal cevabi dogrulamak icindir"}],
   "olcme": "bu ogrenme ciktisinin ne kadar kazanildigini olcmek icin somut bir degerlendirme yontemi (rubrik/kisa sinav/gozlem), 80-100 kelime"
 }
 
