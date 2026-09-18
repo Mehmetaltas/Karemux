@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import { ogretmenCoz } from "@/lib/ogretmen";
-import { aiCagir } from "@/lib/ai";
+import { aiCagirDetay, ikinciGorusAl } from "@/lib/ai";
 import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
@@ -44,7 +44,7 @@ SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda
 
 soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
 
-    const cevap = await aiCagir({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
+    const { metin: cevap, saglayici } = await aiCagirDetay({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
     const plan = jsonAyikla(cevap);
 
     const kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
@@ -53,6 +53,11 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
     const detKontrol = deterministikKontrolYap(plan.soruSeti || []);
     if (!detKontrol.uyumlu) console.warn("ders_plani DETERMINISTIK uyari (GOLGE MOD):", ders, konu, detKontrol.uyarilar);
+
+    // Katman 3 - capraz-model dogrulama (GOLGE MOD, sadece log, engellemez, hic throw etmez)
+    const soruOzeti = JSON.stringify((plan.soruSeti || []).map((s) => ({ soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex })));
+    const caprazSonuc = await ikinciGorusAl(saglayici, soruOzeti);
+    if (caprazSonuc?.hataVarMi) console.warn("ders_plani CAPRAZ-MODEL uyari (GOLGE MOD):", ders, konu, caprazSonuc.bulgular);
 
     const sonuc = await sql`
       INSERT INTO ders_plani (ogretmen_id, ders, sinif, unite, ogrenme_ciktisi, icerik_json, onay_durumu, kalite_kontrol)

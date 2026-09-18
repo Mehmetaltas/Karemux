@@ -1,4 +1,4 @@
-import { aiCagir } from "@/lib/ai";
+import { aiCagirDetay, ikinciGorusAl } from "@/lib/ai";
 import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { sql } from "@/lib/db";
@@ -74,7 +74,7 @@ SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska 
 
 soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
 
-    const cevap = await aiCagir({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
+    const { metin: cevap, saglayici } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
     const paket = jsonAyikla(cevap);
 
     if (!paket.anlatim || !Array.isArray(paket.soruHavuzu) || paket.soruHavuzu.length === 0) {
@@ -89,6 +89,11 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
     const detKontrol = deterministikKontrolYap(paket.soruHavuzu || []);
     if (!detKontrol.uyumlu) console.warn("konu_paketi DETERMINISTIK uyari (GOLGE MOD):", ders, konu, detKontrol.uyarilar);
+
+    // Katman 3 - capraz-model dogrulama (GOLGE MOD, sadece log, engellemez, hic throw etmez)
+    const soruOzeti = JSON.stringify((paket.soruHavuzu || []).map((s) => ({ soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex })));
+    const caprazSonuc = await ikinciGorusAl(saglayici, soruOzeti);
+    if (caprazSonuc?.hataVarMi) console.warn("konu_paketi CAPRAZ-MODEL uyari (GOLGE MOD):", ders, konu, caprazSonuc.bulgular);
 
     // 3. Cache'e kaydet (basit metin alani icin anlatim.temelAnlatim kullanilir)
     // Kalite kontrolunden gecemeyen paketler 'bekliyor' olarak isaretlenir -
