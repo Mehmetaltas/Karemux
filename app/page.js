@@ -2124,13 +2124,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: hesap objesi degil sadece hesap.eposta takip ediliyor (referans degisimi tetiklemesin)
   }, [mod, hesap?.eposta]);
 
+  // Yerlestirme sinavi - yeni gelen ogrencinin GERCEK giris sinifina gore
+  // ONCEKI yillarin temel konularini tarar (18 Eylul, genisletildi): 5.sinifa
+  // giren icin sadece 4, 8.sinifa giren icin 4-5-6-7. Konu sayisi 30 sinirini
+  // (olustur/route.js) asmamak icin, sinif araligi buyudukce unite-basina-secim
+  // otomatik azalir (toplam ~24 konuda sabit kalir).
   function seviyeTestKonulariniSec() {
     const dersler = ["Matematik", "Turkce", "Fen Bilimleri", "Sosyal Bilgiler"];
+    const girisSinifi = Number(sinif) || 5;
+    const kaynakSiniflar = [];
+    for (let s = 4; s < girisSinifi; s++) kaynakSiniflar.push(s);
+    if (kaynakSiniflar.length === 0) kaynakSiniflar.push(4);
+    const uniteBasinaSecim = Math.max(1, Math.floor(6 / kaynakSiniflar.length));
     const konular = [];
     for (const ders of dersler) {
-      for (const kaynakSinif of [4, 5]) {
+      for (const kaynakSinif of kaynakSiniflar) {
         const uniteler = MUFREDAT_DIGER_SINIFLAR[`${kaynakSinif}::${ders}`] || [];
-        const secilenler = [...uniteler].sort(() => Math.random() - 0.5).slice(0, 2);
+        const secilenler = [...uniteler].sort(() => Math.random() - 0.5).slice(0, uniteBasinaSecim);
         for (const u of secilenler) konular.push({ ders, unite: u, sinif: kaynakSinif });
       }
     }
