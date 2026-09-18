@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { personelAdminMi } from "@/lib/personel";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
-import { paketKaliteKontrol } from "@/app/api/konu-paketi/route";
+import { kaliteKontrolYap } from "@/lib/kalite-motoru";
 
 // Tutarlilik Denetimi (14 Eylul) - "Ingilizce'nin tek-seviyeli kaldigi
 // fark edilmeden kalmasi" turunden zafiyetlerin OTOMATIK yakalanmasi icin.
@@ -61,7 +61,7 @@ export async function GET(req) {
       WHERE icerik_turu = 'konu_paketi'
     `;
     for (const kp of konuPaketleri) {
-      const sonuc = paketKaliteKontrol(kp.icerik_json);
+      const sonuc = kaliteKontrolYap("konu_paketi", kp.icerik_json);
       if (!sonuc.gecti) {
         bulgular.push({
           tur: "konu_paketi_kalite_sorunu",

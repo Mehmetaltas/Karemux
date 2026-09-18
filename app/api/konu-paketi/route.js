@@ -1,4 +1,5 @@
 import { aiCagir } from "@/lib/ai";
+import { kaliteKontrolYap } from "@/lib/kalite-motoru";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { resendIstemcisi } from "@/lib/email";
@@ -21,34 +22,6 @@ function jsonAyikla(cevap) {
 // ogrenciye gostermeyi durdurmaz) - admin'in gorebilecegi bir "uyarilar"
 // listesi olusturur. Ileride bu liste admin panelde goruntulenip
 // ogretmen onayina cikacak.
-export function paketKaliteKontrol(paket) {
-  const uyarilar = [];
-  const yabanciKarakter = /[一-鿿؀-ۿЀ-ӿऀ-ॿ฀-๿֐-׿]/;
-
-  const anlatimAlanlari = ["hizliOgren", "temelAnlatim", "derinAnlatim", "yeniNesilUygulama"];
-  for (const alan of anlatimAlanlari) {
-    const metin = paket.anlatim?.[alan] || "";
-    if (yabanciKarakter.test(metin)) uyarilar.push(`anlatim.${alan}: yabanci karakter tespit edildi`);
-  }
-  if ((paket.anlatim?.temelAnlatim || "").length < 80) uyarilar.push("anlatim.temelAnlatim: cok kisa (80 karakterden az)");
-  if ((paket.anlatim?.derinAnlatim || "").length < 80) uyarilar.push("anlatim.derinAnlatim: cok kisa (80 karakterden az)");
-
-  const havuz = paket.soruHavuzu || [];
-  if (havuz.length !== 15) uyarilar.push(`soruHavuzu: ${havuz.length} soru var, 15 bekleniyordu`);
-  const soruMetinleri = new Set();
-  havuz.forEach((s, i) => {
-    if (!Array.isArray(s.secenekler) || s.secenekler.length !== 4) uyarilar.push(`soruHavuzu[${i}]: secenekler 4 degil`);
-    if (typeof s.dogruIndex !== "number" || s.dogruIndex < 0 || s.dogruIndex > 3) uyarilar.push(`soruHavuzu[${i}]: dogruIndex gecersiz`);
-    if (yabanciKarakter.test(s.soru || "")) uyarilar.push(`soruHavuzu[${i}]: yabanci karakter`);
-    if (soruMetinleri.has(s.soru)) uyarilar.push(`soruHavuzu[${i}]: tekrarlanan soru metni`);
-    soruMetinleri.add(s.soru);
-  });
-
-  const odev = paket.odevSorulari || [];
-  if (odev.length !== 6) uyarilar.push(`odevSorulari: ${odev.length} soru var, 6 bekleniyordu`);
-
-  return { gecti: uyarilar.length === 0, uyarilar };
-}
 
 export async function GET(req) {
   try {
@@ -113,7 +86,7 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     }
 
     // 2.5 Kalite Kontrolu - uretimi ENGELLEMEZ, sadece isaretler
-    const kaliteSonucu = paketKaliteKontrol(paket);
+    const kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
     paket.kaliteKontrol = kaliteSonucu;
     if (!kaliteSonucu.gecti) console.warn("konu_paketi kalite uyarisi:", ders, konu, kaliteSonucu.uyarilar);
 

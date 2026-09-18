@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { ogretmenCoz } from "@/lib/ogretmen";
 import { aiCagir } from "@/lib/ai";
+import { kaliteKontrolYap } from "@/lib/kalite-motoru";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 export const maxDuration = 60;
@@ -17,19 +18,6 @@ function jsonAyikla(cevap) {
 
 // Programatik kalite kontrolu (konu-paketi'ndeki paketKaliteKontrol ile AYNI
 // ilke - AI'siz, hizli, uretimi ENGELLEMEZ, sadece isaretler).
-function planKaliteKontrol(plan) {
-  const uyarilar = [];
-  const yabanciKarakter = /[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]/;
-  const zorunluAlanlar = ["ogrenmeCiktisi", "onKosul", "dersAnlatimi", "etkinlik", "gelistir", "derinlestir", "soruSeti", "olcme"];
-  for (const alan of zorunluAlanlar) {
-    if (!plan[alan]) { uyarilar.push(`${alan} alani eksik`); continue; }
-    const metin = typeof plan[alan] === "string" ? plan[alan] : JSON.stringify(plan[alan]);
-    if (yabanciKarakter.test(metin)) uyarilar.push(`${alan}: yabanci karakter tespit edildi`);
-    if (typeof plan[alan] === "string" && plan[alan].length < 40) uyarilar.push(`${alan}: cok kisa`);
-  }
-  if (!Array.isArray(plan.soruSeti) || plan.soruSeti.length < 5) uyarilar.push(`soruSeti: yetersiz sayida soru (${plan.soruSeti?.length || 0})`);
-  return { gecti: uyarilar.length === 0, uyarilar };
-}
 
 export async function POST(req) {
   const ogretmen = await ogretmenCoz(req);
@@ -63,7 +51,7 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     const cevap = await aiCagir({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
     const plan = jsonAyikla(cevap);
 
-    const kaliteSonucu = planKaliteKontrol(plan);
+    const kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
     const onayDurumu = kaliteSonucu.gecti ? "taslak" : "bekliyor";
 
     const sonuc = await sql`
