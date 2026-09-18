@@ -5784,7 +5784,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
               <p style={{ fontSize: 22, marginBottom: 4 }}>🎯</p>
               <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Seviye Tespit Sinavi</p>
-              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>4. ve 5. sinif konularindan karisik bir sinav - eksiklerini bulup tamamlamana yardimci olur.</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>{Number(sinif) > 5 ? `4. sınıftan ${Number(sinif) - 1}. sınıfa kadar konulardan karışık bir sınav` : "4. sınıf konularından karışık bir sınav"} - eksiklerini bulup tamamlamana yardımcı olur.</p>
             </div>
 
             {!seviyeTestSorulari && !seviyeTestSonuc && (
@@ -5843,7 +5843,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <div className="kx-fadein" style={{ background: COLORS.gradient, borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
               <p style={{ fontSize: 22, marginBottom: 4 }}>📶</p>
               <p style={{ color: COLORS.page, fontWeight: 700, fontSize: 16 }}>Seviye Tamamlama</p>
-              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Seviye tespit sinavinda zayif cikan konularin - 5. sinifla paralel tamamlanir.</p>
+              <p style={{ color: "#B7C4BC", fontSize: 12, marginTop: 4 }}>Seviye tespit sınavında zayıf çıkan konuların {sinif}. sınıfla paralel tamamlanır.</p>
             </div>
 
             {!seviyeDurum ? (
