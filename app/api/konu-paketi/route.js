@@ -65,7 +65,7 @@ SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska 
     "yeniNesilUygulama": "gercek bir yeni nesil LGS tarzi problemde bu bilginin nasil kullanilacagini gosteren somut ornek, 120-150 kelime"
   },
   "soruHavuzu": [
-    {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi", "kontrolIfadesi":"SADECE sonucu TEK BIR SAYI olan sorularda: cevabi veren, degisken (x/y/a harfleri) ICERMEYEN, TAMAMEN SAYISAL bir ifade (orn. 3^2*3^4 veya 20*22). Cebirsel/degiskenli sorularda (ozdeslik, carpanlara ayirma, denklem) BOS STRING birak - bu alan SADECE nihai sayisal cevabi dogrulamak icindir"}
+    {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi", "kontrolIfadesi":"Sorunun cevabi TEK BIR SAYI ise (sozel problem OLSA BILE), cevabi veren TAMAMEN SAYISAL bir ifade yaz (orn. 3^2*3^4 veya 20*22). SADECE cevap harfli/degiskenli (x/y/a iceren) ise BOS STRING birak - sozel olmasi onu ATLAMA nedeni DEGILDIR"}
   ],
   "odevSorulari": [
     {"soru":"...", "cozum":"adim adim detayli cozum metni"}
