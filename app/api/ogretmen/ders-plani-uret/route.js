@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { ogretmenCoz } from "@/lib/ogretmen";
 import { aiCagir } from "@/lib/ai";
 import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
+import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 export const maxDuration = 60;
@@ -10,11 +11,6 @@ export const maxDuration = 60;
 // TEK AI cagrisiyla tam zincir uretir: Ogrenme Ciktisi -> On Kosul ->
 // Ders Anlatimi -> Etkinlik -> Gelistir -> Derinlestir -> Soru Seti -> Olcme.
 // "Kazanim" degil "Ogrenme Ciktisi" (Maarif Modeli resmi terminolojisi).
-
-function jsonAyikla(cevap) {
-  const temiz = cevap.replace(/```json|```/g, "").trim();
-  return JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
-}
 
 // Programatik kalite kontrolu (konu-paketi'ndeki paketKaliteKontrol ile AYNI
 // ilke - AI'siz, hizli, uretimi ENGELLEMEZ, sadece isaretler).

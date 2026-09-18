@@ -1,5 +1,6 @@
 import { aiCagir } from "@/lib/ai";
 import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
+import { jsonAyikla } from "@/lib/json-ayikla";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { resendIstemcisi } from "@/lib/email";
@@ -10,11 +11,6 @@ import { resendIstemcisi } from "@/lib/email";
 // konuAnlat()/soruUret() akislarini BOZMAZ - onlar hala calisiyor, bu
 // SADECE yeni, paralel bir yol. Once buradan test edilip kanitlanacak,
 // sonra frontend kademeli olarak buna baglanacak (fallback korunarak).
-
-function jsonAyikla(cevap) {
-  const temiz = cevap.replace(/```json|```/g, "").trim();
-  return JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
-}
 
 // Kalite Kontrol Motoru - Adim 1 (16 Eylul, programatik/AI'siz, hizli ve
 // ucretsiz kontroller). Master plandaki "AI->QC->Ogretmen->Onay->Yayin"
