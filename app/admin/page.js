@@ -113,7 +113,7 @@ export default function YonetimPaneli() {
   }
   const [girisYapildi, setGirisYapildi] = useState(false);
   const [sekme, setSekme] = useState("genel");
-  const [tema, setTemaState] = useState("orman");
+  const [tema, setTemaState] = useState("minimal");
   const [menuAcik, setMenuAcik] = useState(false);
   const [cikisToastGoster, setCikisToastGoster] = useState(false);
 

@@ -225,7 +225,7 @@ function MateryalUreticisi({ tur, dersVarsayilan }) {
 }
 
 export default function OgretmenPanel() {
-  const [tema, setTema] = useState("orman");
+  const [tema, setTema] = useState("minimal");
   useEffect(() => { const t = temaOku("minimal"); temayiUygula(t); setTema(t); }, []);
   function temaSec(t) { temayiUygula(t); temaKaydet(t); setTema(t); }
   const [ogretmen, setOgretmen] = useState(null);
