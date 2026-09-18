@@ -81,7 +81,8 @@ SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska 
 soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
 
     const { metin: cevap, saglayici } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
-    const paket = jsonAyikla(cevap);
+    let paket = jsonAyikla(cevap);
+    let uretimSaglayicisi = saglayici;
 
     if (!paket.anlatim || !Array.isArray(paket.soruHavuzu) || paket.soruHavuzu.length === 0) {
       return Response.json({ error: "Paket uretilemedi, tekrar dene" }, { status: 500 });
@@ -98,11 +99,28 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
 
     // Katman 3 - capraz-model dogrulama (GOLGE MOD, sadece log, engellemez, hic throw etmez)
     const soruOzeti = JSON.stringify((paket.soruHavuzu || []).map((s) => ({ soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex })));
-    const caprazSonuc = await ikinciGorusAl(saglayici, soruOzeti);
+    const caprazSonuc = await ikinciGorusAl(uretimSaglayicisi, soruOzeti);
     if (caprazSonuc?.hataVarMi) console.warn("konu_paketi CAPRAZ-MODEL uyari (GOLGE MOD):", ders, konu, caprazSonuc.bulgular);
 
     // Katman 4 - mufredat sinir kontrolu (GOLGE MOD, sadece log, engellemez)
-    const mufredatSonuc = mufredatSinirKontrolYap(ders);
+    let mufredatSonuc = mufredatSinirKontrolYap(ders, paket.soruHavuzu || []);
+    if (!mufredatSonuc.gecti && mufredatSonuc.uyarilar.some((u) => u.includes("yapay matematik"))) {
+      console.warn("konu_paketi MUFREDAT-SINIR ihlali, YENIDEN URETILIYOR:", ders, konu, mufredatSonuc.uyarilar);
+      try {
+        const duzelticiP = p + `
+
+ONEMLI DUZELTME: Onceki uretimde sorularin bazilarinda YANLISLIKLA matematik/finansal hesaplama (yuzde/butce/TL gibi) yer aldi - bu, "${ders}" dersinin kazanimlarina AYKIRI. SORULARIN HICBIRINDE sayisal hesaplama/yuzde/para birimi OLMASIN, sadece bu dersin dogal konusuna uygun olgusal/analiz sorulari sor.`;
+        const yeniden = await aiCagirDetay({ prompt: duzelticiP, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
+        const yeniPaket = jsonAyikla(yeniden.metin);
+        if (yeniPaket.anlatim && Array.isArray(yeniPaket.soruHavuzu) && yeniPaket.soruHavuzu.length > 0) {
+          paket = yeniPaket;
+          uretimSaglayicisi = yeniden.saglayici;
+          mufredatSonuc = mufredatSinirKontrolYap(ders, paket.soruHavuzu || []);
+        }
+      } catch (e) {
+        console.error("konu_paketi yeniden uretim basarisiz, ilk sonuc kullaniliyor:", e.message);
+      }
+    }
     if (!mufredatSonuc.gecti) console.warn("konu_paketi MUFREDAT-SINIR uyari (GOLGE MOD):", ders, konu, mufredatSonuc.uyarilar);
 
     // 3. Cache'e kaydet (basit metin alani icin anlatim.temelAnlatim kullanilir)

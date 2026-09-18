@@ -54,7 +54,29 @@ SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda
 soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
 
     const { metin: cevap, saglayici } = await aiCagirDetay({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
-    const plan = jsonAyikla(cevap);
+    let plan = jsonAyikla(cevap);
+    let uretimSaglayicisi = saglayici;
+
+    // Katman 4 - mufredat sinir kontrolu ONCE calisir (hizli, ucuz). Sayisal
+    // olmayan derste yapay matematik sorusu bulunursa, TEK SEFER duzeltici
+    // talimatla YENIDEN URETILIR - kendi kendini onaran ilk somut ornek
+    // (18 Eylul, kullanici talebiyle GERCEKTEN duzeltici, sadece log degil).
+    let mufredatSonuc = mufredatSinirKontrolYap(ders, plan.soruSeti || []);
+    if (!mufredatSonuc.gecti && mufredatSonuc.uyarilar.some((u) => u.includes("yapay matematik"))) {
+      console.warn("ders_plani MUFREDAT-SINIR ihlali, YENIDEN URETILIYOR:", ders, konu, mufredatSonuc.uyarilar);
+      try {
+        const duzelticiP = p + `
+
+ONEMLI DUZELTME: Onceki uretimde sorularin bazilarinda YANLISLIKLA matematik/finansal hesaplama (yuzde/butce/TL gibi) yer aldi - bu, "${ders}" dersinin kazanimlarina AYKIRI. SORULARIN HICBIRINDE sayisal hesaplama/yuzde/para birimi OLMASIN, sadece bu dersin dogal konusuna uygun olgusal/analiz sorulari sor.`;
+        const yeniden = await aiCagirDetay({ prompt: duzelticiP, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
+        plan = jsonAyikla(yeniden.metin);
+        uretimSaglayicisi = yeniden.saglayici;
+        mufredatSonuc = mufredatSinirKontrolYap(ders, plan.soruSeti || []);
+      } catch (e) {
+        console.error("ders_plani yeniden uretim basarisiz, ilk sonuc kullaniliyor:", e.message);
+      }
+    }
+    if (!mufredatSonuc.gecti) console.warn("ders_plani MUFREDAT-SINIR uyari (GOLGE MOD, kalici):", ders, konu, mufredatSonuc.uyarilar);
 
     const kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
     const onayDurumu = kaliteSonucu.gecti ? "taslak" : "bekliyor";
@@ -65,12 +87,8 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
 
     // Katman 3 - capraz-model dogrulama (GOLGE MOD, sadece log, engellemez, hic throw etmez)
     const soruOzeti = JSON.stringify((plan.soruSeti || []).map((s) => ({ soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex })));
-    const caprazSonuc = await ikinciGorusAl(saglayici, soruOzeti);
+    const caprazSonuc = await ikinciGorusAl(uretimSaglayicisi, soruOzeti);
     if (caprazSonuc?.hataVarMi) console.warn("ders_plani CAPRAZ-MODEL uyari (GOLGE MOD):", ders, konu, caprazSonuc.bulgular);
-
-    // Katman 4 - mufredat sinir kontrolu (GOLGE MOD, sadece log, engellemez)
-    const mufredatSonuc = mufredatSinirKontrolYap(ders);
-    if (!mufredatSonuc.gecti) console.warn("ders_plani MUFREDAT-SINIR uyari (GOLGE MOD):", ders, konu, mufredatSonuc.uyarilar);
 
     const sonuc = await sql`
       INSERT INTO ders_plani (ogretmen_id, ders, sinif, unite, ogrenme_ciktisi, icerik_json, onay_durumu, kalite_kontrol)
