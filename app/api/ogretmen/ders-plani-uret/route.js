@@ -70,7 +70,7 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     `;
 
     // Katman 5 - 4 katmanin sonuclarini kalici tabloya kaydet (GOLGE MOD, ates-et-unut)
-    kaliteLoglariniKaydet("ders_plani", sonuc[0].id, [
+    await kaliteLoglariniKaydet("ders_plani", sonuc[0].id, [
       { katman: "yapisal", gecti: kaliteSonucu.gecti, uyarilar: kaliteSonucu.uyarilar },
       { katman: "deterministik", gecti: detKontrol.uyumlu, uyarilar: detKontrol.uyarilar },
       { katman: "capraz_model", gecti: !caprazSonuc?.hataVarMi, uyarilar: caprazSonuc?.bulgular || [] },

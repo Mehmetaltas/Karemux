@@ -110,7 +110,7 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
         RETURNING id
       `;
       // Katman 5 - 4 katmanin sonuclarini kalici tabloya kaydet (GOLGE MOD, ates-et-unut)
-      kaliteLoglariniKaydet("icerik_onbellek", cacheSonuc[0].id, [
+      await kaliteLoglariniKaydet("icerik_onbellek", cacheSonuc[0].id, [
         { katman: "yapisal", gecti: kaliteSonucu.gecti, uyarilar: kaliteSonucu.uyarilar },
         { katman: "deterministik", gecti: detKontrol.uyumlu, uyarilar: detKontrol.uyarilar },
         { katman: "capraz_model", gecti: !caprazSonuc?.hataVarMi, uyarilar: caprazSonuc?.bulgular || [] },
