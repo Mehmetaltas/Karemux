@@ -1,5 +1,5 @@
 import { aiCagirDetay, ikinciGorusAl } from "@/lib/ai";
-import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
+import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kaliteLoglariniKaydet } from "@/lib/kalite-motoru";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
@@ -95,15 +95,27 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     const caprazSonuc = await ikinciGorusAl(saglayici, soruOzeti);
     if (caprazSonuc?.hataVarMi) console.warn("konu_paketi CAPRAZ-MODEL uyari (GOLGE MOD):", ders, konu, caprazSonuc.bulgular);
 
+    // Katman 4 - mufredat sinir kontrolu (GOLGE MOD, sadece log, engellemez)
+    const mufredatSonuc = mufredatSinirKontrolYap(ders);
+    if (!mufredatSonuc.gecti) console.warn("konu_paketi MUFREDAT-SINIR uyari (GOLGE MOD):", ders, konu, mufredatSonuc.uyarilar);
+
     // 3. Cache'e kaydet (basit metin alani icin anlatim.temelAnlatim kullanilir)
     // Kalite kontrolunden gecemeyen paketler 'bekliyor' olarak isaretlenir -
     // ogretmen inceleme kuyruguna girer (16 Eylul, Quality Control Motoru adim 2).
     const onayDurumu = kaliteSonucu.gecti ? null : "bekliyor";
     try {
-      await sql`
+      const cacheSonuc = await sql`
         INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, icerik_json, kullanim_sayisi, olusturulma, son_kullanim, onay_durumu)
         VALUES (${Number(sinif)}, ${ders}, ${unite}, ${konu}, '', 'konu_paketi', ${paket.anlatim.temelAnlatim || ""}, ${JSON.stringify(paket)}, 1, now(), now(), ${onayDurumu})
+        RETURNING id
       `;
+      // Katman 5 - 4 katmanin sonuclarini kalici tabloya kaydet (GOLGE MOD, ates-et-unut)
+      kaliteLoglariniKaydet("icerik_onbellek", cacheSonuc[0].id, [
+        { katman: "yapisal", gecti: kaliteSonucu.gecti, uyarilar: kaliteSonucu.uyarilar },
+        { katman: "deterministik", gecti: detKontrol.uyumlu, uyarilar: detKontrol.uyarilar },
+        { katman: "capraz_model", gecti: !caprazSonuc?.hataVarMi, uyarilar: caprazSonuc?.bulgular || [] },
+        { katman: "mufredat_sinir", gecti: mufredatSonuc.gecti, uyarilar: mufredatSonuc.uyarilar },
+      ]);
     } catch (e) { console.error("konu_paketi cache yazilamadi:", e); }
 
     // Isaretlenen paket icin eslesen branstaki ogretmen(ler)e bildirim gonder

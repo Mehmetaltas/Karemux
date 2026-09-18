@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { ogretmenCoz } from "@/lib/ogretmen";
 import { aiCagirDetay, ikinciGorusAl } from "@/lib/ai";
-import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
+import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kaliteLoglariniKaydet } from "@/lib/kalite-motoru";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
@@ -59,11 +59,23 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     const caprazSonuc = await ikinciGorusAl(saglayici, soruOzeti);
     if (caprazSonuc?.hataVarMi) console.warn("ders_plani CAPRAZ-MODEL uyari (GOLGE MOD):", ders, konu, caprazSonuc.bulgular);
 
+    // Katman 4 - mufredat sinir kontrolu (GOLGE MOD, sadece log, engellemez)
+    const mufredatSonuc = mufredatSinirKontrolYap(ders);
+    if (!mufredatSonuc.gecti) console.warn("ders_plani MUFREDAT-SINIR uyari (GOLGE MOD):", ders, konu, mufredatSonuc.uyarilar);
+
     const sonuc = await sql`
       INSERT INTO ders_plani (ogretmen_id, ders, sinif, unite, ogrenme_ciktisi, icerik_json, onay_durumu, kalite_kontrol)
       VALUES (${ogretmen.id}, ${ders}, ${Number(sinif)}, ${unite || ""}, ${plan.ogrenmeCiktisi || konu}, ${JSON.stringify(plan)}, ${onayDurumu}, ${JSON.stringify(kaliteSonucu)})
       RETURNING id
     `;
+
+    // Katman 5 - 4 katmanin sonuclarini kalici tabloya kaydet (GOLGE MOD, ates-et-unut)
+    kaliteLoglariniKaydet("ders_plani", sonuc[0].id, [
+      { katman: "yapisal", gecti: kaliteSonucu.gecti, uyarilar: kaliteSonucu.uyarilar },
+      { katman: "deterministik", gecti: detKontrol.uyumlu, uyarilar: detKontrol.uyarilar },
+      { katman: "capraz_model", gecti: !caprazSonuc?.hataVarMi, uyarilar: caprazSonuc?.bulgular || [] },
+      { katman: "mufredat_sinir", gecti: mufredatSonuc.gecti, uyarilar: mufredatSonuc.uyarilar },
+    ]);
 
     return Response.json({ ok: true, id: sonuc[0].id, plan, kaliteSonucu });
   } catch (e) {
