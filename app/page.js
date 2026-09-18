@@ -2187,12 +2187,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
-  async function seviyeKademeIlerlet(kademeId, basariliMi) {
+  async function seviyeKademeIlerlet(kademeId, onaySinaviId, cevaplar) {
     setSeviyeKademeIslemde(kademeId); setHata("");
     try {
+      const govde = { cihazId: cihazIdRef.current, kademeId };
+      if (onaySinaviId) { govde.onaySinaviId = onaySinaviId; govde.cevaplar = cevaplar; }
       const res = await fetch("/api/seviye-tespit/kademe-ilerlet", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, kademeId, basariliMi }),
+        body: JSON.stringify(govde),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -2206,16 +2208,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  // Onay testi (kademe 3) - dogru cevaplar ARTIK istemciye HIC gonderilmiyor
+  // (18 Eylul, gercek acik kapatildi) - /api/seviye-tespit/onay-sinavi-olustur
+  // sorulari cevapsiz doner, degerlendirme SUNUCUDA (kademe-ilerlet icinde) yapilir.
   async function seviyeOnayTestiBaslat(u) {
     setSeviyeOnayAktifKademe(u.id); setSeviyeOnayCevaplar({}); setHata("");
     try {
-      const res = await fetch("/api/seviye-tespit/olustur", {
+      const res = await fetch("/api/seviye-tespit/onay-sinavi-olustur", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ konular: [{ ders: u.ders, unite: u.unite, sinif: u.kaynak_sinif }, { ders: u.ders, unite: u.unite, sinif: u.kaynak_sinif }, { ders: u.ders, unite: u.unite, sinif: u.kaynak_sinif }] }),
+        body: JSON.stringify({ cihazId: cihazIdRef.current, kademeId: u.id }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setSeviyeOnayTest({ kademeId: u.id, sorular: data.sorular });
+      setSeviyeOnayTest({ kademeId: u.id, onaySinaviId: data.onaySinaviId, sorular: data.sorular });
     } catch (e) {
       setHata(temizHataMesaji(e, "Onay testi olusturulamadi."));
       setSeviyeOnayAktifKademe(null);
@@ -2224,9 +2229,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   function seviyeOnayTestiDegerlendir() {
     if (!seviyeOnayTest) return;
-    const dogruSayisi = seviyeOnayTest.sorular.filter((s, i) => seviyeOnayCevaplar[i] === s.dogruIndex).length;
-    const basariliMi = dogruSayisi >= 2;
-    seviyeKademeIlerlet(seviyeOnayTest.kademeId, basariliMi);
+    const cevapDizisi = seviyeOnayTest.sorular.map((_, i) => seviyeOnayCevaplar[i]);
+    seviyeKademeIlerlet(seviyeOnayTest.kademeId, seviyeOnayTest.onaySinaviId, cevapDizisi);
   }
 
   const [seviyeKonuAcikId, setSeviyeKonuAcikId] = useState(null);
