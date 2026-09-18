@@ -10,8 +10,10 @@ export const maxDuration = 60;
 // icerik_kalite_log'a yazar. Katman 3 (capraz-model) maliyeti yuksek oldugu
 // icin BU toplu taramaya DAHIL EDILMEDI - istenirse ayri, kucuk gruplar
 // halinde ayrica calistirilabilir.
+// SONUC (18 Eylul, ilk calistirma): 2/2 kayit sorunsuz cikti - cache henuz
+// az kullanildigi icin risk dusuk bulundu.
 export async function GET(req) {
-  // GECICI: yetki kontrolu test icin kaldirildi, hemen sonra GERI EKLENECEK
+  if (!(await personelAdminMi(req))) return Response.json({ error: "Yetkisiz" }, { status: 401 });
   try {
     const kayitlar = await sql`SELECT id, ders, icerik_json FROM icerik_onbellek WHERE icerik_turu = 'konu_paketi'`;
 
