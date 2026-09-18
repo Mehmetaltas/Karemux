@@ -60,7 +60,7 @@ SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda
 
 soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
 
-    const cevap = await aiCagir({ prompt: p, maxTokens: 6000, jsonModu: true, tur: "ders_plani" });
+    const cevap = await aiCagir({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
     const plan = jsonAyikla(cevap);
 
     const kaliteSonucu = planKaliteKontrol(plan);
