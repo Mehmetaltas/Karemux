@@ -45,6 +45,12 @@ export async function GET(req) {
 
     // 2. Tek AI cagrisiyla TAM paket uretimi
     const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
+    // kontrolIfadesi (Katman 2/deterministik dogrulama) SADECE Matematik'te
+    // isteniyor (18 Eylul, kullanici karari) - Fen dahil diger derslerde
+    // yapay sayisal soru uretme guduusu olusmasin diye hic bahsi gecmiyor.
+    const kontrolIfadesiTalimati = ders === "Matematik"
+      ? `, "kontrolIfadesi":"Sorunun cevabi TEK BIR SAYI ise (sozel problem OLSA BILE), cevabi veren TAMAMEN SAYISAL bir ifade yaz (orn. 3^2*3^4 veya 20*22). SADECE cevap harfli/degiskenli (x/y/a iceren) ise BOS STRING birak"`
+      : "";
     const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin, ${sinif}. sinif seviyesinde TAM bir konu paketi hazirla.
 
 SESIN COK ONEMLI: Bu bir DERS KITABI DEGIL, gercek bir ogretmenin sinifta/ozel derste, karsisindaki TEK BIR ogrenciyle yaptigi CANLI bir diyalog. "Once X hesaplanir" gibi SOGUK cumleleri KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun.
@@ -65,7 +71,7 @@ SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska 
     "yeniNesilUygulama": "gercek bir yeni nesil LGS tarzi problemde bu bilginin nasil kullanilacagini gosteren somut ornek, 120-150 kelime"
   },
   "soruHavuzu": [
-    {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi", "kontrolIfadesi":"Sorunun cevabi TEK BIR SAYI ise (sozel problem OLSA BILE), cevabi veren TAMAMEN SAYISAL bir ifade yaz (orn. 3^2*3^4 veya 20*22). SADECE cevap harfli/degiskenli (x/y/a iceren) ise BOS STRING birak - sozel olmasi onu ATLAMA nedeni DEGILDIR"}
+    {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"${kontrolIfadesiTalimati}}
   ],
   "odevSorulari": [
     {"soru":"...", "cozum":"adim adim detayli cozum metni"}
