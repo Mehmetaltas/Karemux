@@ -428,6 +428,7 @@ function DersPlaniUret() {
   const [hata, setHata] = useState("");
   const [gecmis, setGecmis] = useState(null);
   const [acikPlanId, setAcikPlanId] = useState(null);
+  const [planCevapGoster, setPlanCevapGoster] = useState(true);
 
   useEffect(() => {
     fetch("/api/ogretmen/ders-planlarim").then((r) => r.json()).then((d) => setGecmis(d.planlar || []));
@@ -450,7 +451,7 @@ function DersPlaniUret() {
     setUretiliyor(false);
   }
 
-  function PlanGoster({ plan }) {
+  function PlanGoster({ plan, cevapGoster = true }) {
     const bolumler = [
       ["🎯 Öğrenme Çıktısı", plan.ogrenmeCiktisi],
       ["📌 Ön Koşul Bilgileri", plan.onKosul],
@@ -461,7 +462,8 @@ function DersPlaniUret() {
       ["📊 Ölçme", plan.olcme],
     ];
     return (
-      <div>
+      <div className="yazdir-alani" style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 16 }}>
+        <YazdirmaBasligi />
         {bolumler.map(([baslik, metin], i) => (
           <div key={i} style={{ marginBottom: 12 }}>
             <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 4 }}>{baslik}</p>
@@ -473,10 +475,11 @@ function DersPlaniUret() {
           <div key={i} style={{ background: "#fff", borderRadius: 8, border: "1px solid #E5DFD3", padding: 10, marginBottom: 6 }}>
             <p style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4 }}>{i + 1}. {s.soru}</p>
             {(s.secenekler || []).map((sec, j) => (
-              <p key={j} style={{ fontSize: 12, color: j === s.dogruIndex ? "#2AAE7F" : "#555", fontWeight: j === s.dogruIndex ? 700 : 400 }}>{sec}{j === s.dogruIndex ? " ✓" : ""}</p>
+              <p key={j} style={{ fontSize: 12, color: cevapGoster && j === s.dogruIndex ? "#2AAE7F" : "#555", fontWeight: cevapGoster && j === s.dogruIndex ? 700 : 400 }}>{sec}{cevapGoster && j === s.dogruIndex ? " ✓" : ""}</p>
             ))}
           </div>
         ))}
+        <YazdirmaAltligi />
       </div>
     );
   }
@@ -485,8 +488,14 @@ function DersPlaniUret() {
     const p = gecmis?.find((x) => x.id === acikPlanId);
     return (
       <div>
-        <button onClick={() => setAcikPlanId(null)} style={{ marginBottom: 12, padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>← Geri</button>
-        {p && <PlanGoster plan={p.icerik_json} />}
+        <div className="yazdirma-disi" style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+          <button onClick={() => setAcikPlanId(null)} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>← Geri</button>
+          <button onClick={() => setPlanCevapGoster(!planCevapGoster)} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: planCevapGoster ? "#FEF8E8" : "#fff", fontSize: 12, cursor: "pointer" }}>
+            {planCevapGoster ? "✓ Cevap Anahtarı Görünüyor" : "Öğrenci Kopyası (Cevapsız)"}
+          </button>
+          <button onClick={() => window.print()} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>🖨️ Yazdır/PDF</button>
+        </div>
+        {p && <PlanGoster plan={p.icerik_json} cevapGoster={planCevapGoster} />}
       </div>
     );
   }
@@ -510,7 +519,13 @@ function DersPlaniUret() {
       {hata && <p style={{ color: "#E8503F", fontSize: 12.5, marginBottom: 12 }}>{hata}</p>}
       {sonucPlan && (
         <div style={{ background: "#F7F4EC", borderRadius: 10, padding: 14, marginBottom: 20 }}>
-          <PlanGoster plan={sonucPlan} />
+          <div className="yazdirma-disi" style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+            <button onClick={() => setPlanCevapGoster(!planCevapGoster)} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: planCevapGoster ? "#FEF8E8" : "#fff", fontSize: 12, cursor: "pointer" }}>
+              {planCevapGoster ? "✓ Cevap Anahtarı Görünüyor" : "Öğrenci Kopyası (Cevapsız)"}
+            </button>
+            <button onClick={() => window.print()} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12, cursor: "pointer" }}>🖨️ Yazdır/PDF</button>
+          </div>
+          <PlanGoster plan={sonucPlan} cevapGoster={planCevapGoster} />
         </div>
       )}
       <p style={{ fontWeight: 700, fontSize: 13, marginBottom: 8 }}>Geçmiş Planlarım</p>
