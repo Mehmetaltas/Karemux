@@ -1,5 +1,5 @@
 import { aiCagir } from "@/lib/ai";
-import { kaliteKontrolYap } from "@/lib/kalite-motoru";
+import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { resendIstemcisi } from "@/lib/email";
@@ -69,7 +69,7 @@ SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska 
     "yeniNesilUygulama": "gercek bir yeni nesil LGS tarzi problemde bu bilginin nasil kullanilacagini gosteren somut ornek, 120-150 kelime"
   },
   "soruHavuzu": [
-    {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"}
+    {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi", "kontrolIfadesi":"SADECE Matematik/Fen Bilimleri icin: sorunun cevabini veren TEMIZ bir matematik ifadesi (orn. \"3^2*3^4\" veya \"20*22\"), sayisal olmayan/hesaplanamayan sorularda BOS STRING birak"}
   ],
   "odevSorulari": [
     {"soru":"...", "cozum":"adim adim detayli cozum metni"}
@@ -89,6 +89,10 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     const kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
     paket.kaliteKontrol = kaliteSonucu;
     if (!kaliteSonucu.gecti) console.warn("konu_paketi kalite uyarisi:", ders, konu, kaliteSonucu.uyarilar);
+
+    // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
+    const detKontrol = deterministikKontrolYap(paket.soruHavuzu || []);
+    if (!detKontrol.uyumlu) console.warn("konu_paketi DETERMINISTIK uyari (GOLGE MOD):", ders, konu, detKontrol.uyarilar);
 
     // 3. Cache'e kaydet (basit metin alani icin anlatim.temelAnlatim kullanilir)
     // Kalite kontrolunden gecemeyen paketler 'bekliyor' olarak isaretlenir -

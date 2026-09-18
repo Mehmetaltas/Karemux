@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { ogretmenCoz } from "@/lib/ogretmen";
 import { aiCagir } from "@/lib/ai";
-import { kaliteKontrolYap } from "@/lib/kalite-motoru";
+import { kaliteKontrolYap, deterministikKontrolYap } from "@/lib/kalite-motoru";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 export const maxDuration = 60;
@@ -42,7 +42,7 @@ SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda
   "etkinlik": "sinif ici uygulanabilir, somut bir etkinlik tanimi (materyal+adimlar), 100-150 kelime",
   "gelistir": "TEMEL EKSIGI olan ogrenci icin: basitten karmasiga adim adim ornek + yanlis anlama tespiti + kisa tekrar onerisi, 120-150 kelime",
   "derinlestir": "OGRENMIS ogrenciyi ILERI tasimak icin: yeni nesil/coklu adimli problem + disiplinler arasi baglanti + acik uclu gorev onerisi, 120-150 kelime",
-  "soruSeti": [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}],
+  "soruSeti": [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","kontrolIfadesi":"SADECE Matematik/Fen Bilimleri icin: sorunun cevabini veren TEMIZ bir matematik ifadesi (orn. \"3^2*3^4\"), sayisal olmayan sorularda BOS STRING birak"}],
   "olcme": "bu ogrenme ciktisinin ne kadar kazanildigini olcmek icin somut bir degerlendirme yontemi (rubrik/kisa sinav/gozlem), 80-100 kelime"
 }
 
@@ -53,6 +53,10 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
 
     const kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
     const onayDurumu = kaliteSonucu.gecti ? "taslak" : "bekliyor";
+
+    // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
+    const detKontrol = deterministikKontrolYap(plan.soruSeti || []);
+    if (!detKontrol.uyumlu) console.warn("ders_plani DETERMINISTIK uyari (GOLGE MOD):", ders, konu, detKontrol.uyarilar);
 
     const sonuc = await sql`
       INSERT INTO ders_plani (ogretmen_id, ders, sinif, unite, ogrenme_ciktisi, icerik_json, onay_durumu, kalite_kontrol)
