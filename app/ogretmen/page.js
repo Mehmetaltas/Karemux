@@ -25,7 +25,7 @@ const MENU = [
   { kod: "soru-seti", ad: "✏️ Soru Seti Üret", hazir: true, tur: "soru_seti" },
   { kod: "yazili", ad: "🏫 Yazılı Üret (A/B)", hazir: true, tur: "yazili" },
   { kod: "fasikul", ad: "📖 Fasikül Üret", hazir: true, tur: "fasikul" },
-  { kod: "kazanim-testi", ad: "🎯 Kazanım Testi", hazir: true, tur: "kazanim_testi" },
+  { kod: "kazanim-testi", ad: "🎯 Öğrenme Çıktısı Testi", hazir: true, tur: "kazanim_testi" },
   { kod: "tekrar-paketi", ad: "🔄 Tekrar Paketi", hazir: true, tur: "tekrar_paketi" },
   { kod: "odev-paketi", ad: "📚 Ödev Paketi", hazir: true, tur: "odev_paketi" },
   { kod: "brans-denemesi", ad: "🏆 Branş Denemesi", hazir: true, tur: "brans_denemesi" },

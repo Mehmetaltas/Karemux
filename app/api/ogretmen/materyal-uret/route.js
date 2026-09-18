@@ -69,7 +69,7 @@ const TUR_TANIMLARI = {
   soru_seti: { baslik: "Soru Seti", soruSayisi: 10, aciklama: "sadece 10 soru (kolaydan zora sıralı) + cevap anahtarı", ciktiTipi: "sorular" },
   yazili: { baslik: "Yazılı (A Kitapçığı)", soruSayisi: 15, aciklama: "gerçek yazılı sınav formatında 15 soru + cevap anahtarı + zorluk dağılımı (%20 kolay, %55 orta, %25 zor)", ciktiTipi: "sorular" },
   fasikul: { baslik: "Fasikül", soruSayisi: 15, aciklama: "konu özeti + 15 soru (ilk 5 kolay, sonraki 5 orta, son 5 zor) + cevap anahtarı", ciktiTipi: "sorular" },
-  kazanim_testi: { baslik: "Kazanım Testi", soruSayisi: 8, aciklama: "tek bir kazanıma/alt konuya odaklı 8 soru + cevap anahtarı", ciktiTipi: "sorular" },
+  kazanim_testi: { baslik: "Öğrenme Çıktısı Testi", soruSayisi: 8, aciklama: "tek bir kazanıma/alt konuya odaklı 8 soru + cevap anahtarı", ciktiTipi: "sorular" },
   tekrar_paketi: { baslik: "Tekrar Paketi", soruSayisi: 12, aciklama: "konuyu farklı açılardan pekiştiren, karışık zorlukta 12 tekrar sorusu + cevap anahtarı", ciktiTipi: "sorular" },
   odev_paketi: { baslik: "Ödev Paketi", soruSayisi: 6, aciklama: "evde tek başına çözülebilecek, ACIK UCLU (coktan secmeli DEGIL) 6 soru + her biri icin adim adim detayli cozum", ciktiTipi: "acik_uclu" },
   brans_denemesi: { baslik: "Branş Denemesi", soruSayisi: 20, aciklama: "TÜM DERSİ (tek üniteyle sınırlı değil) kapsayan, gerçek sınav formatında 20 soru + cevap anahtarı + zorluk dağılımı", ciktiTipi: "sorular" },
