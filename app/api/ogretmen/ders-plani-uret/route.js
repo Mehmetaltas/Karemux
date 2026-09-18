@@ -3,6 +3,8 @@ import { ogretmenCoz } from "@/lib/ogretmen";
 import { aiCagir } from "@/lib/ai";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
+export const maxDuration = 60;
+
 // Ogretmen Akademi - Plan Motoru + Gelistir-Derinlestir Motoru (17 Eylul).
 // TEK AI cagrisiyla tam zincir uretir: Ogrenme Ciktisi -> On Kosul ->
 // Ders Anlatimi -> Etkinlik -> Gelistir -> Derinlestir -> Soru Seti -> Olcme.
