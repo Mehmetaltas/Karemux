@@ -1,8 +1,6 @@
 import { sql } from "@/lib/db";
-import { personelAdminMi } from "@/lib/personel";
 
-export async function GET(req) {
-  if (!(await personelAdminMi(req))) return Response.json({ error: "Yetkisiz" }, { status: 401 });
+export async function GET() {
   try {
     await sql`
       CREATE TABLE IF NOT EXISTS icerik_kalite_log (
