@@ -3,6 +3,7 @@ import { personelAdminMi } from "@/lib/personel";
 import { aiCagir } from "@/lib/ai";
 import { YABANCI_KARAKTER, MOJIBAKE_KARAKTER } from "@/lib/kalite-motoru";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { jsonAyikla } from "@/lib/json-ayikla";
 
 export const maxDuration = 60;
 
@@ -27,9 +28,8 @@ export async function GET(req) {
         const p = `Sen "${k.ders}" dersi ogretmenisin. "${k.unite}" unitesi${k.alt_konu ? ` (${k.alt_konu} alt konusu)` : ""} icin, ${k.sinif}. sinif seviyesinde, "${k.zorluk}" zorlukta TEK bir coktan secmeli soru hazirla. ${kaliteReferansi ? `Kalite referansi: ${kaliteReferansi}` : ""} SADECE Turkce yaz, Latin alfabesi disinda TEK KARAKTER bile kullanma. SADECE JSON dondur:
 {"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"kisa cozum aciklamasi","beceri":"kisa beceri adi"}`;
 
-        const cevap = await aiCagir({ prompt: p, maxTokens: 800, jsonModu: true });
-        const temiz = cevap.replace(/```json|```/g, "").trim();
-        const yeni = JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
+        const cevap = await aiCagir({ prompt: p, maxTokens: 1500, jsonModu: true });
+        const yeni = jsonAyikla(cevap);
 
         if (!yeni.soru || !Array.isArray(yeni.secenekler) || yeni.secenekler.length < 2 || !Number.isInteger(yeni.dogruIndex)) {
           sonuclar.push({ id: k.id, durum: "basarisiz", neden: "eksik/gecersiz alan" });
