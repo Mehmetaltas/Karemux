@@ -3,6 +3,7 @@ import { personelAdminMi } from "@/lib/personel";
 import { YABANCI_KARAKTER, MOJIBAKE_KARAKTER, mufredatSinirKontrolYap, kaliteLoglariniKaydet } from "@/lib/kalite-motoru";
 
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 // Geriye donuk tarama (18 Eylul) - soru_bankasi (3136 kayit, eski Materyal
 // Motoru'ndan) bugunku kalite motorundan HIC gecmemisti. Katman 1 (yabanci

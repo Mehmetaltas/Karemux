@@ -6,6 +6,7 @@ import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { jsonAyikla } from "@/lib/json-ayikla";
 
 export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 
 // Mojibake duzeltme (18 Eylul) - geriye donuk taramada bulunan bozuk
 // soru_bankasi kayitlarini AYNI ders/sinif/unite/zorlukta YENIDEN URETIR,

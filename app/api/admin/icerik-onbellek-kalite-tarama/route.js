@@ -1,4 +1,5 @@
 import { sql } from "@/lib/db";
+export const dynamic = "force-dynamic";
 import { personelAdminMi } from "@/lib/personel";
 import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kaliteLoglariniKaydet } from "@/lib/kalite-motoru";
 
