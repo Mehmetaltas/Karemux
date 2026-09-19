@@ -10,7 +10,7 @@ export const maxDuration = 60;
 // - AI cagrisi gerektirmeyen, ucretsiz katmanlar. Eski kayitlarda
 // kontrolIfadesi YOK, Katman 2 (deterministik) bu yuzden ATLANDI.
 export async function GET(req) {
-  // GECICI-DOGRULAMA: yetki kontrolu SADECE bu tek testin sonunda hemen geri eklenecek
+  if (!(await personelAdminMi(req))) return Response.json({ error: "Yetkisiz" }, { status: 401 });
   try {
     const kayitlar = await sql`SELECT id, ders, soru, secenekler FROM soru_bankasi`;
 
