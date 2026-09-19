@@ -57,26 +57,13 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     let plan = jsonAyikla(cevap);
     let uretimSaglayicisi = saglayici;
 
-    // Katman 4 - mufredat sinir kontrolu ONCE calisir (hizli, ucuz). Sayisal
-    // olmayan derste yapay matematik sorusu bulunursa, TEK SEFER duzeltici
-    // talimatla YENIDEN URETILIR - kendi kendini onaran ilk somut ornek
-    // (18 Eylul, kullanici talebiyle GERCEKTEN duzeltici, sadece log degil).
-    let mufredatSonuc = mufredatSinirKontrolYap(ders, plan.soruSeti || []);
-    if (!mufredatSonuc.gecti && mufredatSonuc.uyarilar.some((u) => u.includes("yapay matematik"))) {
-      console.warn("ders_plani MUFREDAT-SINIR ihlali, YENIDEN URETILIYOR:", ders, konu, mufredatSonuc.uyarilar);
-      try {
-        const duzelticiP = p + `
-
-ONEMLI DUZELTME: Onceki uretimde sorularin bazilarinda YANLISLIKLA matematik/finansal hesaplama (yuzde/butce/TL gibi) yer aldi - bu, "${ders}" dersinin kazanimlarina AYKIRI. SORULARIN HICBIRINDE sayisal hesaplama/yuzde/para birimi OLMASIN, sadece bu dersin dogal konusuna uygun olgusal/analiz sorulari sor.`;
-        const yeniden = await aiCagirDetay({ prompt: duzelticiP, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
-        plan = jsonAyikla(yeniden.metin);
-        uretimSaglayicisi = yeniden.saglayici;
-        mufredatSonuc = mufredatSinirKontrolYap(ders, plan.soruSeti || []);
-      } catch (e) {
-        console.error("ders_plani yeniden uretim basarisiz, ilk sonuc kullaniliyor:", e.message);
-      }
-    }
-    if (!mufredatSonuc.gecti) console.warn("ders_plani MUFREDAT-SINIR uyari (GOLGE MOD, kalici):", ders, konu, mufredatSonuc.uyarilar);
+    // Katman 4 - mufredat sinir kontrolu (SADE, 18 Eylul: yapay-matematik
+    // deseni ve buna bagli otomatik yeniden uretim KALDIRILDI - gercek veriyle
+    // (MEB/EBA kaynaklari) dogrulandi ki cok yuksek yanlis-pozitif veriyordu,
+    // GERCEK mufredat iceriğini (orn. Din Kulturu Zekat hesabi) hatali
+    // sayiyordu. Sadece referans var/yok kontrolu kaldi, GOLGE MOD, sadece log.
+    const mufredatSonuc = mufredatSinirKontrolYap(ders);
+    if (!mufredatSonuc.gecti) console.warn("ders_plani MUFREDAT-SINIR uyari (GOLGE MOD):", ders, konu, mufredatSonuc.uyarilar);
 
     const kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
     const onayDurumu = kaliteSonucu.gecti ? "taslak" : "bekliyor";

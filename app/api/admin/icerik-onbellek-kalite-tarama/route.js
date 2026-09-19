@@ -26,7 +26,7 @@ export async function GET(req) {
 
       const kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
       const detKontrol = deterministikKontrolYap(paket.soruHavuzu || []);
-      const mufredatSonuc = mufredatSinirKontrolYap(k.ders, paket.soruHavuzu || []);
+      const mufredatSonuc = mufredatSinirKontrolYap(k.ders);
 
       await kaliteLoglariniKaydet("icerik_onbellek", k.id, [
         { katman: "yapisal", gecti: kaliteSonucu.gecti, uyarilar: kaliteSonucu.uyarilar },
