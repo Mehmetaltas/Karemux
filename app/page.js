@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
@@ -3898,7 +3899,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       `}</style>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 4, position: "relative" }}>
-          <img src="/icons/icon-192.png" alt="Karemux logo" className="kx-logo-header" style={{ width: 20, height: 20, borderRadius: 5, flexShrink: 0, display: "block", objectFit: "cover" }} />
+          <Image src="/icons/icon-192.png" alt="Karemux logo" width={20} height={20} className="kx-logo-header" style={{ borderRadius: 5, flexShrink: 0, display: "block", objectFit: "cover" }} />
           <button onClick={() => setMenuAcik((a) => !a)} aria-label="Menu" aria-expanded={menuAcik} style={{
             width: 40, height: 40, borderRadius: 10, border: `1.5px solid ${COLORS.line}`, background: COLORS.page,
             display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0, fontSize: 18,
@@ -3915,7 +3916,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             background: COLORS.gradient, borderRadius: 16, padding: "28px 20px",
             border: `1px solid ${COLORS.panelBorder || COLORS.line}`, textAlign: "center", marginBottom: 16,
           }}>
-            <img src="/icons/icon-192.png" alt="Karemux" className="kx-logo-acilis" style={{ width: 32, height: 32, borderRadius: 9, marginBottom: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.22)" }} />
+            <Image src="/icons/icon-192.png" alt="Karemux" width={32} height={32} className="kx-logo-acilis" style={{ borderRadius: 9, marginBottom: 10, boxShadow: "0 4px 14px rgba(0,0,0,0.22)" }} />
             <p style={{ fontFamily: "Georgia, 'Times New Roman', serif", color: COLORS.page, fontWeight: 700, fontSize: 19, marginBottom: 8 }}>Hoş geldiniz</p>
             <p style={{ color: "#B7C4BC", fontSize: 13.5, lineHeight: 1.7, maxWidth: 320, margin: "0 auto" }}>
               Seviye tespiti, konu anlatimi, deneme/yazili sinavlari ve kisisel calisma plani — hepsi tek sistemde.
@@ -4091,7 +4092,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
             <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "#3B82C4", filter: "blur(40px)", opacity: 0.5, top: "52%", right: "3%", animation: "kxYanip 2.4s ease-in-out infinite 0.6s" }} />
             <div style={{ position: "absolute", width: 140, height: 140, borderRadius: "50%", background: "#6B5CE0", filter: "blur(40px)", opacity: 0.5, bottom: "8%", left: "18%", animation: "kxYanip 2.4s ease-in-out infinite 1.2s" }} />
             <div style={{ position: "relative", zIndex: 2, textAlign: "center", opacity: 0, animation: "kxGiris 1.4s ease-out 0.3s forwards" }}>
-              <img src="/icons/icon-512.png" alt="Karemux" style={{ width: 100, height: 100, borderRadius: 20, animation: "kxNefes 2.5s ease-in-out infinite" }} />
+              <Image src="/icons/icon-512.png" alt="Karemux" width={100} height={100} style={{ borderRadius: 20, animation: "kxNefes 2.5s ease-in-out infinite" }} />
               <p style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginTop: 16, opacity: 0, animation: "kxGiris 1s ease-out 1.1s forwards" }}>KAREMUX</p>
               <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, marginTop: 4, opacity: 0, animation: "kxGiris 1s ease-out 1.5s forwards" }}>Daha iyi bir sen, mümkün!</p>
             </div>
@@ -5187,7 +5188,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               <div className="kx-fadein" style={{ marginTop: 16 }}>
                 <div className="yazdir-alani" style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
                   <div style={{ background: COLORS.gradient, padding: "18px 20px", textAlign: "center" }}>
-                    <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 26, height: 26, borderRadius: 7, marginBottom: 8 }} />
+                    <Image src="/icons/icon-192.png" alt="Karemux" width={26} height={26} style={{ borderRadius: 7, marginBottom: 8 }} />
                     <p style={{ fontWeight: 700, fontSize: 15, color: COLORS.page, margin: 0 }}>📄 Sonuç Belgesi</p>
                     {denemeBelgesi.testNo > 1 && (
                       <p style={{ fontSize: 11, color: "#B7C4BC", marginTop: 4 }}>{denemeBelgesi.kayitDersAdi} — {denemeBelgesi.testNo}. Test</p>
@@ -6206,7 +6207,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               return (
                 <div className="kx-fadein yazdir-alani" style={{ background: "#FDFBF6", borderRadius: 16, border: `1px solid ${COLORS.line}`, boxShadow: "0 4px 18px rgba(0,0,0,0.08)", overflow: "hidden" }}>
                   <div style={{ background: COLORS.gradient, padding: "16px 20px", display: "flex", alignItems: "center", gap: 10 }}>
-                    <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 24, height: 24, borderRadius: 6, flexShrink: 0 }} />
+                    <Image src="/icons/icon-192.png" alt="Karemux" width={24} height={24} style={{ borderRadius: 6, flexShrink: 0 }} />
                     <p style={{ fontWeight: 700, fontSize: 14, color: COLORS.page, margin: 0 }}>Karemux Çözüm</p>
                   </div>
                   <div style={{ padding: "20px 20px 8px" }}>

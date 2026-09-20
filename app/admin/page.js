@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
@@ -1274,7 +1275,7 @@ export default function YonetimPaneli() {
         `}</style>
         <div className="admin-giris-kutu" style={{ width: "100%", maxWidth: 340 }}>
           <div style={{ textAlign: "center", marginBottom: 28 }}>
-            <img src="/icons/icon-192.png" alt="Karemux" className="admin-logo" style={{ width: 52, height: 52, borderRadius: 14, margin: "0 auto 14px", display: "block", boxShadow: "0 4px 16px rgba(27,36,48,0.18)" }} />
+            <Image src="/icons/icon-192.png" alt="Karemux" width={52} height={52} className="admin-logo" style={{ borderRadius: 14, margin: "0 auto 14px", display: "block", boxShadow: "0 4px 16px rgba(27,36,48,0.18)" }} />
             <p style={{ color: T.text, fontSize: TYPO.title, fontWeight: 700 }}>Karemux Yönetim</p>
             <p style={{ color: T.textMuted, fontSize: TYPO.body, marginTop: 3 }}>Bu alan sadece yöneticiye açıktır</p>
           </div>
@@ -1313,7 +1314,7 @@ export default function YonetimPaneli() {
       <div style={{ borderBottom: `1px solid ${T.border}`, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: T.bg, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <button onClick={() => setMenuAcik(true)} aria-label="Menu" aria-expanded={menuAcik} style={{ background: "none", border: "none", color: T.text, fontSize: 22, cursor: "pointer", padding: 0 }}>☰</button>
-          <img src="/icons/icon-192.png" alt="Karemux" style={{ width: 28, height: 28, borderRadius: 8, display: "block", objectFit: "cover" }} />
+          <Image src="/icons/icon-192.png" alt="Karemux" width={28} height={28} style={{ borderRadius: 8, display: "block", objectFit: "cover" }} />
           <div>
             <h1 style={{ fontWeight: 700, fontSize: TYPO.heading, margin: 0 }}>Karemux Yönetim</h1>
             {personelAd && <p style={{ fontSize: TYPO.micro, color: T.textMuted, margin: 0 }}>Hoş geldin, {personelAd}</p>}
@@ -1327,7 +1328,7 @@ export default function YonetimPaneli() {
           <div style={{ position: "absolute", width: 160, height: 160, borderRadius: "50%", background: "#3B82C4", filter: "blur(40px)", opacity: 0.5, top: "52%", right: "3%", animation: "kxYanip 2.4s ease-in-out infinite 0.6s" }} />
           <div style={{ position: "absolute", width: 140, height: 140, borderRadius: "50%", background: "#6B5CE0", filter: "blur(40px)", opacity: 0.5, bottom: "8%", left: "18%", animation: "kxYanip 2.4s ease-in-out infinite 1.2s" }} />
           <div style={{ position: "relative", zIndex: 2, textAlign: "center", opacity: 0, animation: "kxGiris 1.4s ease-out 0.3s forwards" }}>
-            <img src="/icons/icon-512.png" alt="Karemux" style={{ width: 100, height: 100, borderRadius: 20, animation: "kxNefes 2.5s ease-in-out infinite" }} />
+            <Image src="/icons/icon-512.png" alt="Karemux" width={100} height={100} style={{ borderRadius: 20, animation: "kxNefes 2.5s ease-in-out infinite" }} />
             <p style={{ color: "#fff", fontSize: 22, fontWeight: 800, marginTop: 16, opacity: 0, animation: "kxGiris 1s ease-out 1.1s forwards" }}>KAREMUX</p>
           </div>
           <style>{`
