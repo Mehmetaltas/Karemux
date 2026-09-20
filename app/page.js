@@ -4108,7 +4108,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
             <div style={{ position: "relative", maxWidth: 420, width: "100%" }}>
               <button onClick={() => { setReklamKaplamaGoster(false); try { sessionStorage.setItem("karemux_reklam_gorundu", "1"); } catch (e) {} }} aria-label="Kapat" style={{ position: "absolute", top: -14, right: -14, zIndex: 101, width: 36, height: 36, borderRadius: 999, border: "none", background: "#fff", color: "#1B2430", fontSize: 18, cursor: "pointer", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>✕</button>
-              <img src="/reklam/afis-1.jpg" alt="Karemux tanıtım afişi" style={{ width: "100%", borderRadius: 16, display: "block" }} />
+              <Image src="/reklam/afis-1.jpg" alt="Karemux tanıtım afişi" width={600} height={900} style={{ width: "100%", height: "auto", borderRadius: 16, display: "block" }} />
             </div>
           </div>
         )}
