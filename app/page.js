@@ -3186,19 +3186,49 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
   }
 
+  // Kamera fotograflari genelde galeriden cok daha buyuk (tam cozunurluk,
+  // sikistirilmamis) cikiyor - 20 Eylul'de GERCEK bulgu: bu yuzden istek
+  // Vercel'in platform seviyesindeki govde boyutu sinirina takilip sunucuya
+  // HIC ulasmiyordu (log bile olusmuyordu). Gondermeden ONCE canvas ile
+  // kucultup sikistiriyoruz - hem bu sorunu cozer hem her zaman daha hizli/ucuz.
+  function gorselSikistir(dosya, maxGenislik = 1600, kalite = 0.75) {
+    return new Promise((resolve, reject) => {
+      const img = new window.Image();
+      const url = URL.createObjectURL(dosya);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxGenislik) {
+          height = Math.round((height * maxGenislik) / width);
+          width = maxGenislik;
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob) resolve(blob); else reject(new Error("Gorsel sikistirilamadi"));
+        }, "image/jpeg", kalite);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Gorsel yuklenemedi")); };
+      img.src = url;
+    });
+  }
+
   async function soruGorseliCoz(dosya) {
     setYukleniyor("soru"); setHata(""); setSoruCozumu(""); setSoruIpucu(""); setTamCozumAcik(false); setSoruSohbetGecmisi([]);
     try {
+      const sikistirilmis = await gorselSikistir(dosya).catch(() => dosya); // sikistirma basarisiz olursa orijinali kullan
       const base64 = await new Promise((resolve, reject) => {
         const r = new FileReader();
         r.onload = () => resolve(r.result.split(",")[1]);
         r.onerror = reject;
-        r.readAsDataURL(dosya);
+        r.readAsDataURL(sikistirilmis);
       });
       const res = await fetch("/api/soru-coz", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageBase64: base64, mediaType: dosya.type, ders, sinif, cihazId: cihazIdRef.current }),
+        body: JSON.stringify({ imageBase64: base64, mediaType: sikistirilmis.type || "image/jpeg", ders, sinif, cihazId: cihazIdRef.current }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
