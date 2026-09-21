@@ -5,7 +5,13 @@ import { aiCagir } from "@/lib/ai";
 // AI'yi 1 KEZ daha cagirip tekrar deniyoruz - boylece 11 aracin hepsi ayni
 // dayaniklilik iyilestirmesinden faydalanir, tek tek yamalanmaz.
 async function aiCagirVeJsonAyikla(prompt, maxTokens, harfDuzeltmesiYap) {
-  for (let deneme = 0; deneme < 2; deneme++) {
+  // 21 Eylul: 2 tam denemenin (her biri 4 saglayiciyi da deneyebilir) TOPLAMI,
+  // saglayicilar (Gemini kota/Anthropic kredi) sorunluyken Vercel'in 60sn
+  // siniri asiliyordu (GERCEK kanit: odev_paketi'nde tam 60.000sn'de kesildigi
+  // GitHub Actions loglarinda olculdu). Bugunku markdown-sarma duzeltmesi
+  // (lib/ai.js) bu retry'nin en yaygin tetikleyicisini zaten cozdugu icin,
+  // 2 denemeyi 1'e indirip en kotu durum suresini yariya dusuruyoruz.
+  for (let deneme = 0; deneme < 1; deneme++) {
     try {
       const cevap = await aiCagir({ prompt, maxTokens, jsonModu: true });
       const temiz = cevap.replace(/```json|```/g, "").trim();
