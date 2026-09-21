@@ -2957,13 +2957,17 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (gorselDosya) {
       gorselUrl = URL.createObjectURL(gorselDosya);
       try {
+        // 20 Eylul: kamera fotograflari sikistirilmadan gonderilirse Vercel'in
+        // govde boyutu sinirina takilip SESSIZCE kaybolabiliyor (soruGorseliCoz'de
+        // bulunan ayni sorun) - burada da onceden kucultuyoruz.
+        const sikistirilmis = await gorselSikistir(gorselDosya).catch(() => gorselDosya);
         gorselBase64 = await new Promise((resolve, reject) => {
           const r = new FileReader();
           r.onload = () => resolve(r.result.split(",")[1]);
           r.onerror = reject;
-          r.readAsDataURL(gorselDosya);
+          r.readAsDataURL(sikistirilmis);
         });
-        gorselMediaType = gorselDosya.type;
+        gorselMediaType = sikistirilmis.type || "image/jpeg";
       } catch (e) { /* okunamazsa sadece metinle devam */ }
     }
 
