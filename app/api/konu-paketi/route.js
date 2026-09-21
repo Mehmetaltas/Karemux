@@ -4,6 +4,7 @@ import { jsonAyikla } from "@/lib/json-ayikla";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { resendIstemcisi } from "@/lib/email";
+import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
 export const maxDuration = 60;
 
@@ -28,9 +29,21 @@ export async function GET(req) {
     const ders = u.searchParams.get("ders");
     const konu = u.searchParams.get("konu");
     const unite = u.searchParams.get("unite") || "";
+    const cihazId = u.searchParams.get("cihazId");
 
     if (!sinif || !ders || !konu) {
       return Response.json({ error: "sinif, ders, konu zorunlu" }, { status: 400 });
+    }
+
+    // 21 Eylul, Full Audit'te bulunan KRITIK acik: bu route'ta hicbir erisim
+    // kontrolu yoktu - kimliksiz/sinirsiz cagrilabiliyordu (gercek maliyet
+    // riski). soru-coz'daki kanitlanmis desenle (gunlukLimitKontrolEt) kapatildi.
+    const limit = await gunlukLimitKontrolEt(req, cihazId);
+    if (!limit.izinVar) {
+      return Response.json(
+        { error: limit.premium ? "Bugunluk yogun kullanim sinirina ulastin (" + limit.limit + "/gun), yarin devam edebilirsin." : "Gunluk ucretsiz kullanim hakkin doldu (" + limit.limit + "/gun). Premium ile daha fazla kullanabilirsin." },
+        { status: 429 }
+      );
     }
 
     // 1. Cache kontrolu

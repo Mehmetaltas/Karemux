@@ -3270,7 +3270,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       // Bulunamazsa asagidaki ESKI akis (kendi AI cagrisi) aynen devam eder -
       // sifir regresyon riski, sadece EK bir hizli-yol.
       try {
-        const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(ders)}&konu=${encodeURIComponent(konu.trim())}&unite=${encodeURIComponent(uniteSec || "")}`);
+        const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(ders)}&konu=${encodeURIComponent(konu.trim())}&unite=${encodeURIComponent(uniteSec || "")}&cihazId=${cihazIdRef.current}`);
         const paketData = await paketRes.json();
         if (paketData.paket?.anlatim?.temelAnlatim) {
           setAciklama(paketData.paket.anlatim.temelAnlatim);
@@ -3447,7 +3447,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       // TEK KONU MOTORU (15 Eylul, Adim 3) - konu_paketi cache'i varsa
       // AI'ya HIC gitmeden onun soruHavuzu'ndan secim yapilir.
       try {
-        const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(ders)}&konu=${encodeURIComponent(konu.trim())}&unite=${encodeURIComponent(uniteSec || "")}`);
+        const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(ders)}&konu=${encodeURIComponent(konu.trim())}&unite=${encodeURIComponent(uniteSec || "")}&cihazId=${cihazIdRef.current}`);
         const paketData = await paketRes.json();
         const havuz = paketData.paket?.soruHavuzu;
         if (Array.isArray(havuz) && havuz.length > 0) {
