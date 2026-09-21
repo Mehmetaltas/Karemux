@@ -6301,7 +6301,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <input value={soruSohbetMetni} aria-label="Soru hakkinda mesaj" onChange={(e) => setSoruSohbetMetni(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") soruSohbetGonder(); }}
                     placeholder="Örn: 3. adımı anlamadım, tekrar açıklar mısın?"
-                    style={{ flex: 1, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
+                    style={{ flex: 1, minWidth: 0, padding: "9px 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, fontSize: 12.5 }} />
                   <button className="kx-btn" onClick={() => soruSohbetGonder()} disabled={soruSohbetYukleniyor || !soruSohbetMetni.trim()}
                     style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Sor</button>
                 </div>
