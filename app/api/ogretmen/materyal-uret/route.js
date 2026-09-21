@@ -21,7 +21,7 @@ async function aiCagirVeJsonAyikla(prompt, maxTokens, harfDuzeltmesiYap) {
       }
       return JSON.parse(parcaTemiz);
     } catch (e) {
-      if (deneme === 1) throw e; // 2. deneme de basarisizsa, gercek hatayi firlat
+      if (deneme === 0) throw e; // 21 Eylul: dongu artik SADECE 1 kez calisiyor (deneme<1), o yuzden HER hatada hemen firlat - onceki "deneme===1" kosulu ARTIK HIC gerceklesmiyordu, fonksiyon SESSIZCE undefined donduruyordu (gercek bug, GitHub Actions test loglarinda bulundu: tekrar_paketi'nde "Cannot read properties of undefined")
       console.warn("JSON ayiklama basarisiz, 1 kez daha deneniyor:", e.message);
     }
   }
