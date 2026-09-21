@@ -5,6 +5,8 @@ import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { resendIstemcisi } from "@/lib/email";
 
+export const maxDuration = 60;
+
 // TEK KONU MOTORU - Adim 1 (14 Eylul). Bir konu icin TEK AI cagrisiyla
 // anlatim+soru havuzu+odev URETIP icerik_onbellek'e icerik_json olarak
 // yazan endpoint. Cache varsa AI'ya HIC gitmez (maliyet=0). Bu, mevcut
