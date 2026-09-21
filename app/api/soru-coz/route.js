@@ -2,6 +2,7 @@
 import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { gorselSoruErisimVarMi } from "@/lib/paket";
+import { jsonAyikla } from "@/lib/json-ayikla";
 
 export async function POST(req) {
   try {
@@ -42,13 +43,14 @@ Eger gorsel bir soru degilse ya da okunamiyorsa, SADECE {"hata":"aciklama"} dond
       .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
       .replace(/\\[a-zA-Z]+/g, "").replace(/[{}]/g, "");
 
+    // 21 Eylul: elle yazilan zayif JSON.parse yerine paylasilan, guvenli
+    // jsonAyikla() kullaniliyor - AI'nin string icinde kacissiz satir sonu
+    // dondurmesi ("Bad control character") gercek kullanicida bulundu,
+    // ham JSON/markdown metni dogrudan cozum olarak gosteriliyordu.
     let veri;
     try {
-      const temizJson = hamCevap.replace(/```json|```/g, "").trim();
-      veri = JSON.parse(temizJson.slice(temizJson.indexOf("{"), temizJson.lastIndexOf("}") + 1));
+      veri = jsonAyikla(hamCevap);
     } catch (e) {
-      // AI beklenen JSON formatinda donmediyse, eski davranisa geri don:
-      // ham metni dogrudan cozum olarak goster, ipucu bos kalsin.
       veri = { ipucu: "", cozum: hamCevap };
     }
 
