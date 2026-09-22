@@ -129,7 +129,7 @@ export async function POST(req) {
       const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}. ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI: Bu sorular ACIK UCLU olmali - coktan secmeli SIK (A/B/C/D) OLMAMALI, ogrenci kendi cozumunu yazmali. Her soru icin "cozum" alaninda, ogrencinin kontrol edebilecegi ADIM ADIM, DETAYLI bir cozum ver (sadece sonuc degil, tum adimlari goster) - SESIN COK ONEMLI: cozumu, sicak bir ogretmenin evde tek basina calisan ogrenciye yaninda oturup anlatiyormus gibi yaz. SOGUK/DERS KITABI cumleleri ("Once X hesaplanir, sonra Y bulunur.") KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi burada dikkat et..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
 {"baslik":"...","ozet":"kisa konu ozeti (yoksa bos birak)","sorular":[{"soru":"...","cozum":"adim adim detayli cozum metni","zorluk":"kolay"}]}`;
 
-      const veri = await aiCagirVeJsonAyikla(p, 4000, false);
+      const veri = await aiCagirVeJsonAyikla(p, 7000, false); // 22 Eylul: 4000 yetersizdi, acik uclu detayli cozumler kesiliyordu (GERCEK testte kanitlandi: yarim kalmis JSON hatasi)
 
       if (!veri.sorular || !Array.isArray(veri.sorular) || veri.sorular.length === 0) {
         return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
