@@ -56,7 +56,7 @@ Gorsel gerekmiyorsa gerekli:false don. SADECE JSON dondur: {"gerekli":true veya 
 async function gorselKararIsteSunucu(ders, konu, sinif) {
   try {
     const p = `"${ders}" dersinden "${konu}" konusu, ${sinif}. sinif seviyesinde. ${GORSEL_TIPI_REHBERI_OGRETMEN}`;
-    const cevap = await aiCagir({ prompt: p, maxTokens: 600, jsonModu: true, tur: "gorsel_karar" });
+    const cevap = await aiCagir({ prompt: p, maxTokens: 600, jsonModu: true, tur: "gorsel_karar" }, 12000); // 22 Eylul: kisa butce - bu opsiyonel/best-effort bir zenginlestirme, ana uretimin ustune eklenip toplam sureyi 60sn siniri ustune cikarmamali (odev_paketi GERCEK testte tam 60.000sn kesilmisti)
     const temiz = cevap.replace(/```json|```/g, "").trim();
     const baslangic = temiz.indexOf("{");
     const bitis = temiz.lastIndexOf("}");
