@@ -145,7 +145,17 @@ export async function POST(req) {
     }
 
     if (tur === "brans_denemesi") {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinin TAMAMINI (tek uniteyle sinirli DEGIL) kapsayan, gercek bir sinav kitapcigi kalitesinde "${tanim.baslik}" hazirla. ${sinif}. sinif seviyesinde ${tanim.soruSayisi} soru olsun. ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI KURALLAR: (1) Sorular EN AZ 5 FARKLI UNITEDEN gelsin, tek bir uniteye yogunlasma - her sorunun hangi uniteden geldigini "unite" alaninda belirt. (2) Zorluk dagilimi TAM OLARAK soyle olsun: ilk %20'si kolay, ortadaki %55'i orta, son %25'i zor (sirali ver). (3) Gercekci bir sinav suresi oner (soru basina ortalama 100 saniye hesabiyla). (4) Kisa, net bir sinav yonergesi yaz (ogrenciye nasil cevaplayacagini anlatan 1-2 cumle). (5) Her soru icin ayrica "beceri" (soru hangi beceriyi olcuyor, 2-4 kelime), "tahminiSureSaniye" (sayisal), "yayginHata" (ogrencilerin bu tarz soruda en sik yaptigi hata, kisa), "cozumTeknigi" (hizli cozum ipucu, kisa) alanlarini da doldur. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+      // 22 Eylul, Full Audit bulgusu: AI daha once "unite" alanini SERBEST
+      // uyduruyordu (orn. Ingilizce'de "Unit 1: Simple Present" gibi mufredat
+      // tablosuyla HIC eslesmeyen isimler) - 410 kayit boyle "yetim" cikmisti.
+      // Gercek mufredat unitelerini cekip AI'ya SADECE bunlardan secmesini
+      // soyluyoruz, boylece uretilen sorular Content Core'a baglanabilir.
+      const gercekUniteler = await sql`SELECT DISTINCT unite FROM mufredat WHERE ders = ${ders} AND sinif = ${Number(sinif)}`;
+      const uniteListesiMetni = gercekUniteler.length > 0
+        ? `\n\nBu dersin GERCEK mufredat uniteleri (SADECE bu listeden sec, kendi uydurma):\n${gercekUniteler.map((u) => "- " + u.unite).join("\n")}`
+        : "";
+
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinin TAMAMINI (tek uniteyle sinirli DEGIL) kapsayan, gercek bir sinav kitapcigi kalitesinde "${tanim.baslik}" hazirla. ${sinif}. sinif seviyesinde ${tanim.soruSayisi} soru olsun. ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI KURALLAR: (1) Sorular EN AZ 5 FARKLI UNITEDEN gelsin, tek bir uniteye yogunlasma - her sorunun hangi uniteden geldigini "unite" alaninda belirt, ${gercekUniteler.length > 0 ? "AŞAĞIDAKİ GERÇEK ÜNİTE LİSTESİNDEN BİREBİR SEÇEREK" : "gercekci bir isimle"}. (2) Zorluk dagilimi TAM OLARAK soyle olsun: ilk %20'si kolay, ortadaki %55'i orta, son %25'i zor (sirali ver). (3) Gercekci bir sinav suresi oner (soru basina ortalama 100 saniye hesabiyla). (4) Kisa, net bir sinav yonergesi yaz (ogrenciye nasil cevaplayacagini anlatan 1-2 cumle). (5) Her soru icin ayrica "beceri" (soru hangi beceriyi olcuyor, 2-4 kelime), "tahminiSureSaniye" (sayisal), "yayginHata" (ogrencilerin bu tarz soruda en sik yaptigi hata, kisa), "cozumTeknigi" (hizli cozum ipucu, kisa) alanlarini da doldur. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:${uniteListesiMetni}
 {"baslik":"...","yonerge":"...","sinavSuresiDk":40,"sorular":[{"unite":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"...","tahminiSureSaniye":45,"yayginHata":"...","cozumTeknigi":"..."}]}`;
 
       const veri = await aiCagirVeJsonAyikla(p, 8000, true);
