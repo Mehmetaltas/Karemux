@@ -2154,7 +2154,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const konular = seviyeTestKonulariniSec();
       const res = await fetch("/api/seviye-tespit/olustur", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ konular }),
+        body: JSON.stringify({ konular, cihazId: cihazIdRef.current }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);

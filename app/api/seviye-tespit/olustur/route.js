@@ -1,18 +1,29 @@
 import { aiCagir } from "@/lib/ai";
 import { sorulariDenetle } from "@/lib/soruKalite";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
 // Istemci, 4. ve 5. sinif konularindan sectigi bir listeyi ({ders, unite, sinif})
 // gonderir, biz her biri icin 1 soru uretiriz. Boylece unite listesi (page.js'te
 // duran mufredat verisi) tek yerde kalir, burada tekrar edilmez.
 export async function POST(req) {
   try {
-    const { konular } = await req.json(); // [{ders, unite, sinif}, ...]
+    const { konular, cihazId } = await req.json(); // [{ders, unite, sinif}, ...]
     if (!Array.isArray(konular) || konular.length === 0) {
       return Response.json({ error: "Konu listesi gerekli" }, { status: 400 });
     }
     if (konular.length > 30) {
       return Response.json({ error: "Cok fazla konu istendi" }, { status: 400 });
+    }
+
+    // 22 Eylul, Full Audit devami: bu route'ta hicbir erisim kontrolu yoktu -
+    // kimliksiz/sinirsiz cagrilabiliyordu (tek istekte 30 soru uretebiliyordu).
+    const limit = await gunlukLimitKontrolEt(req, cihazId);
+    if (!limit.izinVar) {
+      return Response.json(
+        { error: limit.premium ? `Bugunluk yogun kullanim sinirina ulastin (${limit.limit}/gun), yarin devam edebilirsin.` : `Gunluk ucretsiz kullanim hakkin doldu (${limit.limit}/gun). Premium ile daha fazla kullanabilirsin.` },
+        { status: 429 }
+      );
     }
 
     const dersRehberi = [...new Set(konular.map((k) => k.ders))]
