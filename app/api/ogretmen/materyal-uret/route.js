@@ -1,4 +1,5 @@
 import { aiCagir } from "@/lib/ai";
+import { jsonAyikla } from "@/lib/json-ayikla";
 
 // AI ara sira bozuk JSON kacis karakteri uretebiliyor (bilinen, sistemik bir
 // kararsizlik - 12 Eylul). Bunu tek bir yerden yonetip, parse basarisiz olursa
@@ -14,12 +15,15 @@ async function aiCagirVeJsonAyikla(prompt, maxTokens, harfDuzeltmesiYap) {
   for (let deneme = 0; deneme < 1; deneme++) {
     try {
       const cevap = await aiCagir({ prompt, maxTokens, jsonModu: true });
-      const temiz = cevap.replace(/```json|```/g, "").trim();
-      let parcaTemiz = temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1);
+      // 22 Eylul: paylasilan guvenli jsonAyikla() kullaniliyor artik - eski
+      // elle-yazilmis parcaTemiz+JSON.parse, AI'nin string icinde kacissiz
+      // kontrol karakteri donmesiyle cokuyordu (GERCEK GitHub Actions
+      // testinde bulundu: "Bad control character in string literal").
       if (harfDuzeltmesiYap) {
-        parcaTemiz = parcaTemiz.replace(/"dogruIndex"\s*:\s*"?([A-D])"?/gi, (_, harf) => `"dogruIndex":${harf.toUpperCase().charCodeAt(0) - 65}`);
+        const harfDuzeltilmis = cevap.replace(/"dogruIndex"\s*:\s*"?([A-D])"?/gi, (_, harf) => `"dogruIndex":${harf.toUpperCase().charCodeAt(0) - 65}`);
+        return jsonAyikla(harfDuzeltilmis);
       }
-      return JSON.parse(parcaTemiz);
+      return jsonAyikla(cevap);
     } catch (e) {
       if (deneme === 0) throw e; // 21 Eylul: dongu artik SADECE 1 kez calisiyor (deneme<1), o yuzden HER hatada hemen firlat - onceki "deneme===1" kosulu ARTIK HIC gerceklesmiyordu, fonksiyon SESSIZCE undefined donduruyordu (gercek bug, GitHub Actions test loglarinda bulundu: tekrar_paketi'nde "Cannot read properties of undefined")
       console.warn("JSON ayiklama basarisiz, 1 kez daha deneniyor:", e.message);
