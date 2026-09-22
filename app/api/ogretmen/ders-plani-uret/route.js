@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { ogretmenCoz } from "@/lib/ogretmen";
+import { ogretmenGunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { aiCagirDetay, ikinciGorusAl } from "@/lib/ai";
 import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kaliteLoglariniKaydet } from "@/lib/kalite-motoru";
 import { jsonAyikla } from "@/lib/json-ayikla";
@@ -21,6 +22,16 @@ export async function POST(req) {
   try {
     const { ders, sinif, unite, konu } = await req.json();
     if (!ders || !sinif || !konu) return Response.json({ error: "ders, sinif, konu zorunlu" }, { status: 400 });
+
+    // 21 Eylul, Full Audit'te bulundu: materyal-uret'te GUNLUK LIMIT vardi,
+    // burada YOKTU (sadece kimlik dogrulama vardi) - giren herhangi bir
+    // ogretmen sinirsiz, pahali (ana uretim+Katman 3) plan uretebiliyordu.
+    if (ogretmen?.id) {
+      const limit = await ogretmenGunlukLimitKontrolEt(ogretmen.id);
+      if (!limit.izinVar) {
+        return Response.json({ error: `Gunluk uretim sinirina ulastin (${limit.limit}/gun). Yarin devam edebilirsin.` }, { status: 429 });
+      }
+    }
 
     const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
     // kontrolIfadesi (Katman 2/deterministik dogrulama) SADECE Matematik'te
