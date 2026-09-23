@@ -1,4 +1,5 @@
 import { aiCagir } from "@/lib/ai";
+import { jsonAyikla } from "@/lib/json-ayikla";
 import { sorulariDenetle } from "@/lib/soruKalite";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
@@ -34,13 +35,22 @@ export async function POST(req) {
 
     const p = `Sen bir ilkokul/ortaokul ogretmenisin. Asagidaki ${konular.length} konunun HER BIRI icin, o konunun ait oldugu sinif seviyesine uygun TEK bir coktan secmeli soru hazirla. Konular ve sinif seviyeleri:
 ${konular.map((k, i) => `${i + 1}. Ders: ${k.ders}, Unite: ${k.unite}, Sinif: ${k.sinif}`).join("\n")}
-${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli - cok kolay ya da cok zor olmasin, bu bir SEVIYE TESPIT sinavi. SADECE JSON dizisi dondur, tam ${konular.length} eleman olsun, sirayla yukaridaki listeye karsilik gelsin:
-[{"ders":"...","unite":"...","sinif":5,"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli - cok kolay ya da cok zor olmasin, bu bir SEVIYE TESPIT sinavi. SADECE JSON dondur (obje icinde dizi, TEK konu olsa bile dizi formatinda), tam ${konular.length} eleman olsun, sirayla yukaridaki listeye karsilik gelsin:
+{"sorular":[{"ders":"...","unite":"...","sinif":5,"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]}`;
 
+    // 23 Eylul: GERCEK testte bulundu - iki ayri sorun. (1) Eski kirilgan
+    // parse, kontrol karakterinde cokebiliyordu (bugun defalarca bulunan AYNI
+    // sinif hata) - paylasilan guvenli jsonAyikla()'ya gecirildi. (2) jsonAyikla
+    // SADECE {} arar, [] degil - bu yuzden format {"sorular":[...]} olarak
+    // degistirildi (ayrica AI'nin TEK konu istendiginde diziyi bare objeye
+    // "sadelestirme" egilimini de azaltir, nested array daha az riskli).
     const cevap = await aiCagir({ prompt: p, maxTokens: Math.min(8000, 400 + konular.length * 350), jsonModu: true });
-    const temiz = cevap.replace(/```json|```/g, "").trim();
-    const baslangic = temiz.indexOf("["), bitis = temiz.lastIndexOf("]");
-    const sorularHam = JSON.parse(temiz.slice(baslangic, bitis + 1));
+    let sorularHam;
+    try {
+      sorularHam = jsonAyikla(cevap).sorular;
+    } catch (e) {
+      sorularHam = null;
+    }
 
     const sorular = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
       s && typeof s.soru === "string" && s.soru.trim() &&
