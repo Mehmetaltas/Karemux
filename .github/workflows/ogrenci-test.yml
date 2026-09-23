@@ -1,0 +1,25 @@
+name: Ogrenci Akislari Testi
+
+on:
+  schedule:
+    - cron: '30 8 * * *'  # her gun 08:30 UTC (ogretmen testinden 30dk sonra, ayni AI kotasini paylasip cakismasin)
+  workflow_dispatch:
+  push:
+    paths:
+      - 'app/api/konu-paketi/**'
+      - 'app/api/seviye-tespit/olustur/**'
+      - 'scripts/ogrenci-test.js'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Ogrenci akislarini test et
+        env:
+          NEXT_PUBLIC_SITE_URL: https://www.karemux.com
+          OGRENCI_TEST_SONUC_ANAHTARI: ${{ secrets.OGRENCI_TEST_SONUC_ANAHTARI }}
+        run: node scripts/ogrenci-test.js
