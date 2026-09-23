@@ -6,6 +6,7 @@ import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kal
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
+import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
 
 export const maxDuration = 60;
 
@@ -44,11 +45,13 @@ export async function POST(req) {
     const kontrolIfadesiTalimati = ders === "Matematik"
       ? `,"kontrolIfadesi":"Sorunun cevabi TEK BIR SAYI ise (sozel problem OLSA BILE), cevabi veren TAMAMEN SAYISAL bir ifade yaz (orn. 3^2*5). SADECE cevap harfli/degiskenli (x/y/a iceren) ise BOS STRING birak"`
       : "";
+    const soruTalimati = await soruTalimatiSecSunucu(sinif);
     const p = `Sen Turkiye Yuzyili Maarif Modeli'ne (resmi MEB muframi reformu) uygun calisan, deneyimli bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin ${sinif}. sinif seviyesinde TAM bir ders plani zinciri hazirla.
 
 ONEMLI TERMINOLOJI: "Kazanim" DEGIL "Ogrenme Ciktisi" de, "Mufredat" DEGIL "Maarif Modeli/Ogretim Programi" de - bu, MEB'in resmi guncel terminolojisi.
 
 Kalite referansi: ${kaliteReferansi}
+${soruTalimati}
 
 SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma, bati dillerinden TEK KELIME bile kullanma:
 
@@ -89,7 +92,7 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     if (kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon"))) {
       console.warn("ders_plani ASCII-transliterasyon supheli, YENIDEN uretiliyor:", ders, konu);
       try {
-        const { metin: cevap2, saglayici: saglayici2 } = await aiCagirDetay({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
+        const { metin: cevap2, saglayici: saglayici2 } = await aiCagirDetay({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" }, null, 20000); // 23 Eylul: kisa butce - konu-paketindeki AYNI 60sn riskine karsi
         const plan2 = jsonAyikla(cevap2);
         if (plan2.ogrenmeCiktisi && Array.isArray(plan2.soruSeti)) {
           plan2.gorselSvg = plan.gorselSvg;

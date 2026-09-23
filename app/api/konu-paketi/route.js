@@ -5,6 +5,7 @@ import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { resendIstemcisi } from "@/lib/email";
 import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
+import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
 export const maxDuration = 60;
@@ -67,6 +68,7 @@ export async function GET(req) {
     const kontrolIfadesiTalimati = ders === "Matematik"
       ? `, "kontrolIfadesi":"Sorunun cevabi TEK BIR SAYI ise (sozel problem OLSA BILE), cevabi veren TAMAMEN SAYISAL bir ifade yaz (orn. 3^2*3^4 veya 20*22). SADECE cevap harfli/degiskenli (x/y/a iceren) ise BOS STRING birak"`
       : "";
+    const soruTalimati = await soruTalimatiSecSunucu(sinif);
     const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin, ${sinif}. sinif seviyesinde TAM bir konu paketi hazirla.
 
 SESIN COK ONEMLI: Bu bir DERS KITABI DEGIL, gercek bir ogretmenin sinifta/ozel derste, karsisindaki TEK BIR ogrenciyle yaptigi CANLI bir diyalog. "Once X hesaplanir" gibi SOGUK cumleleri KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun.
@@ -74,6 +76,7 @@ SESIN COK ONEMLI: Bu bir DERS KITABI DEGIL, gercek bir ogretmenin sinifta/ozel d
 ONEMLI UYARI: "Aferin", "tam da bunu bekliyordum", "harikasin" gibi KALIP OVGU/TESVIK cumlelerini KULLANMA - bunlar yazida yapay/mekanik durur, gercek bir insan boyle konusmaz her cumlede. Sabit bir soru-cevap sablonunu (her paragrafta "Peki... dersin?" gibi) HER YERDE TEKRARLAMA - bu da mekanik/muhurlenmis hissettirir. Bunun yerine: konuya ve baglama gore DOGAL, DEGISKEN bir anlatim kur - bazen ogrenciye kisa bir soru sorup cevaplayabilirsin, bazen sadece "bak/simdi" ile devam edebilirsin, bazen bir hatayi onceden tahmin edip uyarabilirsin. Hangi teknigi ne zaman kullanacagina konu KENDI belirlesin, sabit bir kalip her paragrafta zorunlu DEGIL. Amac, bir insanin GERCEKTEN konusuyormus gibi DOGAL, degisken bir akis - ayni cumle yapisini/kalibi tekrar tekrar KOPYALAMA.
 
 Kalite referansi: ${kaliteReferansi}
+${soruTalimati}
 
 SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
 
@@ -120,7 +123,7 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     if (kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon"))) {
       console.warn("konu_paketi ASCII-transliterasyon supheli, YENIDEN uretiliyor:", ders, konu);
       try {
-        const { metin: cevap2, saglayici: saglayici2 } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
+        const { metin: cevap2, saglayici: saglayici2 } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" }, null, 20000); // 23 Eylul: kisa butce - bu retry, ana uretim+gorsel karari UZERINE eklenip 60sn sinirini asmamali (GERCEK testte kanitlandi)
         const paket2 = jsonAyikla(cevap2);
         if (paket2.anlatim && Array.isArray(paket2.soruHavuzu) && paket2.soruHavuzu.length > 0) {
           paket2.gorselSvg = paket.gorselSvg;

@@ -35,6 +35,7 @@ import { personelAdminMi } from "@/lib/personel";
 import { sql } from "@/lib/db";
 import { ogretmenGunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
+import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 // Gorsel Motoru - 23 Eylul'de paylasilan lib/gorsel-karar-sunucu.js'ye
@@ -42,24 +43,8 @@ import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 export const maxDuration = 60; // Vercel fonksiyon zaman asimini uzat (buyuk uretimler icin)
 
-const BAGLAM_TEMELLI_SORU_TALIMATI = `Sorulari "Baglam Temelli Soru" yaklasimiyla yaz: her soru gercekci bir senaryo, veri veya durum icinde kurulsun. Celdiriciler rastgele olmamali, spesifik bir kavram yanilgisini yansitmali. Turkce'ye ozgu karakterleri DOGRU ve EKSIKSIZ kullan.`;
-
-// 23 Eylul - Full Audit bulgusu: "Baglam Temelli Soru" tarzi HERKESE
-// zorlaniyordu, ama gercek MEB takvimine gore (dogrulandi) SADECE 5,6,7.
-// siniflar Maarif Modeli'nde (baglam-temelli); 4,8. siniflar HALA eski
-// muferedatta (kazanim-temelli, geleneksel). mufredat_turu alanini artik
-// kullanan ILK route bu.
-const KAZANIM_TEMELLI_SORU_TALIMATI = `Sorulari GELENEKSEL "Kazanim Temelli Soru" yaklasimiyla yaz: dogrudan, ders kitabi diline uygun, net bir bilgi/islem/kural olcen sorular olsun - gereksiz uzun senaryo/hikaye kurma. Celdiriciler spesifik bir kavram yanilgisini yansitmali. Turkce'ye ozgu karakterleri DOGRU ve EKSIKSIZ kullan.`;
-
-async function soruTalimatiSecSunucu(sinif) {
-  try {
-    const sonuc = await sql`SELECT DISTINCT mufredat_turu FROM mufredat WHERE sinif = ${Number(sinif)} LIMIT 1`;
-    if (sonuc[0]?.mufredat_turu === "eski_2018") return KAZANIM_TEMELLI_SORU_TALIMATI;
-    return BAGLAM_TEMELLI_SORU_TALIMATI;
-  } catch (e) {
-    return BAGLAM_TEMELLI_SORU_TALIMATI; // sorgu basarisiz olursa guvenli varsayilan
-  }
-}
+// Soru tarzi (Baglam/Kazanim Temelli) - 23 Eylul'de lib/soru-talimati-sunucu.js'ye
+// tasindi (konu-paketi ve ders-plani-uret de aynisini kullaniyor artik).
 
 // cikti_tipi: "sorular" (coktan secmeli soru listesi) | "metin" (duz metin rapor/ozet) | "acik_uclu" (soru+adim adim cozum, sikli degil)
 const TUR_TANIMLARI = {
