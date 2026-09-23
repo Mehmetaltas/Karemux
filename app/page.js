@@ -3346,6 +3346,36 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         }
       } catch (onbellekHata) {}
 
+      // 23 Eylul - Full Audit bulgusu: bu ekran /api/konu-paketi'ye (Kalite
+      // Motorlu, Content Core'a bagli) HIC gitmiyordu, kendi eski/korumasiz
+      // uretimini kullaniyordu. TEK konu secildiyse artik once konu-paketi
+      // denenir - basarili olursa Kalite Motoru + Gorsel Motoru'ndan
+      // otomatik faydalanir. Coklu konu secimi (virgul ile) konu-paketi'nin
+      // desteklemedigi bir ozellik oldugu icin ESKI akisa (guvenli,
+      // degismedi) dusuluyor - sifir regresyon riski.
+      const konuListesiOnKontrol = konuSec.split(",").map((s) => s.trim()).filter(Boolean);
+      let konuPaketindenGeldi = false;
+      if (!anlatimMetni && konuListesiOnKontrol.length <= 1) {
+        try {
+          const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(dersSec)}&konu=${encodeURIComponent(konuSec.trim())}&unite=${encodeURIComponent(uniteSec || "")}&cihazId=${cihazIdRef.current}`);
+          const paketData = await paketRes.json();
+          const a = paketData?.paket?.anlatim;
+          if (a && Array.isArray(paketData.paket.soruHavuzu) && paketData.paket.soruHavuzu.length > 0) {
+            anlatimMetni = [
+              a.hizliOgren ? `HIZLI OGREN\n${a.hizliOgren}` : "",
+              a.temelAnlatim ? `TEMEL ANLATIM\n${a.temelAnlatim}` : "",
+              a.derinAnlatim ? `DERIN ANLATIM\n${a.derinAnlatim}` : "",
+              Array.isArray(a.pufNoktalari) && a.pufNoktalari.length > 0 ? `PUF NOKTALARI\n${a.pufNoktalari.map((p) => "- " + p).join("\n")}` : "",
+              Array.isArray(a.sikHatalar) && a.sikHatalar.length > 0 ? `SIK YAPILAN HATALAR\n${a.sikHatalar.map((s) => "- " + s).join("\n")}` : "",
+              a.yeniNesilUygulama ? `YENI NESIL UYGULAMA\n${a.yeniNesilUygulama}` : "",
+            ].filter(Boolean).join("\n\n");
+            sorularVeri = paketData.paket.soruHavuzu.map((s) => ({ ...s, altKonu: konuSec.trim() }));
+            if (paketData.paket.gorselSvg) setTekKonuGorselSvg(paketData.paket.gorselSvg);
+            konuPaketindenGeldi = true;
+          }
+        } catch (konuPaketiHata) { /* basarisiz olursa asagidaki eski akisa dus */ }
+      }
+
       if (!anlatimMetni) {
         const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
         const konuListesi = konuSec.split(",").map((s) => s.trim()).filter(Boolean);
@@ -3360,7 +3390,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         anlatimMetni = metinTemizle(anlatimMetni);
       }
       setTekKonuAnlatim(anlatimMetni);
-      gorselKararIste(dersSec, konuSec.trim(), sinif, cihazIdRef.current).then(setTekKonuGorselSvg);
+      if (!konuPaketindenGeldi) {
+        gorselKararIste(dersSec, konuSec.trim(), sinif, cihazIdRef.current).then(setTekKonuGorselSvg);
+      }
 
       let yeniUretim = false;
       if (!sorularVeri) {
