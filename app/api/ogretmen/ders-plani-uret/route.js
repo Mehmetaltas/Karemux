@@ -5,6 +5,7 @@ import { aiCagirDetay, ikinciGorusAl } from "@/lib/ai";
 import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kaliteLoglariniKaydet } from "@/lib/kalite-motoru";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
 
 export const maxDuration = 60;
 
@@ -67,6 +68,10 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     const { metin: cevap, saglayici } = await aiCagirDetay({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
     let plan = jsonAyikla(cevap);
     let uretimSaglayicisi = saglayici;
+
+    // 23 Eylul: Gorsel Motoru eklendi - Full Audit'te bulundu, arsivin temel
+    // tasi olan bu route'ta hic gorsel yoktu.
+    plan.gorselSvg = await gorselKararIsteSunucu(ders, konu, sinif);
 
     // Katman 4 - mufredat sinir kontrolu (SADE, 18 Eylul: yapay-matematik
     // deseni ve buna bagli otomatik yeniden uretim KALDIRILDI - gercek veriyle

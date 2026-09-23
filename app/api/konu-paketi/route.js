@@ -4,6 +4,7 @@ import { jsonAyikla } from "@/lib/json-ayikla";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { resendIstemcisi } from "@/lib/email";
+import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
 export const maxDuration = 60;
@@ -102,6 +103,10 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     if (!paket.anlatim || !Array.isArray(paket.soruHavuzu) || paket.soruHavuzu.length === 0) {
       return Response.json({ error: "Paket uretilemedi, tekrar dene" }, { status: 500 });
     }
+
+    // 23 Eylul: Gorsel Motoru eklendi - Full Audit'te bulundu, arsivin temel
+    // tasi olan bu route'ta hic gorsel yoktu (materyal-uret'te vardi).
+    paket.gorselSvg = await gorselKararIsteSunucu(ders, konu, sinif);
 
     // 2.5 Kalite Kontrolu - uretimi ENGELLEMEZ, sadece isaretler
     const kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
