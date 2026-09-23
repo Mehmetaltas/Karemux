@@ -109,9 +109,28 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     paket.gorselSvg = await gorselKararIsteSunucu(ders, konu, sinif);
 
     // 2.5 Kalite Kontrolu - uretimi ENGELLEMEZ, sadece isaretler
-    const kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
-    paket.kaliteKontrol = kaliteSonucu;
+    let kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
     if (!kaliteSonucu.gecti) console.warn("konu_paketi kalite uyarisi:", ders, konu, kaliteSonucu.uyarilar);
+
+    // 23 Eylul: GERCEK kullanici testinde bulundu - bir saglayici Turkce'ye
+    // ozgu harfleri (ı/ü/ö/ş/ğ/ç) TAMAMEN ASCII'ye cevirmisti ("Yıldız" ->
+    // "Yildiz" TUM metin boyunca). Bu, diger uyarilardan farkli olarak
+    // TEK SEFERLIK bir yeniden uretimi HAKLI CIKARIR (yanlis-pozitif riski
+    // cok dusuk) - digerleri gibi sadece isaretlemekle YETINILMEZ.
+    if (kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon"))) {
+      console.warn("konu_paketi ASCII-transliterasyon supheli, YENIDEN uretiliyor:", ders, konu);
+      try {
+        const { metin: cevap2, saglayici: saglayici2 } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
+        const paket2 = jsonAyikla(cevap2);
+        if (paket2.anlatim && Array.isArray(paket2.soruHavuzu) && paket2.soruHavuzu.length > 0) {
+          paket2.gorselSvg = paket.gorselSvg;
+          paket = paket2;
+          uretimSaglayicisi = saglayici2;
+          kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
+        }
+      } catch (yenidenUretimHatasi) { /* basarisiz olursa ilk uretimle devam */ }
+    }
+    paket.kaliteKontrol = kaliteSonucu;
 
     // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
     const detKontrol = deterministikKontrolYap(paket.soruHavuzu || []);

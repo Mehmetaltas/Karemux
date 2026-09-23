@@ -81,7 +81,24 @@ soruSeti TAM 8 soru icersin: 3 kolay, 3 orta, 2 zor (sirali ver).`;
     const mufredatSonuc = mufredatSinirKontrolYap(ders);
     if (!mufredatSonuc.gecti) console.warn("ders_plani MUFREDAT-SINIR uyari (GOLGE MOD):", ders, konu, mufredatSonuc.uyarilar);
 
-    const kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
+    let kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
+
+    // 23 Eylul: GERCEK kullanici testinde (Tek Konu Motoru) bulundu - bir
+    // saglayici Turkce'ye ozgu harfleri TAMAMEN ASCII'ye cevirmisti. Bu,
+    // konu-paketi'ndeki AYNI korumanin ders_plani'ye de uygulanmasi.
+    if (kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon"))) {
+      console.warn("ders_plani ASCII-transliterasyon supheli, YENIDEN uretiliyor:", ders, konu);
+      try {
+        const { metin: cevap2, saglayici: saglayici2 } = await aiCagirDetay({ prompt: p, maxTokens: 14000, jsonModu: true, tur: "ders_plani" });
+        const plan2 = jsonAyikla(cevap2);
+        if (plan2.ogrenmeCiktisi && Array.isArray(plan2.soruSeti)) {
+          plan2.gorselSvg = plan.gorselSvg;
+          plan = plan2;
+          uretimSaglayicisi = saglayici2;
+          kaliteSonucu = kaliteKontrolYap("ders_plani", plan);
+        }
+      } catch (yenidenUretimHatasi) { /* basarisiz olursa ilk uretimle devam */ }
+    }
     const onayDurumu = kaliteSonucu.gecti ? "taslak" : "bekliyor";
 
     // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
