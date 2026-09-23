@@ -48,7 +48,7 @@ export async function POST(req) {
       ok: true,
       dogru, yanlis, bos, net,
       hakimiyetSeviyesi,
-      sorular: sorular.map((s) => ({ dogruIndex: s.dogruIndex })),
+      sorular: sorular.map((s) => ({ soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex, aciklama: s.aciklama || null })), // 22 Eylul: yanlislari gosterme ozelligi icin genisletildi
     });
   } catch (e) {
     console.error(e);

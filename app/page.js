@@ -7055,6 +7055,26 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     {tekKonuSonuc.hakimiyetSeviyesi === "hakim" ? "Bu konuda ustalaştın, başka bir konuya geçebilirsin." : "Bu konuya tekrar çalışman öneriliyor."}
                   </p>
                 </div>
+                {/* 22 Eylul: yanlis/bos sorulari GERCEK ekranda gosterme ozelligi -
+                    kullanicinin gerçek testte bulduğu eksiklik, önceden hiç yoktu */}
+                {Array.isArray(tekKonuSonuc.sorular) && tekKonuSonuc.sorular.some((s, i) => Number(tekKonuCevaplar[i]) !== Number(s.dogruIndex)) && (
+                  <div style={{ textAlign: "left", marginBottom: 16 }}>
+                    <p style={{ color: "#fff", fontSize: 12.5, fontWeight: 800, marginBottom: 10 }}>📝 Yanlış/Boş Bıraktıkların</p>
+                    {tekKonuSonuc.sorular.map((s, i) => {
+                      const verilenCevap = tekKonuCevaplar[i];
+                      const doguMu = Number(verilenCevap) === Number(s.dogruIndex);
+                      if (doguMu) return null;
+                      return (
+                        <div key={i} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 12, marginBottom: 8 }}>
+                          <p style={{ color: "#fff", fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{i + 1}. {s.soru}</p>
+                          <p style={{ color: "#FF6B5E", fontSize: 11, marginBottom: 3 }}>Senin cevabın: {verilenCevap != null ? (s.secenekler?.[verilenCevap] || "-") : "Boş bıraktın"}</p>
+                          <p style={{ color: "#3DA35D", fontSize: 11, marginBottom: s.aciklama ? 6 : 0 }}>Doğru cevap: {s.secenekler?.[s.dogruIndex] || "-"}</p>
+                          {s.aciklama && <p style={{ color: "#8A968E", fontSize: 11 }}>💡 {s.aciklama}</p>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
                 <div style={{ display: "flex", gap: 8 }}>
                   {tekKonuSonuc.hakimiyetSeviyesi !== "hakim" && (
                     <button onClick={() => tekKonuBaslat(tekKonuDers, tekKonuUnite, tekKonuKonu)} style={{ flex: 1, padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Tekrar Dene</button>
