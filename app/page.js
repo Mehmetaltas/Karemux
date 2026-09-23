@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
+import { stringIcindekiKontrolKarakterleriKaciscala, bilinenMojibakeyiOnar } from "@/lib/json-ayikla";
 import { TURKIYE_IL_ILCE } from "@/lib/il-ilce";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { gorselUret } from "@/lib/gorsel-motoru";
@@ -537,7 +538,14 @@ function jsonMetniTemizle(cevap, opts) {
   let t = cevap.replace(/```json|```/g, "");
   if (opts && opts.dilFiltresi) t = t.replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "");
   if (opts && opts.parantezTemizle) t = t.replace(/\s*\(\d{1,4}\)\s*/g, " ");
-  return t.trim();
+  t = t.trim();
+  // 23 Eylul: 18 farkli cagiran icin AYNI kontrol-karakteri/mojibake koruması
+  // merkezi olarak eklendi - eskiden JSON.parse "Bad control character"
+  // hatasiyla cokebiliyordu (sunucu tarafinda bugun defalarca bulunan AYNI
+  // sinif hata, artik istemci tarafinda da kapatildi).
+  t = stringIcindekiKontrolKarakterleriKaciscala(t);
+  t = bilinenMojibakeyiOnar(t);
+  return t;
 }
 
 async function gorselKararIste(ders, konu, sinif, cihazId) {
