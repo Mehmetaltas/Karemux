@@ -44,6 +44,23 @@ export const maxDuration = 60; // Vercel fonksiyon zaman asimini uzat (buyuk ure
 
 const BAGLAM_TEMELLI_SORU_TALIMATI = `Sorulari "Baglam Temelli Soru" yaklasimiyla yaz: her soru gercekci bir senaryo, veri veya durum icinde kurulsun. Celdiriciler rastgele olmamali, spesifik bir kavram yanilgisini yansitmali. Turkce'ye ozgu karakterleri DOGRU ve EKSIKSIZ kullan.`;
 
+// 23 Eylul - Full Audit bulgusu: "Baglam Temelli Soru" tarzi HERKESE
+// zorlaniyordu, ama gercek MEB takvimine gore (dogrulandi) SADECE 5,6,7.
+// siniflar Maarif Modeli'nde (baglam-temelli); 4,8. siniflar HALA eski
+// muferedatta (kazanim-temelli, geleneksel). mufredat_turu alanini artik
+// kullanan ILK route bu.
+const KAZANIM_TEMELLI_SORU_TALIMATI = `Sorulari GELENEKSEL "Kazanim Temelli Soru" yaklasimiyla yaz: dogrudan, ders kitabi diline uygun, net bir bilgi/islem/kural olcen sorular olsun - gereksiz uzun senaryo/hikaye kurma. Celdiriciler spesifik bir kavram yanilgisini yansitmali. Turkce'ye ozgu karakterleri DOGRU ve EKSIKSIZ kullan.`;
+
+async function soruTalimatiSecSunucu(sinif) {
+  try {
+    const sonuc = await sql`SELECT DISTINCT mufredat_turu FROM mufredat WHERE sinif = ${Number(sinif)} LIMIT 1`;
+    if (sonuc[0]?.mufredat_turu === "eski_2018") return KAZANIM_TEMELLI_SORU_TALIMATI;
+    return BAGLAM_TEMELLI_SORU_TALIMATI;
+  } catch (e) {
+    return BAGLAM_TEMELLI_SORU_TALIMATI; // sorgu basarisiz olursa guvenli varsayilan
+  }
+}
+
 // cikti_tipi: "sorular" (coktan secmeli soru listesi) | "metin" (duz metin rapor/ozet) | "acik_uclu" (soru+adim adim cozum, sikli degil)
 const TUR_TANIMLARI = {
   calisma_kagidi: { baslik: "Çalışma Kağıdı", soruSayisi: 8, aciklama: "kısa konu özeti + karışık zorlukta 8 soru + cevap anahtarı", ciktiTipi: "sorular" },
@@ -68,6 +85,7 @@ export async function POST(req) {
     if (!ogretmen) return Response.json({ error: "Oturum yok" }, { status: 401 });
 
     const { tur, sinif, ders, konu, ogretmenNotu } = govde;
+    const soruTalimati = await soruTalimatiSecSunucu(sinif);
     const tanim = TUR_TANIMLARI[tur];
     if (!tanim || !sinif || !ders || !konu?.trim()) return Response.json({ error: "Eksik veya gecersiz bilgi" }, { status: 400 });
 
@@ -97,7 +115,7 @@ export async function POST(req) {
     }
 
     if (tanim.ciktiTipi === "acik_uclu") {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}. ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI: Bu sorular ACIK UCLU olmali - coktan secmeli SIK (A/B/C/D) OLMAMALI, ogrenci kendi cozumunu yazmali. Her soru icin "cozum" alaninda, ogrencinin kontrol edebilecegi ADIM ADIM, DETAYLI bir cozum ver (sadece sonuc degil, tum adimlari goster) - SESIN COK ONEMLI: cozumu, sicak bir ogretmenin evde tek basina calisan ogrenciye yaninda oturup anlatiyormus gibi yaz. SOGUK/DERS KITABI cumleleri ("Once X hesaplanir, sonra Y bulunur.") KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi burada dikkat et..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}. ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI: Bu sorular ACIK UCLU olmali - coktan secmeli SIK (A/B/C/D) OLMAMALI, ogrenci kendi cozumunu yazmali. Her soru icin "cozum" alaninda, ogrencinin kontrol edebilecegi ADIM ADIM, DETAYLI bir cozum ver (sadece sonuc degil, tum adimlari goster) - SESIN COK ONEMLI: cozumu, sicak bir ogretmenin evde tek basina calisan ogrenciye yaninda oturup anlatiyormus gibi yaz. SOGUK/DERS KITABI cumleleri ("Once X hesaplanir, sonra Y bulunur.") KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi burada dikkat et..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
 {"baslik":"...","ozet":"kisa konu ozeti (yoksa bos birak)","sorular":[{"soru":"...","cozum":"adim adim detayli cozum metni","zorluk":"kolay"}]}`;
 
       const veri = await aiCagirVeJsonAyikla(p, 7000, false); // 22 Eylul: 4000 yetersizdi, acik uclu detayli cozumler kesiliyordu (GERCEK testte kanitlandi: yarim kalmis JSON hatasi)
@@ -130,7 +148,7 @@ export async function POST(req) {
         ? `\n\nBu dersin GERCEK mufredat uniteleri (SADECE bu listeden sec, kendi uydurma):\n${gercekUniteler.map((u) => "- " + u.unite).join("\n")}`
         : "";
 
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinin TAMAMINI (tek uniteyle sinirli DEGIL) kapsayan, gercek bir sinav kitapcigi kalitesinde "${tanim.baslik}" hazirla. ${sinif}. sinif seviyesinde ${tanim.soruSayisi} soru olsun. ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI KURALLAR: (1) Sorular EN AZ 5 FARKLI UNITEDEN gelsin, tek bir uniteye yogunlasma - her sorunun hangi uniteden geldigini "unite" alaninda belirt, ${gercekUniteler.length > 0 ? "AŞAĞIDAKİ GERÇEK ÜNİTE LİSTESİNDEN BİREBİR SEÇEREK" : "gercekci bir isimle"}. (2) Zorluk dagilimi TAM OLARAK soyle olsun: ilk %20'si kolay, ortadaki %55'i orta, son %25'i zor (sirali ver). (3) Gercekci bir sinav suresi oner (soru basina ortalama 100 saniye hesabiyla). (4) Kisa, net bir sinav yonergesi yaz (ogrenciye nasil cevaplayacagini anlatan 1-2 cumle). (5) Her soru icin ayrica "beceri" (soru hangi beceriyi olcuyor, 2-4 kelime), "tahminiSureSaniye" (sayisal), "yayginHata" (ogrencilerin bu tarz soruda en sik yaptigi hata, kisa), "cozumTeknigi" (hizli cozum ipucu, kisa) alanlarini da doldur. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:${uniteListesiMetni}
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinin TAMAMINI (tek uniteyle sinirli DEGIL) kapsayan, gercek bir sinav kitapcigi kalitesinde "${tanim.baslik}" hazirla. ${sinif}. sinif seviyesinde ${tanim.soruSayisi} soru olsun. ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI KURALLAR: (1) Sorular EN AZ 5 FARKLI UNITEDEN gelsin, tek bir uniteye yogunlasma - her sorunun hangi uniteden geldigini "unite" alaninda belirt, ${gercekUniteler.length > 0 ? "AŞAĞIDAKİ GERÇEK ÜNİTE LİSTESİNDEN BİREBİR SEÇEREK" : "gercekci bir isimle"}. (2) Zorluk dagilimi TAM OLARAK soyle olsun: ilk %20'si kolay, ortadaki %55'i orta, son %25'i zor (sirali ver). (3) Gercekci bir sinav suresi oner (soru basina ortalama 100 saniye hesabiyla). (4) Kisa, net bir sinav yonergesi yaz (ogrenciye nasil cevaplayacagini anlatan 1-2 cumle). (5) Her soru icin ayrica "beceri" (soru hangi beceriyi olcuyor, 2-4 kelime), "tahminiSureSaniye" (sayisal), "yayginHata" (ogrencilerin bu tarz soruda en sik yaptigi hata, kisa), "cozumTeknigi" (hizli cozum ipucu, kisa) alanlarini da doldur. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:${uniteListesiMetni}
 {"baslik":"...","yonerge":"...","sinavSuresiDk":40,"sorular":[{"unite":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"...","tahminiSureSaniye":45,"yayginHata":"...","cozumTeknigi":"..."}]}`;
 
       const veri = await aiCagirVeJsonAyikla(p, 8000, true);
@@ -161,7 +179,7 @@ export async function POST(req) {
     }
 
     const notMetni = tanim.notGerekli ? ` Ogretmenin belirttigi hedef: "${ogretmenNotu.trim()}" - sorulari BUNA GORE hedefle.` : "";
-    const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${tur === "brans_denemesi" ? "" : ` "${konu}" konusuyla ilgili`} ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}.${notMetni} ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+    const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${tur === "brans_denemesi" ? "" : ` "${konu}" konusuyla ilgili`} ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}.${notMetni} ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
 {"baslik":"...","ozet":"kisa konu ozeti (yoksa bos birak)","sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]}`;
 
     const veri = await aiCagirVeJsonAyikla(p, 7000, true);
