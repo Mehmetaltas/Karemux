@@ -5,26 +5,18 @@ export async function GET() {
   const testHesaplar = await sql`SELECT id FROM kullanicilar WHERE eposta LIKE '%@karemux-test.com' OR eposta LIKE 'audit-%'`;
   const idler = [...anonHesaplar, ...testHesaplar].map(h => h.id);
 
-  async function say(sonucSql) {
-    try { const r = await sonucSql; return Number(r[0]?.c || 0); } catch (e) { return `hata: ${e.message}`; }
+  const silinen = {};
+  async function sil(ad, sonucSql) {
+    try { const r = await sonucSql; silinen[ad] = r.length; } catch (e) { silinen[ad] = `hata: ${e.message}`; }
   }
 
-  const iliski = {
-    ulusal_deneme_sonuclari: await say(sql`SELECT COUNT(*) as c FROM ulusal_deneme_sonuclari WHERE kullanici_id = ANY(${idler})`),
-    ucretli_deneme_sonuclari: await say(sql`SELECT COUNT(*) as c FROM ucretli_deneme_sonuclari WHERE kullanici_id = ANY(${idler})`),
-    sinav_sonuclari: await say(sql`SELECT COUNT(*) as c FROM sinav_sonuclari WHERE kullanici_id = ANY(${idler})`),
-    hata_kitapcigi: await say(sql`SELECT COUNT(*) as c FROM hata_kitapcigi WHERE kullanici_id = ANY(${idler})`),
-    ilerleme: await say(sql`SELECT COUNT(*) as c FROM ilerleme WHERE kullanici_id = ANY(${idler})`),
-    seviye_tespit_kademe: await say(sql`SELECT COUNT(*) as c FROM seviye_tespit_kademe WHERE kullanici_id = ANY(${idler})`),
-    gunluk_kullanim: await say(sql`SELECT COUNT(*) as c FROM gunluk_kullanim WHERE kullanici_id = ANY(${idler})`),
-    konu_hakimiyet: await say(sql`SELECT COUNT(*) as c FROM konu_hakimiyet WHERE kullanici_id = ANY(${idler})`),
-    tek_konu_oturumu: await say(sql`SELECT COUNT(*) as c FROM tek_konu_oturumu WHERE kullanici_id = ANY(${idler})`),
-  };
+  await sil("ulusal_deneme_sonuclari", sql`DELETE FROM ulusal_deneme_sonuclari WHERE kullanici_id = ANY(${idler}) RETURNING id`);
+  await sil("ucretli_deneme_sonuclari", sql`DELETE FROM ucretli_deneme_sonuclari WHERE kullanici_id = ANY(${idler}) RETURNING id`);
+  await sil("sinav_sonuclari", sql`DELETE FROM sinav_sonuclari WHERE kullanici_id = ANY(${idler}) RETURNING id`);
+  await sil("hata_kitapcigi", sql`DELETE FROM hata_kitapcigi WHERE kullanici_id = ANY(${idler}) RETURNING id`);
+  await sil("ilerleme", sql`DELETE FROM ilerleme WHERE kullanici_id = ANY(${idler}) RETURNING id`);
+  await sil("gunluk_kullanim", sql`DELETE FROM gunluk_kullanim WHERE kullanici_id = ANY(${idler}) RETURNING id`);
+  await sil("kullanicilar", sql`DELETE FROM kullanicilar WHERE id = ANY(${idler}) RETURNING id`);
 
-  return Response.json({
-    anonHesapSayisi: anonHesaplar.length,
-    testHesapSayisi: testHesaplar.length,
-    toplamHesap: idler.length,
-    iliskiliVeri: iliski,
-  });
+  return Response.json({ toplamHesapSilindi: idler.length, detay: silinen });
 }
