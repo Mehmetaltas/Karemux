@@ -1,37 +1,30 @@
 import { sql } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export async function GET() {
-  const anonHesaplar = await sql`SELECT id, eposta FROM kullanicilar WHERE eposta LIKE '%@anon.karemux.com'`;
-  const testEpostaHesaplar = await sql`SELECT id, eposta FROM kullanicilar WHERE eposta LIKE '%@karemux-test.com' OR eposta LIKE 'audit-%'`;
-  const anonIdler = anonHesaplar.map(h => h.id);
-  const testIdler = testEpostaHesaplar.map(h => h.id);
-  const tumIdler = [...anonIdler, ...testIdler];
+  const anonHesaplar = await sql`SELECT id FROM kullanicilar WHERE eposta LIKE '%@anon.karemux.com'`;
+  const testHesaplar = await sql`SELECT id FROM kullanicilar WHERE eposta LIKE '%@karemux-test.com' OR eposta LIKE 'audit-%'`;
+  const idler = [...anonHesaplar, ...testHesaplar].map(h => h.id);
 
-  async function iliskiliVeriSay(idler) {
-    if (idler.length === 0) return {};
-    const sonuc = {};
-    const tablolar = [
-      "ulusal_deneme_sonuclari", "ucretli_deneme_sonuclari", "sinav_sonuclari",
-      "hata_kitapcigi", "ilerleme", "seviye_tespit_kademe", "seviye_tespit_sonuc",
-      "gunluk_kullanim", "gunluk_gorevler", "konu_hakimiyet", "tek_konu_oturumu",
-      "veli_ogrenci", "canli_ders_katilimcilari", "geri_bildirimler", "randevular",
-    ];
-    for (const t of tablolar) {
-      try {
-        const kolon = t === "veli_ogrenci" ? "ogrenci_id" : "kullanici_id";
-        const r = await sql.query(`SELECT COUNT(*)::int as c FROM ${t} WHERE ${kolon} = ANY($1)`, [idler]);
-        if (r[0].c > 0) sonuc[t] = r[0].c;
-      } catch (e) { /* tablo/kolon yoksa atla */ }
-    }
-    return sonuc;
+  async function say(sonucSql) {
+    try { const r = await sonucSql; return Number(r[0]?.c || 0); } catch (e) { return `hata: ${e.message}`; }
   }
 
-  const iliskiliVeri = await iliskiliVeriSay(tumIdler);
+  const iliski = {
+    ulusal_deneme_sonuclari: await say(sql`SELECT COUNT(*) as c FROM ulusal_deneme_sonuclari WHERE kullanici_id = ANY(${idler})`),
+    ucretli_deneme_sonuclari: await say(sql`SELECT COUNT(*) as c FROM ucretli_deneme_sonuclari WHERE kullanici_id = ANY(${idler})`),
+    sinav_sonuclari: await say(sql`SELECT COUNT(*) as c FROM sinav_sonuclari WHERE kullanici_id = ANY(${idler})`),
+    hata_kitapcigi: await say(sql`SELECT COUNT(*) as c FROM hata_kitapcigi WHERE kullanici_id = ANY(${idler})`),
+    ilerleme: await say(sql`SELECT COUNT(*) as c FROM ilerleme WHERE kullanici_id = ANY(${idler})`),
+    seviye_tespit_kademe: await say(sql`SELECT COUNT(*) as c FROM seviye_tespit_kademe WHERE kullanici_id = ANY(${idler})`),
+    gunluk_kullanim: await say(sql`SELECT COUNT(*) as c FROM gunluk_kullanim WHERE kullanici_id = ANY(${idler})`),
+    konu_hakimiyet: await say(sql`SELECT COUNT(*) as c FROM konu_hakimiyet WHERE kullanici_id = ANY(${idler})`),
+    tek_konu_oturumu: await say(sql`SELECT COUNT(*) as c FROM tek_konu_oturumu WHERE kullanici_id = ANY(${idler})`),
+  };
 
   return Response.json({
-    anonHesapSayisi: anonIdler.length,
-    testEpostaHesapSayisi: testIdler.length,
-    toplamSilinecek: tumIdler.length,
-    iliskiliVeriBulunanTablolar: iliskiliVeri,
+    anonHesapSayisi: anonHesaplar.length,
+    testHesapSayisi: testHesaplar.length,
+    toplamHesap: idler.length,
+    iliskiliVeri: iliski,
   });
 }
