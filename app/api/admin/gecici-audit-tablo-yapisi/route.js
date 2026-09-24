@@ -13,11 +13,12 @@ async function tabloBilgisi(tabloAdi, sayimSorgusu) {
 
 export async function GET() {
   const sonuc = {
-    sinav_sonuclari: await tabloBilgisi("sinav_sonuclari", () => sql`SELECT COUNT(*) as c FROM sinav_sonuclari`),
-    deneme_sonuclari: await tabloBilgisi("deneme_sonuclari", () => sql`SELECT COUNT(*) as c FROM deneme_sonuclari`),
-    deneme_satin_alma: await tabloBilgisi("deneme_satin_alma", () => sql`SELECT COUNT(*) as c FROM deneme_satin_alma`),
-    deneme_yazili: await tabloBilgisi("deneme_yazili", () => sql`SELECT COUNT(*) as c FROM deneme_yazili`),
-    sinav_hazirlik_deneyimi: await tabloBilgisi("sinav_hazirlik_deneyimi", () => sql`SELECT COUNT(*) as c FROM sinav_hazirlik_deneyimi`),
+    ulusal_denemeler: await tabloBilgisi("ulusal_denemeler", () => sql`SELECT COUNT(*) as c FROM ulusal_denemeler`),
+    ulusal_deneme_sonuclari: await tabloBilgisi("ulusal_deneme_sonuclari", () => sql`SELECT COUNT(*) as c FROM ulusal_deneme_sonuclari`),
+    ucretli_denemeler: await tabloBilgisi("ucretli_denemeler", () => sql`SELECT COUNT(*) as c FROM ucretli_denemeler`),
+    ucretli_deneme_sonuclari: await tabloBilgisi("ucretli_deneme_sonuclari", () => sql`SELECT COUNT(*) as c FROM ucretli_deneme_sonuclari`),
+    kurum_deneme_satin_alma: await tabloBilgisi("kurum_deneme_satin_alma", () => sql`SELECT COUNT(*) as c FROM kurum_deneme_satin_alma`),
+    hata_kitapcigi: await tabloBilgisi("hata_kitapcigi", () => sql`SELECT COUNT(*) as c FROM hata_kitapcigi`),
   };
   return Response.json(sonuc);
 }
