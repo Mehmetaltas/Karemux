@@ -68,14 +68,19 @@ export async function POST(req) {
       VALUES (${denemeId}, ${kullaniciId}, ${kurumId}, ${dogru}, ${yanlis}, ${bos}, ${net})
     `;
 
+    // 24 Eylul: GERCEK testte bulundu - DB net'i yuvarlanmis (numeric kolon)
+    // saklarken JS'deki HAM (yuvarlanmamis) net ile karsilastirma yapiliyordu,
+    // bu da kendi sonucunu bulamayip siram=0 donmesine yol aciyordu (1 olmasi
+    // gerekirken). Karsilastirma da AYNI yuvarlanmis hassasiyetle yapiliyor simdi.
+    const netYuvarlanmis = Math.round(net * 100) / 100;
     const kurumSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kurum_id = ${kurumId} ORDER BY net DESC`;
     const kurumKatilimci = kurumSiralama.length;
-    const kurumSiram = kurumSiralama.findIndex((r) => Number(r.net) <= net) + 1;
+    const kurumSiram = kurumSiralama.findIndex((r) => Number(r.net) <= netYuvarlanmis) + 1;
     const kurumOrtalama = kurumKatilimci > 0 ? Math.round((kurumSiralama.reduce((t, r) => t + Number(r.net), 0) / kurumKatilimci) * 100) / 100 : null;
 
     const genelSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} ORDER BY net DESC`;
     const genelKatilimci = genelSiralama.length;
-    const genelSiram = genelSiralama.findIndex((r) => Number(r.net) <= net) + 1;
+    const genelSiram = genelSiralama.findIndex((r) => Number(r.net) <= netYuvarlanmis) + 1;
     const genelOrtalama = genelKatilimci > 0 ? Math.round((genelSiralama.reduce((t, r) => t + Number(r.net), 0) / genelKatilimci) * 100) / 100 : null;
 
     const karne = Object.keys(altKonuOzet).map((k) => ({ altKonu: k, ...altKonuOzet[k] }));
