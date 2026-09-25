@@ -171,7 +171,7 @@ export default function Tanitim() {
 
           {[
             { baslik: "📖 Öğrenme", ogeler: ["Sınırsız Konu Anlatımı (6 ders)", "Yeni Nesil Soru Çözümü", "Paragraf Stüdyosu (8 tür pratik)", "Formül ve Kural Kartları", "Kelime Kartları (İngilizce + Türkçe)", "Fotoğrafla Soru Çözme"] },
-            { baslik: "📝 Sınav Hazırlığı", ogeler: ["Deneme Sınavı", "Yazılı Hazırlığı", "Türkiye Geneli Deneme (gerçek sıralama)", "Bursluluk Sınavı (İOKBS) Hazırlığı", "Sınav Stratejisi Rehberi", "Sınav Kaygısı Desteği"] },
+            { baslik: "📝 Sınav Hazırlığı", ogeler: ["Deneme Sınavı", "Yazılı Hazırlığı", "Türkiye Geneli Deneme (gerçek sıralama)", "Deneme Kulübü (bireysel üyelik)", "Bursluluk Sınavı (İOKBS) Hazırlığı", "Sınav Stratejisi Rehberi", "Sınav Kaygısı Desteği"] },
             { baslik: "🎯 Kişisel Takip", ogeler: ["Zayıf Konu Haritası", "Aralıklı Tekrar Sistemi", "Haftalık Çalışma Planı", "Hedef Okulum ve Puan Hesaplayıcı", "Karne ve İlerleme Raporu", "Ara Tatil ve Yaz Tatili Programları", "Kütüphanem (geçmiş içeriğin tek yerde)"] },
             { baslik: "👥 İnsan Desteği", ogeler: ["Öğretmenle Görüntülü Özel Ders", "Canlı Grup Dersi", "Canlı Konu Kampı", "Canlı Soru Çözüm Saati", "Rehber Öğretmenle Danışmanlık", "Veli Paneli (canlı takip)", "Kurum/Dershane Paneli (toplu rapor)", "Kurumlara Özel Toplu Lisans", "Kurumlara Özel Deneme Satışı"] },
           ].map((grup, gi) => (
@@ -250,25 +250,33 @@ export default function Tanitim() {
       {/* ==== OZEL DERS ==== */}
       <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>1-1 Özel Ders de İstersen</h2>
-        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle birebir ders — öğretmen seviyesine göre net saatlik ücret.</p>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-          {[
-            { kademe: "C", aciklama: "Yeni mezun / teknik-temel", fiyat: "600₺/saat" },
-            { kademe: "B", aciklama: "Deneyimli branş öğretmeni", fiyat: "900₺/saat" },
-            { kademe: "A", aciklama: "Akademisyen / uzman", fiyat: "1.300₺+/saat" },
-          ].map((k) => (
-            <div key={k.kademe} style={{ flex: "1 1 180px", maxWidth: 220, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 18, textAlign: "center" }}>
-              <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red, marginBottom: 4 }}>{k.kademe} Kademe</p>
-              <p style={{ fontSize: 11.5, color: C.inkSoft, marginBottom: 10 }}>{k.aciklama}</p>
-              <p style={{ fontWeight: 700, fontSize: 14 }}>{k.fiyat}</p>
-            </div>
-          ))}
-        </div>
+        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Görüntülü, gerçek öğretmenle birebir ders — fiyat öğretmene göre değişir, net saatlik ücreti öğretmen seçim ekranında görürsün.</p>
         <p style={{ fontSize: 11, color: C.inkSoft, textAlign: "center", marginTop: 14 }}>
           <strong>Branşlar:</strong> Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce.
         </p>
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 6, fontStyle: "italic" }}>
           Ders saatlerini öğretmen ekranından seçersin.
+        </p>
+      </div>
+
+      {/* ==== DENEME KULUBU ==== */}
+      <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
+        <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>🏅 Deneme Kulübü</h2>
+        <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Düzenli deneme + kişisel analiz + hata kitapçığı + Türkiye/il karşılaştırması, bireysel üyelik.</p>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+          {[
+            { ad: "Başlangıç", fiyat: "2.490₺/yıl" },
+            { ad: "Standart", fiyat: "5.490₺/yıl" },
+            { ad: "LGS", fiyat: "9.900₺/yıl" },
+          ].map((k) => (
+            <div key={k.ad} style={{ flex: "1 1 180px", maxWidth: 220, background: "#fff", border: `1px solid ${C.grid}`, borderRadius: 12, padding: 18, textAlign: "center" }}>
+              <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 10 }}>{k.ad}</p>
+              <p style={{ fontFamily: C.displayFont, fontSize: 22, fontWeight: 800, color: C.red }}>{k.fiyat}</p>
+            </div>
+          ))}
+        </div>
+        <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
+          Havale/EFT ile hemen başlayabilirsin - kart ile ödeme çok yakında.
         </p>
       </div>
 

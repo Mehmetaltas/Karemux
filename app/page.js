@@ -6208,7 +6208,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   <div style={{ marginTop: 4, paddingTop: 12, borderTop: `1px solid ${COLORS.line}` }}>
                     <p style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6 }}>🎓 Özel Ders (1-1)</p>
                     <p style={{ fontSize: 11.5, color: COLORS.muted, marginBottom: 8 }}>
-                      Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce. Öğretmen seviyesine göre net saatlik ücret: <b>C</b> kademe 600₺ · <b>B</b> kademe 900₺ · <b>A</b> kademe 1.300₺+. Ders saatlerini öğretmen ekranından seçersin.
+                      Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce. Fiyat öğretmene göre değişir, net saatlik ücreti öğretmen seçim ekranında görürsün.
                     </p>
                     <button onClick={() => { setMod("ogretmenders"); setMenuAcik(false); }} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: `1.5px solid ${COLORS.coral}`, background: "transparent", color: COLORS.coral, fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
                       Özel Ders Öğretmeni Bul →
