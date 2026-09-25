@@ -1,20 +1,13 @@
 import { sql } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export async function GET() {
-  const kurum = await sql`
-    INSERT INTO kurumlar (ad, kurum_kodu, eposta) VALUES ('Audit Regresyon Kurumu', 'AUDITREG01', 'audit-reg-kurum@karemux-test.com')
-    RETURNING id, kurum_kodu
-  `;
-  const kurumId = kurum[0].id;
-  const sorular = [
-    { soru: "4+4 kactir?", secenekler: ["A) 6", "B) 7", "C) 8", "D) 9"], dogruIndex: 2, altKonu: "Toplama", aciklama: "4+4=8" },
-  ];
-  const deneme = await sql`
-    INSERT INTO ucretli_denemeler (ad, ders, sinif, sorular, fiyat_tl, aktif)
-    VALUES ('Audit Regresyon Denemesi', 'Matematik', 8, ${JSON.stringify(sorular)}, 0, true)
-    RETURNING id
-  `;
-  const denemeId = deneme[0].id;
-  await sql`INSERT INTO kurum_deneme_satin_alma (kurum_id, deneme_id, tutar_tl, odendi) VALUES (${kurumId}, ${denemeId}, 0, true)`;
-  return Response.json({ kurumId, kurumKodu: kurum[0].kurum_kodu, denemeId });
+  await sql`DELETE FROM ucretli_deneme_sonuclari WHERE deneme_id IN (SELECT id FROM ucretli_denemeler WHERE ad LIKE 'Audit %')`;
+  await sql`DELETE FROM kurum_deneme_satin_alma WHERE kurum_id IN (SELECT id FROM kurumlar WHERE ad LIKE 'Audit %')`;
+  await sql`DELETE FROM ucretli_denemeler WHERE ad LIKE 'Audit %'`;
+  await sql`DELETE FROM kurumlar WHERE ad LIKE 'Audit %'`;
+  await sql`DELETE FROM abonelikler WHERE iyzico_abonelik_id = 'test-onay'`;
+  await sql`DELETE FROM odemeler WHERE havale_referans = 'KRX-MUGUHH5G'`;
+  const idler = (await sql`SELECT id FROM kullanicilar WHERE eposta LIKE 'audit-dk%' OR eposta LIKE 'audit-reg%'`).map(r => r.id);
+  await sql`DELETE FROM kullanicilar WHERE id = ANY(${idler})`;
+  return Response.json({ ok: true, silinenKullanici: idler.length });
 }
