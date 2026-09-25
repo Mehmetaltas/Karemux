@@ -94,6 +94,8 @@ export default function KurumPaneli() {
   const [rapor, setRapor] = useState(null);
   const [raporYukleniyor, setRaporYukleniyor] = useState(false);
   const [logoUrl, setLogoUrl] = useState("");
+  const [logoYukleniyor, setLogoYukleniyor] = useState(false);
+  const [logoHata, setLogoHata] = useState("");
   const [ogrenciler, setOgrenciler] = useState(null);
   const [duyurular, setDuyurular] = useState(null);
   const [duyuruBaslik, setDuyuruBaslik] = useState("");
@@ -134,6 +136,26 @@ export default function KurumPaneli() {
         setLogoUrl(data.kurum.logo_url || "");
       }
     } catch {}
+  }
+
+  // 25 Eylul: serbest metin URL yerine GERCEK dosya yuklemesi - eskiden
+  // kurum yoneticisi HERHANGI bir dis URL yazabiliyordu, artik SADECE
+  // kendi Vercel Blob deposumuza yuklenen bir dosya kabul ediliyor.
+  async function logoYukle(dosya) {
+    if (!dosya) return;
+    setLogoHata(""); setLogoYukleniyor(true);
+    try {
+      const govde = new FormData();
+      govde.append("logo", dosya);
+      const res = await fetch("/api/kurum/logo-yukle", { method: "POST", body: govde });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setLogoUrl(data.logoUrl);
+    } catch (e) {
+      setLogoHata(e.message);
+    } finally {
+      setLogoYukleniyor(false);
+    }
   }
 
   async function denemeleriGetir() {
@@ -451,8 +473,11 @@ export default function KurumPaneli() {
           <input aria-label="Vergi numarasi" autoComplete="off" value={vergiNo} onChange={(e) => setVergiNo(e.target.value)} placeholder="Vergi Numarasi (10 hane)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
           <input aria-label="Vergi dairesi" autoComplete="off" value={vergiDairesi} onChange={(e) => setVergiDairesi(e.target.value)} placeholder="Vergi Dairesi" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
           <input aria-label="Yetkili unvani" autoComplete="off" value={yetkiliUnvan} onChange={(e) => setYetkiliUnvan(e.target.value)} placeholder="Yetkili Unvani (opsiyonel)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 8, fontSize: 13 }} />
-          <input aria-label="Logo URL" autoComplete="off" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="Logo URL (opsiyonel, baska bir yerde barindirilan gorsel linki)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 11px", borderRadius: 6, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 13 }} />
-          {logoUrl && <img src={logoUrl} alt="Kurum logosu" style={{ maxHeight: 50, marginBottom: 10, borderRadius: 6 }} onError={(e) => { e.target.style.display = "none"; }} />}
+          <label htmlFor="kurum-logo-yukle" style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 4 }}>Kurum Logosu (opsiyonel, PNG/JPEG/WEBP/SVG, en fazla 2MB)</label>
+          <input id="kurum-logo-yukle" aria-label="Logo yukle" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" disabled={logoYukleniyor} onChange={(e) => logoYukle(e.target.files[0])} style={{ width: "100%", boxSizing: "border-box", marginBottom: 8, fontSize: 13 }} />
+          {logoYukleniyor && <p style={{ fontSize: 12, color: T.muted, marginBottom: 8 }}>Yukleniyor...</p>}
+          {logoHata && <p style={{ fontSize: 12, color: "#B23A2E", marginBottom: 8 }}>{logoHata}</p>}
+          {logoUrl && <Image src={logoUrl} alt="Kurum logosu" width={200} height={50} style={{ maxHeight: 50, width: "auto", height: "auto", marginBottom: 10, borderRadius: 6 }} onError={(e) => { e.target.style.display = "none"; }} />}
           <button onClick={profilKaydet} style={{ padding: "9px 16px", borderRadius: 6, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Kaydet</button>
           {profilMesaj && <p style={{ fontSize: 12, marginTop: 8, color: T.muted }}>{profilMesaj}</p>}
         </section>

@@ -29,8 +29,19 @@ export async function POST(req) {
       return Response.json({ error: "Vergi dairesi gerekli" }, { status: 400 });
     }
 
+    // 25 Eylul: logo_url artik SADECE /api/kurum/logo-yukle'nin (Vercel Blob)
+    // dondurdugu adresi kabul eder - serbest dis URL riski (SSRF/istismar)
+    // kapatildi. Bos deger her zaman gecerli (logoyu kaldirmak icin).
+    const logoTemiz = logoUrl?.trim() || null;
+    if (logoTemiz && !logoTemiz.startsWith("https://") ) {
+      return Response.json({ error: "Gecersiz logo adresi" }, { status: 400 });
+    }
+    if (logoTemiz && !/\.vercel-storage\.com\//.test(logoTemiz)) {
+      return Response.json({ error: "Logo, sadece /api/kurum/logo-yukle uzerinden yuklenebilir" }, { status: 400 });
+    }
+
     await sql`
-      UPDATE kurumlar SET vergi_no = ${vergiNoTemiz}, vergi_dairesi = ${vergiDairesi.trim()}, yetkili_unvan = ${yetkiliUnvan || null}, logo_url = ${logoUrl?.trim() || null}
+      UPDATE kurumlar SET vergi_no = ${vergiNoTemiz}, vergi_dairesi = ${vergiDairesi.trim()}, yetkili_unvan = ${yetkiliUnvan || null}, logo_url = ${logoTemiz}
       WHERE id = ${yonetici.kurumId}
     `;
     return Response.json({ ok: true });
