@@ -315,7 +315,7 @@ export default function Tanitim() {
         <p style={{ fontSize: 10.5, color: C.inkSoft, textAlign: "center", marginTop: 14, fontStyle: "italic" }}>
           Branşlar: Matematik, Fen Bilimleri, Türkçe, T.C. İnkılap Tarihi (8. sınıf), Sosyal Bilgiler (5-7. sınıf), Din Kültürü, İngilizce.
         </p>
-        <div style={{ maxWidth: 480, margin: "20px auto 0", background: C.grid ? "#F5F3ED" : "#F5F3ED", borderRadius: 10, padding: "14px 18px", textAlign: "center" }}>
+        <div style={{ maxWidth: 480, margin: "20px auto 0", background: "#F5F3ED", borderRadius: 10, padding: "14px 18px", textAlign: "center" }}>
           <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>🛡️ İlk Hafta Memnuniyet Garantisi</p>
           <p style={{ fontSize: 10.5, color: C.inkSoft }}>Aylık paketlerde (Grup Dersi, Soru Çözüm, Rehberlik/Koçluk) ilk kez satın alan yeni öğrenciler, ilk 7 gün içinde memnun kalmazsa ücretini iade alır.</p>
         </div>
@@ -351,7 +351,7 @@ export default function Tanitim() {
             { ikon: "✏️", ad: "Soru Seti" },
             { ikon: "🏫", ad: "Yazılı (A/B)" },
             { ikon: "📖", ad: "Fasikül" },
-            { ikon: "🧠", ad: "Öğrenme Teknikleri" },
+            { ikon: "🎯", ad: "Öğrenme Çıktısı Testi" },
           ].map((ozellik) => (
             <div key={ozellik.ad} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 16px", minWidth: 100 }}>
               <p style={{ fontSize: 20, marginBottom: 4 }}>{ozellik.ikon}</p>
