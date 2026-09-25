@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
+import { denemeKulubuUyeMi } from "@/lib/deneme-kulubu";
 
 // Ucretsiz ulusal-deneme/gonder'in aynisi AMA once kullanicinin kurumunun
 // bu SPESIFIK denemeyi satin alip almadigini (odendi=true) kontrol ediyor.
@@ -11,17 +12,23 @@ export async function POST(req) {
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
 
-    const kullanici = await sql`SELECT kurum_id FROM kullanicilar WHERE id = ${kullaniciId}`;
-    const kurumId = kullanici[0]?.kurum_id;
-    if (!kurumId) {
-      return Response.json({ error: "Bu deneme sadece bir kuruma bagli ogrenciler icin - kurum baglantin yok" }, { status: 403 });
-    }
+    // 24 Eylul - Deneme Kulubu (MASTER v2): bireysel uye ise kurum/satin-alma
+    // GEREKMEZ - kurum_id NULL kalir (asagida siralama bunu dogru ele alir).
+    const uyelik = await denemeKulubuUyeMi(kullaniciId);
+    let kurumId = null;
+    if (!uyelik.uye) {
+      const kullanici = await sql`SELECT kurum_id FROM kullanicilar WHERE id = ${kullaniciId}`;
+      kurumId = kullanici[0]?.kurum_id;
+      if (!kurumId) {
+        return Response.json({ error: "Bu deneme sadece bir kuruma bagli ogrenciler icin - kurum baglantin yok" }, { status: 403 });
+      }
 
-    const satinAlma = await sql`
-      SELECT 1 FROM kurum_deneme_satin_alma WHERE kurum_id = ${kurumId} AND deneme_id = ${denemeId} AND odendi = true
-    `;
-    if (satinAlma.length === 0) {
-      return Response.json({ error: "Kurumun bu denemeye erisimi yok" }, { status: 403 });
+      const satinAlma = await sql`
+        SELECT 1 FROM kurum_deneme_satin_alma WHERE kurum_id = ${kurumId} AND deneme_id = ${denemeId} AND odendi = true
+      `;
+      if (satinAlma.length === 0) {
+        return Response.json({ error: "Kurumun bu denemeye erisimi yok" }, { status: 403 });
+      }
     }
 
     const deneme = await sql`SELECT sorular, ders FROM ucretli_denemeler WHERE id = ${denemeId} AND aktif = true`;
@@ -73,10 +80,14 @@ export async function POST(req) {
     // bu da kendi sonucunu bulamayip siram=0 donmesine yol aciyordu (1 olmasi
     // gerekirken). Karsilastirma da AYNI yuvarlanmis hassasiyetle yapiliyor simdi.
     const netYuvarlanmis = Math.round(net * 100) / 100;
-    const kurumSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kurum_id = ${kurumId} ORDER BY net DESC`;
-    const kurumKatilimci = kurumSiralama.length;
-    const kurumSiram = kurumSiralama.findIndex((r) => Number(r.net) <= netYuvarlanmis) + 1;
-    const kurumOrtalama = kurumKatilimci > 0 ? Math.round((kurumSiralama.reduce((t, r) => t + Number(r.net), 0) / kurumKatilimci) * 100) / 100 : null;
+    // kurumId null ise (Deneme Kulubu bireysel uyesi) kurum siralamasi anlamsiz - atlanir.
+    let kurumKatilimci = null, kurumSiram = null, kurumOrtalama = null;
+    if (kurumId) {
+      const kurumSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kurum_id = ${kurumId} ORDER BY net DESC`;
+      kurumKatilimci = kurumSiralama.length;
+      kurumSiram = kurumSiralama.findIndex((r) => Number(r.net) <= netYuvarlanmis) + 1;
+      kurumOrtalama = kurumKatilimci > 0 ? Math.round((kurumSiralama.reduce((t, r) => t + Number(r.net), 0) / kurumKatilimci) * 100) / 100 : null;
+    }
 
     const genelSiralama = await sql`SELECT net FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} ORDER BY net DESC`;
     const genelKatilimci = genelSiralama.length;

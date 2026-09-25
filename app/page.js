@@ -2388,8 +2388,37 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     } catch (e) { /* sessiz gec */ }
     finally { setUlusalYukleniyor(false); }
   }
+  // Deneme Kulubu (MASTER v2) - 24 Eylul, ilk kez eklendi.
+  const [denemeKulubuDurum, setDenemeKulubuDurum] = useState(null);
+  const [denemeKulubuYukleniyor, setDenemeKulubuYukleniyor] = useState(false);
+  const [denemeKulubuHavaleBilgisi, setDenemeKulubuHavaleBilgisi] = useState(null);
+  const [denemeKulubuHata, setDenemeKulubuHata] = useState("");
+
+  async function denemeKulubuDurumGetir() {
+    setDenemeKulubuYukleniyor(true);
+    try {
+      const res = await fetch(`/api/deneme-kulubu/durum?cihazId=${cihazIdRef.current}`);
+      const data = await res.json();
+      setDenemeKulubuDurum(data);
+    } catch (e) {} finally { setDenemeKulubuYukleniyor(false); }
+  }
+
+  async function denemeKulubuSatinAl(anahtar) {
+    setDenemeKulubuHata(""); setDenemeKulubuHavaleBilgisi(null); setDenemeKulubuYukleniyor(true);
+    try {
+      const res = await fetch("/api/checkout/havale-baslat", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: anahtar, kullaniciId: hesap?.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setDenemeKulubuHavaleBilgisi(data);
+    } catch (e) { setDenemeKulubuHata(temizHataMesaji(e, "Baslatilamadi, tekrar dene.")); } finally { setDenemeKulubuYukleniyor(false); }
+  }
+
   useEffect(() => { if (mod === "ulusaldeneme") ulusalDenemeyiGetir(); }, [mod]);
   useEffect(() => { if (mod === "ucretlideneme" && hesap) ucretliDenemeleriGetir(); }, [mod, hesap]);
+  useEffect(() => { if (mod === "denemekulubu" && hesap) denemeKulubuDurumGetir(); }, [mod, hesap]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli guard deseni, tekKonuAsama/tekKonuSorular kontrol degiskeni
   useEffect(() => { if (mod === "tekkonu" && hesap && tekKonuAsama === "secim" && !tekKonuSorular) tekKonuVeriGetir(); }, [mod, hesap]);
   useEffect(() => { if (mod === "hesap") donusumLogla("premium_inceleme", cihazIdRef.current); }, [mod]);
@@ -6827,6 +6856,61 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           </div>
         )}
 
+        {mod === "denemekulubu" && !hesap && (
+          <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>
+            <p style={{ fontSize: 30, marginBottom: 10 }}>🔒</p>
+            <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>Bu özellik için hesap gerekiyor</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 16, lineHeight: 1.6 }}>Deneme Kulübü'ne üye olabilmen için gerçek bir hesapla giriş yapman lazım.</p>
+            <button className="kx-btn" onClick={() => setMod("hesap")} style={{ padding: "10px 24px", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Giriş Yap / Kayıt Ol</button>
+          </div>
+        )}
+        {mod === "denemekulubu" && hesap && (
+          <div>
+            <div className="kx-fadein" style={{ background: "linear-gradient(135deg,#2E7D4F,#1F3D2E)", borderRadius: 14, padding: "18px 18px", marginBottom: 14, textAlign: "center" }}>
+              <p style={{ fontSize: 22, marginBottom: 4 }}>🏅</p>
+              <p style={{ color: "#fff", fontWeight: 700, fontSize: 16 }}>Deneme Kulübü</p>
+              <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, marginTop: 4 }}>Düzenli deneme + kişisel analiz + hata kitapçığı — bir üyelikte.</p>
+            </div>
+
+            {denemeKulubuYukleniyor && <p aria-live="polite" style={{ textAlign: "center", color: COLORS.muted, fontSize: 13 }}>Yükleniyor...</p>}
+
+            {!denemeKulubuYukleniyor && denemeKulubuDurum?.uye && (
+              <div style={{ background: "#EAF7EE", borderRadius: 12, padding: 20, textAlign: "center", marginBottom: 14 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>✓ {denemeKulubuDurum.seviyeAdi} üyesisin</p>
+                {denemeKulubuDurum.bitis && <p style={{ fontSize: 11.5, color: COLORS.muted, marginTop: 4 }}>Bitiş: {new Date(denemeKulubuDurum.bitis).toLocaleDateString("tr-TR")}</p>}
+                <button className="kx-btn" onClick={() => setMod("ucretlideneme")} style={{ marginTop: 12, padding: "10px 24px", borderRadius: 10, border: "none", background: "#2E7D4F", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Denemeleri Gör</button>
+              </div>
+            )}
+
+            {!denemeKulubuYukleniyor && denemeKulubuDurum && !denemeKulubuDurum.uye && !denemeKulubuHavaleBilgisi && (
+              <div>
+                {Object.entries(denemeKulubuDurum.seviyeler || {}).sort((a, b) => a[1].sira - b[1].sira).map(([anahtar, bilgi]) => (
+                  <div key={anahtar} style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 10 }}>
+                    <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 8 }}>{bilgi.ad}</p>
+                    <button className="kx-btn" onClick={() => denemeKulubuSatinAl(anahtar)} disabled={denemeKulubuYukleniyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+                      🏦 Havale ile Üye Ol
+                    </button>
+                  </div>
+                ))}
+                <p style={{ fontSize: 11, color: COLORS.muted, textAlign: "center", marginTop: 8 }}>Fiyatlar için veli panelinden de üyelik başlatılabilir.</p>
+              </div>
+            )}
+
+            {denemeKulubuHata && <p style={{ color: COLORS.coral, fontSize: 12.5, marginTop: 6, textAlign: "center" }}>{denemeKulubuHata}</p>}
+
+            {denemeKulubuHavaleBilgisi && (
+              <div style={{ background: COLORS.page, border: `1px solid ${COLORS.line}`, borderRadius: 12, padding: 16, marginTop: 10 }}>
+                <p style={{ fontSize: 11, color: COLORS.muted, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 10 }}>Havale Bilgileri</p>
+                <p style={{ fontSize: 13, marginBottom: 4 }}><b>Tutar:</b> {denemeKulubuHavaleBilgisi.tutar}₺</p>
+                <p style={{ fontSize: 13, marginBottom: 4 }}><b>IBAN:</b> {denemeKulubuHavaleBilgisi.iban}</p>
+                <p style={{ fontSize: 13, marginBottom: 4 }}><b>Hesap Sahibi:</b> {denemeKulubuHavaleBilgisi.hesapSahibi}</p>
+                <p style={{ fontSize: 13, marginBottom: 4 }}><b>Banka:</b> {denemeKulubuHavaleBilgisi.bankaAdi}</p>
+                <p style={{ fontSize: 13, marginBottom: 4 }}><b>Açıklama (referans):</b> {denemeKulubuHavaleBilgisi.referans}</p>
+                <p style={{ fontSize: 11, color: COLORS.muted, marginTop: 10 }}>Ödemeyi yaptıktan sonra üyeliğin en kısa sürede onaylanacak.</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {mod === "ucretlideneme" && !hesap && (
           <div className="kx-fadein" style={{ background: COLORS.page, borderRadius: 14, padding: 24, border: `1px solid ${COLORS.line}`, textAlign: "center" }}>

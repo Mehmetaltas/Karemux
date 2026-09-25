@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
+import { denemeKulubuUyeMi } from "@/lib/deneme-kulubu";
 
 function seedliRastgele(seed) {
   let t = seed >>> 0;
@@ -53,14 +54,19 @@ export async function GET(req) {
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
 
-    const kullanici = await sql`SELECT kurum_id FROM kullanicilar WHERE id = ${kullaniciId}`;
-    const kurumId = kullanici[0]?.kurum_id;
-    if (!kurumId) return Response.json({ error: "Kurum baglantin yok" }, { status: 403 });
+    // 24 Eylul - Deneme Kulubu (MASTER v2): bireysel uye ise kurum/satin-alma
+    // kontrolu GEREKMEZ, TUM aktif havuza erisir. Kurum akisi DEGISMEDEN duruyor.
+    const uyelik = await denemeKulubuUyeMi(kullaniciId);
+    if (!uyelik.uye) {
+      const kullanici = await sql`SELECT kurum_id FROM kullanicilar WHERE id = ${kullaniciId}`;
+      const kurumId = kullanici[0]?.kurum_id;
+      if (!kurumId) return Response.json({ error: "Kurum baglantin yok" }, { status: 403 });
 
-    const satinAlma = await sql`
-      SELECT 1 FROM kurum_deneme_satin_alma WHERE kurum_id = ${kurumId} AND deneme_id = ${denemeId} AND odendi = true
-    `;
-    if (satinAlma.length === 0) return Response.json({ error: "Kurumun bu denemeye erisimi yok" }, { status: 403 });
+      const satinAlma = await sql`
+        SELECT 1 FROM kurum_deneme_satin_alma WHERE kurum_id = ${kurumId} AND deneme_id = ${denemeId} AND odendi = true
+      `;
+      if (satinAlma.length === 0) return Response.json({ error: "Kurumun bu denemeye erisimi yok" }, { status: 403 });
+    }
 
     const zatenCozmus = await sql`SELECT id FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kullanici_id = ${kullaniciId}`;
     if (zatenCozmus.length > 0) return Response.json({ error: "Bu denemeyi zaten cozdun" }, { status: 400 });
