@@ -116,7 +116,6 @@ export default function YonetimPaneli() {
   const [sekme, setSekme] = useState("genel");
   const [tema, setTemaState] = useState("minimal");
   const [menuAcik, setMenuAcik] = useState(false);
-  const [cikisToastGoster, setCikisToastGoster] = useState(false);
 
   const [girisAnimasyonuGoster, setGirisAnimasyonuGoster] = useState(true);
   useEffect(() => {
@@ -859,6 +858,7 @@ export default function YonetimPaneli() {
   useEffect(() => { if (girisYapildi && sekme === "donusumhuni" && !satisLeadleri) satisLeadleriGetir(); }, [girisYapildi, sekme]);
                   // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ikiz" && !ikizVeri) ikizGetir(); }, [girisYapildi, sekme]);
+                  // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "butunluk" && !butunlukVeri) butunlukGetir(); }, [girisYapildi, sekme]);
                   // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: sadece 'sekme' degisince calissin, veri/getir fonksiyonlari her render'da yeniden olusuyor
   useEffect(() => { if (girisYapildi && sekme === "ikiz") sirketRaporGetir(sirketRaporDonem); }, [girisYapildi, sekme, sirketRaporDonem]);
@@ -1336,12 +1336,6 @@ export default function YonetimPaneli() {
             @keyframes kxGiris { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
             @keyframes kxNefes { 0%, 100% { filter: drop-shadow(0 0 20px rgba(76,201,240,0.5)); } 50% { filter: drop-shadow(0 0 32px rgba(76,201,240,0.8)); } }
           `}</style>
-        </div>
-      )}
-
-      {cikisToastGoster && (
-        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: "rgba(0,0,0,0.8)", color: "#fff", padding: "10px 18px", borderRadius: 999, fontSize: 13, whiteSpace: "nowrap" }}>
-          Çıkmak için tekrar geri tuşuna bas
         </div>
       )}
 
