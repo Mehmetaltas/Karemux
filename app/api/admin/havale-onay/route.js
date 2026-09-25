@@ -33,9 +33,11 @@ export async function GET(req) {
 
     const bekleyenler = await sql`
       SELECT o.id, o.kullanici_id, o.tutar, o.plan, o.havale_referans, o.olusturulma,
-             k.ad AS ogrenci_ad, k.eposta AS ogrenci_eposta
+             k.ad AS ogrenci_ad, k.eposta AS ogrenci_eposta,
+             p.ad AS paket_adi
       FROM odemeler o
       LEFT JOIN kullanicilar k ON k.id = o.kullanici_id
+      LEFT JOIN paketler p ON p.anahtar = o.plan
       WHERE o.yontem = 'havale' AND o.durum = 'beklemede'
       ORDER BY o.olusturulma ASC
     `;

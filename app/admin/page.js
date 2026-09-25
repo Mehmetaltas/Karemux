@@ -2260,7 +2260,7 @@ export default function YonetimPaneli() {
             ) : havaleVeri.map((h) => (
               <div key={h.id} style={{ background: T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10 }}>
                 <p style={{ fontSize: TYPO.bodyStrong, fontWeight: 700 }}>{h.ogrenci_ad || "?"} <span style={{ color: T.textMuted, fontWeight: 400 }}>({h.ogrenci_eposta})</span></p>
-                <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{h.plan} · {h.tutar}₺ · {new Date(h.olusturulma).toLocaleDateString("tr-TR")}</p>
+                <p style={{ fontSize: TYPO.caption, color: T.textMuted }}>{h.paket_adi || h.plan} · {h.tutar}₺ · {new Date(h.olusturulma).toLocaleDateString("tr-TR")}</p>
                 <p style={{ fontSize: TYPO.caption, fontFamily: T.mono, fontWeight: 700, color: T.mustard, marginTop: 4 }}>Referans: {h.havale_referans}</p>
                 <p style={{ fontSize: TYPO.micro, color: T.textMuted, marginTop: 4 }}>Banka hesabında bu referans kodlu {h.tutar}₺ tutarındaki havaleyi kontrol edip onaylayın.</p>
                 <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
