@@ -49,6 +49,8 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
     try {
       sorularHam = jsonAyikla(cevap).sorular;
     } catch (e) {
+      // 28 Eylul: TANI - yalnizca SEKIL bilgisi (icerik yok), davranis DEGISMEDI.
+      console.error("seviye-tespit jsonAyikla basarisiz:", e.message, "| uzunluk:", String(cevap).length, "| bas:", JSON.stringify(String(cevap).slice(0, 3)));
       sorularHam = null;
     }
 
@@ -59,7 +61,19 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
       typeof s.ders === "string" && typeof s.unite === "string"
     );
 
-    if (sorular.length === 0) throw new Error("Sorular uretilemedi, tekrar dene");
+    if (sorular.length === 0) {
+      // 28 Eylul: TANI - hata mesaji/akis ayni, sadece elenen yanitin SEKLI loglaniyor.
+      const ilk = Array.isArray(sorularHam) ? sorularHam[0] : undefined;
+      console.error("seviye-tespit sorular bos:", JSON.stringify({
+        sorularTuru: Array.isArray(sorularHam) ? "dizi" : typeof sorularHam,
+        uzunluk: Array.isArray(sorularHam) ? sorularHam.length : null,
+        ilkAnahtarlar: ilk && typeof ilk === "object" ? Object.keys(ilk) : null,
+        alanTurleri: ilk && typeof ilk === "object" ? Object.fromEntries(["soru", "secenekler", "dogruIndex", "ders", "unite"].map((k) => [k, Array.isArray(ilk[k]) ? "dizi" : typeof ilk[k]])) : null,
+        secenekSayisi: ilk && Array.isArray(ilk.secenekler) ? ilk.secenekler.length : null,
+        dogruIndexDegeri: ilk && "dogruIndex" in ilk ? String(ilk.dogruIndex).slice(0, 10) : null,
+      }));
+      throw new Error("Sorular uretilemedi, tekrar dene");
+    }
 
     const { gecenler: denetlenmisSorular, elenenSayisi } = await sorulariDenetle(sorular, "Bu sorular bir SEVIYE TESPIT sinavinda kullanilacak, ogrencinin yerlestirilecegi kademeyi belirliyor, cok yuksek dogruluk gerekiyor.");
     if (denetlenmisSorular.length === 0) throw new Error("Sorular kalite denetiminden gecemedi, tekrar dene");
