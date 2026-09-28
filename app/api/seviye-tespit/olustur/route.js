@@ -44,7 +44,9 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
     // SADECE {} arar, [] degil - bu yuzden format {"sorular":[...]} olarak
     // degistirildi (ayrica AI'nin TEK konu istendiginde diziyi bare objeye
     // "sadelestirme" egilimini de azaltir, nested array daha az riskli).
-    const azamiTokenSeviye = Math.min(8000, 400 + konular.length * 350);
+    // 28 Eylul: gemini'de thinkingBudget:700 var (lib/ai.js); 750'lik tavan dusunme tokenlariyla
+    // paylasiliyorsa yanit kesiliyor olabilir (2 ornek, KANITLANMADI) - tavan 1000 yukseltildi.
+    const azamiTokenSeviye = Math.min(8000, 1400 + konular.length * 350);
     const { metin: cevap, saglayici: uretenSaglayici } = await aiCagirDetay({ prompt: p, maxTokens: azamiTokenSeviye, jsonModu: true });
     let sorularHam;
     try {
