@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { denemeOlustur } from "@/lib/ulusalDenemeOlustur";
+import { geminiMaliyetTlHesapla } from "@/lib/ai-fiyatlandirma";
 
 // Kamp/Grup Dersi/Soru Cozum/Rehberlik-Kocluk katilimcilarina, 4 haftada
 // (ayda) 2 kez, il bazli TAM deneme (5 ders bir arada, LGS formati) acar.
@@ -8,17 +9,14 @@ import { denemeOlustur } from "@/lib/ulusalDenemeOlustur";
 const SINIFLAR = [5, 6, 7, 8];
 const DERSLER = ["Matematik", "Turkce", "Fen Bilimleri", "T.C. Inkilap Tarihi ve Ataturkculuk", "Ingilizce"];
 
-// Gercek maliyet formulu (app/api/admin/simulasyon/route.js ile AYNI sabitler,
-// 19 Agustos 2026 arastirmasi - Gemini 3.6 Flash, USD/TRY 47.93):
-const USD_TRY = 47.93;
-const GIRDI_FIYAT_USD_MTOK = 1.50;
-const CIKTI_FIYAT_USD_MTOK = 7.50;
+// Maliyet formulu artik lib/ai-fiyatlandirma.js'ten (28 Eylul 2026) - TEK
+// kaynak, admin/simulasyon ile AYNI fonksiyonu kullanir (eskiden USD_TRY
+// 47.93 sabit yaziliydi, hic guncellenmiyordu).
 const ORTALAMA_GIRDI_TOKEN = 800;
 const DENEME_CIKTI_TOKEN = 8000; // 20 soru
-function tekDersManiyeti() {
-  const girdi = (ORTALAMA_GIRDI_TOKEN / 1_000_000) * GIRDI_FIYAT_USD_MTOK;
-  const cikti = (DENEME_CIKTI_TOKEN / 1_000_000) * CIKTI_FIYAT_USD_MTOK;
-  return Math.round((girdi + cikti) * USD_TRY * 10000) / 10000;
+async function tekDersManiyeti() {
+  const { maliyetTl } = await geminiMaliyetTlHesapla(ORTALAMA_GIRDI_TOKEN, DENEME_CIKTI_TOKEN);
+  return maliyetTl;
 }
 
 function haftaNumarasi() {
@@ -101,7 +99,7 @@ export async function GET(req) {
           acikKalmaSaati: Math.round((kapanis - acilis) / 3600000),
           kapsam: "yerel", il,
         });
-        toplamMaliyet += tekDersManiyeti();
+        toplamMaliyet += await tekDersManiyeti();
         sonuclar.push({ sinif, il, ders, id: sonuc.id });
       } catch (e) {
         console.error(`Paket denemesi olusturulamadi (${sinif}. sinif, ${il}, ${ders}):`, e.message);
