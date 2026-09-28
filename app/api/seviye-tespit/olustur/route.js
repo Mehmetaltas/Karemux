@@ -1,4 +1,4 @@
-import { aiCagir } from "@/lib/ai";
+import { aiCagirDetay } from "@/lib/ai";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { sorulariDenetle } from "@/lib/soruKalite";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
@@ -44,13 +44,14 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
     // SADECE {} arar, [] degil - bu yuzden format {"sorular":[...]} olarak
     // degistirildi (ayrica AI'nin TEK konu istendiginde diziyi bare objeye
     // "sadelestirme" egilimini de azaltir, nested array daha az riskli).
-    const cevap = await aiCagir({ prompt: p, maxTokens: Math.min(8000, 400 + konular.length * 350), jsonModu: true });
+    const azamiTokenSeviye = Math.min(8000, 400 + konular.length * 350);
+    const { metin: cevap, saglayici: uretenSaglayici } = await aiCagirDetay({ prompt: p, maxTokens: azamiTokenSeviye, jsonModu: true });
     let sorularHam;
     try {
       sorularHam = jsonAyikla(cevap).sorular;
     } catch (e) {
       // 28 Eylul: TANI - yalnizca SEKIL bilgisi (icerik yok), davranis DEGISMEDI.
-      console.error("seviye-tespit jsonAyikla basarisiz:", e.message, "| uzunluk:", String(cevap).length, "| bas:", JSON.stringify(String(cevap).slice(0, 3)));
+      console.error("seviye-tespit jsonAyikla basarisiz:", e.message, "| saglayici:", uretenSaglayici, "| maxTokens:", azamiTokenSeviye, "| uzunluk:", String(cevap).length, "| bas:", JSON.stringify(String(cevap).slice(0, 3)), "| son:", JSON.stringify(String(cevap).slice(-3)));
       sorularHam = null;
     }
 
