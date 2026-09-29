@@ -168,7 +168,7 @@ export async function POST(req) {
 
       try {
         for (const s of veri.sorular) {
-          if (!s.soru || !Array.isArray(s.secenekler) || s.dogruIndex == null) continue;
+          if (!s.soru || !Array.isArray(s.secenekler) || s.secenekler.length !== 4 || !Number.isInteger(s.dogruIndex) || s.dogruIndex < 0 || s.dogruIndex > 3) continue; // 28 Eylul: yapi dogrulamasi (id 4555 tek-metin secenek satiri)
           await sql`
             INSERT INTO soru_bankasi (ders, sinif, unite, zorluk, soru, secenekler, dogru_index, kaynak_turu, beceri, tahmini_sure_saniye, yaygin_hata, cozum_teknigi)
             VALUES (${ders}, ${sinif}, ${s.unite || konu.trim()}, ${s.zorluk || null}, ${s.soru}, ${JSON.stringify(s.secenekler)}, ${s.dogruIndex}, ${"ogretmen_" + tur}, ${s.beceri || null}, ${s.tahminiSureSaniye || null}, ${s.yayginHata || null}, ${s.cozumTeknigi || null})
@@ -206,7 +206,7 @@ export async function POST(req) {
 
     try {
       for (const s of veri.sorular) {
-        if (!s.soru || !Array.isArray(s.secenekler) || s.dogruIndex == null) continue;
+        if (!s.soru || !Array.isArray(s.secenekler) || s.secenekler.length !== 4 || !Number.isInteger(s.dogruIndex) || s.dogruIndex < 0 || s.dogruIndex > 3) continue; // 28 Eylul: yapi dogrulamasi (id 4555 tek-metin secenek satiri)
         await sql`
           INSERT INTO soru_bankasi (ders, sinif, unite, zorluk, soru, secenekler, dogru_index, kaynak_turu)
           VALUES (${ders}, ${sinif}, ${konu.trim()}, ${s.zorluk || null}, ${s.soru}, ${JSON.stringify(s.secenekler)}, ${s.dogruIndex}, ${"ogretmen_" + tur})
