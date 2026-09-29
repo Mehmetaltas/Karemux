@@ -17,7 +17,7 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 
 ## A-N: Temel Sistem (14)
 - [x] A. Altyapı — ✅ TAMAMLANDI (29 Eylül: 15 sorunun 12si canli kanitla cevaplandi. Launch engeli 3 madde: Vercel Hobby ticari kullanima kapali, Neon hesaplama %27 dolu, log saklama 1 saat)
-- [ ] B. Auth — ⬜
+- [x] B. Auth — ✅ TAMAMLANDI (29 Eylul: gercek kod okumasiyla. Launch engeli: 2FA SADECE ogrencide, veli/kurum/ogretmen tek-adimli kaliyor - guvenlik tutarsizligi)
 - [ ] C. Öğrenci — ⬜
 - [ ] D. Veli — 🔶 (25 Eylül: Deneme Kulübü ödeme akışı canlı test edildi)
 - [ ] E. Kurum — 🔶 (24-25 Eylül: Kurum Denemesi tam test edildi, sıralama bug'ı düzeltildi; ama Kurum'un GENEL 15 soru taraması yapılmadı)
