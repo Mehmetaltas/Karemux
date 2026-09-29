@@ -91,3 +91,5 @@ Hiçbir kategori "resmi 15 soru" formatıyla TAM bitmedi — hepsi organik/kısm
 Kesilme görülürse o dakikanın ai_saglayici_log satırlarına bakılır.
 
 **Durdurma kriteri:** 2-3 günde hiç 60sn kesilmesi olmazsa "yamayla gözlenmedi" denir, "çözüldü" denmez.
+
+**29 Eylül 04:04 (push, aa09fda) — 11/11 geçti.** Gemini ana üretimde 11/11 başarısız (kota), Groq tek başına taşıdı. Sert sınır 4 kez tetiklendi (ilk kez Gemini'de de, hem Katman 3 hem görsel karar, tam 12000ms'de). 8. örnek, desen tutarlı: Gemini ana üretimde ≥5 başarılıysa kesiliyor (3/3), ≤3 ise geçiyor (5/5).
