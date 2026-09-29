@@ -73,3 +73,21 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 
 ## Sıradaki Adım
 Hiçbir kategori "resmi 15 soru" formatıyla TAM bitmedi — hepsi organik/kısmi. Sistematik tarama, EN AZ dokunulmuş kategorilerden (A.Altyapı, B.Auth, G.Personel, I.Content Core) başlamalı.
+
+---
+
+## 🔬 GÖZLEM DÖNEMİ — 28 Eylül'den başlayarak 2-3 gün (sert süre sınırı + seviye-tespit tanıları)
+
+**Deploy edilen değişiklikler (28-29 Eylül gecesi, commit aa09fda):**
+- lib/ai.js: Katman 3 (12sn) + görsel karar (12sn) + Türkçe-retry (20sn) çağrılarına SERT süre sınırı. Üretimde 5 kez tetiklendi (hepsi OpenRouter Katman 3), kesilme olmadı.
+- seviye-tespit/olustur: hata yolunda yanıtın şekli loglanıyor.
+- soruKalite.js: denetim yanıtı ayrıştırılamazsa anlaşılır hata+şekil loglanıyor, tavan yükseltildi.
+- materyal-uret: soru bankasına yazmadan önce seçenek sayısı(4)+dogruIndex(0-3) doğrulaması.
+- lib/ai-fiyatlandirma.js: Gemini maliyet hesabı tek kaynağa taşındı, kur Frankfurter'dan canlı.
+
+**Açık soru:** Gemini ana üretimde kesilmeyi mi tetikliyor? 7 örnek (3 kesildi, 4 geçti). Kesilen koşularda Gemini 5-8 kez, geçen koşularda 0-3 kez başarılı yanıt vermişti. Eğilim var, kanıt yok.
+
+**Günlük kontrol:**
+Kesilme görülürse o dakikanın ai_saglayici_log satırlarına bakılır.
+
+**Durdurma kriteri:** 2-3 günde hiç 60sn kesilmesi olmazsa "yamayla gözlenmedi" denir, "çözüldü" denmez.
