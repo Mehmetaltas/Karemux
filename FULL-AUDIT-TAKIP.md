@@ -17,7 +17,7 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 
 ## A-N: Temel Sistem (14)
 - [x] A. Altyapı — ✅ TAMAMLANDI (29 Eylül: 15 sorunun 12si canli kanitla cevaplandi. Launch engeli 3 madde: Vercel Hobby ticari kullanima kapali, Neon hesaplama %27 dolu, log saklama 1 saat)
-- [x] B. Auth — ✅ TAMAMLANDI (29 Eylul: gercek kod okumasiyla. Launch engeli: 2FA SADECE ogrencide, veli/kurum/ogretmen tek-adimli kaliyor - guvenlik tutarsizligi)
+- [x] B. Auth — ✅ TAMAMLANDI, ENGEL KISMEN KAPANDI (29 Eylul gece: 2FA VELI+KURUM_YONETICISI'ne yayildi, ucdan uca canli kanitlandi (sifre->kod->oturum). Ogretmen 2FA'si HALA BEKLIYOR - ayri tablo/sistem, daha buyuk is)
 - [x] C. Öğrenci — ✅ TAMAMLANDI (29 Eylul: bugun coklu akis (tek-konu, seviye-tespit, deneme, odeme) canli test edildi, organik kapsam genis)
 - [x] D. Veli — ✅ TAMAMLANDI (25-28 Eylul: veli-hesap-olustur+havale-baslat uctan uca canli test edildi, gercek kanit)
 - [x] E. Kurum — ✅ TAMAMLANDI (24-29 Eylul: satin alma+ogrenci akisi+siralama bug'i canli test edildi. DB: 3 kurum/3 ogretmen, hepsi test hesabi, gercek musteri YOK)
