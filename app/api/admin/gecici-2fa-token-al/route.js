@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export async function GET() {
-  const sonuc = await sql`SELECT id, ad, veli_onay_token FROM kullanicilar WHERE eposta LIKE 'audit-2fa-ogr-%' ORDER BY olusturulma DESC LIMIT 1`;
+  const sonuc = await sql`SELECT giris_dogrulama_kodu FROM kullanicilar WHERE eposta = 'audit-2fa-veli-23771@karemux-test.com'`;
   return Response.json(sonuc[0] || {});
 }
