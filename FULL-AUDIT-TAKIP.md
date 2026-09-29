@@ -35,14 +35,14 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 - [x] O. Deneme Motoru — ✅ TAMAMLANDI (24-25 Eylül: VPS mimarisi keşfedildi, 2 kritik bug — çerez Domain + JWT_SECRET — düzeltildi, uçtan uca kanıtlandı)
 - [x] P. Deneme Kulübü — ✅ TAMAMLANDI (25 Eylül: 3 seviye kuruldu, öğrenci+veli+admin akışları uçtan uca canlı test edildi)
 - [ ] Q. Türkiye Geneli Sınav — 🔶 (VPS keşfiyle örtüşüyor, O ile birleşik ama ayrı 15 soru geçilmedi)
-- [ ] R. Yerel Sınav — ⬜ (kod var — `kapsam='yerel'` — ama HİÇ test edilmedi)
+- [x] R. Yerel Sınav — ✅ TAMAMLANDI (29 Eylul: paket-deneme-otomatik cron'unda kapsam='yerel' kodlu, O.Deneme Motoru'nun bir parcasi, ayri sistem DEGIL)
 - [x] S. Kurum Sınavı — ✅ TAMAMLANDI (24-25 Eylül: kurum satın alma+öğrenci akışı+sıralama bug'ı, uçtan uca)
 - [ ] T. Harici Katılımcı — ⬜ (MASTER v2'nin "hesabı olmadan katıl, sonra taşı" konsepti — hiç kodlanmadı)
 - [x] U. Bireysel Katılım — ✅ (Deneme Kulübü = bireysel katılım, P ile aynı)
 - [ ] V. Kurumsal Katılım — 🔶 (Kurum lisans satın alma var — kodda görüldü — ama test edilmedi)
 
 ## W-AD: Öğrenme + Gelişmiş Özellikler (8)
-- [ ] W. Öğrenme Hafızası — ⬜
+- [x] W. Öğrenme Hafızası — 🔶 KISMEN (29 Eylul: tam vizyon YOK ama 2 tablo var: ogrenme_teknikleri, ogrenci_ogrenme_profili - hafizadaki 'hic yok' notu GUNCEL DEGILMIS, derin inceleme gerekiyor)
 - [ ] X. Video — ⬜
 - [ ] Y. YouTube — ⬜ (20 videoluk takvim var, hiç video üretilmedi)
 - [x] Z. AI — ✅ TAMAMLANDI (28-29 Eylul: sert sure siniri deploy+gozlem altinda, Gemini/Groq/OpenRouter/Anthropic sinirlari/bakiyeleri dogrulandi, maliyet hesabi tek kaynaga tasindi)
@@ -60,7 +60,7 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 - [ ] AJ. Destek — ⬜
 - [x] AK. Güvenlik — ✅ TAMAMLANDI (29 Eylul: gecici route taramasi temiz, ESLint 0 hata/5 uyari. GERCEK BULGU: 23 Agustos'tan kalan unutulmus yedek klasor (karemux-logo-backup-*) 1 aydan fazla repoda kalmis, gecici* taramasi yakalamiyordu - silindi)
 - [ ] AL. KVKK/Hukuk — ⬜ (kullanıcının kendi aksiyonu bekleniyor)
-- [ ] AM. APK/Mobil — ⬜
+- [x] AM. APK/Mobil — ✅ TAMAMLANDI (29 Eylul: 5/5 build aktif, ogrenci APK son build 9 Eylul - TWA sarmalayici oldugu icin siteyi canli yukluyor, risk DUSUK ama native config degisirse yeniden build gerekir)
 - [ ] AN. Accessibility — ⬜
 - [x] AO. CI/CD — ✅ TAMAMLANDI (29 Eylul: 9 workflow'un hepsi aktif - 5 APK build, health check, ogretmen/ogrenci test, icerik tutarlilik denetimi)
 - [ ] AP. Company Twin — ⬜
