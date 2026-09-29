@@ -40,6 +40,8 @@ export default function OgretmenGiris() {
   const [yukleniyor, setYukleniyor] = useState(false);
   const [unutumModu, setUnutumModu] = useState(false);
   const [unutumMesaj, setUnutumMesaj] = useState("");
+  const [ikinciAdim, setIkinciAdim] = useState(false); // 29 Eylul: e-posta 2FA ogretmene de yayildi
+  const [kodGir, setKodGir] = useState("");
 
   useEffect(() => {
     try {
@@ -53,6 +55,18 @@ export default function OgretmenGiris() {
   }, []);
   const router = useRouter();
 
+  // 29 Eylul: e-posta 2FA'nin ortak "girisi tamamla" adimi.
+  function girisTamamla() {
+    try {
+      if (beniHatirla) {
+        localStorage.setItem("karemux_hatirla_ogretmen", JSON.stringify({ eposta, sifre }));
+      } else {
+        localStorage.removeItem("karemux_hatirla_ogretmen");
+      }
+    } catch (e) {}
+    router.push("/ogretmen");
+  }
+
   async function girisYap() {
     setHata(""); setYukleniyor(true);
     try {
@@ -62,14 +76,29 @@ export default function OgretmenGiris() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Giris basarisiz");
-      try {
-        if (beniHatirla) {
-          localStorage.setItem("karemux_hatirla_ogretmen", JSON.stringify({ eposta, sifre }));
-        } else {
-          localStorage.removeItem("karemux_hatirla_ogretmen");
-        }
-      } catch (e) {}
-      router.push("/ogretmen");
+
+      if (data.ikinciAdimGerekli) {
+        setIkinciAdim(true);
+        setYukleniyor(false);
+        return;
+      }
+
+      girisTamamla();
+    } catch (e) { setHata(e.message); setYukleniyor(false); }
+  }
+
+  async function koduDogrula() {
+    setHata("");
+    if (!kodGir.trim()) { setHata("Kodu gir."); return; }
+    setYukleniyor(true);
+    try {
+      const res = await fetch("/api/ogretmen/giris-dogrula", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta, kod: kodGir.trim(), beniHatirla }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Dogrulanamadi");
+      girisTamamla();
     } catch (e) { setHata(e.message); } finally { setYukleniyor(false); }
   }
 
@@ -104,6 +133,24 @@ export default function OgretmenGiris() {
         <p style={{ fontFamily: C.displayFont, fontSize: 22, textAlign: "center", marginBottom: 4, color: C.ink }}>Karemux</p>
         <p style={{ fontSize: 13.5, textAlign: "center", color: C.inkSoft, marginBottom: 22 }}>Öğretmen Paneli</p>
 
+        {ikinciAdim ? (
+          <div>
+            <p style={{ fontSize: 13, marginBottom: 12, color: C.inkSoft }}>{eposta} adresine gonderilen 6 haneli kodu gir.</p>
+            <input value={kodGir} onChange={(e) => setKodGir(e.target.value)} placeholder="6 haneli kod" aria-label="Dogrulama kodu"
+              onKeyDown={(e) => e.key === "Enter" && koduDogrula()}
+              style={{ width: "100%", padding: "12px 14px", borderRadius: 8, border: `1px solid ${C.grid}`, marginBottom: 10, fontSize: 14, boxSizing: "border-box", fontFamily: C.bodyFont, textAlign: "center", letterSpacing: 2 }} />
+            {hata && <p style={{ color: C.red, fontSize: 12.5, marginBottom: 10 }}>{hata}</p>}
+            <button onClick={koduDogrula} disabled={yukleniyor}
+              style={{ width: "100%", padding: "12px 0", borderRadius: 8, border: "none", background: C.red, color: "#fff", fontWeight: 700, fontSize: 14.5, cursor: "pointer", marginBottom: 10 }}>
+              {yukleniyor ? "Dogrulaniyor..." : "Dogrula ve Giris Yap"}
+            </button>
+            <button onClick={() => { setIkinciAdim(false); setKodGir(""); setHata(""); }}
+              style={{ display: "block", width: "100%", textAlign: "center", background: "none", border: "none", color: C.inkSoft, fontSize: 12, cursor: "pointer", textDecoration: "underline" }}>
+              ← Girişe Dön
+            </button>
+          </div>
+        ) : (
+          <>
         <div style={{ display: "flex", marginBottom: 20, borderRadius: 8, overflow: "hidden", border: `1px solid ${C.ink}` }}>
           <button onClick={() => { setSekme("giris"); setHata(""); setBasarili(""); }} style={{ flex: 1, padding: "9px 0", border: "none", background: sekme === "giris" ? C.ink : "#fff", color: sekme === "giris" ? "#fff" : C.ink, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Giriş Yap</button>
           <button onClick={() => { setSekme("kaydol"); setHata(""); setBasarili(""); }} style={{ flex: 1, padding: "9px 0", border: "none", background: sekme === "kaydol" ? C.ink : "#fff", color: sekme === "kaydol" ? "#fff" : C.ink, fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Kaydol</button>
@@ -165,6 +212,8 @@ export default function OgretmenGiris() {
         <p style={{ fontSize: 11, color: C.inkSoft, textAlign: "center", marginTop: 18, lineHeight: 1.6 }}>
           Karemux öğretmen kadrosunda yer almak ister misin? <a href="/ogretmen-basvuru" style={{ color: C.green, fontWeight: 600 }}>Buradan başvurabilirsin</a> — seni tanımaktan mutluluk duyarız.
         </p>
+          </>
+        )}
       </div>
     </KareliArkaplan>
   );

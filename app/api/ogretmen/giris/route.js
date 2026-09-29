@@ -1,15 +1,19 @@
 import { sql } from "@/lib/db";
-import { sifreDogrula } from "@/lib/auth";
-import { ogretmenTokenUret, ogretmenOturumCookieBaslik } from "@/lib/ogretmen";
+import { sifreDogrula, altiHaneliKodUret } from "@/lib/auth";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
+import { resendIstemcisi } from "@/lib/email";
 
+// 29 Eylul: e-posta 2FA ogretmen girisine de yayildi (Full Audit B.Auth
+// bulgusu - eskiden SADECE ogrencide vardi). ogretmenler AYRI bir tablo
+// (kullanicilar degil), o yuzden bu route kendi 2FA mantigini tasiyor -
+// kod uretme+gonderme burada, dogrulama /api/ogretmen/giris-dogrula'da.
 export async function POST(req) {
   try {
     const ip = istekIpAdresi(req);
     const kontrol = await denemeSiniriKontrolEt(ip, "ogretmen_giris", 5, 15);
     if (!kontrol.izinVar) return Response.json({ error: "Cok fazla deneme. 15 dakika sonra tekrar dene." }, { status: 429 });
 
-    const { eposta, sifre, beniHatirla } = await req.json();
+    const { eposta, sifre } = await req.json();
     if (!eposta?.trim() || !sifre) return Response.json({ error: "Eposta ve sifre gerekli" }, { status: 400 });
 
     const ogretmen = await sql`SELECT id, ad, sifre_hash, brans FROM ogretmenler WHERE eposta = ${eposta.trim().toLowerCase()} AND aktif = true`;
@@ -25,13 +29,24 @@ export async function POST(req) {
     }
 
     await denemeKaydet(ip, "ogretmen_giris", true);
-    await sql`UPDATE ogretmenler SET son_giris = now() WHERE id = ${ogretmen[0].id}`;
 
-    const token = ogretmenTokenUret(ogretmen[0].id);
-    return new Response(JSON.stringify({ ok: true, ad: ogretmen[0].ad, brans: ogretmen[0].brans }), {
-      status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": ogretmenOturumCookieBaslik(token, beniHatirla !== false) },
-    });
+    const kod = altiHaneliKodUret();
+    const sonTarih = new Date(Date.now() + 10 * 60 * 1000);
+    await sql`UPDATE ogretmenler SET giris_dogrulama_kodu = ${kod}, giris_dogrulama_son_tarih = ${sonTarih} WHERE id = ${ogretmen[0].id}`;
+
+    try {
+      await resendIstemcisi().emails.send({
+        from: "Karemux <bildirim@karemux.com>",
+        to: eposta.trim().toLowerCase(),
+        subject: `Karemux ogretmen giris kodun: ${kod}`,
+        text: `Merhaba,\n\nKaremux ogretmen paneline giris yapmak icin dogrulama kodun: ${kod}\n\nBu kod 10 dakika gecerlidir. Bu girisi sen yapmadiysan, bu e-postayi yok sayabilirsin.\n\nKaremux Ekibi`,
+      });
+    } catch (e) {
+      console.error("Ogretmen 2FA e-postasi gonderilemedi:", e.message);
+      return Response.json({ error: "Dogrulama kodu gonderilemedi, tekrar dene." }, { status: 502 });
+    }
+
+    return Response.json({ ok: true, ikinciAdimGerekli: true, eposta: eposta.trim().toLowerCase() });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Giris basarisiz" }, { status: 500 });
