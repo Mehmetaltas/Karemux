@@ -52,7 +52,7 @@ export async function GET(req) {
     const mevcut = await sql`
       SELECT id, icerik_json FROM icerik_onbellek
       WHERE sinif = ${Number(sinif)} AND ders = ${ders} AND unite = ${unite}
-        AND konu = ${konu} AND icerik_turu = 'konu_paketi'
+        AND konu = ${konu} AND icerik_turu = 'konu_paketi' AND onay_durumu = 'onaylandi'
       LIMIT 1
     `;
     if (mevcut.length > 0 && mevcut[0].icerik_json) {
