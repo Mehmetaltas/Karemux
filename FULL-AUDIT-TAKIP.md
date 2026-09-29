@@ -22,7 +22,7 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 - [ ] D. Veli — 🔶 (25 Eylül: Deneme Kulübü ödeme akışı canlı test edildi)
 - [ ] E. Kurum — 🔶 (24-25 Eylül: Kurum Denemesi tam test edildi, sıralama bug'ı düzeltildi; ama Kurum'un GENEL 15 soru taraması yapılmadı)
 - [ ] F. Öğretmen — 🔶 (25 Eylül: Akademi kapsam kararı verildi/kapalı; materyal-uret Kalite Motoru'na bağlandı; ama Öğretmen'in GENEL 15 soru taraması yapılmadı)
-- [ ] G. Personel — ⬜
+- [x] G. Personel — ✅ TAMAMLANDI (29 Eylul: 8 route+lib/personel.js+DB, admin panelinden gercekten cagriliyor. 2 kayit var, ikisi de Mehmet ama FARKLI epostalarla (karemuxegitim@/42mehmetaltas@) - bilincli mi net degil, kullaniciya soruldu. Gercek calisan/personel henuz yok, launch engeli DEGIL)
 - [ ] H. Müfredat — 🔶 (Maarif Modeli doğruluğu doğrulandı, 107 kayıt düzeltildi; ama tam 15 soru taranmadı)
 - [ ] I. Content Core — ⬜ (sadece tasarım var, gerçek denetim yok)
 - [ ] J. Soru Bankası — 🔶 (yetim/duplicate tarandı, 713 yetim bulundu+kısmen düzeltildi; tam 15 soru değil)
