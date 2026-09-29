@@ -13,7 +13,7 @@ export async function POST(req) {
     const kontrol = await denemeSiniriKontrolEt(ip, "ogretmen_giris", 5, 15);
     if (!kontrol.izinVar) return Response.json({ error: "Cok fazla deneme. 15 dakika sonra tekrar dene." }, { status: 429 });
 
-    const { eposta, sifre } = await req.json();
+    const { eposta, sifre, otomasyonAnahtari } = await req.json();
     if (!eposta?.trim() || !sifre) return Response.json({ error: "Eposta ve sifre gerekli" }, { status: 400 });
 
     const ogretmen = await sql`SELECT id, ad, sifre_hash, brans FROM ogretmenler WHERE eposta = ${eposta.trim().toLowerCase()} AND aktif = true`;
@@ -46,7 +46,15 @@ export async function POST(req) {
       return Response.json({ error: "Dogrulama kodu gonderilemedi, tekrar dene." }, { status: 502 });
     }
 
-    return Response.json({ ok: true, ikinciAdimGerekli: true, eposta: eposta.trim().toLowerCase() });
+    // 29 Eylul: GitHub Actions gunluk otomasyonu (scripts/ogretmen-test.js) icin
+    // TEK gercek test hesabina SADECE dogru sirla kod e-postanin YANINDA API
+    // yanitinda da donuyor - CI kutuyu okuyamaz. Baska hicbir hesap icin
+    // gecerli degil (eposta+sir ikisi de eslesmeli), gercek kullanicilari etkilemez.
+    const otomasyonMu = otomasyonAnahtari && process.env.OGRETMEN_TEST_SONUC_ANAHTARI
+      && otomasyonAnahtari === process.env.OGRETMEN_TEST_SONUC_ANAHTARI
+      && eposta.trim().toLowerCase() === (process.env.OGRETMEN_TEST_EPOSTA || "").trim().toLowerCase();
+
+    return Response.json({ ok: true, ikinciAdimGerekli: true, eposta: eposta.trim().toLowerCase(), ...(otomasyonMu ? { kodOnizleme: kod } : {}) });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Giris basarisiz" }, { status: 500 });

@@ -19,13 +19,24 @@ const TEST_EDILECEK = [
   { tur: "sinif_analizi", sinif: 8, ders: "Matematik", konu: "Genel", ogretmenNotu: "Test: sinif ortalamasi orta duzeyde" },
 ];
 
+// 29 Eylul: e-posta 2FA ogretmen girisine de yayildi (B.Auth guvenlik
+// tutarsizligi duzeltildi). CI kutuyu okuyamadigi icin backend, SADECE bu
+// TEK test hesabina ve SADECE dogru sirla, kodu API yanitinda da donduruyor.
 async function girisYap() {
   const res = await fetch(`${SITE_URL}/api/ogretmen/giris`, {
     method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ eposta: process.env.OGRETMEN_TEST_EPOSTA, sifre: process.env.OGRETMEN_TEST_SIFRE, beniHatirla: true }),
+    body: JSON.stringify({ eposta: process.env.OGRETMEN_TEST_EPOSTA, sifre: process.env.OGRETMEN_TEST_SIFRE, otomasyonAnahtari: process.env.OGRETMEN_TEST_SONUC_ANAHTARI }),
   });
   if (!res.ok) throw new Error(`Giris basarisiz: ${res.status}`);
-  const cookie = res.headers.get("set-cookie");
+  const data = await res.json();
+  if (!data.ikinciAdimGerekli || !data.kodOnizleme) throw new Error("2FA kodu alinamadi (otomasyon sirri eslesmedi olabilir)");
+
+  const res2 = await fetch(`${SITE_URL}/api/ogretmen/giris-dogrula`, {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ eposta: process.env.OGRETMEN_TEST_EPOSTA, kod: data.kodOnizleme, beniHatirla: true }),
+  });
+  if (!res2.ok) throw new Error(`Dogrulama basarisiz: ${res2.status}`);
+  const cookie = res2.headers.get("set-cookie");
   if (!cookie) throw new Error("Cookie alinamadi");
   return cookie.split(";")[0];
 }
