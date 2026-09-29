@@ -31,6 +31,28 @@ export default function VeliGiris() {
   const [sifremiUnuttumKodGonderildi, setSifremiUnuttumKodGonderildi] = useState(false);
   const [sifremiUnuttumKod, setSifremiUnuttumKod] = useState("");
   const [sifremiUnuttumYeniSifre, setSifremiUnuttumYeniSifre] = useState("");
+  const [ikinciAdim, setIkinciAdim] = useState(false); // 29 Eylul: e-posta 2FA veli+kurum'a da yayildi
+  const [kodGir, setKodGir] = useState("");
+
+  // 29 Eylul: e-posta 2FA'nin ortak "girisi tamamla" adimi - hem 2FA'siz (artik
+  // hic olmuyor ama guvenlik icin birakildi) hem kod dogrulandiktan sonra cagrilir.
+  async function girisTamamla() {
+    try {
+      if (beniHatirla) {
+        localStorage.setItem("karemux_hatirla_veli", JSON.stringify({ eposta, sifre }));
+      } else {
+        localStorage.removeItem("karemux_hatirla_veli");
+      }
+    } catch (e) {}
+
+    const meRes = await fetch("/api/auth/me");
+    const meData = await meRes.json();
+    if (meData.girisYapmis && (meData.kullanici?.rol === "veli" || meData.kullanici?.ek_roller?.includes("veli"))) {
+      window.location.href = "/veli";
+    } else {
+      setHata("Bu hesap bir veli hesabi degil.");
+    }
+  }
 
   async function girisYap() {
     setHata("");
@@ -47,22 +69,35 @@ export default function VeliGiris() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Giris basarisiz");
-      try {
-        if (beniHatirla) {
-          localStorage.setItem("karemux_hatirla_veli", JSON.stringify({ eposta, sifre }));
-        } else {
-          localStorage.removeItem("karemux_hatirla_veli");
-        }
-      } catch (e) {}
 
-
-      const meRes = await fetch("/api/auth/me");
-      const meData = await meRes.json();
-      if (meData.girisYapmis && (meData.kullanici?.rol === "veli" || meData.kullanici?.ek_roller?.includes("veli"))) {
-        window.location.href = "/veli";
-      } else {
-        setHata("Bu hesap bir veli hesabi degil.");
+      // 29 Eylul: e-posta 2FA - sifre dogru olsa da oturum HENUZ acilmiyor,
+      // once 6 haneli koda ihtiyac var.
+      if (data.ikinciAdimGerekli) {
+        setIkinciAdim(true);
+        return;
       }
+
+      await girisTamamla();
+    } catch (e) {
+      setHata(e.message);
+    } finally {
+      setYukleniyor(false);
+    }
+  }
+
+  async function koduDogrula() {
+    setHata("");
+    if (!kodGir.trim()) { setHata("Kodu gir."); return; }
+    setYukleniyor(true);
+    try {
+      const res = await fetch("/api/auth/login-dogrula", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eposta: eposta.trim(), kod: kodGir.trim(), beniHatirla }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Dogrulanamadi");
+      await girisTamamla();
     } catch (e) {
       setHata(e.message);
     } finally {
@@ -127,7 +162,26 @@ export default function VeliGiris() {
         <h1 style={{ fontSize: 19, fontWeight: 700, marginBottom: 4, textAlign: "center" }}>Karemux Veli Girişi</h1>
         <p style={{ fontSize: 12.5, color: T.muted, marginBottom: 20, textAlign: "center" }}>Çocuğunun ilerlemesini takip et</p>
 
-        {!sifremiUnuttumAcik ? (
+        {ikinciAdim ? (
+          <>
+            <p style={{ fontSize: 13, marginBottom: 12 }}>{eposta} adresine gonderilen 6 haneli kodu gir.</p>
+            <input
+              aria-label="Dogrulama kodu"
+              value={kodGir}
+              onChange={(e) => setKodGir(e.target.value)}
+              placeholder="6 haneli kod"
+              onKeyDown={(e) => e.key === "Enter" && koduDogrula()}
+              style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${T.line}`, marginBottom: 10, fontSize: 14, textAlign: "center", letterSpacing: 2 }}
+            />
+            {hata && <p role="alert" style={{ color: "#B23A2E", fontSize: 12.5, marginBottom: 10 }}>{hata}</p>}
+            <button onClick={koduDogrula} disabled={yukleniyor} style={{ width: "100%", padding: "11px 0", borderRadius: 8, border: "none", background: T.coral, color: "#fff", fontWeight: 600, fontSize: 14, cursor: "pointer", marginBottom: 10 }}>
+              {yukleniyor ? "Dogrulaniyor..." : "Dogrula ve Giris Yap"}
+            </button>
+            <button type="button" onClick={() => { setIkinciAdim(false); setKodGir(""); setHata(""); }} style={{ width: "100%", background: "none", border: "none", color: T.muted, fontSize: 12.5, cursor: "pointer", textAlign: "center" }}>
+              ← Girişe Dön
+            </button>
+          </>
+        ) : !sifremiUnuttumAcik ? (
           <>
             <input
               aria-label="E-posta"

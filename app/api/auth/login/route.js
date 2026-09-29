@@ -1,5 +1,5 @@
 import { sql } from "@/lib/db";
-import { sifreDogrula, altiHaneliKodUret, tokenUret, oturumCookieBaslik } from "@/lib/auth";
+import { sifreDogrula, altiHaneliKodUret } from "@/lib/auth";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { resendIstemcisi } from "@/lib/email";
 
@@ -38,17 +38,11 @@ export async function POST(req) {
     await denemeKaydet(eposta.toLowerCase(), "login", true);
     await denemeKaydet(ip, "login", true);
 
-    // E-posta 2FA (11 Eylul) - SIMDILIK SADECE ogrenci rolu icin (pilot).
-    // Veli/kurum girisleri henuz bu 2 adimli akisi bilmiyor (kendi UI'lari
-    // guncellenmedi) - digerlerine yayilana kadar onlari eski (tek adimli)
-    // akista birakiyoruz, yoksa giris yapamaz hale gelirler.
-    if (kullanici.rol !== "ogrenci") {
-      const token = tokenUret(kullanici.id);
-      return new Response(JSON.stringify({ ok: true, ad: kullanici.ad }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(token, beniHatirla !== false) },
-      });
-    }
+    // 29 Eylul: 2FA artik TUM rollere (ogrenci/veli/kurum_yoneticisi) yayildi -
+    // veli-giris ve kurum-giris frontend'leri bu 2 adimli akisi artik BILIYOR
+    // (Full Audit bulgusu: eskiden SADECE ogrencide vardi, guvenlik tutarsizligiydi).
+    // Personel (admin/calisan) AYRI bir sistem (lib/personel.js, ogretmenler/
+    // personel tablolari), bu route'a hic girmiyor, etkilenmiyor.
 
     // E-posta 2FA (11 Eylul) - sifre dogru olsa da oturum HENUZ acilmiyor,
     // once 6 haneli koda ihtiyac var. beniHatirla degeri dogrulama adimina
