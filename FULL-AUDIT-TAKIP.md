@@ -99,7 +99,7 @@ Kesilme görülürse o dakikanın ai_saglayici_log satırlarına bakılır.
 ## 🏁 FULL SYSTEM AUDIT TAMAMLANDI (29 Eylül 2026) — 46/46 kategori
 
 ### 🚨 Gerçek Launch Engelleri (kanıtlı, düzeltme bekliyor)
-1. **I. Content Core — KRİTİK:** `konu-paketi` route'u `icerik_onbellek`'ten `onay_durumu` kontrolü YAPMADAN okuyor. 17/18 onaysız kayıt 43 kez öğrenciye sunuldu. Düzeltme: WHERE koşuluna `onay_durumu = 'onaylandi'` eklemek.
+1. ~~**I. Content Core — KRİTİK**~~ ✅ DÜZELTİLDİ VE CANLI KANITLANDI (29 Eylül gecesi): WHERE'e `onay_durumu='onaylandi'` eklendi, deploy edildi. Canlı test: eski onaysız kayıt (id 24) artık HİÇ kullanılmıyor (kullanim_sayisi sabit 12), yeni istek taze üretim yapıp ayrı, onaysız bir kayıt (id 25) olarak saklandı. Bug tam kapandı.
 2. **A. Altyapı:** Vercel Hobby planı ticari kullanıma kapalı — ilk ödeme ile Pro'ya geçilecek (kullanıcı kararı, not edildi).
 3. **B. Auth:** 2FA sadece öğrencide, veli/kurum/öğretmen tek-adımlı — güvenlik tutarsızlığı.
 4. **AL. KVKK/Hukuk:** Neon bölgesi ABD (Ohio), Gemini ücretsiz katman veri kullanımı — danışman gerekli.
