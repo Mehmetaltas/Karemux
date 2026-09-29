@@ -16,7 +16,7 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 ---
 
 ## A-N: Temel Sistem (14)
-- [ ] A. Altyapı — ⬜
+- [x] A. Altyapı — ✅ TAMAMLANDI (29 Eylül: 15 sorunun 12si canli kanitla cevaplandi. Launch engeli 3 madde: Vercel Hobby ticari kullanima kapali, Neon hesaplama %27 dolu, log saklama 1 saat)
 - [ ] B. Auth — ⬜
 - [ ] C. Öğrenci — ⬜
 - [ ] D. Veli — 🔶 (25 Eylül: Deneme Kulübü ödeme akışı canlı test edildi)
