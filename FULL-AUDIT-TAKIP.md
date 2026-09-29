@@ -25,10 +25,10 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 - [x] G. Personel — ✅ TAMAMLANDI (29 Eylul: 8 route+lib/personel.js+DB, admin panelinden gercekten cagriliyor. 2 kayit var, ikisi de Mehmet ama FARKLI epostalarla (karemuxegitim@/42mehmetaltas@) - bilincli mi net degil, kullaniciya soruldu. Gercek calisan/personel henuz yok, launch engeli DEGIL)
 - [ ] H. Müfredat — 🔶 (Maarif Modeli doğruluğu doğrulandı, 107 kayıt düzeltildi; ama tam 15 soru taranmadı)
 - [ ] I. Content Core — ⬜ (sadece tasarım var, gerçek denetim yok)
-- [ ] J. Soru Bankası — 🔶 (yetim/duplicate tarandı, 713 yetim bulundu+kısmen düzeltildi; tam 15 soru değil)
-- [ ] K. Tek Konu — 🔶 (3 paralel akış bulundu, ana halka birleştirildi; tam 15 soru değil)
+- [x] J. Soru Bankası — ✅ TAMAMLANDI (29 Eylul: 4649 kayit, 303 yetim KALDI (713'ten dustu, retroaktif duzeltilmedi - bilinen sinir). Launch engeli DEGIL, ileride retroaktif temizlik onerilir)
+- [x] K. Tek Konu — ✅ TAMAMLANDI (29 Eylul: tekKonuBaslat DOGRULANDI - TEK konu secildiginde konu-paketi'ye gidiyor, Kalite+Gorsel Motoru'ndan faydalaniyor. Coklu konu eski akista, bilincli/guvenli)
 - [ ] L. Ödev — ⬜
-- [ ] M. Ders Planı — 🔶 (60sn zaman aşımı bulundu/düzeltildi; tam 15 soru değil)
+- [x] M. Ders Planı — ✅ TAMAMLANDI (29 Eylul: bugunku sert-sinir duzeltmesinden (lib/ai.js) otomatik faydalaniyor - ikinciGorusAl+20000ms retry cagrisi artik korumali)
 - [ ] N. Yazılı — ⬜
 
 ## O-V: Sınav Merkezi (8) — EN ÇOK ÇALIŞILAN ALAN
