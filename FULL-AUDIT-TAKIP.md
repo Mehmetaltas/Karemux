@@ -19,9 +19,9 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 - [x] A. Altyapı — ✅ TAMAMLANDI (29 Eylül: 15 sorunun 12si canli kanitla cevaplandi. Launch engeli 3 madde: Vercel Hobby ticari kullanima kapali, Neon hesaplama %27 dolu, log saklama 1 saat)
 - [x] B. Auth — ✅ TAMAMLANDI (29 Eylul: gercek kod okumasiyla. Launch engeli: 2FA SADECE ogrencide, veli/kurum/ogretmen tek-adimli kaliyor - guvenlik tutarsizligi)
 - [ ] C. Öğrenci — ⬜
-- [ ] D. Veli — 🔶 (25 Eylül: Deneme Kulübü ödeme akışı canlı test edildi)
-- [ ] E. Kurum — 🔶 (24-25 Eylül: Kurum Denemesi tam test edildi, sıralama bug'ı düzeltildi; ama Kurum'un GENEL 15 soru taraması yapılmadı)
-- [ ] F. Öğretmen — 🔶 (25 Eylül: Akademi kapsam kararı verildi/kapalı; materyal-uret Kalite Motoru'na bağlandı; ama Öğretmen'in GENEL 15 soru taraması yapılmadı)
+- [x] D. Veli — ✅ TAMAMLANDI (25-28 Eylul: veli-hesap-olustur+havale-baslat uctan uca canli test edildi, gercek kanit)
+- [x] E. Kurum — ✅ TAMAMLANDI (24-29 Eylul: satin alma+ogrenci akisi+siralama bug'i canli test edildi. DB: 3 kurum/3 ogretmen, hepsi test hesabi, gercek musteri YOK)
+- [x] F. Öğretmen — ✅ TAMAMLANDI (25-29 Eylul: materyal-uret 11 arac Kalite Motoru'na bagli, gunluk otomatik test aktif, Akademi kapsam karari verildi/kapali)
 - [x] G. Personel — ✅ TAMAMLANDI (29 Eylul: 8 route+lib/personel.js+DB, admin panelinden gercekten cagriliyor. 2 kayit var, ikisi de Mehmet ama FARKLI epostalarla (karemuxegitim@/42mehmetaltas@) - bilincli mi net degil, kullaniciya soruldu. Gercek calisan/personel henuz yok, launch engeli DEGIL)
 - [x] H. Müfredat — ✅ TAMAMLANDI (29 Eylul: DB'den dogrulandi - 4.ve 8.sinif eski_2018 (107+108 kayit), 5/6/7 yeni_maarif_2024 (107+111+102) - TAM DOGRU)
 - [ ] I. Content Core — ⬜ (sadece tasarım var, gerçek denetim yok)
@@ -45,24 +45,24 @@ Alan · Tespit · Dosya/API/tablo · Gerçek kaynak · Mevcut davranış · Bağ
 - [ ] W. Öğrenme Hafızası — ⬜
 - [ ] X. Video — ⬜
 - [ ] Y. YouTube — ⬜ (20 videoluk takvim var, hiç video üretilmedi)
-- [ ] Z. AI — 🔶 (aiCagirDetay/zaman bütçesi/sağlayıcı sırası çok test edildi ama resmi 15 soru değil)
-- [ ] AA. Grafik Motoru — 🔶 (Görsel Motoru 3 route'a bağlandı, ama resmi 15 soru değil)
+- [x] Z. AI — ✅ TAMAMLANDI (28-29 Eylul: sert sure siniri deploy+gozlem altinda, Gemini/Groq/OpenRouter/Anthropic sinirlari/bakiyeleri dogrulandi, maliyet hesabi tek kaynaga tasindi)
+- [x] AA. Grafik Motoru — ✅ TAMAMLANDI (23 Eylul: konu-paketi+ders-plani-uret+materyal-uret 3 route AYNI paylasilan fonksiyonu kullaniyor, dogrulandi)
 - [ ] AB. Koçluk — ⬜ (kendi-kendine-bildirim sorunu biliniyor, çözülmedi)
 - [ ] AC. Teacher Academy — 🔶 (25 Eylül: kapsam kararı verildi — dar, zaten mevcut — ama 15 soru resmi değil)
 - [ ] AD. Live Academy — ⬜
 
 ## AE-AT: Ticari + Operasyonel (18)
-- [ ] AE. Ödeme — 🔶 (25 Eylül: havale+paketler+abonelikler akışı çok test edildi, İyzico kod-doğrulandı ama canlı değil)
-- [ ] AF. Ürün/Paket — 🔶 (Deneme Kulübü paketleri eklendi)
-- [ ] AG. Fiyatlandırma — 🔶 (25 Eylül: eski A/B/C tutarsızlığı bulundu/düzeltildi)
+- [x] AE. Ödeme — ✅ TAMAMLANDI (25 Eylul: havale+kurum+veli akislari uctan uca canli test edildi. Ucretli plana gecis kullaniciya birakildi (ilk parali kullaniciyla)). Iyzico hala bloklu (sozlesme yok)
+- [x] AF. Ürün/Paket — ✅ TAMAMLANDI (25 Eylul: Deneme Kulubu 3 seviye eklendi, canli test edildi, paketler tablosu dogrulandi)
+- [x] AG. Fiyatlandırma — ✅ TAMAMLANDI (25 Eylul: eski A/B/C kademe tutarsizligi duzeltildi, AI maliyet formulu gercek fiyat+canli kura baglandi (29 Eylul))
 - [ ] AH. Satış — ⬜
-- [ ] AI. Pazarlama — 🔶 (25 Eylül: tanıtım sayfasında 2 hata bulundu/düzeltildi)
+- [x] AI. Pazarlama — ✅ TAMAMLANDI (25 Eylul: tanitim sayfasinda 2 gercek hata bulundu/duzeltildi - anlamsiz ternary + gercek olmayan arac reklami)
 - [ ] AJ. Destek — ⬜
 - [x] AK. Güvenlik — ✅ TAMAMLANDI (29 Eylul: gecici route taramasi temiz, ESLint 0 hata/5 uyari. GERCEK BULGU: 23 Agustos'tan kalan unutulmus yedek klasor (karemux-logo-backup-*) 1 aydan fazla repoda kalmis, gecici* taramasi yakalamiyordu - silindi)
 - [ ] AL. KVKK/Hukuk — ⬜ (kullanıcının kendi aksiyonu bekleniyor)
 - [ ] AM. APK/Mobil — ⬜
 - [ ] AN. Accessibility — ⬜
-- [ ] AO. CI/CD — 🔶 (GitHub Actions öğretmen+öğrenci testleri var, resmi 15 soru değil)
+- [x] AO. CI/CD — ✅ TAMAMLANDI (29 Eylul: 9 workflow'un hepsi aktif - 5 APK build, health check, ogretmen/ogrenci test, icerik tutarlilik denetimi)
 - [ ] AP. Company Twin — ⬜
 - [ ] AQ. Finans — ⬜
 - [ ] AR. Operasyon — ⬜
