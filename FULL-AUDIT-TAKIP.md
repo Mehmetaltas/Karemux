@@ -117,3 +117,5 @@ T.Harici Katılımcı, X.Video, Y.YouTube — hiç kodlanmadı, MASTER v2/gelece
 
 ### 📌 Sıradaki Adım
 Önce **I.Content Core bug'ı** düzeltilmeli (aktif, öğrenciye onaysız içerik gidiyor). Sonra diğer 4 launch engeli, öncelik sırasına göre.
+
+**29 Eylul, regresyon ve yeni bulgu:** Ogretmen 2FA deploy'u CI test script'ini (Cookie alinamadi) kirmisti - AYNI GUN icinde bulundu ve duzeltildi, canli 11/11 ile kanitlandi. Ayrica konu-paketi'nde aralikli bir "JSON'dan sonra beklenmeyen karakter" hatasi (17.24-17.29 UTC kosusunda) gozlemlendi - tekrar denendiginde temiz dondu, kod zaten guvenli jsonAyikla() kullaniyor, Vercel Hobby log siniri yuzunden kok neden gorulemedi. Content Core onay_durumu duzeltmesinin (dun) bir yan etkisi olabilir: onaysiz icerik artik cache'ten hic sunulmuyor, yani bu sorgu HER seferinde taze AI uretimi tetikliyor (eskiden bir kez uretilip cache'ten servis ediliyordu) - bu da nadir AI JSON bozulmasina maruziyeti artirmis olabilir. KANITLANMADI, izlemede.
