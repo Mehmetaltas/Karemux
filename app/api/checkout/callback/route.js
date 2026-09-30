@@ -55,8 +55,8 @@ export async function POST(req) {
       await sql`UPDATE randevular SET odendi = true WHERE id = ${randevuId} AND ogrenci_id = ${kullaniciId}`;
       const randevuTutari = await sql`SELECT ucret_tl FROM randevular WHERE id = ${randevuId}`;
       await sql`
-        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
-        VALUES (${kullaniciId}, NULL, ${randevuTutari[0]?.ucret_tl || 0}, ${randevuTutari[0]?.ucret_tl || 0})
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id)
+        VALUES (${kullaniciId}, NULL, ${randevuTutari[0]?.ucret_tl || 0}, ${randevuTutari[0]?.ucret_tl || 0}, ${odemeId})
       `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
@@ -66,8 +66,8 @@ export async function POST(req) {
       await sql`UPDATE canli_ders_katilimcilari SET odendi = true WHERE oturum_id = ${oturumId} AND ogrenci_id = ${kullaniciId}`;
       const oturumFiyati = await sql`SELECT fiyat_tl FROM canli_ders_oturumlari WHERE id = ${oturumId}`;
       await sql`
-        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
-        VALUES (${kullaniciId}, NULL, ${oturumFiyati[0]?.fiyat_tl || 0}, ${oturumFiyati[0]?.fiyat_tl || 0})
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id)
+        VALUES (${kullaniciId}, NULL, ${oturumFiyati[0]?.fiyat_tl || 0}, ${oturumFiyati[0]?.fiyat_tl || 0}, ${odemeId})
       `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
@@ -78,8 +78,8 @@ export async function POST(req) {
       await sql`UPDATE kurum_lisans_satin_alma SET odendi = true WHERE id = ${lisansId}`;
       const lisansTutari = await sql`SELECT tutar_tl FROM kurum_lisans_satin_alma WHERE id = ${lisansId}`;
       await sql`
-        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
-        VALUES (${kullaniciId}, NULL, ${lisansTutari[0]?.tutar_tl || 0}, ${lisansTutari[0]?.tutar_tl || 0})
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id)
+        VALUES (${kullaniciId}, NULL, ${lisansTutari[0]?.tutar_tl || 0}, ${lisansTutari[0]?.tutar_tl || 0}, ${odemeId})
       `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
@@ -94,8 +94,8 @@ export async function POST(req) {
         ON CONFLICT (kurum_id, deneme_id) DO UPDATE SET tutar_tl = ${tutar}, odendi = true
       `;
       await sql`
-        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
-        VALUES (${kullaniciId || null}, NULL, ${tutar}, ${tutar})
+        INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id)
+        VALUES (${kullaniciId || null}, NULL, ${tutar}, ${tutar}, ${odemeId})
       `;
       return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);
     }
@@ -111,8 +111,8 @@ export async function POST(req) {
     // ZAMAN 0 gelir gosteriyordu. Iyzico komisyonu henuz gercek anahtarlar
     // baglanmadigi icin bilinmiyor, simdilik net_gelir_tl = tutar_tl.
     await sql`
-      INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
-      VALUES (${kullaniciId}, ${paket[0]?.id || null}, ${paketFiyati}, ${paketFiyati})
+      INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id)
+      VALUES (${kullaniciId}, ${paket[0]?.id || null}, ${paketFiyati}, ${paketFiyati}, ${odemeId})
     `;
 
     if (paket[0]?.kredi_miktari) {

@@ -78,21 +78,21 @@ export async function POST(req) {
 
     if (randevuId) {
       await sql`UPDATE randevular SET odendi = true WHERE id = ${randevuId} AND ogrenci_id = ${kullaniciId}`;
-      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar}, ${odemeId})`;
       cariyeTahsilatYaz(kullaniciId, tutar);
       return Response.json({ ok: true, durum: "onaylandi" });
     }
 
     if (oturumId) {
       await sql`UPDATE canli_ders_katilimcilari SET odendi = true WHERE oturum_id = ${oturumId} AND ogrenci_id = ${kullaniciId}`;
-      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar}, ${odemeId})`;
       cariyeTahsilatYaz(kullaniciId, tutar);
       return Response.json({ ok: true, durum: "onaylandi" });
     }
 
     if (lisansId) {
       await sql`UPDATE kurum_lisans_satin_alma SET odendi = true WHERE id = ${lisansId}`;
-      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar})`;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id) VALUES (${kullaniciId}, NULL, ${tutar}, ${tutar}, ${odemeId})`;
       cariyeTahsilatYaz(kullaniciId, tutar);
       return Response.json({ ok: true, durum: "onaylandi" });
     }
@@ -103,7 +103,7 @@ export async function POST(req) {
         VALUES (${kurumId}, ${denemeId}, ${tutar}, true)
         ON CONFLICT (kurum_id, deneme_id) DO UPDATE SET tutar_tl = ${tutar}, odendi = true
       `;
-      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl) VALUES (${kullaniciId || null}, NULL, ${tutar}, ${tutar})`;
+      await sql`INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id) VALUES (${kullaniciId || null}, NULL, ${tutar}, ${tutar}, ${odemeId})`;
       return Response.json({ ok: true, durum: "onaylandi" });
     }
 
@@ -112,8 +112,8 @@ export async function POST(req) {
     const paketFiyati = paket[0]?.fiyat_tl || tutar;
 
     await sql`
-      INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl)
-      VALUES (${kullaniciId}, ${paket[0]?.id || null}, ${paketFiyati}, ${paketFiyati})
+      INSERT INTO satislar (kullanici_id, paket_id, tutar_tl, net_gelir_tl, odeme_id)
+      VALUES (${kullaniciId}, ${paket[0]?.id || null}, ${paketFiyati}, ${paketFiyati}, ${odemeId})
     `;
 
     if (paket[0]?.kredi_miktari) {
