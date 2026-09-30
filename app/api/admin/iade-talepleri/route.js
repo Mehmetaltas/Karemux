@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
-import { personelAdminMi } from "@/lib/personel";
+import { personelAdminMi, personelCoz } from "@/lib/personel";
 
 async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
@@ -68,6 +68,13 @@ export async function PATCH(req) {
         VALUES ('iade', ${talep[0].tutar_tl}, ${`Iade - ${talep[0].paket} - talep #${id}`}, CURRENT_DATE)
       `;
     }
+
+    // 30 Eylul: muhasebe genisletmesi - iade karari denetim izi.
+    const personel = await personelCoz(req);
+    await sql`
+      INSERT INTO muhasebe_islem_gecmisi (personel_id, personel_ad, islem_turu, detay, tutar_tl)
+      VALUES (${personel?.id || null}, ${personel?.ad || null}, ${durum === "onaylandi" ? "iade_onay" : "iade_red"}, ${`Talep #${id} - ${talep[0].paket}`}, ${talep[0].tutar_tl})
+    `;
 
     return Response.json({ ok: true });
   } catch (e) {

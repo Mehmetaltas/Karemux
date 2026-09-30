@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
-import { personelAdminMi } from "@/lib/personel";
+import { personelAdminMi, personelCoz } from "@/lib/personel";
 
 async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
@@ -57,6 +57,26 @@ export async function GET(req) {
     const paketler = await sql`SELECT id, anahtar, ad, fiyat_tl, sure_gun, kredi_miktari, aktif FROM paketler ORDER BY fiyat_tl DESC`;
     const sonGiderler = await sql`SELECT id, kategori, tutar_tl, aciklama, tarih FROM giderler ORDER BY tarih DESC LIMIT 15`;
 
+    // 30 Eylul: muhasebe genisletmesi - aylik trend (son 6 ay gelir/gider/kar).
+    const aylikTrend = await sql`
+      SELECT ay.baslangic::date AS ay,
+        COALESCE((SELECT SUM(net_gelir_tl) FROM satislar WHERE olusturulma >= ay.baslangic AND olusturulma < ay.baslangic + interval '1 month'),0)::numeric AS gelir,
+        COALESCE((SELECT SUM(tutar_tl) FROM giderler WHERE tarih >= ay.baslangic AND tarih < (ay.baslangic + interval '1 month')::date),0)::numeric AS gider
+      FROM generate_series(date_trunc('month', CURRENT_DATE) - interval '5 months', date_trunc('month', CURRENT_DATE), interval '1 month') AS ay(baslangic)
+      ORDER BY ay.baslangic
+    `;
+
+    // Bekleyen odemelerin kac gundur beklediği (nakit akisi farkindaligi icin).
+    const bekleyenOdemeYaslandirma = await sql`
+      SELECT id, tutar, plan, yontem, olusturulma, EXTRACT(DAY FROM now() - olusturulma)::int AS bekleyenGun
+      FROM odemeler WHERE durum = 'beklemede' ORDER BY olusturulma ASC LIMIT 20
+    `;
+
+    const islemGecmisi = await sql`
+      SELECT id, personel_ad, islem_turu, detay, tutar_tl, olusturulma
+      FROM muhasebe_islem_gecmisi ORDER BY olusturulma DESC LIMIT 20
+    `;
+
     return Response.json({
       buAy: {
         gelir: Number(buAyGelir[0].toplam), satisAdedi: buAyGelir[0].adet,
@@ -73,6 +93,9 @@ export async function GET(req) {
       paketBazindaSatis,
       paketler,
       sonGiderler,
+      aylikTrend,
+      bekleyenOdemeYaslandirma,
+      islemGecmisi,
     });
   } catch (e) {
     console.error(e);
@@ -90,7 +113,16 @@ export async function PATCH(req) {
     if (!paketId || yeniFiyat == null || yeniFiyat < 0) {
       return Response.json({ error: "Gecerli bir paket ID ve fiyat gerekli" }, { status: 400 });
     }
+    const eskiKayit = await sql`SELECT ad, fiyat_tl FROM paketler WHERE id = ${paketId}`;
     await sql`UPDATE paketler SET fiyat_tl = ${yeniFiyat} WHERE id = ${paketId}`;
+
+    // 30 Eylul: muhasebe genisletmesi - kim/ne zaman/ne degistirdi kaydi.
+    const personel = await personelCoz(req);
+    await sql`
+      INSERT INTO muhasebe_islem_gecmisi (personel_id, personel_ad, islem_turu, detay)
+      VALUES (${personel?.id || null}, ${personel?.ad || null}, 'paket_fiyat_degisikligi', ${`${eskiKayit[0]?.ad || paketId}: ${eskiKayit[0]?.fiyat_tl || "?"}₺ -> ${yeniFiyat}₺`})
+    `;
+
     return Response.json({ ok: true });
   } catch (e) {
     console.error(e);
@@ -122,6 +154,13 @@ export async function POST(req) {
       `;
       kasaHareketiOlusturuldu = true;
     }
+
+    // 30 Eylul: muhasebe genisletmesi - kim/ne zaman/ne ekledi kaydi.
+    const personel = await personelCoz(req);
+    await sql`
+      INSERT INTO muhasebe_islem_gecmisi (personel_id, personel_ad, islem_turu, detay, tutar_tl)
+      VALUES (${personel?.id || null}, ${personel?.ad || null}, 'gider_ekleme', ${`${kategori}${aciklama ? ` - ${aciklama}` : ""}`}, ${tutarTl})
+    `;
 
     return Response.json({ ok: true, kasaHareketiOlusturuldu });
   } catch (e) {
