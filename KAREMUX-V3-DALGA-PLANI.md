@@ -48,3 +48,17 @@ Dalga 1 (Abonelik Motoru) → TARA aşaması: `abonelikler`, `odemeler`, `satisl
 - **SENARYO** — varsayımsal/ileriye dönük projeksiyon (örn. "1000 öğrenciye ulaşırsak gelir X olur")
 
 Bu ayrım, bugünkü oturumda zaten uygulanan disiplinin (AI maliyetinin "tahmini" etiketlenmesi, "kanıtla tahmin etme" ilkesi) Company Twin'in TÜM ekranlarına yaygınlaştırılmış hali. Her dalga kendi ürettiği sayıları bu üç etiketten biriyle işaretleyecek şekilde tasarlanacak — sonradan "hangisi gerçek" diye tekrar araştırmaya gerek kalmasın.
+
+## Dalgalar Sonrası — Kapanış Sırası (10 dalga bittikten sonra)
+
+Bu küçük/orta ölçekli açıklar, 10 büyük dalga tamamlandıktan sonra şu sırayla ele alınacak:
+
+1. **Destek/SLA** — destek route'u var ama hiç test edilmedi, cevap süresi standardı yok
+2. **Kota eşik uyarısı** (Telegram) — Gemini/AI sağlayıcı limitlerine yaklaşınca otomatik uyarı
+3. **Fiyat sayfası değişim bekçisi** — resmi AI fiyat sayfalarının haftalık otomatik kontrolü
+4. **KPI** — merkezi pano (bkz. Nihai Hedef bölümü, GERÇEK/TAHMİN/SENARYO ile)
+5. **Live Academy** — canlı ders altyapısı (jitsi) var, hiç canlı test edilmedi
+6. **Ödev** — öğrenci tarafında ayrı özellik yok, tasarım kararı gerekiyor
+7. **Koçluk** — yapı doğru çalışıyor ama 0 gerçek kullanım, gerçek kullanıcıyla görülecek
+8. **YouTube** — 20 videoluk takvim var, hiç video üretilmedi (pazarlama işi, Dalga 7'nin video motorundan farklı)
+9. **Diğer açıklar** — o ana kadar biriken küçük bulgular
