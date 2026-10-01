@@ -43,14 +43,19 @@ export async function GET() {
 
     const yanit1 = await fetch("https://www.karemux.com/api/kurum/koltuk-ata", {
       method: "POST",
+      cache: "no-store",
       headers: { cookie, "content-type": "application/json" },
       body: JSON.stringify({ lisansId, ogrenciEposta }),
     });
     sonuclar.ilkAtamaYanit = await yanit1.json();
     sonuclar.ilkAtamaStatus = yanit1.status;
 
+    const abonelikArasiKontrol = await sql`SELECT COUNT(*) FROM abonelikler WHERE kullanici_id = ${ogrenciId}`;
+    sonuclar.ilkAtamaSonrasiDbSayisi = abonelikArasiKontrol[0].count;
+
     const yanit2 = await fetch("https://www.karemux.com/api/kurum/koltuk-ata", {
       method: "POST",
+      cache: "no-store",
       headers: { cookie, "content-type": "application/json" },
       body: JSON.stringify({ lisansId, ogrenciEposta }),
     });
@@ -72,6 +77,6 @@ export async function GET() {
       await sql`DELETE FROM kullanicilar WHERE id = ${ogrenciId}`;
       await sql`DELETE FROM kullanicilar WHERE id = ${yoneticiId}`;
       await sql`DELETE FROM kurumlar WHERE id = ${kurumId}`;
-    } catch (e2) { /* temizlik hatasi yutuluyor, asil sonuc onemli */ }
+    } catch (e2) { /* temizlik hatasi yutuluyor */ }
   }
 }
