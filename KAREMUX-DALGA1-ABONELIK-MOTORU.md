@@ -87,3 +87,12 @@ app/api/kurum/koltuk-ata/route.js'deki "zatenVar" kontrolü (ikinci koltuk atanm
 ÖNEMLİ METODOLOJİK DERS: İlk canlı testte ikinci atama denemesi yanlışlıkla "ok:true" döndü (DB'de 1 kayıt varken) - kök neden route'ta DEĞİL, test script'imdeki server-side fetch() çağrısının Next.js'in varsayılan fetch-cache'ine takılmasıydı (ikinci istek ağa hiç gitmemiş, ilk yanıtı cache'den tekrar döndürmüş). cache: "no-store" eklenince ikinci deneme doğru şekilde reddedildi (400, "zaten aktif abonelik var"). SONUÇ: route'un kendisinde hata YOK, getActiveAbonelik() doğru çalışıyor. BUNDAN SONRA: geçici test route'larında başka bir route'a server-side fetch() ile istek atarken HER ZAMAN cache: "no-store" eklenecek, aksi halde yanlış pozitif/negatif sonuç alınabilir.
 
 Kalan 2 route: admin/kullanici-profil-detay, cron/yenileme-uyarisi.
+
+## [DECISION] Dalga 1 (Abonelik Motoru) KODLA fazı TAMAMLANDI (1 Ekim)
+Kalan 2 route incelendi, ikisi de KAPSAM DIŞI çıktı (taşımak iş mantığını bozardı):
+- admin/kullanici-profil-detay: TEK kullanıcının TÜM abonelik geçmişini listeliyor (durum filtresi yok), getActiveAbonelik() sadece AKTIF+TEK kayıt döndürür - farklı amaç, dokunulmadı.
+- cron/yenileme-uyarisi: TÜM kullanıcılar arasında toplu "3 gün içinde bitecek" sorgusu (JOIN ile), getActiveAbonelik() tek kullaniciId parametresi alır - batch/toplu sorgu, merkezi fonksiyonun kapsamına girmiyor, dokunulmadı.
+
+Dalga 1 sonucu: abonelikler.paket_id eklendi, getActiveAbonelik()+isYillikAboneMi() merkezi fonksiyonları kuruldu, 4 route (abonelik/durum, deneme-kulubu/durum, kurum/koltuk-ata, canli-ders/checkout+havale-baslat) merkezi hale getirildi, hepsi canlı kanıtlandı. 2 route (admin panel, cron) bilinçli olarak dokunulmadı (doğru karar, zorla taşımak hataya yol açardı).
+
+Sıradaki: Dalga 2 (Entitlement) - KAREMUX-V3-DALGA-PLANI.md ve güncellenmiş KAREMUX-DALGA9-10-SINAV-MERKEZI-DENEME-KULUBU-v2.md'deki Entitlement kavramına (exam_access, analysis_access vb.) göre TARA ile başlanacak.
