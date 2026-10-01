@@ -76,3 +76,13 @@ Büyük Dalga işlerine girmeden önce kullanıcı talebiyle ("önlem al, iz bı
 **Yan bulgu (önemli, gelecek oturumlar için not):** Yedekleme script'i geliştirilirken, Neon'a `pg` (node-postgres/TCP) ile bağlanıldığında **bazen (nadir, muhtemelen cold-start/autosuspend sonrası) `search_path` boş geliyor**, bu da şema belirtmeden yapılan sorgularda "relation does not exist" hatasına yol açıyor. **Gerçek üretim uygulaması ETKİLENMİYOR** (Vercel'de `@neondatabase/serverless`'in HTTP tabanlı `neon()` sürücüsünü kullanıyor, farklı bağlantı yolu) — sadece VPS'ten `pg.Pool` ile yapılan doğrudan sorgular risk altında. **Önlem:** yedek script'i artık her çalıştırmada açıkça `SET search_path TO public` yapıyor VE şüpheli/hatalı sonuçları (0 satır veya herhangi bir tablo hatası) SESSİZCE başarılı raporlamak yerine sert hata (exit 1) olarak işaretliyor — önceki versiyon bu hatayı yutup yanlışlıkla "başarılı" demişti.
 
 **Standart hale gelen alışkanlık:** Bundan sonraki her büyük Dalga adımından önce `ssh ... "/root/karemux-db-yedek.sh"` ile elle bir yedek daha tetiklenecek (günlük otomatik olana ek olarak, riskli işlemden hemen önce taze bir nokta için).
+
+## Dalga 1 — İlerleme Günlüğü
+
+**1 Ekim, KODLA adım 2:** `satislar.odeme_id` zaten vardı (30 Eylül eklenmişti), `abonelikler.paket_id` eklendi (0 kayıt, risksiz migration). `checkout/callback` + `havale-onay`'ın abonelik oluşturma INSERT'leri artık `paket_id`'yi dolduruyor. `lib/paket.js`'e `getActiveAbonelik()` eklendi (plan+paket_id+bitis birlikte döner). Canlı test: yeni oluşturulan abonelikte `paket_id` doğru doldu, `getActiveAbonelik()` doğru sonuç verdi (kanıtlı).
+
+**1 Ekim, KODLA adım 3:** `canli-ders/checkout` ve `canli-ders/havale-baslat`'taki birebir aynı "yıllık abone mi" sorgusu `lib/paket.js`'teki yeni `isYillikAboneMi()` fonksiyonuna taşındı (3. kopya — `gorselSoruErisimVarMi`'nin içi — de aynı fonksiyona bağlandı). Canlı test: abonesiz kullanıcı tam fiyat (1000₺), abonelikli kullanıcı %25 indirimli (750₺) — ikisi de doğru, davranış birebir korundu.
+
+**Kalan 4 route (henüz taşınmadı):** `abonelik/durum`, `deneme-kulubu/durum` (lib/deneme-kulubu.js), `kurum/koltuk-ata` (2 sorgu), `admin/kullanici-profil-detay`, `cron/yenileme-uyarisi`. Bunlar `getActiveAbonelik()`'in TAM kaydını (sadece true/false değil) kullanıyor, bir sonraki adımda ele alınacak.
+
+**Güvenlik notu:** Her adımdan önce VPS'teki `/root/karemux-db-yedek.sh` elle tetiklendi (standart hale geldi).
