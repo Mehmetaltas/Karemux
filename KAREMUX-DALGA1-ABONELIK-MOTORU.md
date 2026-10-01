@@ -74,3 +74,6 @@ Her değişiklik için: mevcut akış (checkout→callback→abonelik oluşur→
 
 ## Karar Bekliyor
 Yukarıdaki HEDEF MİMARİ onaylanırsa KODLA aşamasına geçilir. Onay öncesi kodlama YAPILMAYACAK (belirlenen metodoloji).
+
+## [CODE] KODLA Adım 4 (1 Ekim, canlı kanıtlandı)
+app/api/abonelik/durum/route.js kendi kopya "FROM abonelikler" sorgusu yerine lib/paket.js'teki getActiveAbonelik() kullanacak şekilde değiştirildi. Response şekli (plan/baslangic/bitis) birebir korundu, frontend etkilenmedi. Canlı test (geçici admin route, gerçek tokenUret ile): test kullanıcısı+abonelik oluşturuldu, /api/abonelik/durum doğru planı (ara_tatil) döndürdü, sonra temizlendi, test route kaldırıldı. Kalan 3 route: deneme-kulubu/durum, kurum/koltuk-ata (2 sorgu), admin/kullanici-profil-detay, cron/yenileme-uyarisi.
