@@ -80,3 +80,10 @@ app/api/abonelik/durum/route.js kendi kopya "FROM abonelikler" sorgusu yerine li
 
 ## [CODE] KODLA Adım 5 (1 Ekim, canlı kanıtlandı)
 denemeKulubuUyeMi() (lib/deneme-kulubu.js) dönüşüne bitis eklendi; app/api/deneme-kulubu/durum/route.js'deki aynı bilgiyi tekrar çeken 2. SELECT (dubluke sorgu) kaldırıldı. 3 diğer çağırıcı (ucretli-deneme/gonder, /mevcut, /sorular) etkilenmedi (sadece ekstra alan eklendi, mevcut alanlar değişmedi). Canlı test (geçici admin route): test kullanıcısı + deneme_kulubu_lgs aboneliği oluşturuldu, /api/deneme-kulubu/durum doğru seviye+bitis döndürdü, temizlik doğrulandı, test route kaldırıldı. Kalan 3 route: kurum/koltuk-ata (2 sorgu), admin/kullanici-profil-detay, cron/yenileme-uyarisi.
+
+## [CODE] KODLA Adım 6 (1 Ekim, canlı kanıtlandı)
+app/api/kurum/koltuk-ata/route.js'deki "zatenVar" kontrolü (ikinci koltuk atanmasını engelleyen) getActiveAbonelik()'e taşındı. Koltuk sayımı sorgusu (kurum_lisans_id bazlı, farklı eksen) DEĞİŞTİRİLMEDİ.
+
+ÖNEMLİ METODOLOJİK DERS: İlk canlı testte ikinci atama denemesi yanlışlıkla "ok:true" döndü (DB'de 1 kayıt varken) - kök neden route'ta DEĞİL, test script'imdeki server-side fetch() çağrısının Next.js'in varsayılan fetch-cache'ine takılmasıydı (ikinci istek ağa hiç gitmemiş, ilk yanıtı cache'den tekrar döndürmüş). cache: "no-store" eklenince ikinci deneme doğru şekilde reddedildi (400, "zaten aktif abonelik var"). SONUÇ: route'un kendisinde hata YOK, getActiveAbonelik() doğru çalışıyor. BUNDAN SONRA: geçici test route'larında başka bir route'a server-side fetch() ile istek atarken HER ZAMAN cache: "no-store" eklenecek, aksi halde yanlış pozitif/negatif sonuç alınabilir.
+
+Kalan 2 route: admin/kullanici-profil-detay, cron/yenileme-uyarisi.
