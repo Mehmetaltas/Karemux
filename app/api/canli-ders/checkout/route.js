@@ -5,6 +5,7 @@
 import Iyzipay from "iyzipay";
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
+import { isYillikAboneMi } from "@/lib/paket";
 
 function iyzipayIstemcisi() {
   return new Iyzipay({
@@ -35,8 +36,7 @@ export async function POST(req) {
     if (zatenKayitli.length > 0) return Response.json({ error: "Bu oturuma zaten kayitlisin" }, { status: 400 });
 
     // Yillik_* abonesine %25 indirim
-    const abonelik = await sql`SELECT 1 FROM abonelikler WHERE kullanici_id = ${kullaniciId} AND durum = 'aktif' AND plan LIKE 'yillik_%' LIMIT 1`;
-    const indirimliMi = abonelik.length > 0;
+    const indirimliMi = await isYillikAboneMi(kullaniciId);
     let fiyat = indirimliMi ? Math.round((Number(oturum[0].fiyat_tl) * 0.75) / 5) * 5 : Number(oturum[0].fiyat_tl);
 
     let kuponIndirimTutari = 0;
