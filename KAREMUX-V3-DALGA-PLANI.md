@@ -62,3 +62,17 @@ Bu küçük/orta ölçekli açıklar, 10 büyük dalga tamamlandıktan sonra şu
 7. **Koçluk** — yapı doğru çalışıyor ama 0 gerçek kullanım, gerçek kullanıcıyla görülecek
 8. **YouTube** — 20 videoluk takvim var, hiç video üretilmedi (pazarlama işi, Dalga 7'nin video motorundan farklı)
 9. **Diğer açıklar** — o ana kadar biriken küçük bulgular
+
+## Güvenlik Önlemi — Gerçek DB Yedeklemesi Kuruldu (1 Ekim)
+
+Büyük Dalga işlerine girmeden önce kullanıcı talebiyle ("önlem al, iz bırak, yedekli gir, güvenliği artır") gerçek bir güvenlik ağı kuruldu.
+
+**Keşif:** `cron/yedekleme` adı yanıltıcıydı — gerçek yedek ALMIYOR, sadece 5 kritik tablonun satır sayısını kontrol edip anormal düşüşte Telegram'a haber veriyor. Gerçek yedekleme tamamen Neon'un otomatik PITR'ına bırakılmıştı, ki bu ücretsiz planda sadece **6 saat** geriye gidebiliyor — büyük mimari değişiklikler için yetersiz bir güvenlik ağı.
+
+**Ayrıca VPS'te önceden var olan `/root/karemux-yedek.sh`** (günlük 04:00, 14 gün saklama) **sadece kod/config dosyalarını** yedekliyor (server.js, nginx, systemd) — **asıl veritabanını hiç kapsamıyor**. Bu iki yedekleme birbirini TAMAMLIYOR, çakışma yok.
+
+**Kurulan:** `/opt/karemux-deneme/yedek-al.mjs` — `public` şemadaki TÜM tabloları (bugün 76 tablo, 31.268 satır) JSON olarak `/opt/karemux-yedekler/<tarih>/` altına yedekliyor. VPS crontab'ına günlük 03:00'te otomatik çalışacak şekilde eklendi (`/root/karemux-db-yedek.sh`), 14 günden eski yedekler otomatik siliniyor.
+
+**Yan bulgu (önemli, gelecek oturumlar için not):** Yedekleme script'i geliştirilirken, Neon'a `pg` (node-postgres/TCP) ile bağlanıldığında **bazen (nadir, muhtemelen cold-start/autosuspend sonrası) `search_path` boş geliyor**, bu da şema belirtmeden yapılan sorgularda "relation does not exist" hatasına yol açıyor. **Gerçek üretim uygulaması ETKİLENMİYOR** (Vercel'de `@neondatabase/serverless`'in HTTP tabanlı `neon()` sürücüsünü kullanıyor, farklı bağlantı yolu) — sadece VPS'ten `pg.Pool` ile yapılan doğrudan sorgular risk altında. **Önlem:** yedek script'i artık her çalıştırmada açıkça `SET search_path TO public` yapıyor VE şüpheli/hatalı sonuçları (0 satır veya herhangi bir tablo hatası) SESSİZCE başarılı raporlamak yerine sert hata (exit 1) olarak işaretliyor — önceki versiyon bu hatayı yutup yanlışlıkla "başarılı" demişti.
+
+**Standart hale gelen alışkanlık:** Bundan sonraki her büyük Dalga adımından önce `ssh ... "/root/karemux-db-yedek.sh"` ile elle bir yedek daha tetiklenecek (günlük otomatik olana ek olarak, riskli işlemden hemen önce taze bir nokta için).
