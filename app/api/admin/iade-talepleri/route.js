@@ -67,6 +67,12 @@ export async function PATCH(req) {
         INSERT INTO giderler (kategori, tutar_tl, aciklama, tarih)
         VALUES ('iade', ${talep[0].tutar_tl}, ${`Iade - ${talep[0].paket} - talep #${id}`}, CURRENT_DATE)
       `;
+
+      // 30 Eylul: satisAdedi/paketBazindaSatis sayaclari iade sonrasi SISIK
+      // kaliyordu (kar rakami giderler'deki iade kaydiyla zaten DOGRUYDU, ama
+      // sadece sayim yanlisti). Tutari (SUM) DEGISTIRMIYORUZ - kar hesabini
+      // bozmamak icin, SADECE sayaç disinda birakiyoruz.
+      await sql`UPDATE satislar SET iade_edildi = true WHERE odeme_id = ${talep[0].odeme_id}`;
     }
 
     // 30 Eylul: muhasebe genisletmesi - iade karari denetim izi.

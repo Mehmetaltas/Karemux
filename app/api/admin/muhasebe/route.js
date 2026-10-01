@@ -21,11 +21,14 @@ export async function GET(req) {
     const yetki = await yetkiKontrol(req, sifre);
     if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
 
+    // 30 Eylul: adet (satisAdedi) iadeleri SAYMAZ, ama toplam (gelir) iadeleri
+    // HALA icerir - kar hesabi zaten giderler'deki 'iade' kaydiyla netlesiyor,
+    // toplami da hariç tutarsak kar iki kez dusurulmus olur.
     const buAyGelir = await sql`
-      SELECT COALESCE(SUM(net_gelir_tl),0)::numeric as toplam, COUNT(*)::int as adet
+      SELECT COALESCE(SUM(net_gelir_tl),0)::numeric as toplam, COUNT(*) FILTER (WHERE NOT iade_edildi)::int as adet
       FROM satislar WHERE olusturulma >= date_trunc('month', CURRENT_DATE)
     `;
-    const genelGelir = await sql`SELECT COALESCE(SUM(net_gelir_tl),0)::numeric as toplam, COUNT(*)::int as adet FROM satislar`;
+    const genelGelir = await sql`SELECT COALESCE(SUM(net_gelir_tl),0)::numeric as toplam, COUNT(*) FILTER (WHERE NOT iade_edildi)::int as adet FROM satislar`;
 
     const buAyGider = await sql`
       SELECT COALESCE(SUM(tutar_tl),0)::numeric as toplam
@@ -49,7 +52,7 @@ export async function GET(req) {
     `;
 
     const paketBazindaSatis = await sql`
-      SELECT p.ad, COUNT(s.id)::int as adet, COALESCE(SUM(s.net_gelir_tl),0)::numeric as toplam
+      SELECT p.ad, COUNT(s.id) FILTER (WHERE NOT s.iade_edildi)::int as adet, COALESCE(SUM(s.net_gelir_tl),0)::numeric as toplam
       FROM paketler p LEFT JOIN satislar s ON s.paket_id = p.id AND s.olusturulma >= date_trunc('month', CURRENT_DATE)
       GROUP BY p.ad ORDER BY toplam DESC
     `;
