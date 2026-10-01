@@ -37,3 +37,14 @@ Hiçbir dalga başlamadı. Bugünkü (30 Eylül) işler bu planın DIŞINDA, mev
 
 ## Sıradaki Adım
 Dalga 1 (Abonelik Motoru) → TARA aşaması: `abonelikler`, `odemeler`, `satislar`, `paketler`, `kullanici_kredileri` tablolarının tam şemasını ve bunları kullanan TÜM route'ları çıkarmak.
+
+## Nihai Hedef (tüm dalgalar bittiğinde, çapraz ilke)
+
+**Entegre zincir:** SATIŞ → ABONELİK → KULLANIM → ÖĞRENME → SINAV → İÇERİK → ÖĞRETMEN → DESTEK → MALİYET → GELİR → KPI — tek bir yönetim görünümüne (Company Twin) bağlanacak.
+
+**GERÇEK/TAHMİN/SENARYO ayrımı (ÇAPRAZ KURAL, her dalgada geçerli):** Company Twin'de gösterilen her sayı üç kategoriden birine açıkça etiketlenecek:
+- **GERÇEK** — DB'den doğrudan ölçülmüş (örn. gerçek satış tutarı, gerçek AI token sayısı)
+- **TAHMİN** — bir formülle hesaplanmış, gerçek ölçüm değil (örn. "0,01 TL/istek" tahmini, token sayımı olmadan)
+- **SENARYO** — varsayımsal/ileriye dönük projeksiyon (örn. "1000 öğrenciye ulaşırsak gelir X olur")
+
+Bu ayrım, bugünkü oturumda zaten uygulanan disiplinin (AI maliyetinin "tahmini" etiketlenmesi, "kanıtla tahmin etme" ilkesi) Company Twin'in TÜM ekranlarına yaygınlaştırılmış hali. Her dalga kendi ürettiği sayıları bu üç etiketten biriyle işaretleyecek şekilde tasarlanacak — sonradan "hangisi gerçek" diye tekrar araştırmaya gerek kalmasın.
