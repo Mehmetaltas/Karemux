@@ -126,8 +126,8 @@ export async function POST(req) {
     }
 
     await sql`
-      INSERT INTO abonelikler (kullanici_id, plan, durum, iyzico_abonelik_id, baslangic, bitis)
-      VALUES (${kullaniciId}, ${plan}, 'aktif', ${sonuc.paymentId || token}, now(), now() + (${sureGun} || ' days')::interval)
+      INSERT INTO abonelikler (kullanici_id, plan, durum, iyzico_abonelik_id, baslangic, bitis, paket_id)
+      VALUES (${kullaniciId}, ${plan}, 'aktif', ${sonuc.paymentId || token}, now(), now() + (${sureGun} || ' days')::interval, ${paket[0]?.id || null})
     `;
 
     return Response.redirect(`${siteUrl}/?odeme=basarili`, 302);

@@ -124,8 +124,8 @@ export async function POST(req) {
       `;
     } else {
       await sql`
-        INSERT INTO abonelikler (kullanici_id, plan, durum, iyzico_abonelik_id, baslangic, bitis)
-        VALUES (${kullaniciId}, ${plan}, 'aktif', ${"havale-" + odemeId}, now(), now() + (${sureGun}::text || ' days')::interval)
+        INSERT INTO abonelikler (kullanici_id, plan, durum, iyzico_abonelik_id, baslangic, bitis, paket_id)
+        VALUES (${kullaniciId}, ${plan}, 'aktif', ${"havale-" + odemeId}, now(), now() + (${sureGun}::text || ' days')::interval, ${paket[0]?.id || null})
       `;
     }
 
