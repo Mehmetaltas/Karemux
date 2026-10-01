@@ -27,12 +27,13 @@ export async function GET() {
     `;
     ogrenciId = ogrenci[0].id;
 
-    const paket = await sql`SELECT anahtar FROM paketler WHERE aktif = true AND sure_gun IS NOT NULL LIMIT 1`;
+    const paket = await sql`SELECT anahtar, fiyat_tl FROM paketler WHERE aktif = true AND sure_gun IS NOT NULL LIMIT 1`;
     const planAnahtar = paket[0].anahtar;
+    const fiyat = paket[0].fiyat_tl || 100;
 
     const lisans = await sql`
-      INSERT INTO kurum_lisans_satin_alma (kurum_id, plan, koltuk_sayisi, odendi)
-      VALUES (${kurumId}, ${planAnahtar}, 5, true)
+      INSERT INTO kurum_lisans_satin_alma (kurum_id, plan, koltuk_sayisi, odendi, tutar_tl)
+      VALUES (${kurumId}, ${planAnahtar}, 5, true, ${fiyat * 5})
       RETURNING id
     `;
     lisansId = lisans[0].id;
