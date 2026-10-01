@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { kurumYoneticisiCoz } from "@/lib/kurum";
+import { getActiveAbonelik } from "@/lib/paket";
 
 // Satin alinmis, bos bir koltugu belirli bir ogrenciye atar - ogrenci kurumun
 // EPOSTASINI degil, kurumun kurum_kodu ile ONCEDEN kendini baglamis olmali
@@ -31,8 +32,8 @@ export async function POST(req) {
     }
     const ogrenciId = ogrenciSonuc[0].id;
 
-    const zatenVar = await sql`SELECT 1 FROM abonelikler WHERE kullanici_id = ${ogrenciId} AND durum = 'aktif'`;
-    if (zatenVar.length > 0) {
+    const mevcutAbonelik = await getActiveAbonelik(ogrenciId);
+    if (mevcutAbonelik) {
       return Response.json({ error: "Bu ogrencinin zaten aktif bir aboneligi var" }, { status: 400 });
     }
 
