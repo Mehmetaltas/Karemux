@@ -23,7 +23,7 @@ export async function GET() {
       VALUES (${kullaniciId}, ${paket[0].anahtar}, ${paketId}, 'aktif', now(), now() + interval '30 days', 'test')
     `;
 
-    const token = tokenUret({ kullaniciId, rol: 'ogrenci' });
+    const token = tokenUret(kullaniciId);
     sonuclar.tokenUretildi = !!token;
 
     const yanit = await fetch("https://www.karemux.com/api/abonelik/durum", {
