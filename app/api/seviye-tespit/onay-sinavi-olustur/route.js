@@ -4,6 +4,7 @@ import { aiCagir } from "@/lib/ai";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
+import { sorulariDenetle } from "@/lib/soruKalite";
 
 // Belirli bir kademe (zayif unite) icin 3 soruluk bir ONAY sinavi uretir.
 // Dogru cevaplar (dogruIndex) SUNUCUDA (yeni seviye_onay_sinavlari tablosunda)
@@ -32,13 +33,13 @@ export async function POST(req) {
     try {
       const cacheKayitlari = await sql`
         SELECT icerik_json FROM icerik_onbellek
-        WHERE sinif = ${kaynak_sinif} AND ders = ${ders} AND unite = ${unite} AND icerik_turu = 'konu_paketi'
+        WHERE sinif = ${kaynak_sinif} AND ders = ${ders} AND unite = ${unite} AND icerik_turu = 'konu_paketi' AND onay_durumu = 'onaylandi'
       `;
       const havuz = [];
       for (const k of cacheKayitlari) {
         const soruHavuzu = k.icerik_json?.soruHavuzu || [];
         for (const s of soruHavuzu) {
-          if (s && typeof s.soru === "string" && Array.isArray(s.secenekler) && Number.isInteger(s.dogruIndex)) {
+          if (soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: false })) {
             havuz.push({ soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex });
           }
         }
@@ -53,7 +54,7 @@ export async function POST(req) {
     // 2. Cache'te yeterli soru yoksa, YENI uret (fallback)
     if (sorular.length === 0) {
       const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
-      const p = `Sen bir ilkokul/ortaokul ogretmenisin. "${ders}" dersinin "${unite}" unitesi (${kaynak_sinif}. sinif) icin, ogrencinin bu uniteyi GERCEKTEN ogrenip ogrenmedigini olcen 3 SORULUK bir ONAY sinavi hazirla. ${kaliteReferansi ? `Kalite referansi: ${kaliteReferansi}` : ""} Sorular orta zorlukta olsun, temel kavramlari olcsun. SADECE JSON dondur (obje icinde dizi), tam 3 eleman:
+      const p = `Sen bir ilkokul/ortaokul ogretmenisin. "${ders}" dersinin "${unite}" unitesi (${kaynak_sinif}. sinif) icin, ogrencinin bu uniteyi GERCEKTEN ogrenip ogrenmedigini olcen 5 SORULUK bir ONAY sinavi havuzu hazirla. ${kaliteReferansi ? `Kalite referansi: ${kaliteReferansi}` : ""} Sorular orta zorlukta olsun, temel kavramlari olcsun. SADECE JSON dondur (obje icinde dizi), tam 5 eleman:
 {"sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]}`;
 
       const cevap = await aiCagir({ prompt: p, maxTokens: 1500, jsonModu: true });
@@ -65,9 +66,14 @@ export async function POST(req) {
         sorularHam = null;
       }
 
-      sorular = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
-        soruFormatGecerliMi(s, { soruTrimGerekli: false, dersUniteGerekli: false })
+      const formatGecen = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
+        soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: false })
       );
+      const denetimBaglami = "Bu sorular \"" + ders + "\" dersi \"" + unite
+        + "\" unitesi icin ogrenciye dogrudan gosterilecek bir onay sinavinda"
+        + " kullanilacak, cok yuksek dogruluk gerekiyor.";
+      const denetim = await sorulariDenetle(formatGecen, denetimBaglami);
+      sorular = denetim.gecenler.slice(0, 3);
     }
 
     if (sorular.length === 0) throw new Error("Sorular uretilemedi, tekrar dene");
