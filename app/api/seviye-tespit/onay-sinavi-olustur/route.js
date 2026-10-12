@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 import { aiCagir } from "@/lib/ai";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
 
 // Belirli bir kademe (zayif unite) icin 3 soruluk bir ONAY sinavi uretir.
 // Dogru cevaplar (dogruIndex) SUNUCUDA (yeni seviye_onay_sinavlari tablosunda)
@@ -59,8 +60,7 @@ export async function POST(req) {
       const sorularHam = JSON.parse(temiz.slice(temiz.indexOf("["), temiz.lastIndexOf("]") + 1));
 
       sorular = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
-        s && typeof s.soru === "string" && Array.isArray(s.secenekler) && s.secenekler.length >= 2 &&
-        Number.isInteger(s.dogruIndex) && s.dogruIndex >= 0 && s.dogruIndex < s.secenekler.length
+        soruFormatGecerliMi(s, { soruTrimGerekli: false, dersUniteGerekli: false })
       );
     }
 

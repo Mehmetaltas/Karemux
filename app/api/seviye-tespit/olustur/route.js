@@ -3,6 +3,7 @@ import { jsonAyikla } from "@/lib/json-ayikla";
 import { sorulariDenetle } from "@/lib/soruKalite";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
+import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
 
 // Istemci, 4. ve 5. sinif konularindan sectigi bir listeyi ({ders, unite, sinif})
 // gonderir, biz her biri icin 1 soru uretiriz. Boylece unite listesi (page.js'te
@@ -58,10 +59,7 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
     }
 
     const sorular = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
-      s && typeof s.soru === "string" && s.soru.trim() &&
-      Array.isArray(s.secenekler) && s.secenekler.length >= 2 &&
-      Number.isInteger(s.dogruIndex) && s.dogruIndex >= 0 && s.dogruIndex < s.secenekler.length &&
-      typeof s.ders === "string" && typeof s.unite === "string"
+      soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: true })
     );
 
     if (sorular.length === 0) {
