@@ -28,7 +28,7 @@ SINIFLANDIRMA: MEVCUT ama DUPLİKE/İSİMSİZ.
 - ogrenme-hafizasi + hata-kitapcigi'ndeki adaptif motor zaten kurulu, kademeli telafi sürecine besliyor.
 
 ### ENTITLEMENT
-- lib/deneme-kulubu.js hâlâ paket-adı bazlı, hasEntitlement()'a henüz bağlanmadı.
+- `denemeKulubuUyeMi()` TAMAMLANDI (12 Ekim): eski plan-bazlı kontrol (deneme_kulubu_baslangic/standart/lgs) DEĞİŞMEDİ, üstüne `isYillikAboneMi()` ile EK bir yol eklendi - yıllık abone artık otomatik "Sınırsız (Yıllık)" olarak Deneme Kulübü'ne erişiyor, kurum satın alma kontrolüne tabi değil. KASITLI OLARAK `hasEntitlement(..., "online_exam_access")` kullanılmadı - bursluluk paketi de bu hakka sahip olduğu için yanlışlıkla bursluluk abonelerini kapsama alırdı (canlıda test edilip doğrulandı: yıllık→uye:true, bursluluk→uye:false). app/page.js arayüzü zaten `uye` alanına göre doğru davranıyor, ek değişiklik gerekmedi. app/tanitim/page.js'deki Deneme Kulübü bölümüne "Premium (yıllık) üyeliğe zaten dahildir" notu eklendi - önceden bu netlik marketing sayfasında yoktu.
 
 ## Karar: Tek Motora Geçiş Stratejisi (12 Ekim, kullanıcı onayı)
 En düşük riskliden en yükseğe - ÜÇÜ DE TAMAMLANDI (12 Ekim):
@@ -37,6 +37,8 @@ En düşük riskliden en yükseğe - ÜÇÜ DE TAMAMLANDI (12 Ekim):
 3. **ucretli-deneme** → TAMAMLANDI (0 satır gerçek veri, coğrafi snapshot eklendi, canlı kanıtlandı - geçici test kullanıcı/deneme/kullanım kayıtları temizlendi).
 
 ## Sırada (Dalga 9/10 devamı - henüz başlanmadı)
-- lib/deneme-kulubu.js'yi hasEntitlement()'a bağlamak (düşük risk, debt).
 - optik-okuma'nın yeni plandaki yeri (KARAR GEREKİYOR).
 - 4 paralel sınav üretim mekanizmasının (SINAV ÜRETİMİ bölümü) tek motora birleştirilmesi - bu rapordaki en büyük yapısal iş, henüz başlanmadı.
+
+## KAPANIŞ (12 Ekim 2026)
+Dalga 9'un coğrafi snapshot + entitlement entegrasyonu TAMAMEN bitti - 5 alt adımın hepsi (sinav-sonuc, seviye-tespit, ucretli-deneme, denemeKulubuUyeMi, tanıtım sayfası netliği) canlıda kanıtlandı, geçici test verileri temizlendi. Not: Bu oturumda `node --check` komutunun ESM dosyalarında güvenilmez olduğu (sahte "SYNTAX OK") fark edildi - gerçek doğrulama her zaman Vercel build + canlı curl testleriyle yapıldı, üretimde hiçbir sorun oluşmadı.
