@@ -25,9 +25,14 @@ export async function POST(req) {
       `;
     }
 
+    const kullaniciSatiri = await sql`SELECT hedef_il, hedef_ilce, kurum_id FROM kullanicilar WHERE id = ${kullaniciId}`;
+    const il = kullaniciSatiri[0]?.hedef_il || null;
+    const ilce = kullaniciSatiri[0]?.hedef_ilce || null;
+    const kurumId = kullaniciSatiri[0]?.kurum_id || null;
+
     await sql`
-      INSERT INTO seviye_tespit_sonuc (kullanici_id, toplam_soru, dogru_sayisi, zayif_unite_sayisi)
-      VALUES (${kullaniciId}, ${sonuclar.length}, ${dogruSayisi}, ${zayifOlanlar.length})
+      INSERT INTO seviye_tespit_sonuc (kullanici_id, toplam_soru, dogru_sayisi, zayif_unite_sayisi, il, ilce, kurum_id)
+      VALUES (${kullaniciId}, ${sonuclar.length}, ${dogruSayisi}, ${zayifOlanlar.length}, ${il}, ${ilce}, ${kurumId})
     `;
 
     return Response.json({ ok: true, dogruSayisi, toplam: sonuclar.length, zayifUniteSayisi: zayifOlanlar.length });
