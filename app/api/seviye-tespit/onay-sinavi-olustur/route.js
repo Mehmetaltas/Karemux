@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 import { aiCagir } from "@/lib/ai";
+import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
 
@@ -52,12 +53,17 @@ export async function POST(req) {
     // 2. Cache'te yeterli soru yoksa, YENI uret (fallback)
     if (sorular.length === 0) {
       const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
-      const p = `Sen bir ilkokul/ortaokul ogretmenisin. "${ders}" dersinin "${unite}" unitesi (${kaynak_sinif}. sinif) icin, ogrencinin bu uniteyi GERCEKTEN ogrenip ogrenmedigini olcen 3 SORULUK bir ONAY sinavi hazirla. ${kaliteReferansi ? `Kalite referansi: ${kaliteReferansi}` : ""} Sorular orta zorlukta olsun, temel kavramlari olcsun. SADECE JSON dizisi dondur, tam 3 eleman:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]`;
+      const p = `Sen bir ilkokul/ortaokul ogretmenisin. "${ders}" dersinin "${unite}" unitesi (${kaynak_sinif}. sinif) icin, ogrencinin bu uniteyi GERCEKTEN ogrenip ogrenmedigini olcen 3 SORULUK bir ONAY sinavi hazirla. ${kaliteReferansi ? `Kalite referansi: ${kaliteReferansi}` : ""} Sorular orta zorlukta olsun, temel kavramlari olcsun. SADECE JSON dondur (obje icinde dizi), tam 3 eleman:
+{"sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]}`;
 
       const cevap = await aiCagir({ prompt: p, maxTokens: 1500, jsonModu: true });
-      const temiz = cevap.replace(/```json|```/g, "").trim();
-      const sorularHam = JSON.parse(temiz.slice(temiz.indexOf("["), temiz.lastIndexOf("]") + 1));
+      let sorularHam;
+      try {
+        sorularHam = jsonAyikla(cevap).sorular;
+      } catch (e) {
+        console.error("onay-sinavi jsonAyikla basarisiz:", e.message);
+        sorularHam = null;
+      }
 
       sorular = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
         soruFormatGecerliMi(s, { soruTrimGerekli: false, dersUniteGerekli: false })
