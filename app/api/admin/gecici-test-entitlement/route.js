@@ -3,8 +3,16 @@ import { hasEntitlement } from "@/lib/paket";
 
 export async function GET(req) {
   const sifre = new URL(req.url).searchParams.get("sifre");
-  if (sifre !== process.env.ULUSAL_DENEME_YONETICI_SIFRESI) {
-    return Response.json({ error: "yetkisiz" }, { status: 401 });
+  const gercek = process.env.ULUSAL_DENEME_YONETICI_SIFRESI;
+  if (sifre !== gercek) {
+    return Response.json({
+      error: "yetkisiz",
+      teshis: {
+        girilenUzunluk: (sifre || "").length,
+        gercekUzunluk: (gercek || "").length,
+        trimliEslesiyorMu: (sifre || "").trim() === (gercek || "").trim(),
+      },
+    }, { status: 401 });
   }
 
   // Haklari olan (yillik_* veya deneme_kulubu_*) aktif bir abone bul
