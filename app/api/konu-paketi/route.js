@@ -7,6 +7,8 @@ import { resendIstemcisi } from "@/lib/email";
 import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
 import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
+import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
+import { sorulariDenetle } from "@/lib/soruKalite";
 
 export const maxDuration = 60;
 
@@ -134,6 +136,31 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
       } catch (yenidenUretimHatasi) { /* basarisiz olursa ilk uretimle devam */ }
     }
     paket.kaliteKontrol = kaliteSonucu;
+
+    const soruHavuzuFormatGecen = (paket.soruHavuzu || []).filter((s) =>
+      soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: false })
+    );
+    if (soruHavuzuFormatGecen.length === 0) {
+      return Response.json(
+        { error: "Soru havuzu uretilemedi (format), tekrar dene" },
+        { status: 500 }
+      );
+    }
+    const denetimBaglami = "Bu sorular \"" + ders + "\" dersi \""
+      + konu + "\" konusu icin bir konu anlatimi paketinin soru"
+      + " havuzunda kullanilacak, ogrenciye dogrudan gosterilecek,"
+      + " cok yuksek dogruluk gerekiyor.";
+    const denetimSonucu = await sorulariDenetle(soruHavuzuFormatGecen, denetimBaglami);
+    const soruHavuzuKaliteGecen = denetimSonucu.gecenler;
+    const soruHavuzuElenen = denetimSonucu.elenenSayisi;
+    if (soruHavuzuKaliteGecen.length === 0) {
+      return Response.json(
+        { error: "Soru havuzu kalite denetiminden gecemedi, tekrar dene" },
+        { status: 500 }
+      );
+    }
+    paket.soruHavuzu = soruHavuzuKaliteGecen;
+    paket.soruHavuzuElenen = soruHavuzuElenen;
 
     // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
     const detKontrol = deterministikKontrolYap(paket.soruHavuzu || []);
