@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 
 const GECICI_ANAHTAR = "karemux-gecici-12ekim-dalga9-ucretlideneme-test";
+const GECICI_DENEME_ID = 8;
 
 export async function POST(req) {
   try {
@@ -13,7 +14,7 @@ export async function POST(req) {
 
     const sonuc = await sql`
       INSERT INTO ucretli_deneme_sonuclari (deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net, il, ilce)
-      VALUES (999999, ${kullaniciId}, NULL, 5, 2, 3, 4.33, ${il}, ${ilce})
+      VALUES (${GECICI_DENEME_ID}, ${kullaniciId}, NULL, 5, 2, 3, 4.33, ${il}, ${ilce})
       RETURNING id, il, ilce
     `;
 
