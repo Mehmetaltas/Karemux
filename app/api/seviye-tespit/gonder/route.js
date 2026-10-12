@@ -25,6 +25,10 @@ export async function POST(req) {
       `;
     }
 
+    // 12 Ekim: Dalga 9 (Sinav Merkezi) 2. adim - sinav-sonuc'taki AYNI cografi
+    // snapshot deseni (bkz KAREMUX-DALGA9-10-TARA-RAPORU-v1.md). kullanicilar'daki
+    // hedef_il/hedef_ilce/kurum_id kayit aninda KOPYALANIR, kullanici sonra
+    // bu bilgileri degistirse bile o anki sonuc kaydi bozulmaz.
     const kullaniciSatiri = await sql`SELECT hedef_il, hedef_ilce, kurum_id FROM kullanicilar WHERE id = ${kullaniciId}`;
     const il = kullaniciSatiri[0]?.hedef_il || null;
     const ilce = kullaniciSatiri[0]?.hedef_ilce || null;
