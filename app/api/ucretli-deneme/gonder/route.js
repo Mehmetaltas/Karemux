@@ -70,9 +70,17 @@ export async function POST(req) {
       } catch (e) { console.error("Hata kitapcigi kaydi basarisiz:", e); }
     }
 
+    // 12 Ekim: Dalga 9 (Sinav Merkezi) 3. adim - sinav-sonuc/seviye-tespit'teki
+    // AYNI cografi snapshot deseni (bkz KAREMUX-DALGA9-10-TARA-RAPORU-v1.md).
+    // kullanicilar'daki hedef_il/hedef_ilce kayit aninda KOPYALANIR, kullanici
+    // sonra bu bilgileri degistirse bile o anki sonuc kaydi bozulmaz.
+    const kullaniciSatiri = await sql`SELECT hedef_il, hedef_ilce FROM kullanicilar WHERE id = ${kullaniciId}`;
+    const il = kullaniciSatiri[0]?.hedef_il || null;
+    const ilce = kullaniciSatiri[0]?.hedef_ilce || null;
+
     await sql`
-      INSERT INTO ucretli_deneme_sonuclari (deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net)
-      VALUES (${denemeId}, ${kullaniciId}, ${kurumId}, ${dogru}, ${yanlis}, ${bos}, ${net})
+      INSERT INTO ucretli_deneme_sonuclari (deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net, il, ilce)
+      VALUES (${denemeId}, ${kullaniciId}, ${kurumId}, ${dogru}, ${yanlis}, ${bos}, ${net}, ${il}, ${ilce})
     `;
 
     // 24 Eylul: GERCEK testte bulundu - DB net'i yuvarlanmis (numeric kolon)
