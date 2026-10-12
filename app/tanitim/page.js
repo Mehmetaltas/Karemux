@@ -263,6 +263,7 @@ export default function Tanitim() {
       <div style={{ padding: "0 20px 48px", maxWidth: 720, margin: "0 auto" }}>
         <h2 style={{ fontFamily: C.displayFont, fontSize: "clamp(20px, 5vw, 26px)", textAlign: "center", marginBottom: 8 }}>🏅 Deneme Kulübü</h2>
         <p style={{ fontSize: 13.5, color: C.inkSoft, textAlign: "center", marginBottom: 24 }}>Düzenli deneme + kişisel analiz + hata kitapçığı + Türkiye/il karşılaştırması, bireysel üyelik.</p>
+        <p style={{ fontSize: 12, color: C.red, textAlign: "center", fontWeight: 700, marginBottom: 20 }}>💎 Premium (yıllık) üyeliğe zaten ek ücretsiz dahildir — ayrıca satın almana gerek yok.</p>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
           {[
             { ad: "Başlangıç", fiyat: "2.490₺/yıl" },
