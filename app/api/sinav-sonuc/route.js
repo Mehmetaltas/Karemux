@@ -10,9 +10,14 @@ export async function POST(req) {
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ error: "Kullanici belirlenemedi" }, { status: 400 });
 
+    const kullaniciSatiri = await sql`SELECT hedef_il, hedef_ilce, kurum_id FROM kullanicilar WHERE id = ${kullaniciId}`;
+    const il = kullaniciSatiri[0]?.hedef_il || null;
+    const ilce = kullaniciSatiri[0]?.hedef_ilce || null;
+    const kurumId = kullaniciSatiri[0]?.kurum_id || null;
+
     await sql`
-      INSERT INTO sinav_sonuclari (kullanici_id, tur, ders, dogru, yanlis, bos, net)
-      VALUES (${kullaniciId}, ${tur}, ${ders}, ${dogru}, ${yanlis}, ${bos}, ${net})
+      INSERT INTO sinav_sonuclari (kullanici_id, tur, ders, dogru, yanlis, bos, net, il, ilce, kurum_id)
+      VALUES (${kullaniciId}, ${tur}, ${ders}, ${dogru}, ${yanlis}, ${bos}, ${net}, ${il}, ${ilce}, ${kurumId})
     `;
 
     // Ayni ders + tur icin bir onceki sonucu da donduruyoruz, "gecmise gore" kiyaslama icin
