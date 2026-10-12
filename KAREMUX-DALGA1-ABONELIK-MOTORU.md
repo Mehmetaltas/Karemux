@@ -96,3 +96,18 @@ Kalan 2 route incelendi, ikisi de KAPSAM DIŞI çıktı (taşımak iş mantığ�
 Dalga 1 sonucu: abonelikler.paket_id eklendi, getActiveAbonelik()+isYillikAboneMi() merkezi fonksiyonları kuruldu, 4 route (abonelik/durum, deneme-kulubu/durum, kurum/koltuk-ata, canli-ders/checkout+havale-baslat) merkezi hale getirildi, hepsi canlı kanıtlandı. 2 route (admin panel, cron) bilinçli olarak dokunulmadı (doğru karar, zorla taşımak hataya yol açardı).
 
 Sıradaki: Dalga 2 (Entitlement) - KAREMUX-V3-DALGA-PLANI.md ve güncellenmiş KAREMUX-DALGA9-10-SINAV-MERKEZI-DENEME-KULUBU-v2.md'deki Entitlement kavramına (exam_access, analysis_access vb.) göre TARA ile başlanacak.
+
+## [CODE] Dalga 2 (Entitlement) KODLA Adım 1 (12 Ekim, canlı kanıtlandı)
+TARA: `paketler` tablosunda granüler hak alanı yoktu (information_schema ile doğrulandı - fiyat_tl/sure_gun/kredi_miktari/gunluk_ai_limiti var, hak yok). `abonelikler.paket_id` zaten doluydu (1 Ekim'de eklenmişti), TÜM aktif kayıtlarda NULL değil (information_schema+count ile doğrulandı) - Dalga 2'nin üzerine oturacağı temel sağlamdı.
+
+KOD: `paketler.haklar` (jsonb, DEFAULT '{}') kolonu eklendi. `lib/paket.js`'e `hasEntitlement(kullaniciId, hakAdi)` eklendi - `abonelikler` JOIN `paketler` üzerinden `haklar->>hakAdi = 'true'` kontrolü yapar, paket_id NULL olan (eski/farklı yoldan açılmış) kayıtlar için `plan=anahtar` fallback'i de var. Eski `hasPackageFeature`/`isYillikAboneMi` DEĞİŞMEDİ, paralel/ek fonksiyon.
+
+PAKET→HAK EŞLEMESİ (kullanıcı onayıyla, ürün kararı):
+- `yillik_5/6/7/8_sinif`, `yillik_full` → 7 hakkın hepsi TRUE (zaten "sınırsız her şey" paketleri)
+- `deneme_kulubu_baslangic/standart/lgs` → 7 hakkın hepsi TRUE (plan belgesindeki Deneme Kulübü entitlement örneğinin karşılığı)
+- `bursluluk` → exam_access, online_exam_access, result_access, learning_memory_access TRUE (analysis/ranking/remediation YOK - kullanıcı onayıyla, bursluluk Sınav Merkezi'ne şimdiden dahil edildi ama zengin analiz özellikleri hariç)
+- `yaz_tatili`, `ara_tatil`, `aylik` (pasif), `soru_coz_kredi` → dokunulmadı, `haklar={}` (sınavla ilgisi yok / soru_coz_kredi zaten ayrı bir eksenle - kullanici_kredileri - yönetiliyor)
+
+CANLI KANIT: Geçici admin route ile - (1) `ara_tatil` abonesinde `exam_access` kontrolü doğru şekilde `false` döndü. (2) Gerçek bir kullanıcıya geçici `deneme_kulubu_standart` aboneliği açılıp `hasEntitlement(id, "exam_access")` çağrıldı → `true`, olmayan bir hak (`olmayan_bir_hak`) için `false` döndü, test kaydı hemen silindi. Test route kaldırıldı, 404 ile doğrulandı.
+
+NOT: `hasEntitlement()` şu an hiçbir route tarafından ÇAĞRILMIYOR - mekanizma hazır ve kanıtlanmış durumda, gerçek kullanım (exam_access vb. kontrolünün hangi route'ta uygulanacağı) Dalga 9/10 (Sınav Merkezi/Deneme Kulübü) kodlanınca bağlanacak.
