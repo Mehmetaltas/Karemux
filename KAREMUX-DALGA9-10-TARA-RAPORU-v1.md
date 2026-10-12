@@ -22,7 +22,7 @@ SINIFLANDIRMA: MEVCUT ama DUPLİKE/İSİMSİZ.
 
 ### SIRALAMA / COĞRAFİ İSTATİSTİK
 - Kurum+genel sıralama ucretli-deneme/gonder'de çalışıyor.
-- İl/ilçe snapshot: sinav_sonuclari'nda TAMAMLANDI (12 Ekim), ucretli_deneme_sonuclari'nda HENÜZ YOK, seviye_tespit_sonuc'ta TAMAMLANDI (12 Ekim).
+- İl/ilçe snapshot: sinav_sonuclari, seviye_tespit_sonuc, ucretli_deneme_sonuclari ÜÇÜNDE DE TAMAMLANDI (12 Ekim) - tek motora geçişin ilk somut adımı bitti, üçü de canlıda kanıtlandı.
 
 ### LEARNING MEMORY
 - ogrenme-hafizasi + hata-kitapcigi'ndeki adaptif motor zaten kurulu, kademeli telafi sürecine besliyor.
@@ -31,7 +31,12 @@ SINIFLANDIRMA: MEVCUT ama DUPLİKE/İSİMSİZ.
 - lib/deneme-kulubu.js hâlâ paket-adı bazlı, hasEntitlement()'a henüz bağlanmadı.
 
 ## Karar: Tek Motora Geçiş Stratejisi (12 Ekim, kullanıcı onayı)
-En düşük riskliden en yükseğe:
-1. **sinav-sonuc** → TAMAMLANDI (0 satır, coğrafi snapshot eklendi, canlı kanıtlandı).
-2. **seviye-tespit** → TAMAMLANDI (1+11 satır, coğrafi snapshot eklendi).
-3. **ucretli-deneme** → SIRADA (gerçek ödeme+sonuç+sıralama, en yüksek risk).
+En düşük riskliden en yükseğe - ÜÇÜ DE TAMAMLANDI (12 Ekim):
+1. **sinav-sonuc** → TAMAMLANDI (0 satır, coğrafi snapshot eklendi, canlı kanıtlandı, temizlendi).
+2. **seviye-tespit** → TAMAMLANDI (seviye_tespit_sonuc, coğrafi snapshot eklendi, canlı kanıtlandı, temizlendi).
+3. **ucretli-deneme** → TAMAMLANDI (0 satır gerçek veri, coğrafi snapshot eklendi, canlı kanıtlandı - geçici test kullanıcı/deneme/kullanım kayıtları temizlendi).
+
+## Sırada (Dalga 9/10 devamı - henüz başlanmadı)
+- lib/deneme-kulubu.js'yi hasEntitlement()'a bağlamak (düşük risk, debt).
+- optik-okuma'nın yeni plandaki yeri (KARAR GEREKİYOR).
+- 4 paralel sınav üretim mekanizmasının (SINAV ÜRETİMİ bölümü) tek motora birleştirilmesi - bu rapordaki en büyük yapısal iş, henüz başlanmadı.
