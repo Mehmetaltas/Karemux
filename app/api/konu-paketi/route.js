@@ -9,6 +9,7 @@ import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
 import { sorulariDenetle } from "@/lib/soruKalite";
+import { OTOMASYON_TEST_CIHAZ_ID } from "@/lib/otomasyon-test";
 
 export const maxDuration = 60;
 
@@ -190,6 +191,13 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     // Kalite kontrolunden gecemeyen paketler 'bekliyor' olarak isaretlenir -
     // ogretmen inceleme kuyruguna girer (16 Eylul, Quality Control Motoru adim 2).
     const onayDurumu = kaliteSonucu.gecti ? null : "bekliyor";
+
+    // Otomasyon testi: akis yukarida TAM calisti (uretim, denetim, kalite),
+    // ama kalici kayit ve ogretmen bildirimi YAPILMAZ. Aksi halde her test
+    // kosusu yeni bekliyor satiri ve e-posta uretiyordu.
+    if (cihazId === OTOMASYON_TEST_CIHAZ_ID) {
+      return Response.json({ kaynak: "yeni_uretim", paket, testModu: true });
+    }
     try {
       const cacheSonuc = await sql`
         INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, icerik_json, kullanim_sayisi, olusturulma, son_kullanim, onay_durumu)
