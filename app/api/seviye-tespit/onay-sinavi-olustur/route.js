@@ -5,6 +5,7 @@ import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
 import { sorulariDenetle } from "@/lib/soruKalite";
+import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 
 // Belirli bir kademe (zayif unite) icin 3 soruluk bir ONAY sinavi uretir.
 // Dogru cevaplar (dogruIndex) SUNUCUDA (yeni seviye_onay_sinavlari tablosunda)
@@ -53,6 +54,16 @@ export async function POST(req) {
 
     // 2. Cache'te yeterli soru yoksa, YENI uret (fallback)
     if (sorular.length === 0) {
+      // Gunluk AI limiti SADECE gercekten AI cagrisi yapilacaksa tuketilir
+      // (cache yolu AI maliyeti dogurmaz, ogrencinin hakkini yemez).
+      const limit = await gunlukLimitKontrolEt(req, cihazId);
+      if (!limit.izinVar) {
+        return Response.json(
+          { error: limit.premium ? "Bugunluk yogun kullanim sinirina ulastin (" + limit.limit + "/gun), yarin devam edebilirsin." : "Gunluk ucretsiz kullanim hakkin doldu (" + limit.limit + "/gun). Premium ile daha fazla kullanabilirsin." },
+          { status: 429 }
+        );
+      }
+
       const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
       const p = `Sen bir ilkokul/ortaokul ogretmenisin. "${ders}" dersinin "${unite}" unitesi (${kaynak_sinif}. sinif) icin, ogrencinin bu uniteyi GERCEKTEN ogrenip ogrenmedigini olcen 5 SORULUK bir ONAY sinavi havuzu hazirla. ${kaliteReferansi ? `Kalite referansi: ${kaliteReferansi}` : ""} Sorular orta zorlukta olsun, temel kavramlari olcsun. SADECE JSON dondur (obje icinde dizi), tam 5 eleman:
 {"sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0}]}`;
