@@ -162,6 +162,14 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     paket.soruHavuzu = soruHavuzuKaliteGecen;
     paket.soruHavuzuElenen = soruHavuzuElenen;
 
+    // 14 Ekim: eleme sonrasi havuz 15'in altina inebilir (canli kanit:
+    // icerik_onbellek id 56 ve 58). Yapisal kontrol ELEMEDEN ONCE yapildigi
+    // icin eksik paket "gecti" damgasi alip ogretmen kuyruguna GIRMIYORDU.
+    // Kontrolu son haliyle yeniden calistiriyoruz: eksik paket artik
+    // 'bekliyor' olur ve ogretmene gercek nedenle bildirilir.
+    kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
+    paket.kaliteKontrol = kaliteSonucu;
+
     // Katman 2 - deterministik kontrol (GOLGE MOD, sadece log, engellemez)
     const detKontrol = deterministikKontrolYap(paket.soruHavuzu || []);
     if (!detKontrol.uyumlu) console.warn("konu_paketi DETERMINISTIK uyari (GOLGE MOD):", ders, konu, detKontrol.uyarilar);
