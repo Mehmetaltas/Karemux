@@ -2116,6 +2116,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   // ==== SEVIYE TESPIT SINAVI ====
   const [seviyeTestSorulari, setSeviyeTestSorulari] = useState(null);
+  const [seviyeTestId, setSeviyeTestId] = useState(null);
   const [seviyeTestCevaplar, setSeviyeTestCevaplar] = useState({});
   const [seviyeTestYukleniyor, setSeviyeTestYukleniyor] = useState(false);
   const [seviyeTestGonderiliyor, setSeviyeTestGonderiliyor] = useState(false);
@@ -2167,6 +2168,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSeviyeTestSorulari(data.sorular);
+      setSeviyeTestId(data.testId);
     } catch (e) {
       setHata("TESHIS: " + (e && e.message ? e.message : String(e)));
     } finally {
@@ -2178,13 +2180,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!seviyeTestSorulari) return;
     setSeviyeTestGonderiliyor(true); setHata("");
     try {
-      const sonuclar = seviyeTestSorulari.map((s, i) => ({
-        ders: s.ders, unite: s.unite, sinif: s.sinif,
-        dogruMu: seviyeTestCevaplar[i] === s.dogruIndex,
-      }));
       const res = await fetch("/api/seviye-tespit/gonder", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, sonuclar }),
+        body: JSON.stringify({ cihazId: cihazIdRef.current, testId: seviyeTestId, cevaplar: seviyeTestCevaplar }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);

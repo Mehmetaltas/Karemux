@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 import { denemeKulubuUyeMi } from "@/lib/deneme-kulubu";
+import { kitapcikOlustur, puanla, PUANLAMA_SURUMU } from "@/lib/puanlama";
 
 // Ucretsiz ulusal-deneme/gonder'in aynisi AMA once kullanicinin kurumunun
 // bu SPESIFIK denemeyi satin alip almadigini (odendi=true) kontrol ediyor.
@@ -9,6 +10,7 @@ import { denemeKulubuUyeMi } from "@/lib/deneme-kulubu";
 export async function POST(req) {
   try {
     const { denemeId, cevaplar, cihazId } = await req.json();
+    if (denemeId == null || !/^\d+$/.test(String(denemeId))) return Response.json({ error: "denemeId gerekli" }, { status: 400 });
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
 
@@ -38,36 +40,27 @@ export async function POST(req) {
     if (zaten.length > 0) return Response.json({ error: "Bu denemeyi zaten cozdun" }, { status: 400 });
 
     const ders = deneme[0].ders;
-    const sorular = deneme[0].sorular;
-    let dogru = 0, yanlis = 0, bos = 0;
+    // Faz E: ogrenci SORULAR ucunda kullaniciId-denemeId seed'iyle KARISTIRILMIS
+    // kitapcigi gordu ve cevaplari o siraya gore verdi. Puanlama ayni kitapcik
+    // yeniden kurularak yapilir (onceki surum orijinal siraya gore puanliyordu).
+    const sorular = kitapcikOlustur(deneme[0].sorular, `${kullaniciId}-${denemeId}`);
+    const puan = puanla(sorular, cevaplar);
+    const { dogru, yanlis, bos, net } = puan;
     const yanlisSoruNo = [], bosSoruNo = [];
     const altKonuOzet = {};
     const hataSatirlari = [];
-    for (let i = 0; i < sorular.length; i++) {
-      const s = sorular[i];
-      const verilen = cevaplar[i];
+    for (const sat of puan.satirlar) {
+      const s = sat.soru;
       const altKonu = s.altKonu || "Genel";
       if (!altKonuOzet[altKonu]) altKonuOzet[altKonu] = { dogru: 0, yanlis: 0, bos: 0 };
-      if (verilen === undefined || verilen === null) {
-        bos++; bosSoruNo.push(i + 1); altKonuOzet[altKonu].bos++;
-      } else if (verilen === s.dogruIndex) {
-        dogru++; altKonuOzet[altKonu].dogru++;
+      if (sat.durum === "bos") {
+        bosSoruNo.push(sat.no); altKonuOzet[altKonu].bos++;
+      } else if (sat.durum === "dogru") {
+        altKonuOzet[altKonu].dogru++;
       } else {
-        yanlis++; yanlisSoruNo.push(i + 1); altKonuOzet[altKonu].yanlis++;
-        hataSatirlari.push([kullaniciId, ders, altKonu, s.soru, JSON.stringify(s.secenekler), s.dogruIndex, verilen, s.aciklama || null]);
+        yanlisSoruNo.push(sat.no); altKonuOzet[altKonu].yanlis++;
+        hataSatirlari.push([kullaniciId, ders, altKonu, s.soru, JSON.stringify(s.secenekler), s.dogruIndex, sat.verilen, s.aciklama || null]);
       }
-    }
-    const net = Math.max(0, dogru - yanlis / 3);
-
-    if (hataSatirlari.length > 0) {
-      try {
-        for (const h of hataSatirlari) {
-          await sql`
-            INSERT INTO hata_kitapcigi (kullanici_id, ders, alt_konu, soru, secenekler, dogru_index, verilen_index, aciklama)
-            VALUES (${h[0]}, ${h[1]}, ${h[2]}, ${h[3]}, ${h[4]}, ${h[5]}, ${h[6]}, ${h[7]})
-          `;
-        }
-      } catch (e) { console.error("Hata kitapcigi kaydi basarisiz:", e); }
     }
 
     // 12 Ekim: Dalga 9 (Sinav Merkezi) 3. adim - sinav-sonuc/seviye-tespit'teki
@@ -78,10 +71,37 @@ export async function POST(req) {
     const il = kullaniciSatiri[0]?.hedef_il || null;
     const ilce = kullaniciSatiri[0]?.hedef_ilce || null;
 
-    await sql`
-      INSERT INTO ucretli_deneme_sonuclari (deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net, il, ilce)
-      VALUES (${denemeId}, ${kullaniciId}, ${kurumId}, ${dogru}, ${yanlis}, ${bos}, ${net}, ${il}, ${ilce})
-    `;
+    // Faz E: atomik tek-gonderim korumasi. SELECT-sonra-INSERT yarisa aciktı
+    // (ayni anda iki istek ikisi de gecebilirdi); artik tek ifade icinde
+    // "yoksa ekle" yapilir, UNIQUE index varsa 23505 de ayni sekilde ele alinir.
+    let eklenen;
+    try {
+      eklenen = await sql`
+        INSERT INTO ucretli_deneme_sonuclari (deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net, il, ilce, puanlama_surumu)
+        SELECT ${denemeId}, ${kullaniciId}, ${kurumId}, ${dogru}, ${yanlis}, ${bos}, ${net}, ${il}, ${ilce}, ${PUANLAMA_SURUMU}
+        WHERE NOT EXISTS (
+          SELECT 1 FROM ucretli_deneme_sonuclari WHERE deneme_id = ${denemeId} AND kullanici_id = ${kullaniciId}
+        )
+        RETURNING id
+      `;
+    } catch (e) {
+      if (e && e.code === "23505") eklenen = [];
+      else throw e;
+    }
+    if (eklenen.length === 0) return Response.json({ error: "Bu denemeyi zaten cozdun" }, { status: 400 });
+
+    // Hata kitapcigi: sonuc satiri alindiktan SONRA yazilir (cift gonderimde tekrar yazilmaz).
+    // Secenekler ve indeksler ogrencinin GORDUGU kitapcik sirasindadir.
+    if (hataSatirlari.length > 0) {
+      try {
+        for (const h of hataSatirlari) {
+          await sql`
+            INSERT INTO hata_kitapcigi (kullanici_id, ders, alt_konu, soru, secenekler, dogru_index, verilen_index, aciklama)
+            VALUES (${h[0]}, ${h[1]}, ${h[2]}, ${h[3]}, ${h[4]}, ${h[5]}, ${h[6]}, ${h[7]})
+          `;
+        }
+      } catch (e) { console.error("Hata kitapcigi kaydi basarisiz:", e); }
+    }
 
     // 24 Eylul: GERCEK testte bulundu - DB net'i yuvarlanmis (numeric kolon)
     // saklarken JS'deki HAM (yuvarlanmamis) net ile karsilastirma yapiliyordu,
@@ -103,6 +123,7 @@ export async function POST(req) {
     const genelOrtalama = genelKatilimci > 0 ? Math.round((genelSiralama.reduce((t, r) => t + Number(r.net), 0) / genelKatilimci) * 100) / 100 : null;
 
     const karne = Object.keys(altKonuOzet).map((k) => ({ altKonu: k, ...altKonuOzet[k] }));
+    // Kitapcik sirasinda: ekranda gorulen soru sirasiyla birebir eslesir.
     const cevapAnahtari = sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama || null }));
 
     return Response.json({

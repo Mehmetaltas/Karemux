@@ -1,21 +1,36 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
+import { puanla, PUANLAMA_SURUMU } from "@/lib/puanlama";
 
 // Cevaplanan sorulari degerlendirir. Yanlis cevaplanan HER unite icin,
 // seviye_tespit_kademe tablosunda kademe=1 (tamamlanmamis) bir satir acar -
 // boylece "3 kademeli tamamlama" sureci baslamis olur.
+//
+// Faz E: puanlama SUNUCUDA. Istemci yalnizca { testId, cevaplar } gonderir;
+// dogru cevaplar seviye_tespit_sinavlari'ndan okunur. Istemcinin bildirdigi
+// "dogruMu" ARTIK kabul edilmez. Her sinav tek kullanimliktir.
 export async function POST(req) {
   try {
-    const { cihazId, sonuclar } = await req.json();
-    // sonuclar: [{ders, unite, sinif, dogruMu}, ...]
+    const { cihazId, testId, cevaplar } = await req.json();
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
     if (!kullaniciId) return Response.json({ error: "Giriş yapmalısın" }, { status: 401 });
-    if (!Array.isArray(sonuclar) || sonuclar.length === 0) {
-      return Response.json({ error: "Sonuç listesi gerekli" }, { status: 400 });
+    if (testId == null || !/^\d+$/.test(String(testId)) || !cevaplar || typeof cevaplar !== "object") {
+      return Response.json({ error: "Sinav bilgisi eksik, sayfayi yenileyip sinavi yeniden baslat" }, { status: 400 });
     }
 
-    const dogruSayisi = sonuclar.filter((s) => s.dogruMu).length;
-    const zayifOlanlar = sonuclar.filter((s) => !s.dogruMu);
+    // Atomik tek kullanim: ayni sinav ikinci kez gonderilemez, baskasinin sinavi gonderilemez.
+    const sinav = await sql`
+      UPDATE seviye_tespit_sinavlari SET kullanildi = true
+      WHERE id = ${testId} AND kullanici_id = ${kullaniciId} AND kullanildi = false
+      RETURNING sorular
+    `;
+    if (sinav.length === 0) {
+      return Response.json({ error: "Sinav bulunamadi veya zaten gonderilmis" }, { status: 400 });
+    }
+    const sorular = sinav[0].sorular;
+    const puan = puanla(sorular, cevaplar);
+    const dogruSayisi = puan.dogru;
+    const zayifOlanlar = puan.satirlar.filter((s) => s.durum !== "dogru").map((s) => s.soru);
 
     for (const z of zayifOlanlar) {
       await sql`
@@ -35,11 +50,11 @@ export async function POST(req) {
     const kurumId = kullaniciSatiri[0]?.kurum_id || null;
 
     await sql`
-      INSERT INTO seviye_tespit_sonuc (kullanici_id, toplam_soru, dogru_sayisi, zayif_unite_sayisi, il, ilce, kurum_id)
-      VALUES (${kullaniciId}, ${sonuclar.length}, ${dogruSayisi}, ${zayifOlanlar.length}, ${il}, ${ilce}, ${kurumId})
+      INSERT INTO seviye_tespit_sonuc (kullanici_id, toplam_soru, dogru_sayisi, zayif_unite_sayisi, il, ilce, kurum_id, puanlama_surumu)
+      VALUES (${kullaniciId}, ${sorular.length}, ${dogruSayisi}, ${zayifOlanlar.length}, ${il}, ${ilce}, ${kurumId}, ${PUANLAMA_SURUMU})
     `;
 
-    return Response.json({ ok: true, dogruSayisi, toplam: sonuclar.length, zayifUniteSayisi: zayifOlanlar.length });
+    return Response.json({ ok: true, dogruSayisi, toplam: sorular.length, zayifUniteSayisi: zayifOlanlar.length });
   } catch (e) {
     console.error(e);
     return Response.json({ error: e.message }, { status: 500 });

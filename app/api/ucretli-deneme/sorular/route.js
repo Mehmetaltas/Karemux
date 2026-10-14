@@ -1,48 +1,7 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 import { denemeKulubuUyeMi } from "@/lib/deneme-kulubu";
-
-function seedliRastgele(seed) {
-  let t = seed >>> 0;
-  return function () {
-    t += 0x6D2B79F5;
-    let r = Math.imul(t ^ (t >>> 15), 1 | t);
-    r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
-    return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function seedUret(metin) {
-  let h = 0;
-  for (let i = 0; i < metin.length; i++) {
-    h = (Math.imul(31, h) + metin.charCodeAt(i)) | 0;
-  }
-  return h;
-}
-
-function seedliKaristir(dizi, rastgele) {
-  const kopya = [...dizi];
-  for (let i = kopya.length - 1; i > 0; i--) {
-    const j = Math.floor(rastgele() * (i + 1));
-    [kopya[i], kopya[j]] = [kopya[j], kopya[i]];
-  }
-  return kopya;
-}
-
-export function abKitapciğiOlustur(sorular, seedMetin) {
-  const rastgele = seedliRastgele(seedUret(seedMetin));
-  const soruSirasiKarisik = seedliKaristir(sorular, rastgele);
-  return soruSirasiKarisik.map((s) => {
-    if (!s.secenekler || s.dogruIndex == null) return s;
-    const dogruMetin = s.secenekler[s.dogruIndex];
-    const harfsizSecenekler = s.secenekler.map((sec) => sec.replace(/^[A-D]\)\s*/, ""));
-    const dogruMetinHarfsiz = dogruMetin.replace(/^[A-D]\)\s*/, "");
-    const indeksler = seedliKaristir([0, 1, 2, 3].slice(0, harfsizSecenekler.length), rastgele);
-    const yeniSecenekler = indeksler.map((eskiIdx, yeniIdx) => `${String.fromCharCode(65 + yeniIdx)}) ${harfsizSecenekler[eskiIdx]}`);
-    const yeniDogruIndex = indeksler.findIndex((eskiIdx) => harfsizSecenekler[eskiIdx] === dogruMetinHarfsiz);
-    return { ...s, secenekler: yeniSecenekler, dogruIndex: yeniDogruIndex };
-  });
-}
+import { kitapcikOlustur } from "@/lib/puanlama";
 
 export async function GET(req) {
   try {
@@ -74,7 +33,7 @@ export async function GET(req) {
     const deneme = await sql`SELECT ad, ders, sinif, sorular FROM ucretli_denemeler WHERE id = ${denemeId} AND aktif = true`;
     if (deneme.length === 0) return Response.json({ error: "Deneme bulunamadi" }, { status: 404 });
 
-    const kitapcikSorulari = abKitapciğiOlustur(deneme[0].sorular, `${kullaniciId}-${denemeId}`);
+    const kitapcikSorulari = kitapcikOlustur(deneme[0].sorular, `${kullaniciId}-${denemeId}`);
     const soyulmusSorular = kitapcikSorulari.map((s) => ({ soru: s.soru, secenekler: s.secenekler }));
 
     return Response.json({

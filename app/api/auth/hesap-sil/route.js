@@ -25,6 +25,7 @@ export async function POST(req) {
     await sql`DELETE FROM sinav_sonuclari WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM seviye_tespit_kademe WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM seviye_tespit_sonuc WHERE kullanici_id = ${kullaniciId}`;
+    await sql`DELETE FROM seviye_tespit_sinavlari WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM ulusal_deneme_sonuclari WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM gunluk_kullanim WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM gunluk_gorevler WHERE kullanici_id = ${kullaniciId}`;
@@ -37,7 +38,7 @@ export async function POST(req) {
     await sql`DELETE FROM ucretli_deneme_sonuclari WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM guvenlik_denemeleri WHERE anahtar = ${kullanici[0].eposta}`;
 
-    const silinenKategoriler = "hata_kitapcigi, ilerleme, sinav_sonuclari, seviye_tespit_kademe, seviye_tespit_sonuc, ulusal_deneme_sonuclari, gunluk_kullanim, gunluk_gorevler, veli_ogrenci, randevular, canli_ders_katilimcilari, geri_bildirimler, konu_hakimiyet, tek_konu_oturumu, ucretli_deneme_sonuclari";
+    const silinenKategoriler = "hata_kitapcigi, ilerleme, sinav_sonuclari, seviye_tespit_kademe, seviye_tespit_sonuc, seviye_tespit_sinavlari, ulusal_deneme_sonuclari, gunluk_kullanim, gunluk_gorevler, veli_ogrenci, randevular, canli_ders_katilimcilari, geri_bildirimler, konu_hakimiyet, tek_konu_oturumu, ucretli_deneme_sonuclari";
 
     // 11 Eylul: sadece odemeler DEGIL, satislar/abonelikler/kullanici_kredileri de
     // mali/degerli kayit sayilir - herhangi birinde satir varsa anonimlestir, direkt silme.

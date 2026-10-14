@@ -4,6 +4,9 @@ import { sorulariDenetle } from "@/lib/soruKalite";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
+import { sql } from "@/lib/db";
+import { kullaniciIdCoz } from "@/lib/kullanici";
+import { OTOMASYON_TEST_CIHAZ_ID } from "@/lib/otomasyon-test";
 
 // Istemci, 4. ve 5. sinif konularindan sectigi bir listeyi ({ders, unite, sinif})
 // gonderir, biz her biri icin 1 soru uretiriz. Boylece unite listesi (page.js'te
@@ -27,6 +30,9 @@ export async function POST(req) {
         { status: 429 }
       );
     }
+
+    const kullaniciId = await kullaniciIdCoz(req, cihazId);
+    if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
 
     const dersRehberi = [...new Set(konular.map((k) => k.ders))]
       .filter((d) => KALITE_REFERANSLARI[d])
@@ -79,7 +85,15 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
     const { gecenler: denetlenmisSorular, elenenSayisi } = await sorulariDenetle(sorular, "Bu sorular bir SEVIYE TESPIT sinavinda kullanilacak, ogrencinin yerlestirilecegi kademeyi belirliyor, cok yuksek dogruluk gerekiyor.");
     if (denetlenmisSorular.length === 0) throw new Error("Sorular kalite denetiminden gecemedi, tekrar dene");
 
-    return Response.json({ sorular: denetlenmisSorular, elenen: elenenSayisi });
+    // Faz E: dogru cevaplar ARTIK istemciye gitmez. Denetimden gecen sorular
+    // (cevaplariyla) sunucuda saklanir; /gonder bu kayittan puanlar. Otomasyon
+    // test cihazi kayit birakmaz (gunluk test tabloyu kirletmesin).
+    const istemciSorulari = denetlenmisSorular.map((s) => ({ ders: s.ders, unite: s.unite, sinif: s.sinif, soru: s.soru, secenekler: s.secenekler }));
+    if (cihazId === OTOMASYON_TEST_CIHAZ_ID) {
+      return Response.json({ sorular: istemciSorulari, elenen: elenenSayisi, testId: null, testModu: true });
+    }
+    const kayit = await sql`INSERT INTO seviye_tespit_sinavlari (kullanici_id, sorular) VALUES (${kullaniciId}, ${JSON.stringify(denetlenmisSorular)}) RETURNING id`;
+    return Response.json({ sorular: istemciSorulari, elenen: elenenSayisi, testId: kayit[0].id });
   } catch (e) {
     console.error(e);
     return Response.json({ error: e.message }, { status: 500 });
