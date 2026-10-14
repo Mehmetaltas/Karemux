@@ -1556,6 +1556,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [seviyeCevaplar, setSeviyeCevaplar] = useState({});
   const [seviyeRaporu, setSeviyeRaporu] = useState(null); // { [ders]: { dogru, toplam, seviye } }
   const [denemeSorulari, setDenemeSorulari] = useState(null);
+  const [sinavOturumId, setSinavOturumId] = useState(null);
   const [denemeCevaplar, setDenemeCevaplar] = useState({});
   const [optikYukleniyor, setOptikYukleniyor] = useState(false);
   const [optikHata, setOptikHata] = useState("");
@@ -3633,7 +3634,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   }
 
   const [sinavKapsamMetni, setSinavKapsamMetni] = useState("");
-  const [sinavKayitTuru, setSinavKayitTuru] = useState("");
 
   // Deneme/Yazili sorularina gorsel eklenmesi (10 Eylul) - AI'ya HER soru icin
   // sormak maliyetli olur, once ucretsiz bir anahtar kelime filtresiyle
@@ -3686,43 +3686,36 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           : "";
       }
 
-      const baslikMetni = sinavTuru === "yazili"
-        ? `okul donem ici YAZILI SINAVI formatinda (sinirli kapsamli, ${{ yazili1: "1. Yazili", yazili2: "2. Yazili", yazili3: "3. Yazili" }[yaziliDonemNo] || ""})`
-        : "gercek LGS DENEME SINAVI formatinda";
-
-      const p = `Sen bir LGS/ortaokul olcme-degerlendirme uzmanisin. "${denemeDers}" dersi icin ${baslikMetni} hazirla, ${sinif}. sinif seviyesinde, toplam ${sinavSoruSayisi} soru olsun. ${kapsamAciklama} Sorulari, 2022-2026 yillari arasindaki gercek sinavlarin soru tarzina, uslubuna ve zorluk seviyesine birebir benzet - ama sorularin kendisi ozgun olsun, gercek gecmis sorulari birebir kopyalama ya da "gecmis yil cikti" diye sunma. 2026 LGS onceki yillara gore belirgin sekilde daha zor ve secici geldi (uzmanlar hemfikir) - sorulari buna gore kalibre et: ezber bilgiden cok dikkat, zaman yonetimi, yorumlama ve strateji gerektiren sorular olsun, Turkce'de uzun paragraflar/celdiriciler, Matematik'te islem degil dikkat ve mantik agirlikli sorular kullan. Zorluk dagilimi GERCEK 2026 LGS oranina yakin olsun: soru sayisinin yaklasik %20'si kolay, %55'i orta, %25'i zor olsun (orn. 20 soruda ~4 kolay, ~11 orta, ~5 zor). ${BAGLAM_TEMELLI_SORU_TALIMATI} Her sorunun hangi ALT KONUYU/KAZANIMI olctugunu 2-4 kelimeyle "altKonu" alaninda belirt (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa ve spesifik). Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, dogru ve tutarli bir sekilde anlat. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"...","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      // Parcali uretim (15 Eylul) - tek AI cagrisinda cok soru istemek (60+)
-      // JSON'un 8000 token tavaninda kesilmesine/bozulmasina yol aciyordu.
-      // 16'dan fazla soru istenirse, ~15'lik partiler halinde AYRI AI
-      // cagrilariyla uretilip TEK bir listede birlestirilir - hicbir parti
-      // token tavanina yaklasmaz, JSON hep tam kalir.
-      const PARTI_BUYUKLUGU = 15;
+      // Faz E: sinav SUNUCUDA uretilir (partiler halinde). Cevap anahtari tarayiciya gelmez,
+      // puanlama /api/sinav-oturumu/gonder'de yapilir.
+      const kayitDersAdi = (kapsamTuru === "unite" || kapsamTuru === "konu") && kapsamUnite
+        ? `${denemeDers} · ${kapsamUnite}`
+        : denemeDers;
+      const PARTI_BUYUKLUGU = 10;
+      let oturumId = null;
       let uretilenSinavSorulari = [];
-      if (sinavSoruSayisi <= PARTI_BUYUKLUGU) {
-        const cevap = await aiIstek(p, Math.min(8000, 500 + sinavSoruSayisi * 480), cihazIdRef.current, true);
-        const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
-        uretilenSinavSorulari = soruJsonAyikla(temiz);
-      } else {
-        let kalan = sinavSoruSayisi;
-        let partiNo = 0;
-        while (kalan > 0) {
-          const buPartiSayisi = Math.min(PARTI_BUYUKLUGU, kalan);
-          const partiP = p
-            .replace(`toplam ${sinavSoruSayisi} soru olsun`, `bu parti icin TAM ${buPartiSayisi} soru olsun (${partiNo + 1}. parti, farkli ornekler/sayilar kullan, onceki partilerle AYNI soruyu tekrar etme)`)
-            .replace(new RegExp(`orn. ${Math.round(sinavSoruSayisi * 0.2)} kolay, ~${Math.round(sinavSoruSayisi * 0.55)} orta, ~${Math.round(sinavSoruSayisi * 0.25)} zor`), `orn. ${Math.round(buPartiSayisi * 0.2)} kolay, ~${Math.round(buPartiSayisi * 0.55)} orta, ~${Math.round(buPartiSayisi * 0.25)} zor`);
-          const partiCevap = await aiIstek(partiP, Math.min(8000, 500 + buPartiSayisi * 480), cihazIdRef.current, true);
-          const partiTemiz = jsonMetniTemizle(partiCevap, { dilFiltresi: true, parantezTemizle: true });
-          const partiSorular = soruJsonAyikla(partiTemiz);
-          if (Array.isArray(partiSorular)) uretilenSinavSorulari = uretilenSinavSorulari.concat(partiSorular);
-          kalan -= buPartiSayisi;
-          partiNo++;
-        }
+      let kalan = sinavSoruSayisi;
+      let partiNo = 0;
+      while (kalan > 0) {
+        const buPartiSayisi = Math.min(PARTI_BUYUKLUGU, kalan);
+        const partiRes = await fetch("/api/sinav-oturumu/parti", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cihazId: cihazIdRef.current, oturumId, sinavTuru, yaziliDonemNo: sinavTuru === "yazili" ? yaziliDonemNo : null,
+            ders: denemeDers, sinif: Number(sinif), kapsamAciklama, kapsamUnite: kapsamUnite || null, kayitTuru, kayitDersAdi,
+            adet: buPartiSayisi, toplam: sinavSoruSayisi, partiNo,
+          }),
+        });
+        const partiVeri = await partiRes.json();
+        if (!partiRes.ok) throw new Error(partiVeri.error || "Sinav olusturulamadi");
+        oturumId = partiVeri.oturumId;
+        uretilenSinavSorulari = uretilenSinavSorulari.concat(partiVeri.sorular);
+        kalan -= buPartiSayisi;
+        partiNo++;
       }
+      setSinavOturumId(oturumId);
       setSinavKapsamMetni(kapsamAciklama);
-      setSinavKayitTuru(kayitTuru);
       setDenemeSorulari(uretilenSinavSorulari);
-      sorulariBankayaKaydet(denemeDers, sinif, kapsamUnite, uretilenSinavSorulari, sinavTuru);
 
       // Matematik/Fen Bilimleri'nde gorsel olabilecek sorulara (anahtar kelime
       // filtresinden gecenlere) arka planda gorsel ekle - kullaniciyi bekletmez,
@@ -3784,58 +3777,25 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function denemeGonder() {
     setDenemeGonderildi(true);
     kronometreyiDurdur();
-    const dogru = denemeSorulari.filter((s, i) => denemeCevaplar[i] === s.dogruIndex).length;
-    const bos = denemeSorulari.filter((s, i) => denemeCevaplar[i] === undefined).length;
-    const yanlis = denemeSorulari.length - dogru - bos;
-    const net = Math.max(0, dogru - yanlis / 3);
-
-    const zorlukKirilim = { kolay: { dogru: 0, toplam: 0 }, orta: { dogru: 0, toplam: 0 }, zor: { dogru: 0, toplam: 0 } };
-    const altKonuKirilim = {};
-    denemeSorulari.forEach((s, i) => {
-      const z = s.zorluk || "orta";
-      if (!zorlukKirilim[z]) zorlukKirilim[z] = { dogru: 0, toplam: 0 };
-      zorlukKirilim[z].toplam += 1;
-      if (denemeCevaplar[i] === s.dogruIndex) zorlukKirilim[z].dogru += 1;
-
-      if (s.altKonu) {
-        if (!altKonuKirilim[s.altKonu]) altKonuKirilim[s.altKonu] = { dogru: 0, toplam: 0 };
-        altKonuKirilim[s.altKonu].toplam += 1;
-        if (denemeCevaplar[i] === s.dogruIndex) altKonuKirilim[s.altKonu].dogru += 1;
-      }
-
-      // Yanlis cevaplanan sorulari Hata Kitapcigi'na kaydet - boylece Koc bu
-      // konulari "odev" olarak takip edebilir.
-      if (denemeCevaplar[i] !== undefined && denemeCevaplar[i] !== s.dogruIndex) {
-        fetch("/api/hata-kitapcigi", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            cihazId: cihazIdRef.current, ders: denemeDers, altKonu: s.altKonu || null,
-            soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex,
-            verilenIndex: denemeCevaplar[i], aciklama: s.aciklama || null,
-          }),
-        }).catch(() => {});
-      }
-    });
-
-    // Unite/konu kapsamli sinavlarda ders adini o unite ile zenginlestiriyoruz,
-    // boylece "bu unitede kacinci test" sayaci dogru tutulur.
-    const kayitDersAdi = (kapsamTuru === "unite" || kapsamTuru === "konu") && kapsamUnite
-      ? `${denemeDers} · ${kapsamUnite}`
-      : denemeDers;
-
-    let oncekiNet = null;
-    let testNo = 1;
+    // Faz E: puanlama, hata kitapcigi ve sonuc kaydi SUNUCUDA yapilir; tarayicidan sadece cevaplar gider.
     try {
-      const res = await fetch("/api/sinav-sonuc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, tur: sinavKayitTuru || "deneme", ders: kayitDersAdi, dogru, yanlis, bos, net }),
+      const res = await fetch("/api/sinav-oturumu/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, oturumId: sinavOturumId, cevaplar: denemeCevaplar }),
       });
       const data = await res.json();
-      if (res.ok) { oncekiNet = data.oncekiNet; testNo = data.testNo || 1; }
-    } catch (e) { /* kayit basarisiz olsa da sonuc belgesini yine de goster */ }
-
-    setDenemeBelgesi({ dogru, yanlis, bos, net, toplam: denemeSorulari.length, zorlukKirilim, altKonuKirilim, oncekiNet, testNo, kayitDersAdi });
+      if (!res.ok) throw new Error(data.error || "Sonuc kaydedilemedi");
+      // Cevap anahtari artik geldi: mevcut gosterim kodu s.dogruIndex / s.aciklama kullaniyor.
+      setDenemeSorulari((eski) => (eski ? eski.map((s, i) => ({ ...s, dogruIndex: data.anahtar[i]?.dogruIndex, aciklama: data.anahtar[i]?.aciklama || null })) : eski));
+      setDenemeBelgesi({
+        dogru: data.dogru, yanlis: data.yanlis, bos: data.bos, net: data.net, toplam: data.toplam,
+        zorlukKirilim: data.zorlukKirilim, altKonuKirilim: data.altKonuKirilim,
+        oncekiNet: data.oncekiNet, testNo: data.testNo || 1, kayitDersAdi: data.kayitDersAdi,
+      });
+    } catch (e) {
+      setDenemeGonderildi(false);
+      setHata(temizHataMesaji(e, "Sinav gonderilemedi, tekrar dene."));
+    }
   }
 
   async function seviyeTespitiYap() {

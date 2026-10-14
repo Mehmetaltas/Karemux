@@ -92,6 +92,7 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
     if (cihazId === OTOMASYON_TEST_CIHAZ_ID) {
       return Response.json({ sorular: istemciSorulari, elenen: elenenSayisi, testId: null, testModu: true });
     }
+    try { await sql`DELETE FROM seviye_tespit_sinavlari WHERE olusturulma < now() - interval '3 days'`; } catch (e) { console.error("Eski seviye sinavi temizligi basarisiz:", e.message); }
     const kayit = await sql`INSERT INTO seviye_tespit_sinavlari (kullanici_id, sorular) VALUES (${kullaniciId}, ${JSON.stringify(denetlenmisSorular)}) RETURNING id`;
     return Response.json({ sorular: istemciSorulari, elenen: elenenSayisi, testId: kayit[0].id });
   } catch (e) {
