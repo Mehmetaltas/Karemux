@@ -1,30 +1,12 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
-import { ozetSonucuDogrula } from "@/lib/puanlama";
-import { sinavSonucuKaydet } from "@/lib/sinav-sonuc-kaydet";
 
-export async function POST(req) {
-  try {
-    const { cihazId, tur, ders, dogru, yanlis, bos } = await req.json();
-    if (typeof tur !== "string" || typeof ders !== "string" || !tur || !ders || tur.length > 80 || ders.length > 200 || dogru == null || yanlis == null || bos == null) {
-      return Response.json({ error: "Eksik veri" }, { status: 400 });
-    }
-    // Faz E: bu uc nokta cevap anahtarina sahip DEGIL (sinavlar istemcide
-    // olusturuluyor), bu yuzden sayilar dogrulanir ve NET istemciden ALINMAZ,
-    // sunucuda yeniden hesaplanir. Tam sunucu puanlamasi sinav turu basina ayrica yapilir.
-    const ozet = ozetSonucuDogrula({ dogru, yanlis, bos });
-    if (!ozet) return Response.json({ error: "Gecersiz sonuc degerleri" }, { status: 400 });
-    const net = ozet.net;
-    const kullaniciId = await kullaniciIdCoz(req, cihazId);
-    if (!kullaniciId) return Response.json({ error: "Kullanici belirlenemedi" }, { status: 400 });
-
-    const { oncekiNet, testNo } = await sinavSonucuKaydet(kullaniciId, { tur, ders, dogru: ozet.dogru, yanlis: ozet.yanlis, bos: ozet.bos, net });
-
-    return Response.json({ ok: true, oncekiNet, testNo });
-  } catch (e) {
-    console.error(e);
-    return Response.json({ error: "Kaydedilemedi" }, { status: 500 });
-  }
+// Faz E tamamlandi: TUM sinav sonuclari artik sunucuda puanlanip yazilir
+// (/api/sinav-oturumu/gonder, /api/seviye-tespit/gonder, /api/ucretli-deneme/gonder).
+// Istemcinin kendi bildirdigi sonucu kabul eden bu POST kapatildi; eski sekmelerdeki
+// (guncellenmemis) istemciler hatayi sessizce yutar, sonuc kaydi olusmaz.
+export async function POST() {
+  return Response.json({ error: "Sonuclar sunucuda puanlanir; bu uc nokta kapatildi" }, { status: 410 });
 }
 
 export async function GET(req) {
