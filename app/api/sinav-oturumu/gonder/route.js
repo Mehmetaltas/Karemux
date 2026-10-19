@@ -21,6 +21,7 @@ export async function POST(req) {
     const oturum = await sql`
       UPDATE sinav_oturumlari SET kullanildi = true
       WHERE id = ${gelenId} AND kullanici_id = ${kullaniciId} AND kullanildi = false
+        AND (meta->>'pratikTuru' IS NULL OR meta->>'tamam' = 'true')
       RETURNING id, sorular, meta, now() AS talep
     `;
     if (oturum.length === 0) return Response.json({ error: "Sinav bulunamadi veya zaten gonderilmis" }, { status: 400 });
@@ -50,6 +51,7 @@ export async function POST(req) {
 
     // Ders seviye: sonuc UNITE BASINA ayri satir ("Ders::Unite"), genel satir yazilmaz.
     const dersSeviye = meta.kayitTuru === "ders_seviye";
+    const pratik = !!meta.pratikTuru;
     const uniteKirilim = {};
     let oncekiNet = null, testNo = 1;
     if (dersSeviye) {
@@ -64,6 +66,15 @@ export async function POST(req) {
         const k = uniteKirilim[u];
         await sinavSonucuKaydet(kullaniciId, { tur: "ders_seviye", ders: `${dersAdi}::${u}`, dogru: k.dogru, yanlis: k.yanlis, bos: k.bos, net: Math.round(netHesapla(k.dogru, k.yanlis) * 100) / 100 });
       }
+    } else if (pratik) {
+      // Pratik (tek konu / unite / paragraf): sinav_sonuclari satiri YAZILMAZ; eskiden istemcinin
+      // POST ettigi ilerleme satiri artik sunucuda, puanlanan sonuctan yazilir. Benzer sorular ilerleme yazmaz.
+      if (meta.pratikTuru !== "benzer") {
+        await sql`
+          INSERT INTO ilerleme (kullanici_id, ders, konu, dogru_sayisi, toplam_soru)
+          VALUES (${kullaniciId}, ${meta.ders}, ${meta.konu || meta.unite || meta.ders}, ${puan.dogru}, ${sorular.length})
+        `;
+      }
     } else {
       ({ oncekiNet, testNo } = await sinavSonucuKaydet(kullaniciId, {
         tur: meta.kayitTuru || "deneme", ders: meta.kayitDersAdi || meta.ders || "Genel",
@@ -75,7 +86,7 @@ export async function POST(req) {
     for (const sat of ((meta.kayitTuru === "gecen_yil_genel" || dersSeviye) ? [] : hatalar)) {
       try {
         await hataKitapcigiKaydet({
-          kullaniciId, cihazId, ders: meta.ders, altKonu: sat.soru.altKonu || null, soru: sat.soru.soru,
+          kullaniciId, cihazId, ders: meta.ders, altKonu: (pratik && meta.altKonu) || sat.soru.altKonu || null, soru: sat.soru.soru,
           secenekler: sat.soru.secenekler, dogruIndex: sat.soru.dogruIndex, verilenIndex: sat.verilen, aciklama: sat.soru.aciklama || null,
         });
       } catch (e) { console.error("Hata kitapcigi kaydi basarisiz:", e.message); }

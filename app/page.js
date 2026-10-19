@@ -1050,22 +1050,47 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     finally { setQuizGonderiliyor(false); }
   }
 
-  // Bir quiz gonderildiginde YANLIS cevaplanan sorulari Hata Kitapcigi'na kaydeder.
-  function yanlislariHataKitapciginaKaydet(dersAdi, altKonu) {
-    if (!quiz) return;
-    quiz.forEach((s, i) => {
-      if (cevaplar[i] !== undefined && cevaplar[i] !== s.dogruIndex) {
-        fetch("/api/hata-kitapcigi", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            cihazId: cihazIdRef.current, ders: dersAdi, altKonu: altKonu || s.altKonu || null,
-            soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex,
-            verilenIndex: cevaplar[i], aciklama: s.aciklama || null,
-          }),
-        }).catch(() => {});
-      }
-    });
+  // Faz E - PRATIK OTURUMU: tek konu / unite testi / benzer sorular / paragraf pratigi sorulari SUNUCUDA uretilir
+  // (partiler halinde), cevap anahtari tarayiciya gelmez; puanlama, ilerleme ve Hata Kitapcigi kaydi sunucuda yapilir.
+  async function pratikOturumuBaslat(govde) {
+    let oturumId = null, partiNo = 0, sorular = [], paragraf = null;
+    for (;;) {
+      const res = await fetch("/api/pratik-oturumu/parti", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, oturumId, partiNo, ...govde }),
+      });
+      const veri = await res.json();
+      if (!res.ok) throw new Error(veri.error || "Sorular uretilemedi");
+      oturumId = veri.oturumId;
+      sorular = sorular.concat(veri.sorular || []);
+      if (veri.paragraf) paragraf = veri.paragraf;
+      if (!veri.sonraki) break;
+      partiNo++;
+      if (partiNo > 3) throw new Error("Sorular uretilemedi, tekrar dene");
+    }
+    if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
+    // Oturum kimligi sorularla birlikte tutulur: baska bir akis quiz'i degistirirse eski oturum yanlislikla gonderilmez.
+    return { oturumId, sorular: sorular.map((s) => ({ ...s, oturumId })), paragraf };
+  }
+
+  async function pratikQuizGonder() {
+    if (quizGonderiliyor || !quiz) return null;
+    const oturumId = quiz[0]?.oturumId;
+    if (!oturumId) { setHata("Test oturumu bulunamadi, testi yeniden baslat."); return null; }
+    setQuizGonderiliyor(true); setHata("");
+    try {
+      const res = await fetch("/api/sinav-oturumu/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, oturumId, cevaplar }),
+      });
+      const veri = await res.json();
+      if (!res.ok) throw new Error(veri.error || "Sonuc kaydedilemedi");
+      // Cevap anahtari artik geldi: mevcut gosterim kodu s.dogruIndex / s.aciklama kullaniyor.
+      setQuiz((eski) => (eski ? eski.map((s, i) => ({ ...s, dogruIndex: veri.anahtar[i]?.dogruIndex, aciklama: veri.anahtar[i]?.aciklama || null })) : eski));
+      setGonderildi(true);
+      return veri;
+    } catch (e) { setHata(temizHataMesaji(e, "Sonuc gonderilemedi, tekrar dene.")); return null; }
+    finally { setQuizGonderiliyor(false); }
   }
 
   const [hataKitapcigi, setHataKitapcigi] = useState(null);
@@ -1085,16 +1110,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function hataKitapciginaBenzerSorularUret(dersAdi) {
     if (!hataKitapcigi || hataKitapcigi.length === 0) return;
-    const altKonular = [...new Set(hataKitapcigi.map((k) => k.alt_konu).filter(Boolean))];
-    const konuListesi = altKonular.length > 0 ? altKonular.join(", ") : "gecmiste yanlis yapilan konular";
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. Ogrencinin daha once yanlis yaptigi su konulardan: ${konuListesi} - bu konulari pekistirecek 5 YENI (birebir ayni olmayan, ama ayni beceriyi olcen) coktan secmeli soru hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle acikla. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true });
-      const sorular = soruJsonAyikla(temiz);
-      setQuiz(sorular);
+      // Faz E: sorular SUNUCUDA uretilir (alt konular sunucuda Hata Kitapcigi'ndan okunur).
+      const oturum = await pratikOturumuBaslat({ pratikTuru: "benzer", ders: dersAdi, sinif });
+      setQuiz(oturum.sorular);
       setHataKitapcigiAcik(false);
     } catch (e) { setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { setYukleniyor(null); }
@@ -1401,32 +1421,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      // ONCE soru bankasina bak - eger ayni ders+sinif+unite icin yeterince
-      // birikmis soru varsa, AI'a HIC gitmeden oradan kullan. Bu, sistemin
-      // zamanla dis AI'a olan bagimliligini organik olarak azaltmasini saglar.
-      // Manuel alt baslik sinirlamasi varsa (ozel sorgu), banka atlanir - cunku
-      // bankadaki sorular alt baslik bazinda etiketlenmemis olabilir.
-      if (!(dersSecimModu === "manuel" && manuelAltBaslik.length > 0)) {
-        const bankaRes = await fetch(`/api/soru-bankasi/getir?ders=${encodeURIComponent(secilenDers)}&sinif=${sinif}&unite=${encodeURIComponent(unite)}&adet=5`);
-        const bankaData = await bankaRes.json();
-        if (bankaData.yeterliMi && bankaData.sorular.length > 0) {
-          if (secilenDersRef.current !== dersAtCagri) return;
-          setQuiz(bankaData.sorular);
-          return; // AI cagrisi hic yapilmadi
-        }
-      }
-
-      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik.length > 0)
-        ? ` SADECE su alt basliklardan sorular hazirla: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarindan soru sorma.`
-        : "";
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${secilenDers}" dersinin "${unite}" unitesinin TAMAMINI kapsayan, ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla.${kapsamSiniri} ${BAGLAM_TEMELLI_SORU_TALIMATI} Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"orta","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, 3000, cihazIdRef.current, true);
+      // Faz E: sorular SUNUCUDA hazirlanir (once soru bankasi, yetmezse AI); manuel alt baslik varsa banka atlanir.
+      const oturum = await pratikOturumuBaslat({
+        pratikTuru: "unite", ders: secilenDers, sinif, unite,
+        altBasliklar: (dersSecimModu === "manuel" && manuelAltBaslik.length > 0) ? manuelAltBaslik : [],
+      });
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
-      const sorular = soruJsonAyikla(temiz);
-      setQuiz(sorular);
-      sorulariBankayaKaydet(secilenDers, sinif, unite, sorular, "quiz");
+      setQuiz(oturum.sorular);
     } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAtCagri) setYukleniyor(null); }
   }
@@ -3105,17 +3106,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setZayifDersler((l) => (l.includes(ad) ? l.filter((x) => x !== ad) : [...l, ad]));
   }
 
-  async function ilerlemeyiKaydet(dersAdi, konuAdi, dogru, toplam) {
-    if (!cihazIdRef.current) return;
-    try {
-      await fetch("/api/ilerleme", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, ders: dersAdi, konu: konuAdi, dogruSayisi: dogru, toplamSoru: toplam }),
-      });
-    } catch (e) { /* sessizce gec - ilerleme kaydi kritik degil */ }
-  }
-
   async function girisTamamlandiktanSonra() {
     try {
       if (beniHatirlaOgrenci) {
@@ -3552,32 +3542,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!ders || !konu.trim()) return;
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
     try {
-      // TEK KONU MOTORU (15 Eylul, Adim 3) - konu_paketi cache'i varsa
-      // AI'ya HIC gitmeden onun soruHavuzu'ndan secim yapilir.
-      try {
-        const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(ders)}&konu=${encodeURIComponent(konu.trim())}&unite=${encodeURIComponent(uniteSec || "")}&cihazId=${cihazIdRef.current}`);
-        const paketData = await paketRes.json();
-        const havuz = paketData.paket?.soruHavuzu;
-        if (Array.isArray(havuz) && havuz.length > 0) {
-          const secilenSorular = fasikulModu ? havuz : [...havuz].sort(() => Math.random() - 0.5).slice(0, 5);
-          setQuiz(secilenSorular);
-          setYukleniyor(null);
-          sorulariBankayaKaydet(ders, sinif, uniteSec, secilenSorular, fasikulModu ? "fasikul" : "quiz");
-          return;
-        }
-      } catch (paketHata) { /* konu_paketi erisilemezse eski akisa devam et */ }
-
-      const uniteMetni2 = uniteSec ? ` (${uniteSec} unitesinden, gercek LGS tarzinda)` : "";
-      const p = fasikulModu
-        ? `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni2} "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde TAM 15 coktan secmeli soru hazirla: ILK 5 SORU KOLAY, SONRAKI 5 SORU ORTA, SON 5 SORU ZOR seviyede olsun (sirali ver, kolaydan zora). SOMUT OLCUT: KOLAY = tek adimda dogrudan kazanim/kavram hatirlama, celdiriciler belirgin; ORTA = 2 adimli uygulama, MEB soru tarzina yakin dengeli celdiriciler; ZOR = cok asamali muhakeme/analiz, paragraf-grafik-tablo yorumlama iceren yeni nesil format, celdiriciler ince ayrimli kavram yanilgilarina dayali. ${BAGLAM_TEMELLI_SORU_TALIMATI}${ders === "Matematik" ? " Kalite referansi: KOLAY sorular Nitelik Yayinlari tarzinda (temelden, basitten karmasiga sirali); ORTA sorular Okyanus Master tarzinda (MEB soru kalitesine yakin, dengeli); ZOR sorular Sinan Kuzucu Yayinlari tarzinda (yeni nesil agirlikli, ileri duzey mantik yurutme gerektiren) olsun." : ders === "Fen Bilimleri" ? " Kalite referansi: KOLAY sorular Canta Yayinlari Kazandiran Defter tarzinda (temel konu anlatimli); ORTA sorular Okyanus Master Fen Bilimleri tarzinda (MEB soru kalitesine yakin); ZOR sorular Nartest Power tarzinda (en ust duzey, yeni nesil) olsun." : ders === "Turkce" ? " Kalite referansi: KOLAY sorular Tonguc Akademi tarzinda (eglenceli, akilda kalici dil bilgisi anlatimi); ORTA sorular KR Akademi Paragraf Ozel Soru Bankasi tarzinda (kademeli zorlukta paragraf agirlikli); ZOR sorular Sinan Kuzucu Yayinlari tarzinda (yeni nesil, ileri duzey) olsun." : ders === "T.C. Inkilap Tarihi" ? " Kalite referansi: KOLAY sorular Tonguc Akademi tarzinda (kronoloji tablolari, akilda kalici anlatim); ORTA sorular KR Akademi tarzinda (kronoloji ve yorum sorulari agirlikli); ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda (karmasik neden-sonuc analizi gerektiren) olsun." : ders === "Din Kulturu" ? " Kalite referansi: KOLAY sorular Tonguc Akademi tarzinda (acik/anlasilir kavram anlatimi, gorsel ozetler); ORTA sorular KR Akademi tarzinda (Cebrail Karaoglan, video destekli); ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda (karmasik yorum ve analiz gerektiren) olsun." : ders === "Ingilizce" ? " Kalite referansi: TUM ZORLUK SEVIYELERI Milestone Ingilizce (TEAM ELT Publishing, Levent Cilek LGS deneme kitaplari) tarzinda olsun - resmi MEB kaynagi degil, ozel sinav hazirlik yayini, LGS formatina yakin." : ders === "Sosyal Bilgiler" ? " Kalite referansi: KOLAY sorular Tonguc Akademi tarzinda (konu anlatimli soru bankasi, kronoloji tablolari ve haritalar guclu) olsun; ORTA sorular Nitelik Yayinlari Deneme Seti tarzinda (LGS formatina uygun, harita ve gorsel sorular zengin) olsun; ZOR sorular Nitelik Yayinlari Ust Duzey Soru Bankasi tarzinda (karmasik harita/grafik analizi, cok katmanli neden-sonuc sorulari) olsun." : " Bu, meshur ozel yayin kaynaklarinin (MEB yayinlarindan daha ust seviye, sik tercih edilen ek kaynaklar seviyesinde) fasikul formatinda olsun."} Sorular mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`
-        : `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni2} "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde 5 coktan secmeli soru hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} SADECE JSON dondur, markdown kod blogu kullanma, baska hicbir aciklama ekleme. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, fasikulModu ? 7000 : 3000, cihazIdRef.current, true);
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
-      const uretilenSorular = soruJsonAyikla(temiz);
-      setQuiz(uretilenSorular);
-      sorulariBankayaKaydet(ders, sinif, uniteSec, uretilenSorular, fasikulModu ? "fasikul" : "quiz");
+      // Faz E: sorular SUNUCUDA hazirlanir (once ogretmen onayli konu havuzu, yetmezse AI; fasikul 10+5 partide).
+      const oturum = await pratikOturumuBaslat({
+        pratikTuru: "konu", ders, sinif, konu: konu.trim(), unite: uniteSec || null,
+        altKonu: aktifAltKonu && aktifAltKonu === konu.trim() ? aktifAltKonu : null, fasikul: !!fasikulModu,
+      });
+      setQuiz(oturum.sorular);
     } catch (e) { setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
@@ -3589,20 +3559,14 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!ders || !konu.trim()) return;
     setYukleniyor("paragraf"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
     try {
-      const uniteMetni3 = uniteSec ? ` (${uniteSec} unitesinden)` : "";
-      const kaliteMetniParagrafPratik = KALITE_REFERANSLARI[ders] ? ` Kalite referansi: ${KALITE_REFERANSLARI[ders]}` : "";
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${uniteMetni3} "${konu}" konusuyla ilgili once orta uzunlukta (120-180 kelime) bir metin/paragraf yaz, sonra bu metne dayali 20 coktan secmeli soru hazirla (${sinif}. sinif seviyesinde, kolaydan zora dogru sirali). ${BAGLAM_TEMELLI_SORU_TALIMATI}${kaliteMetniParagrafPratik} Son olarak bu konuyla ilgili 3-5 maddelik kisa "puf noktalari / altin kurallar" listesi ekle (formul, dikkat edilecek nokta, sik yapilan hatalar gibi). Sorular okudugunu anlama, yorumlama ve dikkat gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme, markdown kullanma:
-{"metin":"...","pufNoktalari":["...","..."],"sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]}`;
-      const cevap = await aiIstek(p, 8000, cihazIdRef.current, true);
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
-      const baslangic = temiz.indexOf("{");
-      const bitis = temiz.lastIndexOf("}");
-      if (baslangic === -1 || bitis === -1) throw new Error("Paragraf pratigi olusturulamadi, tekrar dene");
-      const veri = JSON.parse(temiz.slice(baslangic, bitis + 1));
-      setParagrafMetni(veri.metin || "");
-      setParagrafPufNoktalari((veri.pufNoktalari || []).join("\n"));
-      setQuiz(veri.sorular || []);
-      sorulariBankayaKaydet(ders, sinif, uniteSec, veri.sorular, "paragraf");
+      // Faz E: metin + puf noktalari + 20 soru SUNUCUDA uretilir (2 partide); anahtar tarayiciya gelmez.
+      const oturum = await pratikOturumuBaslat({
+        pratikTuru: "paragraf", ders, sinif, konu: konu.trim(), unite: uniteSec || null,
+        altKonu: aktifAltKonu && aktifAltKonu === konu.trim() ? aktifAltKonu : null,
+      });
+      setParagrafMetni(oturum.paragraf?.metin || "");
+      setParagrafPufNoktalari((oturum.paragraf?.pufNoktalari || []).join("\n"));
+      setQuiz(oturum.sorular);
     } catch (e) { setHata(temizHataMesaji(e, "Paragraf pratigi olusturulamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
@@ -3952,12 +3916,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   const dogruSayisi = quiz && gonderildi ? quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length : null;
 
-  function cevaplariGonder() {
-    setGonderildi(true);
-    const dogru = quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length;
-    ilerlemeyiKaydet(ders, konu, dogru, quiz.length);
-    yanlislariHataKitapciginaKaydet(ders, aktifAltKonu);
-    if (dogru / quiz.length >= 0.7) {
+  async function cevaplariGonder() {
+    // Faz E: puanlama, ilerleme ve Hata Kitapcigi kaydi SUNUCUDA yapilir; burada yalnizca yerel tamamlama isareti kalir.
+    const veri = await pratikQuizGonder();
+    if (!veri) return;
+    if (veri.toplam > 0 && veri.dogru / veri.toplam >= 0.7) {
       if (uniteSec && aktifAltKonu) {
         altKonuTamamlandiIsaretle(ders, uniteSec, aktifAltKonu);
       } else if (uniteSec) {
@@ -4575,7 +4538,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     </div>
                   ))}
                   {!gonderildi ? (
-                    <button onClick={() => { setGonderildi(true); yanlislariHataKitapciginaKaydet(kocPaneliDers, null); }} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                    <button onClick={pratikQuizGonder} disabled={Object.keys(cevaplar).length < quiz.length || quizGonderiliyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
                   ) : (
                     <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
                       Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
@@ -4777,7 +4740,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         </div>
                       ))}
                       {!gonderildi ? (
-                        <button className="kx-btn" onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                        <button className="kx-btn" onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length || quizGonderiliyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
                       ) : (
                         <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
                           Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
@@ -8253,7 +8216,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </div>
                 ))}
                 {!gonderildi ? (
-                  <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600 }}>Cevaplari Gonder</button>
+                  <button onClick={cevaplariGonder} disabled={Object.keys(cevaplar).length < quiz.length || quizGonderiliyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600 }}>Cevaplari Gonder</button>
                 ) : (
                   <>
                     <div style={{ textAlign: "center", fontWeight: 700, fontSize: 18, paddingTop: 4, marginBottom: 10 }}>Sonuc: {dogruSayisi} / {quiz.length} dogru</div>
