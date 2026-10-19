@@ -158,7 +158,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // derinligi (alt basliklar) bu yeniden yapilanmaya gore HENUZ guncellenmedi - AI
   // onerisine dusuyor, ileride ayrica derinlestirilmeli.
   "6::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
-  "7::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
+  "7::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Donusum", "Geometrik Nicelikler", "Geometrik Sekiller", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
 
   "4::Fen Bilimleri": ["Bilime Yolculuk", "Saglikli Besleniyorum", "Dunyamizi Kesfedelim", "Maddenin Degisimi", "Miknatisi Kesfediyorum", "Enerji Dedektifleri", "Isigin Pesinde", "Surdurulebilir Sehirler ve Topluluklar"],
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum"],
@@ -415,12 +415,13 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Istatistiksel Arastirma Sureci::6": ["Kategorik/Nicel Veri ile Calisma", "Istatistiksel Sonuc Yorumlama"],
   "Matematik::Veriden Olasiliga::6": ["Olaylarin Deneysel Olasiligi"],
 
-  "Matematik::Sayilar ve Nicelikler::7": ["Dogal-Tam-Rasyonel Sayi Iliskisi", "Oran Iliskileri Uzerinden Muhakeme"],
-  "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::7": ["Cebirsel Ifadelerle Islemler", "Denklem ve Esitsizliklerle Problem Cozme"],
-  "Matematik::Geometrik Sekiller::7": ["Yansima Donusumu", "Orta Dikme ve Acortay Insasi", "Ucgende Kenarortay"],
-  "Matematik::Geometrik Nicelikler::7": ["Es Kuplerle Olusturulan Yapilar", "Yamuk-Eskenar Dortgen-Daire Alani"],
-  "Matematik::Istatistiksel Arastirma Sureci::7": ["Nicel (Surekli) Veri ile Calisma", "Istatistiksel Arastirma Yurutme"],
-  "Matematik::Veriden Olasiliga::7": ["Ayrik ve Esit Olasilikli Olaylar", "Tumleyen Olay Kavrami"],
+  "Matematik::Sayilar ve Nicelikler::7": ["Tam Sayilar", "Rasyonel Sayilar ve Farkli Temsilleri", "Rasyonel Sayilarda Karsilastirma ve Siralama", "Rasyonel Sayilarla Islemler ve Problem Cozme", "Oran", "Orantili Durumlar", "Dogru Orantili Durumlara Iliskin Problem Cozme"],
+  "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::7": ["Cebirsel Ifadelerle Islemler", "Denklem ve Esitsizlikler", "Ispat", "Cebirsel Ifadelerle Islemler ve Algoritma"],
+  "Matematik::Donusum::7": ["Yansima Donusumu", "Orta Dikme ve Acortay Insasi"],
+  "Matematik::Geometrik Nicelikler::7": ["Cisimlerin Farkli Yonlerden Gorunumleri", "Dikdortgenler Prizmasinin Hacmi ve Yuzey Alani", "Hacim Olcme Birimleri", "Eskenar Dortgen ve Yamuk", "Daire ve Daire Diliminin Alani"],
+  "Matematik::Geometrik Sekiller::7": ["Ucgenlerde Kenarortay ve Insasi", "Acortay", "Yukseklik"],
+  "Matematik::Istatistiksel Arastirma Sureci::7": ["Kategorik ve Nicel (Surekli) Veri Dagilimlari"],
+  "Matematik::Veriden Olasiliga::7": ["Teorik Olasilik"],
   // Fen Bilimleri (8. sinif) - MEB resmi ogretim programi kazanimlarindan (F.8.1 - F.8.7)
   "Fen Bilimleri::Mevsimler ve Iklim": ["Mevsimlerin Olusumu", "Iklim ve Hava Hareketleri"],
   "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon"],
