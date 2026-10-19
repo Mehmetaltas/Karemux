@@ -891,15 +891,8 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       try { localStorage.setItem("karemux_ders_tekrar_sonuclari", JSON.stringify(guncel)); } catch (e) {}
       return guncel;
     });
-    // Kalicilik icin veritabanina da yaz - sadece localStorage'a guvenmek
-    // (gizli sekme/farkli cihaz durumlarinda) veri kaybina yol acabiliyordu.
-    const yanlis = toplam - dogru;
-    const net = Math.max(0, dogru - yanlis / 3);
-    fetch("/api/sinav-sonuc", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cihazId: cihazIdRef.current, tur: `ders_tekrar_${tur}`, ders: dersAdi, dogru, yanlis, bos: 0, net }),
-    }).catch(() => {});
+    // Faz E: veritabani kaydi (sinav_sonuclari + hata kitapcigi) artik SUNUCUDA,
+    // /api/sinav-oturumu/gonder icinde yazilir; burada sadece yerel gecmis tutulur.
   }
 
   // Bir dersin tekrar durumunu hesaplar: hangi turda, kac test yapildi, gecti mi, canli gorusme gerekiyor mu.
@@ -1001,25 +994,59 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const soruSayisi = durum.soruSayisi || 5;
     setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
     try {
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin temel konularindan ${soruSayisi} coktan secmeli soru hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} ONEMLI: Her soruyu yazdiktan sonra HESABI KENDIN ADIM ADIM COZ ve dogruIndex'in GERCEKTEN dogru oldugundan emin ol - matematiksel hata yapma, cevaplar arasinda celiski olmasin. Her soru icin "aciklama" alaninda, dogru cevabin NEDEN dogru oldugunu 1-2 cumleyle, DOGRU VE TUTARLI bir sekilde anlat (ogrenci yanlis yaparsa bunu okuyup ogrensin). SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma. HER SORUDA MUTLAKA "secenekler" alaninda TAM 4 secenek (A,B,C,D) olsun:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, Math.min(8000, 600 + soruSayisi * 500), cihazIdRef.current, true);
-      if (secilenDersRef.current !== dersAdi) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
-      const sorular = soruJsonAyikla(temiz);
+      // Faz E: test SUNUCUDA uretilir (partiler halinde); cevap anahtari tarayiciya gelmez,
+      // puanlama /api/sinav-oturumu/gonder'de yapilir.
+      const PARTI_BUYUKLUGU = 10;
+      let oturumId = null;
+      let sorular = [];
+      let kalan = soruSayisi;
+      let partiNo = 0;
+      while (kalan > 0) {
+        const buPartiSayisi = Math.min(PARTI_BUYUKLUGU, kalan);
+        const partiRes = await fetch("/api/sinav-oturumu/parti", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cihazId: cihazIdRef.current, oturumId, sinavTuru: "ders_tekrar", ders: dersAdi, sinif: oncekiSinif,
+            kapsamAciklama: "", kapsamUnite: null, kayitTuru: `ders_tekrar_${durum.tur}`, kayitDersAdi: dersAdi,
+            adet: buPartiSayisi, toplam: soruSayisi, partiNo,
+          }),
+        });
+        const partiVeri = await partiRes.json();
+        if (secilenDersRef.current !== dersAdi) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
+        if (!partiRes.ok) throw new Error(partiVeri.error || "Sorular uretilemedi");
+        oturumId = partiVeri.oturumId;
+        sorular = sorular.concat(partiVeri.sorular);
+        kalan -= buPartiSayisi;
+        partiNo++;
+      }
       if (sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
-      setQuiz(sorular);
+      // Oturum kimligi sorularla birlikte tutulur: baska bir akis quiz'i degistirirse eski oturum yanlislikla gonderilmez.
+      setQuiz(sorular.map((s) => ({ ...s, oturumId })));
     } catch (e) { if (secilenDersRef.current === dersAdi) setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAdi) setYukleniyor(null); }
   }
 
-  function dersTekrarTestiGonder(dersAdi) {
-    setGonderildi(true);
-    const dogru = quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length;
-    const durum = dersTekrarDurumuHesapla(dersAdi);
-    dersTekrarSonucuKaydet(dersAdi, durum.tur, dogru, quiz.length);
-    dersTekrarSayaciArtir(dersAdi);
-    yanlislariHataKitapciginaKaydet(dersAdi, null);
+  const [quizGonderiliyor, setQuizGonderiliyor] = useState(false);
+  async function dersTekrarTestiGonder(dersAdi) {
+    if (quizGonderiliyor || !quiz) return;
+    const oturumId = quiz[0]?.oturumId;
+    if (!oturumId) { setHata("Test oturumu bulunamadi, testi yeniden baslat."); return; }
+    setQuizGonderiliyor(true); setHata("");
+    try {
+      const res = await fetch("/api/sinav-oturumu/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, oturumId, cevaplar }),
+      });
+      const veri = await res.json();
+      if (!res.ok) throw new Error(veri.error || "Sonuc kaydedilemedi");
+      const durum = dersTekrarDurumuHesapla(dersAdi);
+      // Cevap anahtari artik geldi: mevcut gosterim kodu s.dogruIndex / s.aciklama kullaniyor.
+      setQuiz((eski) => (eski ? eski.map((s, i) => ({ ...s, dogruIndex: veri.anahtar[i]?.dogruIndex, aciklama: veri.anahtar[i]?.aciklama || null })) : eski));
+      setGonderildi(true);
+      dersTekrarSonucuKaydet(dersAdi, durum.tur, veri.dogru, veri.toplam);
+      dersTekrarSayaciArtir(dersAdi);
+    } catch (e) { setHata(temizHataMesaji(e, "Sonuc gonderilemedi, tekrar dene.")); }
+    finally { setQuizGonderiliyor(false); }
   }
 
   // Bir quiz gonderildiginde YANLIS cevaplanan sorulari Hata Kitapcigi'na kaydeder.
@@ -4871,7 +4898,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         </div>
                       ))}
                       {!gonderildi ? (
-                        <button onClick={() => dersTekrarTestiGonder(secilenDers)} disabled={Object.keys(cevaplar).length < quiz.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>Cevaplari Gonder</button>
+                        <button onClick={() => dersTekrarTestiGonder(secilenDers)} disabled={Object.keys(cevaplar).length < quiz.length || quizGonderiliyor} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: "#1B2430", color: "#fff", fontWeight: 600, cursor: "pointer" }}>{quizGonderiliyor ? "Gonderiliyor..." : "Cevaplari Gonder"}</button>
                       ) : (
                         <div style={{ textAlign: "center", fontWeight: 700, fontSize: 16, paddingTop: 4, color: "#1B2430" }}>
                           Sonuc: {quiz.filter((s, i) => cevaplar[i] === s.dogruIndex).length} / {quiz.length} dogru
