@@ -163,6 +163,10 @@ export async function POST(req) {
       }
       sorular = ham.filter(sinavSorusuGecerliMi).slice(0, adet);
       if (sorular.length === 0) return Response.json({ error: "Gecerli soru uretilemedi, tekrar dene" }, { status: 502 });
+      // Eksik parti (ornegin 5 sorudan 1'i) kabul edilmez: 19 Ekim kanitinda kesilen ciktidan 1-4 soru geldi, oturum 20 yerine 15 soruyla bitti.
+      if (sorular.length < Math.ceil(adet * DENETIM_ASGARI_ORAN)) {
+        return Response.json({ error: "Yeterli soru uretilemedi, tekrar dene" }, { status: 502 });
+      }
 
       // alt konu: benzer sorularda hata listesindeki ada eslenir (eslesmezse bos), digerlerinde AI'nin yazdigi kisa baslik.
       sorular = sorular.map((s) => {
