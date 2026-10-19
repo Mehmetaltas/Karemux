@@ -779,15 +779,6 @@ function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, onMiniTestTikla
   );
 }
 
-function sorulariBankayaKaydet(ders, sinif, unite, sorular, kaynakTuru) {
-  if (!sorular || sorular.length === 0) return;
-  fetch("/api/soru-bankasi", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ders, sinif, unite, sorular, kaynakTuru }),
-  }).catch(() => {});
-}
-
 export default function Ana() {
   const [mod, setMod] = useState("bos");
   const [secilenDers, setSecilenDers] = useState(null);
@@ -2572,7 +2563,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         const cevap = await aiIstek(p, Math.min(6000, 500 + burslulukSoruSayisi * 450), cihazIdRef.current, true, null, "bursluluk");
         const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
         sonuc[dersAdi] = soruJsonAyikla(temiz);
-        sorulariBankayaKaydet(dersAdi, sinif, null, sonuc[dersAdi], "bursluluk");
         setBurslulukSorular({ ...sonuc });
       }
     } catch (e) {
@@ -3812,12 +3802,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
       const seviyeSorulariUretilen = soruJsonAyikla(temiz);
       setSeviyeSorulari(seviyeSorulariUretilen);
-      const dersGruplari = {};
-      seviyeSorulariUretilen.forEach((s) => {
-        if (!dersGruplari[s.ders]) dersGruplari[s.ders] = [];
-        dersGruplari[s.ders].push(s);
-      });
-      Object.keys(dersGruplari).forEach((d) => sorulariBankayaKaydet(d, sinif, null, dersGruplari[d], "seviye"));
     } catch (e) { setHata(temizHataMesaji(e, "Seviye tespit sinavi olusturulamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }

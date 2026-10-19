@@ -1,39 +1,12 @@
 import { sql } from "@/lib/db";
-import { sorulariDenetle } from "@/lib/soruKalite";
 
-// Uretilen her soru burada birikir. Zamanla bu tablo, disaridan AI'a hic
-// ihtiyac duymadan kullanilabilecek gercek bir soru bankasina donusur.
-// NOT: Bu route herkese acik ve kimlik dogrulama gerektirmiyor cunku
-// sadece "uretilen icerigi arsivliyoruz", kisisel veri icermiyor.
+// GET: ders bazinda banka sayilari (kisisel veri / cevap anahtari icermez).
 
-export async function POST(req) {
-  try {
-    const { ders, sinif, unite, sorular, kaynakTuru } = await req.json();
-    if (!ders || !Array.isArray(sorular) || sorular.length === 0) {
-      return Response.json({ error: "Eksik veri" }, { status: 400 });
-    }
-
-    const { gecenler, elenenSayisi } = await sorulariDenetle(sorular, `Bu sorular "${ders}" dersi icin uretildi.`);
-
-    let kaydedilen = 0;
-    for (const s of gecenler) {
-      if (!s.soru || !Array.isArray(s.secenekler) || s.dogruIndex == null) continue;
-      try {
-        await sql`
-          INSERT INTO soru_bankasi (ders, sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index, kaynak_turu, aciklama, beceri, tahmini_sure_saniye, yaygin_hata, cozum_teknigi)
-          VALUES (${ders}, ${sinif || null}, ${unite || null}, ${s.altKonu || null}, ${s.zorluk || null}, ${s.soru}, ${JSON.stringify(s.secenekler)}, ${s.dogruIndex}, ${kaynakTuru || null}, ${s.aciklama || null}, ${s.beceri || null}, ${s.tahminiSureSaniye || null}, ${s.yayginHata || null}, ${s.cozumTeknigi || null})
-        `;
-        kaydedilen++;
-      } catch (e) {
-        console.error("Soru bankasina kayit hatasi:", e);
-      }
-    }
-
-    return Response.json({ ok: true, kaydedilen, elenen: elenenSayisi });
-  } catch (e) {
-    console.error(e);
-    return Response.json({ error: "Kaydedilemedi" }, { status: 500 });
-  }
+// Faz E kilitleme (19 Ekim): bu uc herkese aciktı ve istemciden gelen sorulari
+// (cevap anahtariyla) bankaya yaziyordu - banka zehirlenebilirdi. Bankaya yazimi
+// artik sadece sunucu tarafi uretim yapar (lib/pratik-uretimi.js soruBankasinaArsivle).
+export async function POST() {
+  return Response.json({ error: "Soru bankasina yazim sunucuda yapilir; bu uc nokta kapatildi" }, { status: 410 });
 }
 
 export async function GET() {

@@ -232,18 +232,40 @@ async function senaryoTestiCalistir() {
       console.log(`  RED  /api/auth/me istegi basarisiz: ${e.message}`);
     }
 
+    // Faz E kilitleme: bu uclar kapatildi (cevap anahtari sizintisi / guvenilmez yazim).
+    // Test artik "calisiyor" degil "KAPALI ve anahtar sizdirmiyor" dogrular.
     toplam++;
     try {
       const res = await fetch(`${BASE_URL}/api/soru-bankasi/getir?ders=Matematik&sinif=6&unite=Kesirler&adet=5`, { headers: { Cookie: cerez } });
-      const data = await res.json();
-      if (res.ok && typeof data.yeterliMi === "boolean") {
-        console.log(`  OK   Soru bankasi cagrisi calisti (yeterliMi: ${data.yeterliMi})`);
+      const data = await res.json().catch(() => ({}));
+      const anahtarSizdi = Array.isArray(data.sorular) && data.sorular.length > 0;
+      if (res.status === 410 && !anahtarSizdi) {
+        console.log("  OK   /api/soru-bankasi/getir kapali (410), cevap anahtari sizmiyor");
         gecen++;
       } else {
-        console.log(`  RED  Soru bankasi beklenmedik cevap: ${JSON.stringify(data)}`);
+        console.log(`  RED  KRITIK: /api/soru-bankasi/getir kapali degil (durum ${res.status}) veya soru donduruyor`);
       }
     } catch (e) {
-      console.log(`  RED  Soru bankasi istegi basarisiz: ${e.message}`);
+      console.log(`  RED  Soru bankasi getir testi basarisiz: ${e.message}`);
+    }
+
+    for (const [yol, ad] of [["/api/soru-bankasi", "POST /api/soru-bankasi"], ["/api/ilerleme", "POST /api/ilerleme"], ["/api/hata-kitapcigi", "POST /api/hata-kitapcigi"]]) {
+      toplam++;
+      try {
+        const res = await fetch(`${BASE_URL}${yol}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Cookie: cerez },
+          body: JSON.stringify({ ders: "Matematik", konu: "x", dogruSayisi: 1, toplamSoru: 1, soru: "x", secenekler: ["A", "B"], dogruIndex: 0, sorular: [] }),
+        });
+        if (res.status === 410) {
+          console.log(`  OK   ${ad} kapali (410)`);
+          gecen++;
+        } else {
+          console.log(`  RED  KRITIK: ${ad} kapali degil (durum ${res.status})`);
+        }
+      } catch (e) {
+        console.log(`  RED  ${ad} testi basarisiz: ${e.message}`);
+      }
     }
   } else {
     console.log("  ATLA Kayit basarisiz oldugu icin sonraki adimlar atlandi");
@@ -301,28 +323,30 @@ async function entegrasyonTestiCalistir() {
   }
 
   if (cerez) {
+    // Faz E: POST /api/hata-kitapcigi kapandi; zincirin okuma tarafini dogrulamak icin
+    // kayit, sunucunun yazdigi satirin aynisi olarak dogrudan veritabanina eklenir.
+    let kayitYazildi = false;
     toplam++;
-    try {
-      const res = await fetch(`${BASE_URL}/api/hata-kitapcigi`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Cookie: cerez },
-        body: JSON.stringify({
-          ders: "Matematik", altKonu: isaretKonu,
-          soru: "Health check test sorusu", secenekler: ["A", "B", "C", "D"],
-          dogruIndex: 0, verilenIndex: 1,
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        console.log("  OK   Hata kitapcigina kayit yazildi");
+    if (process.env.DATABASE_URL) {
+      try {
+        const sql = neon(process.env.DATABASE_URL);
+        await sql`
+          INSERT INTO hata_kitapcigi (kullanici_id, ders, alt_konu, soru, secenekler, dogru_index, verilen_index)
+          SELECT id, 'Matematik', ${isaretKonu}, 'Health check test sorusu', ${JSON.stringify(["A", "B", "C", "D"])}, 0, 1
+          FROM kullanicilar WHERE eposta = ${testEposta}
+        `;
+        console.log("  OK   Hata kitapcigina test kaydi yazildi (dogrudan DB)");
         gecen++;
-      } else {
-        console.log(`  RED  Hata kitapcigina yazilamadi: ${JSON.stringify(data)}`);
+        kayitYazildi = true;
+      } catch (e) {
+        console.log(`  RED  Hata kitapcigina yazilamadi: ${e.message}`);
       }
-    } catch (e) {
-      console.log(`  RED  Hata kitapcigi istegi basarisiz: ${e.message}`);
+    } else {
+      toplam--;
+      console.log("  ATLA DATABASE_URL yok, zincir testi atlandi");
     }
 
+    if (kayitYazildi) {
     toplam++;
     try {
       const res = await fetch(`${BASE_URL}/api/hata-kitapcigi?istatistik=true`, { headers: { Cookie: cerez } });
@@ -336,6 +360,7 @@ async function entegrasyonTestiCalistir() {
       }
     } catch (e) {
       console.log(`  RED  Istatistik istegi basarisiz: ${e.message}`);
+    }
     }
 
     // OPSIYONEL FILTRE testi - 19 Agustos'ta bulunan gizli hatanin (Neon sql
@@ -430,26 +455,52 @@ async function rolYetkiTestiCalistir() {
   if (cerezA && cerezB) {
     toplam++;
     try {
-      await fetch(`${BASE_URL}/api/hata-kitapcigi`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Cookie: cerezA },
-        body: JSON.stringify({
-          ders: "Matematik", altKonu: isaretKonu,
-          soru: "Yetki testi sorusu", secenekler: ["A", "B", "C", "D"],
-          dogruIndex: 0, verilenIndex: 1,
-        }),
-      });
-      const res = await fetch(`${BASE_URL}/api/hata-kitapcigi?istatistik=true`, { headers: { Cookie: cerezB } });
-      const data = await res.json();
-      const sizinti = (data.istatistik || []).some((r) => r.alt_konu === isaretKonu);
-      if (!sizinti) {
-        console.log("  OK   B hesabi, A'nin verisini GOREMIYOR (izolasyon saglam)");
-        gecen++;
+      // A'nin kaydi dogrudan DB'ye yazilir (POST kapali); B hesabi gorebilir mi diye bakilir.
+      if (!process.env.DATABASE_URL) {
+        toplam--;
+        console.log("  ATLA DATABASE_URL yok, izolasyon testi atlandi");
       } else {
-        console.log("  RED  KRITIK: B hesabi A'nin verisini GOREBILIYOR - yetki sizintisi!");
+        const sql = neon(process.env.DATABASE_URL);
+        await sql`
+          INSERT INTO hata_kitapcigi (kullanici_id, ders, alt_konu, soru, secenekler, dogru_index, verilen_index)
+          SELECT id, 'Matematik', ${isaretKonu}, 'Yetki testi sorusu', ${JSON.stringify(["A", "B", "C", "D"])}, 0, 1
+          FROM kullanicilar WHERE eposta = ${epostaA}
+        `;
+        const res = await fetch(`${BASE_URL}/api/hata-kitapcigi?istatistik=true`, { headers: { Cookie: cerezB } });
+        const data = await res.json();
+        const sizinti = (data.istatistik || []).some((r) => r.alt_konu === isaretKonu);
+        if (!sizinti) {
+          console.log("  OK   B hesabi, A'nin verisini GOREMIYOR (izolasyon saglam)");
+          gecen++;
+        } else {
+          console.log("  RED  KRITIK: B hesabi A'nin verisini GOREBILIYOR - yetki sizintisi!");
+        }
       }
     } catch (e) {
       console.log(`  RED  Izolasyon testi basarisiz: ${e.message}`);
+    }
+
+    // PATCH sahiplik kontrolu (IDOR): B, A'nin kaydini "cozuldu" yapamamali.
+    if (process.env.DATABASE_URL) {
+      toplam++;
+      try {
+        const sql = neon(process.env.DATABASE_URL);
+        const kayit = await sql`SELECT id FROM hata_kitapcigi WHERE alt_konu = ${isaretKonu} LIMIT 1`;
+        const res = await fetch(`${BASE_URL}/api/hata-kitapcigi`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", Cookie: cerezB },
+          body: JSON.stringify({ id: kayit[0]?.id }),
+        });
+        const sonra = await sql`SELECT cozuldu FROM hata_kitapcigi WHERE alt_konu = ${isaretKonu} LIMIT 1`;
+        if (res.status === 404 && sonra[0]?.cozuldu === false) {
+          console.log("  OK   B hesabi A'nin hata kaydini degistiremiyor (PATCH sahiplik kontrolu)");
+          gecen++;
+        } else {
+          console.log(`  RED  KRITIK: B hesabi A'nin kaydini degistirebildi (durum ${res.status}, cozuldu=${sonra[0]?.cozuldu})`);
+        }
+      } catch (e) {
+        console.log(`  RED  PATCH sahiplik testi basarisiz: ${e.message}`);
+      }
     }
   } else {
     console.log("  ATLA Test hesaplari olusmadigi icin izolasyon testi atlandi");

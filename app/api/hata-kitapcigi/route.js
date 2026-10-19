@@ -1,22 +1,11 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
-import { hataKitapcigiKaydet } from "@/lib/hata-kitapcigi-kaydet";
 
-export async function POST(req) {
-  try {
-    const { cihazId, ders, altKonu, soru, secenekler, dogruIndex, verilenIndex, aciklama } = await req.json();
-    if (!ders || !soru || !Array.isArray(secenekler) || dogruIndex == null) {
-      return Response.json({ error: "Eksik veri" }, { status: 400 });
-    }
-    const kullaniciId = await kullaniciIdCoz(req, cihazId);
-
-    await hataKitapcigiKaydet({ kullaniciId, cihazId, ders, altKonu, soru, secenekler, dogruIndex, verilenIndex, aciklama });
-
-    return Response.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    return Response.json({ error: "Kaydedilemedi" }, { status: 500 });
-  }
+// Faz E kilitleme (19 Ekim): hata kitapcigina SADECE sunucu yazar
+// (sinav-oturumu/gonder -> hataKitapcigiKaydet). Istemcinin gonderdigi soru/cevap
+// verisi guvenilmez oldugu icin POST kapatildi.
+export async function POST() {
+  return Response.json({ error: "Hata kitapcigi sunucuda kaydedilir; bu uc nokta kapatildi" }, { status: 410 });
 }
 
 export async function GET(req) {
@@ -100,9 +89,13 @@ export async function GET(req) {
 
 export async function PATCH(req) {
   try {
-    const { id } = await req.json();
+    const { id, cihazId } = await req.json();
     if (!id) return Response.json({ error: "Eksik id" }, { status: 400 });
-    await sql`UPDATE hata_kitapcigi SET cozuldu = true WHERE id = ${id}`;
+    // Sahiplik kontrolu (IDOR kapatildi): sadece kendi kaydini isaretleyebilir.
+    const kullaniciId = await kullaniciIdCoz(req, cihazId);
+    if (!kullaniciId) return Response.json({ error: "Kullanici belirlenemedi" }, { status: 401 });
+    const guncel = await sql`UPDATE hata_kitapcigi SET cozuldu = true WHERE id = ${id} AND kullanici_id = ${kullaniciId} RETURNING id`;
+    if (guncel.length === 0) return Response.json({ error: "Kayit bulunamadi" }, { status: 404 });
     return Response.json({ ok: true });
   } catch (e) {
     console.error(e);

@@ -1,26 +1,11 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 
-export async function POST(req) {
-  try {
-    const { cihazId, ders, konu, dogruSayisi, toplamSoru } = await req.json();
-    if (!ders || !konu || dogruSayisi == null || !toplamSoru) {
-      return Response.json({ error: "Eksik veri" }, { status: 400 });
-    }
-
-    const kullaniciId = await kullaniciIdCoz(req, cihazId);
-    if (!kullaniciId) return Response.json({ error: "Kullanıcı belirlenemedi" }, { status: 400 });
-
-    await sql`
-      INSERT INTO ilerleme (kullanici_id, ders, konu, dogru_sayisi, toplam_soru)
-      VALUES (${kullaniciId}, ${ders}, ${konu}, ${dogruSayisi}, ${toplamSoru})
-    `;
-
-    return Response.json({ ok: true });
-  } catch (e) {
-    console.error(e);
-    return Response.json({ error: "Kaydedilemedi" }, { status: 500 });
-  }
+// Faz E kilitleme (19 Ekim): ilerleme satirlarini artik SADECE sunucu yazar
+// (sinav-oturumu/gonder). Istemcinin bildirdigi dogru/toplam sayisi guvenilmez
+// oldugu icin bu uc kapatildi; eski sekmeler hatayi sessizce yutar.
+export async function POST() {
+  return Response.json({ error: "Ilerleme sunucuda kaydedilir; bu uc nokta kapatildi" }, { status: 410 });
 }
 
 export async function GET(req) {
