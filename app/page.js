@@ -1245,31 +1245,42 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const oncekiSinif = Math.max(1, sinif - 1);
     setGecenYilYukleniyor(true); setHata(""); setGecenYilCevaplar({}); setGecenYilGonderildi(false); setGecenYilSorulari(null);
     try {
-      const p = `Sen "${dersAdi}" dersi ölçme-değerlendirme uzmanısın. Öğrenci şimdi ${sinif}. sınıfa geçti, önce ${oncekiSinif}. sınıfı gerçekten öğrenmiş mi ölçmemiz gerekiyor. ${oncekiSinif}. sınıf "${dersAdi}" müfredatının GENEL VE TEMEL konularını kapsayan 10 soruluk bir GENEL DEĞERLENDİRME sınavı hazırla, farklı konu başlıklarına yayılsın. Sorular temel kavram anlayışını ölçsün, kolaydan zora doğru sıralı olsun. ÖNEMLİ: Tüm metinler SADECE Türkçe olmalı, Türkçe'ye özgü karakterleri (ı, ğ, ü, ş, ö, ç, İ) DOĞRU ve EKSİKSİZ kullan - ASCII'ye indirgenmiş (Turkce, sinif gibi) yazma. SADECE JSON döndür, başka hiçbir açıklama ekleme:
-[{"konu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
-      const sorular = soruJsonAyikla(temiz);
-      setGecenYilSorulari(sorular);
-      sorulariBankayaKaydet(dersAdi, oncekiSinif, null, sorular, "gecen_yil_genel");
+      // Faz E: sorular SUNUCUDA uretilir, cevap anahtari tarayiciya gelmez; puanlama /api/sinav-oturumu/gonder'de.
+      const partiRes = await fetch("/api/sinav-oturumu/parti", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cihazId: cihazIdRef.current, oturumId: null, sinavTuru: "gecen_yil", ders: dersAdi, sinif: oncekiSinif,
+          kapsamAciklama: "", kapsamUnite: null, kayitTuru: "gecen_yil_genel", kayitDersAdi: dersAdi,
+          adet: 10, toplam: 10, partiNo: 0,
+        }),
+      });
+      const partiVeri = await partiRes.json();
+      if (!partiRes.ok) throw new Error(partiVeri.error || "Sorular uretilemedi");
+      if (!partiVeri.sorular || partiVeri.sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
+      setGecenYilSorulari(partiVeri.sorular.map((s) => ({ ...s, oturumId: partiVeri.oturumId })));
     } catch (e) { setHata(temizHataMesaji(e, "Genel degerlendirme olusturulamadi, tekrar dene.")); }
     finally { setGecenYilYukleniyor(false); }
   }
 
-  function gecenYilGonder(dersAdi) {
-    setGecenYilGonderildi(true);
-    const dogru = gecenYilSorulari.filter((s, i) => gecenYilCevaplar[i] === s.dogruIndex).length;
-    const yanlis = gecenYilSorulari.length - dogru;
-    const oran = dogru / gecenYilSorulari.length;
-    const rapor = { dogru, toplam: gecenYilSorulari.length, seviye: oran >= 0.7 ? "Saglam" : oran >= 0.4 ? "Orta" : "Zayif" };
-    setGecenYilRaporu(rapor);
-    setGecenYilTamamlandiMi(true);
-    const net = Math.max(0, dogru - yanlis / 3);
-    fetch("/api/sinav-sonuc", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cihazId: cihazIdRef.current, tur: "gecen_yil_genel", ders: dersAdi, dogru, yanlis, bos: 0, net }),
-    }).catch(() => {});
+  const [gecenYilGonderiliyor, setGecenYilGonderiliyor] = useState(false);
+  async function gecenYilGonder(dersAdi) {
+    if (gecenYilGonderiliyor || !gecenYilSorulari) return;
+    const oturumId = gecenYilSorulari[0]?.oturumId;
+    if (!oturumId) { setHata("Degerlendirme oturumu bulunamadi, yeniden baslat."); return; }
+    setGecenYilGonderiliyor(true); setHata("");
+    try {
+      const res = await fetch("/api/sinav-oturumu/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, oturumId, cevaplar: gecenYilCevaplar }),
+      });
+      const veri = await res.json();
+      if (!res.ok) throw new Error(veri.error || "Sonuc kaydedilemedi");
+      const oran = veri.toplam > 0 ? veri.dogru / veri.toplam : 0;
+      setGecenYilRaporu({ dogru: veri.dogru, toplam: veri.toplam, seviye: oran >= 0.7 ? "Saglam" : oran >= 0.4 ? "Orta" : "Zayif" });
+      setGecenYilGonderildi(true);
+      setGecenYilTamamlandiMi(true);
+    } catch (e) { setHata(temizHataMesaji(e, "Sonuc gonderilemedi, tekrar dene.")); }
+    finally { setGecenYilGonderiliyor(false); }
   }
 
 
@@ -4378,7 +4389,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                 {gecenYilSorulari.map((s, i) => (
                   <div key={i} style={{ marginBottom: 16 }}>
                     <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>
-                      {s.konu && <span style={{ color: COLORS.coral, fontSize: 11 }}>{s.konu}</span>} — {i + 1}. {s.soru}
+                      {s.altKonu && <span style={{ color: COLORS.coral, fontSize: 11 }}>{s.altKonu}</span>} — {i + 1}. {s.soru}
                     </div>
                     {(s.secenekler || []).map((sec, j) => (
                       <button key={j} onClick={() => setGecenYilCevaplar((c) => ({ ...c, [i]: j }))} style={{
@@ -4388,7 +4399,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     ))}
                   </div>
                 ))}
-                <button onClick={() => gecenYilGonder(kocPaneliDers)} disabled={Object.keys(gecenYilCevaplar).length < gecenYilSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                <button onClick={() => gecenYilGonder(kocPaneliDers)} disabled={gecenYilGonderiliyor || Object.keys(gecenYilCevaplar).length < gecenYilSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   Sonuclari Gor
                 </button>
               </div>

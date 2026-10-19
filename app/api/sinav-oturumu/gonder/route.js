@@ -54,7 +54,7 @@ export async function POST(req) {
     });
 
     // Yanlis cevaplanan sorular Hata Kitapcigi'na (Koc "odev" olarak takip eder). Hata olsa sonucu bozmaz.
-    for (const sat of hatalar) {
+    for (const sat of (meta.kayitTuru === "gecen_yil_genel" ? [] : hatalar)) {
       try {
         await hataKitapcigiKaydet({
           kullaniciId, cihazId, ders: meta.ders, altKonu: sat.soru.altKonu || null, soru: sat.soru.soru,
