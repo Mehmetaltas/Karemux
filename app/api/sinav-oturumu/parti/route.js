@@ -5,7 +5,8 @@ import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { ogrenmeHafizasiGetir } from "@/lib/ogrenme-hafizasi";
 import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
 import { sorulariDenetle } from "@/lib/soruKalite";
-import { jsonMetniTemizle, soruJsonAyikla, sinavSorusuGecerliMi, sinavPromptuOlustur, dersTekrarPromptuOlustur, gecenYilPromptuOlustur, istemciSorusu, soruBankasinaArsivle } from "@/lib/sinav-uretimi";
+import { MUFREDAT, uniteleriGetir } from "@/lib/mufredat-veri";
+import { jsonMetniTemizle, soruJsonAyikla, sinavSorusuGecerliMi, sinavPromptuOlustur, dersTekrarPromptuOlustur, gecenYilPromptuOlustur, dersSeviyePromptuOlustur, uniteEsle, istemciSorusu, soruBankasinaArsivle } from "@/lib/sinav-uretimi";
 
 export const maxDuration = 60;
 
@@ -34,11 +35,12 @@ export async function POST(req) {
     const adet = g.adet, toplam = g.toplam, partiNo = g.partiNo;
     const dersTekrar = sinavTuru === "ders_tekrar";
     const gecenYil = sinavTuru === "gecen_yil";
-    const kayitTuruGecerli = !!kayitTuru && (dersTekrar ? /^ders_tekrar_[123]$/.test(kayitTuru) : gecenYil ? kayitTuru === "gecen_yil_genel" : /^(deneme|yazili)[a-z0-9_]*$/.test(kayitTuru));
-    if (!["deneme", "yazili", "ders_tekrar", "gecen_yil"].includes(sinavTuru) || !ders || kapsamAciklama === null || !kayitTuruGecerli || !kayitDersAdi
+    const dersSeviye = sinavTuru === "ders_seviye";
+    const kayitTuruGecerli = !!kayitTuru && (dersTekrar ? /^ders_tekrar_[123]$/.test(kayitTuru) : gecenYil ? kayitTuru === "gecen_yil_genel" : dersSeviye ? kayitTuru === "ders_seviye" : /^(deneme|yazili)[a-z0-9_]*$/.test(kayitTuru));
+    if (!["deneme", "yazili", "ders_tekrar", "gecen_yil", "ders_seviye"].includes(sinavTuru) || !ders || kapsamAciklama === null || !kayitTuruGecerli || !kayitDersAdi
       || !Number.isInteger(sinif) || sinif < 1 || sinif > 12
       || !Number.isInteger(adet) || adet < 1 || adet > EN_FAZLA_PARTI
-      || !Number.isInteger(toplam) || toplam < adet || toplam > (dersTekrar ? 15 : gecenYil ? 10 : 120)
+      || !Number.isInteger(toplam) || toplam < adet || toplam > (dersTekrar ? 15 : (gecenYil || dersSeviye) ? 10 : 120)
       || !Number.isInteger(partiNo) || partiNo < 0 || partiNo > 20) {
       return Response.json({ error: "Gecersiz sinav istegi" }, { status: 400 });
     }
@@ -70,10 +72,18 @@ export async function POST(req) {
     }
 
     const soruTalimati = await soruTalimatiSecSunucu(sinif);
+    // Ders seviye: resmi unite listesi (istemcideki dersinUniteleri ile ayni mantik: sinifa ozel yoksa MUFREDAT).
+    let uniteler = [];
+    if (dersSeviye) {
+      uniteler = uniteleriGetir(sinif, ders);
+      if (uniteler.length === 0) uniteler = MUFREDAT[ders] || [];
+    }
     let istem = dersTekrar
       ? dersTekrarPromptuOlustur({ ders, sinif, adet, toplam, partiNo, soruTalimati })
       : gecenYil
       ? gecenYilPromptuOlustur({ ders, sinif, adet, soruTalimati })
+      : dersSeviye
+      ? dersSeviyePromptuOlustur({ ders, sinif, adet, uniteler, soruTalimati })
       : sinavPromptuOlustur({ ders, sinif, sinavTuru, yaziliDonemNo, kapsamAciklama, adet, toplam, partiNo, soruTalimati });
     try {
       const ogrenmeOzeti = await ogrenmeHafizasiGetir(kullaniciId);
@@ -98,13 +108,14 @@ export async function POST(req) {
     }
     let sorular = ham.filter(sinavSorusuGecerliMi).slice(0, adet);
     if (sorular.length === 0) return Response.json({ error: "Gecerli soru uretilemedi, tekrar dene" }, { status: 502 });
+    if (dersSeviye) sorular = sorular.map((s) => ({ ...s, unite: uniteEsle(s.unite, uniteler) }));
 
     // Bagimsiz kalite denetimi (Faz D ilkesi). Uretim yavas gittiyse atlanir (fail-open) ki istek 60 sn'yi asmasin.
     let denetlendi = false;
     const gecen = Date.now() - baslangic;
     if (gecen < DENETIM_ICIN_EN_GEC_MS) {
       const butce = Math.max(3000, Math.min(15000, 52000 - gecen));
-      const denetim = await sorulariDenetle(sorular, `Bu sorular "${ders}" dersi icin ${sinif}. sinif ${dersTekrar ? "temel konu tekrar testi" : gecenYil ? "onceki sinif genel degerlendirmesi" : sinavTuru === "yazili" ? "yazili sinavi" : "LGS deneme sinavi"} icin uretildi, cevap anahtari cok yuksek dogrulukta olmali.`, butce);
+      const denetim = await sorulariDenetle(sorular, `Bu sorular "${ders}" dersi icin ${sinif}. sinif ${dersTekrar ? "temel konu tekrar testi" : dersSeviye ? "ders seviye belirleme sinavi" : gecenYil ? "onceki sinif genel degerlendirmesi" : sinavTuru === "yazili" ? "yazili sinavi" : "LGS deneme sinavi"} icin uretildi, cevap anahtari cok yuksek dogrulukta olmali.`, butce);
       if (denetim.gecenler.length === 0) return Response.json({ error: "Sorular kalite denetiminden gecemedi, tekrar dene" }, { status: 502 });
       sorular = denetim.gecenler; denetlendi = true;
     }

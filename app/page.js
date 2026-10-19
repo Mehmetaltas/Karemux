@@ -1434,47 +1434,48 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function dersSeviyeTespitiYap(dersAdi) {
     setDersSeviyeYukleniyor(true); setHata(""); setDersSeviyeCevaplar({}); setDersSeviyeGonderildi(false); setDersSeviyeSorulari(null); setDersSeviyeRaporu(null);
     try {
-      const uniteler = dersinUniteleri(dersAdi, sinif);
-      const uniteListesi = uniteler.length ? `Bu dersin uniteleri: ${uniteler.join(", ")}. Her uniteden en az 1 soru gelsin, tum unitelere yayilsin.` : "";
-      const p = `Sen bir "${dersAdi}" dersi olcme-degerlendirme uzmanisin. Bu dersin TAMAMINA yayilan, ogrencinin genel seviyesini olcen 10 soruluk bir SEVIYE BELIRLEME sinavi hazirla, ${sinif}. sinif seviyesinde. ${uniteListesi} Her sorunun hangi uniteden oldugunu "unite" alaninda, hangi alt konuyu olctugunu "altKonu" alaninda belirt. Sorular kolaydan zora dogru sirali olsun, mantik yurutme gerektirsin. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Portekizce gibi bati dillerinden TEK KELIME bile kullanma. SADECE JSON dondur, baska hicbir aciklama ekleme:
-[{"unite":"...","altKonu":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
-      const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
-      const sorular = soruJsonAyikla(temiz);
-      setDersSeviyeSorulari(sorular);
-      sorulariBankayaKaydet(dersAdi, sinif, null, sorular, "ders_seviye");
+      // Faz E: sorular SUNUCUDA uretilir, cevap anahtari tarayiciya gelmez; puanlama /api/sinav-oturumu/gonder'de.
+      const partiRes = await fetch("/api/sinav-oturumu/parti", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cihazId: cihazIdRef.current, oturumId: null, sinavTuru: "ders_seviye", ders: dersAdi, sinif,
+          kapsamAciklama: "", kapsamUnite: null, kayitTuru: "ders_seviye", kayitDersAdi: dersAdi,
+          adet: 10, toplam: 10, partiNo: 0,
+        }),
+      });
+      const partiVeri = await partiRes.json();
+      if (!partiRes.ok) throw new Error(partiVeri.error || "Sorular uretilemedi");
+      if (!partiVeri.sorular || partiVeri.sorular.length === 0) throw new Error("AI gecerli soru uretemedi, tekrar dene");
+      setDersSeviyeSorulari(partiVeri.sorular.map((s) => ({ ...s, oturumId: partiVeri.oturumId })));
     } catch (e) { setHata(temizHataMesaji(e, "Seviye belirleme sinavi olusturulamadi, tekrar dene.")); }
     finally { setDersSeviyeYukleniyor(false); }
   }
 
-  function dersSeviyeGonder(dersAdi) {
-    setDersSeviyeGonderildi(true);
-    const rapor = {};
-    dersSeviyeSorulari.forEach((s, i) => {
-      const u = s.unite || "Genel";
-      if (!rapor[u]) rapor[u] = { dogru: 0, toplam: 0 };
-      rapor[u].toplam += 1;
-      if (dersSeviyeCevaplar[i] === s.dogruIndex) rapor[u].dogru += 1;
-    });
-    Object.keys(rapor).forEach((u) => {
-      const oran = rapor[u].dogru / rapor[u].toplam;
-      rapor[u].seviye = oran >= 0.8 ? "Ileri" : oran >= 0.5 ? "Orta" : "Baslangic";
-    });
-    setDersSeviyeRaporu(rapor);
-    setDersSeviyeSonTarih(new Date().toISOString());
-
-    // Sonucu kalici olarak kaydet - her unite ayri satir, ogrenciye ozel (giris yapmissa
-    // hesabina, yapmamissa cihaz kimligine bagli). Boylece "hafizada tutulur".
-    Object.keys(rapor).forEach((u) => {
-      const r = rapor[u];
-      const yanlis = r.toplam - r.dogru;
-      const net = Math.max(0, r.dogru - yanlis / 3);
-      fetch("/api/sinav-sonuc", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, tur: "ders_seviye", ders: `${dersAdi}::${u}`, dogru: r.dogru, yanlis, bos: 0, net }),
-      }).catch(() => {});
-    });
+  const [dersSeviyeGonderiliyor, setDersSeviyeGonderiliyor] = useState(false);
+  async function dersSeviyeGonder(dersAdi) {
+    if (dersSeviyeGonderiliyor || !dersSeviyeSorulari) return;
+    const oturumId = dersSeviyeSorulari[0]?.oturumId;
+    if (!oturumId) { setHata("Sinav oturumu bulunamadi, sinavi yeniden baslat."); return; }
+    setDersSeviyeGonderiliyor(true); setHata("");
+    try {
+      const res = await fetch("/api/sinav-oturumu/gonder", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cihazId: cihazIdRef.current, oturumId, cevaplar: dersSeviyeCevaplar }),
+      });
+      const veri = await res.json();
+      if (!res.ok) throw new Error(veri.error || "Sonuc kaydedilemedi");
+      // Sonuc sunucuda unite basina kaydedildi; rapor sunucunun dondurdugu kirilimdan kurulur.
+      const rapor = {};
+      Object.keys(veri.uniteKirilim || {}).forEach((u) => {
+        const k = veri.uniteKirilim[u];
+        const oran = k.toplam > 0 ? k.dogru / k.toplam : 0;
+        rapor[u] = { dogru: k.dogru, toplam: k.toplam, seviye: oran >= 0.8 ? "Ileri" : oran >= 0.5 ? "Orta" : "Baslangic" };
+      });
+      setDersSeviyeGonderildi(true);
+      setDersSeviyeRaporu(rapor);
+      setDersSeviyeSonTarih(new Date().toISOString());
+    } catch (e) { setHata(temizHataMesaji(e, "Sonuc gonderilemedi, tekrar dene.")); }
+    finally { setDersSeviyeGonderiliyor(false); }
   }
 
   function uniteTamamlandiIsaretle(dersAdi, uniteAdi) {
@@ -4454,7 +4455,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                     ))}
                   </div>
                 ))}
-                <button onClick={() => dersSeviyeGonder(kocPaneliDers)} disabled={Object.keys(dersSeviyeCevaplar).length < dersSeviyeSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
+                <button onClick={() => dersSeviyeGonder(kocPaneliDers)} disabled={dersSeviyeGonderiliyor || Object.keys(dersSeviyeCevaplar).length < dersSeviyeSorulari.length} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, cursor: "pointer" }}>
                   Sonuclari Gor
                 </button>
               </div>

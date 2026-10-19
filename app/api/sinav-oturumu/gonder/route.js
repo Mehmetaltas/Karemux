@@ -1,6 +1,6 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
-import { puanla } from "@/lib/puanlama";
+import { puanla, netHesapla } from "@/lib/puanlama";
 import { sinavSonucuKaydet } from "@/lib/sinav-sonuc-kaydet";
 import { hataKitapcigiKaydet } from "@/lib/hata-kitapcigi-kaydet";
 
@@ -48,13 +48,31 @@ export async function POST(req) {
       if (sat.durum === "yanlis") hatalar.push(sat);
     }
 
-    const { oncekiNet, testNo } = await sinavSonucuKaydet(kullaniciId, {
-      tur: meta.kayitTuru || "deneme", ders: meta.kayitDersAdi || meta.ders || "Genel",
-      dogru: puan.dogru, yanlis: puan.yanlis, bos: puan.bos, net: Math.round(puan.net * 100) / 100,
-    });
+    // Ders seviye: sonuc UNITE BASINA ayri satir ("Ders::Unite"), genel satir yazilmaz.
+    const dersSeviye = meta.kayitTuru === "ders_seviye";
+    const uniteKirilim = {};
+    let oncekiNet = null, testNo = 1;
+    if (dersSeviye) {
+      for (const sat of puan.satirlar) {
+        const u = sat.soru.unite || "Genel";
+        if (!uniteKirilim[u]) uniteKirilim[u] = { dogru: 0, yanlis: 0, bos: 0, toplam: 0 };
+        uniteKirilim[u].toplam += 1;
+        uniteKirilim[u][sat.durum === "dogru" ? "dogru" : sat.durum === "yanlis" ? "yanlis" : "bos"] += 1;
+      }
+      const dersAdi = meta.kayitDersAdi || meta.ders || "Genel";
+      for (const u of Object.keys(uniteKirilim)) {
+        const k = uniteKirilim[u];
+        await sinavSonucuKaydet(kullaniciId, { tur: "ders_seviye", ders: `${dersAdi}::${u}`, dogru: k.dogru, yanlis: k.yanlis, bos: k.bos, net: Math.round(netHesapla(k.dogru, k.yanlis) * 100) / 100 });
+      }
+    } else {
+      ({ oncekiNet, testNo } = await sinavSonucuKaydet(kullaniciId, {
+        tur: meta.kayitTuru || "deneme", ders: meta.kayitDersAdi || meta.ders || "Genel",
+        dogru: puan.dogru, yanlis: puan.yanlis, bos: puan.bos, net: Math.round(puan.net * 100) / 100,
+      }));
+    }
 
     // Yanlis cevaplanan sorular Hata Kitapcigi'na (Koc "odev" olarak takip eder). Hata olsa sonucu bozmaz.
-    for (const sat of (meta.kayitTuru === "gecen_yil_genel" ? [] : hatalar)) {
+    for (const sat of ((meta.kayitTuru === "gecen_yil_genel" || dersSeviye) ? [] : hatalar)) {
       try {
         await hataKitapcigiKaydet({
           kullaniciId, cihazId, ders: meta.ders, altKonu: sat.soru.altKonu || null, soru: sat.soru.soru,
@@ -65,7 +83,7 @@ export async function POST(req) {
 
     return Response.json({
       dogru: puan.dogru, yanlis: puan.yanlis, bos: puan.bos, net: puan.net, toplam: sorular.length,
-      zorlukKirilim, altKonuKirilim, oncekiNet, testNo, kayitDersAdi: meta.kayitDersAdi || meta.ders || "",
+      zorlukKirilim, altKonuKirilim, uniteKirilim, oncekiNet, testNo, kayitDersAdi: meta.kayitDersAdi || meta.ders || "",
       anahtar: sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama || null })),
     });
   } catch (e) {
@@ -74,11 +92,18 @@ export async function POST(req) {
     // (talep aninden sonra bu tur/ders icin sonuc satiri varsa oturum kapali kalir, cift kayit olmaz).
     if (oturumId !== null && talepZamani) {
       try {
-        const yazildi = await sql`
-          SELECT 1 FROM sinav_sonuclari
-          WHERE kullanici_id = ${kullaniciId} AND tur = ${meta.kayitTuru || "deneme"} AND ders = ${meta.kayitDersAdi || meta.ders || "Genel"} AND olusturulma >= ${talepZamani}
-          LIMIT 1
-        `;
+        const sonucDers = meta.kayitDersAdi || meta.ders || "Genel";
+        const yazildi = meta.kayitTuru === "ders_seviye"
+          ? await sql`
+            SELECT 1 FROM sinav_sonuclari
+            WHERE kullanici_id = ${kullaniciId} AND tur = 'ders_seviye' AND ders LIKE ${sonucDers + "::%"} AND olusturulma >= ${talepZamani}
+            LIMIT 1
+          `
+          : await sql`
+            SELECT 1 FROM sinav_sonuclari
+            WHERE kullanici_id = ${kullaniciId} AND tur = ${meta.kayitTuru || "deneme"} AND ders = ${sonucDers} AND olusturulma >= ${talepZamani}
+            LIMIT 1
+          `;
         if (yazildi.length === 0) await sql`UPDATE sinav_oturumlari SET kullanildi = false WHERE id = ${oturumId} AND kullanici_id = ${kullaniciId}`;
       } catch (e2) { console.error("Oturum geri acilamadi:", e2.message); }
     }
