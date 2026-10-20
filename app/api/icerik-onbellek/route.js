@@ -6,11 +6,17 @@ import { sql } from "@/lib/db";
 // ozel veri icermiyor (herkes icin ayni icerik, konu bazli).
 //
 // GET: cache'te var mi kontrol eder, varsa kullanim_sayisi/son_kullanim gunceller.
-// POST: yeni uretilen icerigi cache'e kaydeder (varsa uzerine yazmaz, atlar).
+// POST: 20 Ekim'de KAPATILDI (asagidaki Faz E notuna bak).
 //
 // icerik_json (14 Eylul): duz metnin (icerik) YANINDA, ilgili konunun ek
 // yapisal verisini (ornegin tek-konu-motoru'nda uretilen soru seti) tek
 // pakette saklamak icin. Opsiyonel - eski satirlarda NULL olabilir.
+
+// Faz E kilitleme (20 Ekim): onbellek artik YALNIZCA duz metin anlatimlari okur.
+// - GET sadece asagidaki turleri doner ve icerik_json'u (cevap anahtarli soru setleri) ASLA dondurmez.
+// - POST kapatildi: herkese acik yazim, herhangi bir konu icin ogrencilere gosterilecek icerigi (ya da
+//   cevap anahtarli soru setini) ilk yazan kisinin belirlemesine izin veriyordu. Onbellegi yalnizca sunucu doldurur.
+const OKUNABILIR_TURLER = ["konu_anlatimi", "tek_konu_anlatimi"];
 
 export async function GET(req) {
   try {
@@ -25,9 +31,10 @@ export async function GET(req) {
     if (!sinif || !ders || !konu || !icerikTuru) {
       return Response.json({ error: "sinif, ders, konu, icerikTuru zorunlu" }, { status: 400 });
     }
+    if (!OKUNABILIR_TURLER.includes(icerikTuru)) return Response.json({ bulundu: false });
 
     const sonuc = await sql`
-      SELECT id, icerik, icerik_json FROM icerik_onbellek
+      SELECT id, icerik FROM icerik_onbellek
       WHERE sinif = ${Number(sinif)} AND ders = ${ders} AND unite = ${unite}
         AND konu = ${konu} AND zorluk_seviyesi = ${zorlukSeviyesi} AND icerik_turu = ${icerikTuru}
       LIMIT 1
@@ -43,40 +50,13 @@ export async function GET(req) {
       WHERE id = ${sonuc[0].id}
     `;
 
-    return Response.json({ bulundu: true, icerik: sonuc[0].icerik, icerikJson: sonuc[0].icerik_json || null });
+    return Response.json({ bulundu: true, icerik: sonuc[0].icerik });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Getirilemedi" }, { status: 500 });
   }
 }
 
-export async function POST(req) {
-  try {
-    const body = await req.json();
-    const { sinif, ders, unite, konu, zorlukSeviyesi, icerikTuru, icerik, icerikJson } = body;
-
-    if (!sinif || !ders || !konu || !icerikTuru || !icerik) {
-      return Response.json({ error: "sinif, ders, konu, icerikTuru, icerik zorunlu" }, { status: 400 });
-    }
-
-    const mevcut = await sql`
-      SELECT id FROM icerik_onbellek
-      WHERE sinif = ${Number(sinif)} AND ders = ${ders} AND unite = ${unite || ""}
-        AND konu = ${konu} AND zorluk_seviyesi = ${zorlukSeviyesi || ""} AND icerik_turu = ${icerikTuru}
-      LIMIT 1
-    `;
-    if (mevcut.length > 0) {
-      return Response.json({ kaydedildi: false, not: "zaten mevcut" });
-    }
-
-    await sql`
-      INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, icerik_json, kullanim_sayisi, olusturulma, son_kullanim)
-      VALUES (${Number(sinif)}, ${ders}, ${unite || ""}, ${konu}, ${zorlukSeviyesi || ""}, ${icerikTuru}, ${icerik}, ${icerikJson ? JSON.stringify(icerikJson) : null}, 1, now(), now())
-    `;
-
-    return Response.json({ kaydedildi: true });
-  } catch (e) {
-    console.error(e);
-    return Response.json({ error: "Kaydedilemedi" }, { status: 500 });
-  }
+export async function POST() {
+  return Response.json({ error: "Onbellege yazim sunucuda yapilir; bu uc nokta kapatildi" }, { status: 410 });
 }

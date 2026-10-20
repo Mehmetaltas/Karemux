@@ -3343,14 +3343,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       const nihaiMetin = uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin;
       setAciklama(nihaiMetin);
       gorselKararIste(ders, konu.trim(), sinif, cihazIdRef.current).then(setAciklamaGorselSvg);
-      // Kaliteli sonucu cache'e kaydet (yalnizca kalite kontrolu uyari vermediyse - riskli/duzeltilmis icerik cache'lenmesin)
-      if (!uyari) {
-        fetch("/api/icerik-onbellek", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sinif, ders, unite: uniteSec || "", konu: konu.trim(), zorlukSeviyesi: zorlukSec || "", icerikTuru: "konu_anlatimi", icerik: nihaiMetin }),
-        }).catch(() => {});
-      }
     } catch (e) { setHata(temizHataMesaji(e, "Anlatim alinamadi, tekrar dene.")); }
     finally { setYukleniyor(null); }
   }
@@ -3382,16 +3374,10 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     try {
       const onbellekParam = new URLSearchParams({ sinif: String(sinif), ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), zorlukSeviyesi: "", icerikTuru: "tek_konu_anlatimi" });
       let anlatimMetni = "";
-      let sorularVeri = null;
       try {
         const onbellekRes = await fetch(`/api/icerik-onbellek?${onbellekParam.toString()}`);
         const onbellekData = await onbellekRes.json();
-        if (onbellekData.bulundu) {
-          anlatimMetni = onbellekData.icerik;
-          if (onbellekData.icerikJson && Array.isArray(onbellekData.icerikJson.sorular) && onbellekData.icerikJson.sorular.length > 0) {
-            sorularVeri = onbellekData.icerikJson.sorular;
-          }
-        }
+        if (onbellekData.bulundu) anlatimMetni = onbellekData.icerik;
       } catch (onbellekHata) {}
 
       // 23 Eylul - Full Audit bulgusu: bu ekran /api/konu-paketi'ye (Kalite
@@ -3408,7 +3394,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           const paketRes = await fetch(`/api/konu-paketi?sinif=${sinif}&ders=${encodeURIComponent(dersSec)}&konu=${encodeURIComponent(konuSec.trim())}&unite=${encodeURIComponent(uniteSec || "")}&cihazId=${cihazIdRef.current}`);
           const paketData = await paketRes.json();
           const a = paketData?.paket?.anlatim;
-          if (a && Array.isArray(paketData.paket.soruHavuzu) && paketData.paket.soruHavuzu.length > 0) {
+          if (a) {
             anlatimMetni = [
               a.hizliOgren ? `HIZLI OGREN\n${a.hizliOgren}` : "",
               a.temelAnlatim ? `TEMEL ANLATIM\n${a.temelAnlatim}` : "",
@@ -3417,7 +3403,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
               Array.isArray(a.sikHatalar) && a.sikHatalar.length > 0 ? `SIK YAPILAN HATALAR\n${a.sikHatalar.map((s) => "- " + s).join("\n")}` : "",
               a.yeniNesilUygulama ? `YENI NESIL UYGULAMA\n${a.yeniNesilUygulama}` : "",
             ].filter(Boolean).join("\n\n");
-            sorularVeri = paketData.paket.soruHavuzu.map((s) => ({ ...s, altKonu: konuSec.trim() }));
             if (paketData.paket.gorselSvg) setTekKonuGorselSvg(paketData.paket.gorselSvg);
             konuPaketindenGeldi = true;
           }
@@ -3442,36 +3427,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         gorselKararIste(dersSec, konuSec.trim(), sinif, cihazIdRef.current).then(setTekKonuGorselSvg);
       }
 
-      let yeniUretim = false;
-      if (!sorularVeri) {
-        yeniUretim = true;
-        const konuListesiSoru = konuSec.split(",").map((s) => s.trim()).filter(Boolean);
-        const cokluKonuTalimati = konuListesiSoru.length > 1
-          ? ` SECILEN ALT KONULAR: ${konuListesiSoru.join(", ")}. Sorulari bu alt konulara ORANTILI dagit (her alt konudan en az 1 soru), VE HER SORU ICIN "altKonu" alaninda SORUNUN HANGI ALT KONUYA ait oldugunu (yukaridaki listeden BIREBIR AYNI yaziliş) MUTLAKA belirt - bu, ogrenciye sorularin hangi konudan geldigini gostermek icin ZORUNLU.`
-          : ` Her soru icin "altKonu" alanina "${konuListesiSoru[0] || konuSec.trim()}" yaz.`;
-        const pSorular = `Sen bir LGS/ortaokul ogretmenisin. "${dersSec}" dersinden${uniteSec ? ` (${uniteSec} unitesinden)` : ""} "${konuSec.trim()}" konusuyla ilgili ${sinif}. sinif seviyesinde TAM 10 coktan secmeli soru hazirla: ILK 4 SORU KOLAY, SONRAKI 4 SORU ORTA, SON 2 SORU ZOR olsun (sirali ver).${cokluKonuTalimati} Sorular mantik yurutme ve yorum gerektiren tarzda olsun, ezber bilgi sorma. SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma: [{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","altKonu":"..."}]`;
-        const cevapSorular = await aiIstek(pSorular, 5000, cihazIdRef.current, true);
-        const temiz = jsonMetniTemizle(cevapSorular);
-        const parcaTemiz = temiz.slice(temiz.indexOf("["), temiz.lastIndexOf("]") + 1)
-          .replace(/"dogruIndex"\s*:\s*"?([A-D])"?/gi, (_, harf) => `"dogruIndex":${harf.toUpperCase().charCodeAt(0) - 65}`);
-        sorularVeri = JSON.parse(parcaTemiz);
-        if (!Array.isArray(sorularVeri) || sorularVeri.length === 0) throw new Error("Sorular uretilemedi");
-      }
-      if (yeniUretim) {
-        fetch("/api/icerik-onbellek", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sinif, ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), zorlukSeviyesi: "", icerikTuru: "tek_konu_anlatimi", icerik: anlatimMetni, icerikJson: { sorular: sorularVeri } }),
-        }).catch(() => {});
-      }
-      setTekKonuSorular(sorularVeri);
+      // Faz E: sorular SUNUCUDA hazirlanir (once ogretmen onayli konu havuzu, yetmezse AI + denetim);
+      // tarayiciya cevapsiz sorular gelir, cevap anahtari tamamlayinca doner.
       setTekKonuCevaplar({});
-
       const oturumRes = await fetch("/api/tek-konu/oturum-olustur", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cihazId: cihazIdRef.current, sinif, ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), anlatim: anlatimMetni, sorular: sorularVeri }),
+        body: JSON.stringify({ v: 2, cihazId: cihazIdRef.current, sinif, ders: dersSec, unite: uniteSec || "", konu: konuSec.trim(), anlatim: anlatimMetni }),
       });
-      const oturumData = await oturumRes.json();
-      if (oturumRes.ok) setTekKonuOturumId(oturumData.oturumId);
+      const oturumData = await oturumRes.json().catch(() => ({}));
+      if (!oturumRes.ok || !Array.isArray(oturumData.sorular) || oturumData.sorular.length === 0) {
+        throw new Error(oturumData.error || "Sorular hazirlanamadi, tekrar dene.");
+      }
+      setTekKonuOturumId(oturumData.oturumId);
+      setTekKonuSorular(oturumData.sorular);
 
       setTekKonuAsama("anlatim");
     } catch (e) {

@@ -10,13 +10,14 @@ export async function POST(req) {
       return Response.json({ error: "Eksik bilgi" }, { status: 400 });
     }
 
+    // Atomik tek kullanim: ikinci gonderim ve baskasinin oturumu reddedilir (cift konu_hakimiyet satiri olusmaz).
     const oturumSonuc = await sql`
-      SELECT id, ders, konu, sorular, durum FROM tek_konu_oturumu
-      WHERE id = ${oturumId} AND kullanici_id = ${kullaniciId}
+      UPDATE tek_konu_oturumu SET durum = 'tamamlandi', tamamlanma = now()
+      WHERE id = ${oturumId} AND kullanici_id = ${kullaniciId} AND durum = 'devam_ediyor'
+      RETURNING id, ders, konu, sorular
     `;
-    if (oturumSonuc.length === 0) return Response.json({ error: "Oturum bulunamadi" }, { status: 404 });
+    if (oturumSonuc.length === 0) return Response.json({ error: "Oturum bulunamadi veya zaten tamamlanmis" }, { status: 400 });
     const oturum = oturumSonuc[0];
-    if (oturum.durum === "tamamlandi") return Response.json({ error: "Bu oturum zaten tamamlanmis" }, { status: 400 });
 
     const sorular = oturum.sorular;
     let dogru = 0, yanlis = 0, bos = 0;
@@ -34,15 +35,21 @@ export async function POST(req) {
     else if (netYuzon >= 5) hakimiyetSeviyesi = "gelisiyor";
     else hakimiyetSeviyesi = "baslangic";
 
-    await sql`
-      UPDATE tek_konu_oturumu SET cevaplar = ${JSON.stringify(cevaplar)}, durum = 'tamamlandi', net = ${net}, tamamlanma = now()
-      WHERE id = ${oturumId}
-    `;
+    try {
+      await sql`
+        UPDATE tek_konu_oturumu SET cevaplar = ${JSON.stringify(cevaplar)}, net = ${net}
+        WHERE id = ${oturumId}
+      `;
 
-    await sql`
-      INSERT INTO konu_hakimiyet (kullanici_id, ders, konu, net, hakimiyet_seviyesi, oturum_id)
-      VALUES (${kullaniciId}, ${oturum.ders}, ${oturum.konu}, ${netYuzon}, ${hakimiyetSeviyesi}, ${oturumId})
-    `;
+      await sql`
+        INSERT INTO konu_hakimiyet (kullanici_id, ders, konu, net, hakimiyet_seviyesi, oturum_id)
+        VALUES (${kullaniciId}, ${oturum.ders}, ${oturum.konu}, ${netYuzon}, ${hakimiyetSeviyesi}, ${oturumId})
+      `;
+    } catch (yazimHatasi) {
+      // Sonuc yazilamadiysa oturumu geri ac ki ogrenci tekrar gonderebilsin.
+      try { await sql`UPDATE tek_konu_oturumu SET durum = 'devam_ediyor', tamamlanma = NULL WHERE id = ${oturumId} AND kullanici_id = ${kullaniciId}`; } catch (e2) { console.error("Oturum geri acilamadi:", e2.message); }
+      throw yazimHatasi;
+    }
 
     return Response.json({
       ok: true,

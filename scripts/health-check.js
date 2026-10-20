@@ -249,6 +249,40 @@ async function senaryoTestiCalistir() {
       console.log(`  RED  Soru bankasi getir testi basarisiz: ${e.message}`);
     }
 
+    // Faz E (20 Ekim): onbellek yazimi kapali, cevap anahtarli turler okunamaz, eski sekmeler tek konu
+    // oturumu acamaz (v:2 zorunlu).
+    toplam++;
+    try {
+      const res = await fetch(`${BASE_URL}/api/icerik-onbellek?sinif=8&ders=Matematik&konu=Uslu%20Ifadeler&unite=&icerikTuru=konu_paketi`);
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.bulundu === false && !data.icerikJson) {
+        console.log("  OK   /api/icerik-onbellek konu_paketi turunu (cevap anahtarli) okutmuyor");
+        gecen++;
+      } else {
+        console.log(`  RED  KRITIK: /api/icerik-onbellek konu_paketi okutuyor (durum ${res.status})`);
+      }
+    } catch (e) {
+      console.log(`  RED  Onbellek okuma testi basarisiz: ${e.message}`);
+    }
+    for (const [yol, ad, beklenen] of [["/api/icerik-onbellek", "POST /api/icerik-onbellek", 410], ["/api/tek-konu/oturum-olustur", "POST /api/tek-konu/oturum-olustur (v yok)", 409]]) {
+      toplam++;
+      try {
+        const res = await fetch(`${BASE_URL}${yol}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Cookie: cerez },
+          body: JSON.stringify({ sinif: 8, ders: "Matematik", konu: "x", icerikTuru: "konu_anlatimi", icerik: "x", anlatim: "x", unite: "", sorular: [{ soru: "x", secenekler: ["A", "B"], dogruIndex: 0 }] }),
+        });
+        if (res.status === beklenen) {
+          console.log(`  OK   ${ad} reddediliyor (${beklenen})`);
+          gecen++;
+        } else {
+          console.log(`  RED  KRITIK: ${ad} beklenen ${beklenen} yerine ${res.status} dondu`);
+        }
+      } catch (e) {
+        console.log(`  RED  ${ad} testi basarisiz: ${e.message}`);
+      }
+    }
+
     for (const [yol, ad] of [["/api/soru-bankasi", "POST /api/soru-bankasi"], ["/api/ilerleme", "POST /api/ilerleme"], ["/api/hata-kitapcigi", "POST /api/hata-kitapcigi"]]) {
       toplam++;
       try {

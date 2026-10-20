@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
+import { istemciSorusu } from "@/lib/sinav-uretimi";
 
 // Sayfa yenilenince/baglanti koparsa, kullanicinin YARIM KALMIS (durum='devam_ediyor')
 // son oturumunu geri getirir - 5 Eylul, Tek Konu Motoru.
@@ -17,7 +18,9 @@ export async function GET(req) {
       LIMIT 1
     `;
 
-    return Response.json({ oturum: sonuc[0] || null });
+    // Faz E: cevap anahtari tarayiciya gitmez (yalnizca cevapsiz sorular).
+    const oturum = sonuc[0] ? { ...sonuc[0], sorular: (Array.isArray(sonuc[0].sorular) ? sonuc[0].sorular : []).map(istemciSorusu) } : null;
+    return Response.json({ oturum });
   } catch (e) {
     console.error(e);
     return Response.json({ oturum: null });

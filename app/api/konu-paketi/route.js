@@ -10,6 +10,7 @@ import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
 import { sorulariDenetle } from "@/lib/soruKalite";
 import { OTOMASYON_TEST_CIHAZ_ID } from "@/lib/otomasyon-test";
+import { paketiHerkeseAc } from "@/lib/halka-acik-paket";
 
 export const maxDuration = 60;
 
@@ -27,6 +28,8 @@ export const maxDuration = 60;
 // listesi olusturur. Ileride bu liste admin panelde goruntulenip
 // ogretmen onayina cikacak.
 
+// Faz E (20 Ekim): tarayiciya giden paket paketiHerkeseAc ile suzulur - soru havuzunun cevap
+// anahtarlari (dogruIndex/aciklama/kontrolIfadesi) ve odev cozumleri cevapta YER ALMAZ.
 export async function GET(req) {
   try {
     const u = new URL(req.url);
@@ -60,7 +63,7 @@ export async function GET(req) {
     `;
     if (mevcut.length > 0 && mevcut[0].icerik_json) {
       await sql`UPDATE icerik_onbellek SET kullanim_sayisi = kullanim_sayisi + 1, son_kullanim = now() WHERE id = ${mevcut[0].id}`;
-      return Response.json({ kaynak: "cache", paket: mevcut[0].icerik_json });
+      return Response.json({ kaynak: "cache", paket: paketiHerkeseAc(mevcut[0].icerik_json) });
     }
 
     // 2. Tek AI cagrisiyla TAM paket uretimi
@@ -196,7 +199,7 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     // ama kalici kayit ve ogretmen bildirimi YAPILMAZ. Aksi halde her test
     // kosusu yeni bekliyor satiri ve e-posta uretiyordu.
     if (cihazId === OTOMASYON_TEST_CIHAZ_ID) {
-      return Response.json({ kaynak: "yeni_uretim", paket, testModu: true });
+      return Response.json({ kaynak: "yeni_uretim", paket: paketiHerkeseAc(paket), testModu: true });
     }
     try {
       const cacheSonuc = await sql`
@@ -228,7 +231,7 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
       } catch (e) { console.error("Ogretmen bildirimi hatasi:", e); }
     }
 
-    return Response.json({ kaynak: "yeni_uretim", paket });
+    return Response.json({ kaynak: "yeni_uretim", paket: paketiHerkeseAc(paket) });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Konu paketi getirilemedi: " + e.message }, { status: 500 });

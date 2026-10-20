@@ -24,6 +24,10 @@ async function konuPaketiTestEt(tanim) {
   if (!res.ok) return { basarili: false, hata: data.error || `HTTP ${res.status}` };
   const gecerliMi = data.paket?.anlatim && Array.isArray(data.paket?.soruHavuzu) && data.paket.soruHavuzu.length > 0;
   if (!gecerliMi) return { basarili: false, hata: "Bos/gecersiz paket donduruldu" };
+  // Faz E: cevap anahtari ve odev cozumleri tarayiciya giden pakette OLMAMALI.
+  if (/dogruIndex|dogru_index|kontrolIfadesi|"cozum"|"aciklama"/.test(JSON.stringify(data.paket))) {
+    return { basarili: false, hata: "KRITIK: paket cevap anahtari/cozum sizdiriyor" };
+  }
   return { basarili: true };
 }
 
