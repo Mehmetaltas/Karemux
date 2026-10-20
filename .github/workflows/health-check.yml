@@ -17,6 +17,10 @@ jobs:
           node-version: '20'
       - name: Bagimliliklari kur
         run: npm ci
+      - name: Dagitimi bekle (yalnizca push)
+        # Kod once GitHub'a gider, canli surum sonra Vercel CLI ile yayinlanir.
+        if: github.event_name == 'push'
+        run: sleep 240
       - name: Health check calistir
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
