@@ -43,7 +43,7 @@ export async function POST(req) {
 
     const kayit = await sql`
       SELECT tekrar_asamasi, dogru_index, aciklama, secenekler FROM hata_kitapcigi
-      WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND cozuldu = false
+      WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND cozuldu = false AND sonraki_tekrar <= CURRENT_DATE
     `;
     if (kayit.length === 0) return Response.json({ error: "Kayit bulunamadi" }, { status: 404 });
     const { tekrar_asamasi: asama, dogru_index: dogruIndex, aciklama } = kayit[0];
@@ -58,7 +58,7 @@ export async function POST(req) {
       const yeniAsama = asama + 1;
       if (yeniAsama >= ARALIKLAR_GUN.length) {
         // Son asamayi da gecti - ustesinden gelindi sayilir, artik tekrar listesine dusmez.
-        const g = await sql`UPDATE hata_kitapcigi SET cozuldu = true, tekrar_asamasi = ${yeniAsama}::int WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false RETURNING id`;
+        const g = await sql`UPDATE hata_kitapcigi SET cozuldu = true, tekrar_asamasi = ${yeniAsama}::int WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false AND sonraki_tekrar <= CURRENT_DATE RETURNING id`;
         if (g.length === 0) return cakisma();
         return Response.json({ ok: true, ustesindenGelindi: true, ...anahtar });
       }
@@ -66,14 +66,14 @@ export async function POST(req) {
       const g = await sql`
         UPDATE hata_kitapcigi
         SET tekrar_asamasi = ${yeniAsama}::int, sonraki_tekrar = CURRENT_DATE + ${gunSayisi}::int
-        WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false
+        WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false AND sonraki_tekrar <= CURRENT_DATE
         RETURNING id
       `;
       if (g.length === 0) return cakisma();
       return Response.json({ ok: true, sonrakiTekrarGun: gunSayisi, ...anahtar });
     }
     // Yanlis yapildi - basa don, yarin tekrar sorulsun.
-    const g = await sql`UPDATE hata_kitapcigi SET tekrar_asamasi = 0, sonraki_tekrar = CURRENT_DATE + 1 WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false RETURNING id`;
+    const g = await sql`UPDATE hata_kitapcigi SET tekrar_asamasi = 0, sonraki_tekrar = CURRENT_DATE + 1 WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false AND sonraki_tekrar <= CURRENT_DATE RETURNING id`;
     if (g.length === 0) return cakisma();
     return Response.json({ ok: true, sonrakiTekrarGun: 1, ...anahtar });
   } catch (e) {
