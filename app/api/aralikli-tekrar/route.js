@@ -58,22 +58,22 @@ export async function POST(req) {
       const yeniAsama = asama + 1;
       if (yeniAsama >= ARALIKLAR_GUN.length) {
         // Son asamayi da gecti - ustesinden gelindi sayilir, artik tekrar listesine dusmez.
-        const g = await sql`UPDATE hata_kitapcigi SET cozuldu = true, tekrar_asamasi = ${yeniAsama} WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama} AND cozuldu = false RETURNING id`;
+        const g = await sql`UPDATE hata_kitapcigi SET cozuldu = true, tekrar_asamasi = ${yeniAsama}::int WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false RETURNING id`;
         if (g.length === 0) return cakisma();
         return Response.json({ ok: true, ustesindenGelindi: true, ...anahtar });
       }
       const gunSayisi = ARALIKLAR_GUN[yeniAsama];
       const g = await sql`
         UPDATE hata_kitapcigi
-        SET tekrar_asamasi = ${yeniAsama}, sonraki_tekrar = CURRENT_DATE + ${gunSayisi}
-        WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama} AND cozuldu = false
+        SET tekrar_asamasi = ${yeniAsama}::int, sonraki_tekrar = CURRENT_DATE + ${gunSayisi}::int
+        WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false
         RETURNING id
       `;
       if (g.length === 0) return cakisma();
       return Response.json({ ok: true, sonrakiTekrarGun: gunSayisi, ...anahtar });
     }
     // Yanlis yapildi - basa don, yarin tekrar sorulsun.
-    const g = await sql`UPDATE hata_kitapcigi SET tekrar_asamasi = 0, sonraki_tekrar = CURRENT_DATE + 1 WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama} AND cozuldu = false RETURNING id`;
+    const g = await sql`UPDATE hata_kitapcigi SET tekrar_asamasi = 0, sonraki_tekrar = CURRENT_DATE + 1 WHERE id = ${id} AND kullanici_id = ${kullaniciId} AND tekrar_asamasi = ${asama}::int AND cozuldu = false RETURNING id`;
     if (g.length === 0) return cakisma();
     return Response.json({ ok: true, sonrakiTekrarGun: 1, ...anahtar });
   } catch (e) {
