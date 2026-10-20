@@ -42,15 +42,17 @@ export async function POST(req) {
     let P;
     let oturumId = null;
     let metaMevcut = null;
+    let mevcutSayi = 0;
     if (g.oturumId != null) {
       if (!/^\d+$/.test(String(g.oturumId))) return Response.json({ error: "Gecersiz oturum" }, { status: 400 });
-      const mevcut = await sql`SELECT id, meta FROM sinav_oturumlari WHERE id = ${g.oturumId} AND kullanici_id = ${kullaniciId} AND kullanildi = false`;
+      const mevcut = await sql`SELECT id, meta, jsonb_array_length(sorular) AS sayi FROM sinav_oturumlari WHERE id = ${g.oturumId} AND kullanici_id = ${kullaniciId} AND kullanildi = false`;
       if (mevcut.length === 0) return Response.json({ error: "Pratik oturumu bulunamadi veya gonderilmis" }, { status: 400 });
       metaMevcut = mevcut[0].meta || {};
       if (metaMevcut.pratikTuru !== pratikTuru || metaMevcut.hazirParti !== partiNo || metaMevcut.tamam === true) {
         return Response.json({ error: "Pratik oturumu sirasi gecersiz" }, { status: 409 });
       }
       oturumId = mevcut[0].id;
+      mevcutSayi = Number(mevcut[0].sayi) || 0;
       P = {
         ders: metaMevcut.ders, sinif: metaMevcut.sinif, konu: metaMevcut.konu || null, unite: metaMevcut.unite || null,
         altKonu: metaMevcut.altKonu || null, fasikul: metaMevcut.fasikul === true, altBasliklar: [],
@@ -81,7 +83,14 @@ export async function POST(req) {
 
     const plan = pratikPlani(pratikTuru, P.fasikul);
     if (!plan || partiNo >= plan.partiler.length) return Response.json({ error: "Gecersiz pratik istegi" }, { status: 400 });
-    const adet = plan.partiler[partiNo];
+    // Onceki partilerde denetim/gecerlilik filtresi soru dusurduyse (paragraf: 17-19/20 sorunu) bu parti eksigi tamamlar,
+    // ayrica +1 yedek soru istenir; denetimden sonra hedefe kirpilir. Ilk parti (metin + puf) yavas oldugu icin yedek istenmez.
+    const planAdet = plan.partiler[partiNo];
+    const eksik = pratikTuru === "paragraf" && partiNo > 0
+      ? Math.max(0, Math.min(3, plan.partiler.slice(0, partiNo).reduce((a, b) => a + b, 0) - mevcutSayi))
+      : 0;
+    const adet = planAdet + eksik;
+    const istenen = pratikTuru === "paragraf" && partiNo > 0 ? adet + 1 : adet;
 
     const limit = await gunlukLimitKontrolEt(req, g.cihazId);
     if (!limit.izinVar) {
@@ -128,7 +137,7 @@ export async function POST(req) {
         ? unitePromptuOlustur({ ders: P.ders, sinif: P.sinif, unite: P.unite, altBasliklar: P.altBasliklar, soruTalimati })
         : pratikTuru === "benzer"
         ? benzerPromptuOlustur({ ders: P.ders, sinif: P.sinif, altKonular: benzerAltKonular, soruTalimati })
-        : paragrafPromptuOlustur({ ders: P.ders, sinif: P.sinif, konu: P.konu, unite: P.unite, partiNo, metin, soruTalimati });
+        : paragrafPromptuOlustur({ ders: P.ders, sinif: P.sinif, konu: P.konu, unite: P.unite, partiNo, metin, soruTalimati, adet: istenen });
       try {
         const ogrenmeOzeti = await ogrenmeHafizasiGetir(kullaniciId);
         if (ogrenmeOzeti) {
@@ -139,7 +148,7 @@ export async function POST(req) {
       let cevap;
       try {
         const ekToken = pratikTuru === "paragraf" && partiNo === 0 ? 1500 : 0;
-        cevap = await aiCagir({ prompt: istem, maxTokens: Math.min(8000, 500 + adet * 480 + ekToken), jsonModu: true, tur: "pratik_uretimi" });
+        cevap = await aiCagir({ prompt: istem, maxTokens: Math.min(8000, 500 + istenen * 480 + ekToken), jsonModu: true, tur: "pratik_uretimi" });
       } catch (e) {
         console.error(e);
         return Response.json({ error: "AI servisi yanit vermedi, tekrar dene" }, { status: 502 });
@@ -161,7 +170,7 @@ export async function POST(req) {
         console.error("Pratik cevabi ayiklanamadi:", e.message);
         return Response.json({ error: "Sorular uretilemedi, tekrar dene" }, { status: 502 });
       }
-      sorular = ham.filter(sinavSorusuGecerliMi).slice(0, adet);
+      sorular = ham.filter(sinavSorusuGecerliMi).slice(0, istenen);
       if (sorular.length === 0) return Response.json({ error: "Gecerli soru uretilemedi, tekrar dene" }, { status: 502 });
       // Eksik parti (ornegin 5 sorudan 1'i) kabul edilmez: 19 Ekim kanitinda kesilen ciktidan 1-4 soru geldi, oturum 20 yerine 15 soruyla bitti.
       if (sorular.length < Math.ceil(adet * DENETIM_ASGARI_ORAN)) {
@@ -187,6 +196,9 @@ export async function POST(req) {
         sorular = denetim.gecenler; denetlendi = true;
       }
     }
+
+    // Yedek dahil gelen fazla sorular hedefe kirpilir (denetimden sonra).
+    if (sorular.length > adet) sorular = sorular.slice(0, adet);
 
     // 3) Anahtarli sorular + meta sunucuda saklanir.
     const tamam = kaynak !== "ai" || partiNo + 1 >= plan.partiler.length;
