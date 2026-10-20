@@ -46,7 +46,7 @@ export async function POST(req) {
     const limit = await gunlukLimitKontrolEt(req, cihazId);
     if (!limit.izinVar) {
       return Response.json(
-        { error: limit.premium ? `Bugunluk yogun kullanim sinirina ulastin (${limit.limit}/gun), yarin devam edebilirsin.` : `Gunluk ucretsiz kullanim hakkin doldu (${limit.limit}/gun). Premium ile daha fazla kullanabilirsin.` },
+        { error: limit.ipSiniri ? "Bu aginda cok yogun kullanim var, biraz sonra tekrar dene." : limit.premium ? `Bugunluk yogun kullanim sinirina ulastin (${limit.limit}/gun), yarin devam edebilirsin.` : `Gunluk ucretsiz kullanim hakkin doldu (${limit.limit}/gun). Premium ile daha fazla kullanabilirsin.` },
         { status: 429 }
       );
     }
