@@ -18,6 +18,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Dagitimi bekle (yalnizca push)
+        # Kod once GitHub'a gider, canli surum sonra yayinlanir.
+        if: github.event_name == 'push'
+        run: sleep 240
       - name: Ogrenci akislarini test et
         env:
           NEXT_PUBLIC_SITE_URL: https://www.karemux.com
