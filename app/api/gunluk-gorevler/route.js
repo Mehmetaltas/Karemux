@@ -1,19 +1,29 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 
+// Faz E (20 Ekim): POST artik kimlik ister ve boyut sinirlidir (kimliksiz/sinirsiz yazim kapandi);
+// PATCH yalnizca gorevin sahibi icin calisir (baskasinin gorevini "tamamlandi" yapma acigi kapandi).
+const EN_FAZLA_GOREV = 30;
+const metinSinirla = (v, en) => (v === undefined || v === null ? "" : String(v).trim().slice(0, en));
+
 export async function POST(req) {
   try {
     const { cihazId, haftaBaslangic, gorevler } = await req.json(); // gorevler: [{gun, ders, gorev}]
-    if (!Array.isArray(gorevler) || gorevler.length === 0) {
-      return Response.json({ error: "Gorev listesi bos" }, { status: 400 });
+    if (!Array.isArray(gorevler) || gorevler.length === 0 || gorevler.length > EN_FAZLA_GOREV) {
+      return Response.json({ error: "Gorev listesi bos ya da cok uzun" }, { status: 400 });
+    }
+    if (typeof haftaBaslangic !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(haftaBaslangic)) {
+      return Response.json({ error: "Gecersiz hafta baslangici" }, { status: 400 });
     }
     const kullaniciId = await kullaniciIdCoz(req, cihazId);
+    if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
 
     for (const g of gorevler) {
-      if (!g.gun || !g.ders || !g.gorev) continue;
+      const gun = metinSinirla(g?.gun, 30), ders = metinSinirla(g?.ders, 100), gorev = metinSinirla(g?.gorev, 500);
+      if (!gun || !ders || !gorev) continue;
       await sql`
         INSERT INTO gunluk_gorevler (kullanici_id, cihaz_id, hafta_baslangic, gun, ders, gorev, kaynak)
-        VALUES (${kullaniciId}, ${cihazId || null}, ${haftaBaslangic}, ${g.gun}, ${g.ders}, ${g.gorev}, 'koc')
+        VALUES (${kullaniciId}, ${cihazId || null}, ${haftaBaslangic}, ${gun}, ${ders}, ${gorev}, 'koc')
       `;
     }
     return Response.json({ ok: true });
@@ -41,9 +51,16 @@ export async function GET(req) {
 
 export async function PATCH(req) {
   try {
-    const { id } = await req.json();
-    if (!id) return Response.json({ error: "Eksik id" }, { status: 400 });
-    await sql`UPDATE gunluk_gorevler SET tamamlandi = true WHERE id = ${id}`;
+    const { id, cihazId } = await req.json();
+    if (!id || !/^\d+$/.test(String(id))) return Response.json({ error: "Eksik id" }, { status: 400 });
+    const kullaniciId = await kullaniciIdCoz(req, cihazId);
+    if (!kullaniciId) return Response.json({ error: "Kullanici belirlenemedi" }, { status: 401 });
+    const guncel = await sql`
+      UPDATE gunluk_gorevler SET tamamlandi = true
+      WHERE id = ${id} AND (kullanici_id = ${kullaniciId} OR (kullanici_id IS NULL AND cihaz_id = ${cihazId || null}))
+      RETURNING id
+    `;
+    if (guncel.length === 0) return Response.json({ error: "Gorev bulunamadi" }, { status: 404 });
     return Response.json({ ok: true });
   } catch (e) {
     console.error(e);

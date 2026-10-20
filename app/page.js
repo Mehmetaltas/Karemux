@@ -1999,15 +1999,20 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (tekrarGosterildi) return;
     setTekrarCevap(secilenIndex); setTekrarGosterildi(true);
     const soru = tekrarSorulari[tekrarIndex];
-    const dogruMu = secilenIndex === soru.dogru_index;
     try {
+      // Faz E: dogru/yanlis karari sunucuda verilir; cevap anahtari yanitla birlikte gelir.
       const res = await fetch("/api/aralikli-tekrar", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: soru.id, dogruMu, cihazId: cihazIdRef.current }),
+        body: JSON.stringify({ id: soru.id, secilenIndex, cihazId: cihazIdRef.current }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setTekrarSorulari((liste) => liste.map((x, i) => (i === tekrarIndex ? { ...x, dogru_index: data.dogruIndex, aciklama: data.aciklama } : x)));
       setTekrarSonMesaj(data.ustesindenGelindi ? "🎉 Bu konunun üstesinden geldin!" : `${data.sonrakiTekrarGun} gün sonra tekrar karşına çıkacak.`);
-    } catch (e) { /* sessiz gec */ }
+    } catch (e) {
+      setTekrarSonMesaj(temizHataMesaji(e, "Cevap kaydedilemedi, tekrar dene."));
+      setTekrarGosterildi(false); setTekrarCevap(null);
+    }
   }
   function tekrarSonrakiSoru() {
     setTekrarIndex((i) => i + 1); setTekrarCevap(null); setTekrarGosterildi(false); setTekrarSonMesaj("");
@@ -2712,7 +2717,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   async function gorevTamamlandiIsaretle(id) {
     setProfilGunlukGorevler((liste) => liste.filter((g) => g.id !== id));
-    fetch("/api/gunluk-gorevler", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) }).catch(() => {});
+    fetch("/api/gunluk-gorevler", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, cihazId: cihazIdRef.current }) }).catch(() => {});
   }
 
   useEffect(() => {

@@ -301,6 +301,22 @@ async function senaryoTestiCalistir() {
         console.log(`  RED  ${ad} testi basarisiz: ${e.message}`);
       }
     }
+
+    // Faz E (20 Ekim): aralikli tekrar + gunluk gorevler kilitleri.
+    const kilitler = [
+      ["POST", "/api/aralikli-tekrar", { id: 1, dogruMu: true }, 409, "aralikli-tekrar eski istemci (dogruMu) reddedilir"],
+      ["POST", "/api/aralikli-tekrar", { id: 999999999, secilenIndex: 0 }, 404, "aralikli-tekrar baskasinin/olmayan kaydi 404"],
+      ["PATCH", "/api/gunluk-gorevler", { id: 999999999 }, 404, "gunluk-gorevler baskasinin/olmayan gorevi 404"],
+      ["POST", "/api/gunluk-gorevler", { haftaBaslangic: "2026-01-05", gorevler: new Array(31).fill({ gun: "Pazartesi", ders: "Matematik", gorev: "x" }) }, 400, "gunluk-gorevler 31 gorev reddedilir"],
+    ];
+    for (const [yontem, yol, govde, beklenen, ad] of kilitler) {
+      toplam++;
+      try {
+        const res = await fetch(`${BASE_URL}${yol}`, { method: yontem, headers: { "Content-Type": "application/json", Cookie: cerez }, body: JSON.stringify(govde) });
+        if (res.status === beklenen) { console.log(`  OK   ${ad} (${beklenen})`); gecen++; }
+        else console.log(`  RED  KRITIK: ${ad} - durum ${res.status} (beklenen ${beklenen})`);
+      } catch (e) { console.log(`  RED  ${ad} testi basarisiz: ${e.message}`); }
+    }
   } else {
     console.log("  ATLA Kayit basarisiz oldugu icin sonraki adimlar atlandi");
   }
