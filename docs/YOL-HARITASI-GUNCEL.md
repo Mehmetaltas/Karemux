@@ -6,8 +6,8 @@ Bu belge, `docs/` altındaki eski raporların (FULL-AUDIT-TAKIP, V3-DALGA-PLANI,
 | # | Madde | Durum |
 |---|---|---|
 | 1 | AI kapasitesi: Gemini ücretsiz 20 istek/gün/model doldu; Groq TPM 8000, OpenRouter kredi yok, Anthropic 10k token çıktıda 30 sn zaman aşımı | ⬜ AÇIK — kullanıcı kararı bekliyor (faturalama) + Anthropic haiku/sonnet hız testi |
-| 2 | Ulusal deneme (VPS server.js): `/gonder` yanıtı `cevapAnahtari` döndürüyor; aynı kullanıcı çift gönderimi için UNIQUE yok; il/ilçe/puanlama_surumu yazılmıyor | ⬜ AÇIK — yama yazılacak, kod repoya alınacak (`vps/karemux-deneme/`) |
-| 3 | Ücretli özellik yetkisi sunucuda (tatil/bursluluk prompt tanıma) | ✅ canlı (403 paketsiz). Kalan: `/api/claude` genel proxy kapatma (Faz 2) |
+| 2 | Ulusal deneme (VPS server.js) cevap anahtarı sızıntısı, çift gönderim, snapshot | ✅ KAPANDI 21 Ekim, canlıda kanıtlı (anahtar boş, çift gönderim 400/400, anahtar ucu 403); kod `vps/karemux-deneme/` altında |
+| 3 | Ücretli özellik yetkisi sunucuda | ✅ canlı kanıtlı (ayrı uç + vekil reddi). Kalan: ücretsiz akışların uçlara taşınması (launch sonrası) |
 | 4 | Yedekleme | ✅ gece şifreli pg_dump (GitHub, 14 gün) + restore iş akışı + VPS JSON dışa aktarım + Contabo yedek. Kalan: VPS yedek dizini izinleri (`chmod -R go-rwx`), Actions maillerini 1-2 gün izleme |
 | 5 | Vercel Pro (Hobby ticari kullanıma kapalı) | ⬜ ilk ödemeyle — kullanıcı |
 | 6 | İyzico kart ödemesi (sözleşme yok; havale/kurum/veli akışları çalışıyor) | ⬜ kullanıcı |
@@ -18,7 +18,7 @@ Bu belge, `docs/` altındaki eski raporların (FULL-AUDIT-TAKIP, V3-DALGA-PLANI,
 
 ## 2. Fazlar (V3 dalga planının güncel karşılığı)
 - **Faz 1 – Güvenlik/Yetki/Yedek:** Faz E (sunucu tarafı puanlama) büyük ölçüde ✅ (puanlama merkezi, sinav_oturumlari, ders tekrarı, genel değerlendirme, ders seviye tespiti, `/api/sinav-sonuc` POST 410, pratik oturumları, aralıklı tekrar, IP günlük tavan, sürüm uyarısı). Kalan: tek konu / koç paneli testlerinin istemci puanlaması (~L3956, ~L4578) kontrolü, `/api/soru-bankasi` POST sertleştirme.
-- **Faz 2 – Sunucu tarafı prompt (YENİ, ödemeden önce):** `/api/claude` genel AI proxy'si; `aiIstek` 18 çağrı noktası app/page.js'te. Hedef: istemciden prompt almayan, işlem-bazlı uçlar. ⬜
+- **Faz 2 – Sunucu tarafı prompt:** ÜCRETLİ iki akış (tatil programı, bursluluk) ✅ `/api/ucretli-uret` ucuna taşındı, prompt sunucuda kuruluyor; `/api/claude` bu desenleri paket olsa bile reddediyor. Canlıda kanıtlı (21 Ekim): paketsiz 403/403, yeniden yazılmış prompt vekilde 403, paketli ara_tatil 200 + geçerli program (11.9 sn), paketli bursluluk 200 + 5 soru (5.9 sn). KALAN: ücretsiz akışlar (15 `aiIstek` çağrısı) hâlâ `/api/claude` üzerinden; günlük limit + IP tavanı + 4000 karakter + 8192 token sınırıyla maliyeti sınırlı, ödeme riski YOK. Sunucu uçlarına taşınması launch sonrası. 🔶
 - **Faz 3 – Sınav mimarisi:** Sınav Merkezi dalgası (V3 #9) 3 adım ✅ (il/ilçe/kurum snapshot: sinav_sonuclari, seviye_tespit_sonuc, ucretli_deneme_sonuclari; Deneme Kulübü yıllık abone entegrasyonu). Üretim motoru birleşmesi: Faz D adım 1 (ortak format doğrulama) ✅, adım 4 (konu-paketi) ✅; kalan sıra: seviye-tespit/olustur → onay-sinavi → ulusalDenemeOlustur → ortak çekirdek. Ulusal deneme güvenlik yaması burada (engel #2). Harici katılımcı, oturum/katılım modeli, hata/süre analizi, telafi zinciri ⬜ (ayrıntı: SINAV-MERKEZI-DURUM-TARAMASI-21EKIM.md).
 - **Faz 4 – Öğretmen paneli:** materyal-uret 11 araç ✅ Kalite Motoru'na bağlı; öğretmen↔öğrenci↔sınıf bağlantısı, sınıf analizi, zayıf konu koçluğu ⬜.
 - **Faz 5 – Müfredat/OYSS/içerik:** Müfredat resmi MEB: Mat 5-7, Fen 6-7, Sosyal 6-7, Türkçe 5-7 ✅. Kalan: Din 5-7, Fen 5, 4. sınıf, Sosyal/Din 5, 8. sınıf ünite adları, İngilizce 4/6/7/8, kazanım kodu JSON, OYSS hazırlık modu (26 Ekim sistem açılışı), MEB değişiklik takip cron'u.

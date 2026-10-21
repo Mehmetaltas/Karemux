@@ -3,15 +3,15 @@
 
 ## A. Launch engelleri
 1. AI kapasitesi: Gemini ücretsiz 20 istek/gün doldu; Groq/OpenRouter yetersiz. [BEN] Anthropic haiku-4-5 vs sonnet-5 hız testi, hızlı olanı ana yedek yap. [SEN] Gemini faturalaması veya Anthropic kredisi kararı.
-2. Ulusal deneme yaması [BEN]: cevapAnahtari kapanışa kadar gizle; UNIQUE(ulusal_deneme_id, kullanici_id); il/ilce/puanlama_surumu yaz; page.js sonuç ekranını kontrol et; VPS server.js'i vps/karemux-deneme/ altına al. [SEN] server.js + package.json'u scp ile Termux'a çek.
-3. [SEN] VPS: chmod -R go-rwx /opt/karemux-yedekler /root/yedekler
+2. ✅ TAMAM (21 Ekim, canlı kanıtlı) Ulusal deneme yaması [BEN]: cevapAnahtari kapanışa kadar gizle; UNIQUE(ulusal_deneme_id, kullanici_id); il/ilce/puanlama_surumu yaz; page.js sonuç ekranını kontrol et; VPS server.js'i vps/karemux-deneme/ altına al. [SEN] server.js + package.json'u scp ile Termux'a çek.
+3. ✅ TAMAM (21 Ekim) [SEN] VPS: chmod -R go-rwx /opt/karemux-yedekler /root/yedekler
 4. [SEN] Vercel Pro (Hobby ticari kullanıma kapalı).
 5. [SEN] İyzico kart ödemesi başvuru/sözleşme.
 6. [SEN] KVKK/hukuk: Neon ABD, Gemini ücretsiz katman verisi, çocuk kullanıcı, mesafeli satış/iade, öğretmen sözleşmeleri.
 7. [SEN] Gerçek cihaz testi: TalkBack, VoiceOver, Android APK, mobil web.
 
 ## B. Ödeme öncesi
-8. [BEN] Faz 2: /api/claude genel proxy'yi kapat; 18 aiIstek çağrısını sunucu tarafı işlem uçlarına taşı.
+8. 🔶 Ücretli akışlar TAMAM (canlı kanıtlı); kalan 15 ücretsiz akış launch sonrası. [BEN] Faz 2: /api/claude genel proxy'yi kapat; 18 aiIstek çağrısını sunucu tarafı işlem uçlarına taşı.
 9. [BEN] Faz E kalanları: tek konu testi (~L3956) ve koç paneli testi (~L4578) sunucu puanlama; /api/soru-bankasi POST sertleştirme; Hata Kitapçığı benzer sorular.
 10. [BEN] Abonelik motoru: abonelik/durum, deneme-kulubu/durum, kurum/koltuk-ata, admin/kullanici-profil-detay, cron/yenileme-uyarisi merkezi hak fonksiyonuna; yenileme e-posta metnini düzelt.
 
