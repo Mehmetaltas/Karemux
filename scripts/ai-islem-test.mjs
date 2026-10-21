@@ -26,7 +26,7 @@ for(const [k,g] of Object.entries(G)){
     const t=r.d.text||"";
     if(JSONLU.has(k)){try{const i=Math.min(...["{","["].map(c=>t.indexOf(c)).filter(x=>x>=0));JSON.parse(t.slice(i, Math.max(t.lastIndexOf("}"),t.lastIndexOf("]"))+1));not="json gecerli"}catch{not="JSON BOZUK";hata++}}
     else not=(t.length>40?"metin "+t.length+" karakter":"METIN KISA");
-    if(t.length<=40)hata++;
+    if(!JSONLU.has(k)&&t.length<=40)hata++;
   } else {not=(r.d.error||"").slice(0,90);hata++;}
   console.log(r.s,r.sn+"s",k.padEnd(15),not);
 }

@@ -11,7 +11,7 @@
 7. [SEN] Gerçek cihaz testi: TalkBack, VoiceOver, Android APK, mobil web.
 
 ## B. Ödeme öncesi
-8. 🔶 Ücretli akışlar TAMAM (canlı kanıtlı); kalan 15 ücretsiz akış launch sonrası. [BEN] Faz 2: /api/claude genel proxy'yi kapat; 18 aiIstek çağrısını sunucu tarafı işlem uçlarına taşı.
+8. ✅ TAMAM (21 Ekim, canlı kanıtlı) Faz 2: tüm AI istekleri /api/ai-islem ve /api/ucretli-uret uçlarında, prompt sunucuda; /api/claude kapatıldı (410).
 9. [BEN] Faz E kalanları: tek konu testi (~L3956) ve koç paneli testi (~L4578) sunucu puanlama; /api/soru-bankasi POST sertleştirme; Hata Kitapçığı benzer sorular.
 10. [BEN] Abonelik motoru: abonelik/durum, deneme-kulubu/durum, kurum/koltuk-ata, admin/kullanici-profil-detay, cron/yenileme-uyarisi merkezi hak fonksiyonuna; yenileme e-posta metnini düzelt.
 
