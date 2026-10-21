@@ -576,6 +576,19 @@ async function aiIstek(prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPa
   return data.text;
 }
 
+// Faz 2: UCRETLI ozellikler (tatil programi, bursluluk) prompt'u sunucuda kurulur;
+// istemci yalniz yapisal parametre gonderir (/api/ucretli-uret).
+async function ucretliUret(govde) {
+  const res = await fetch("/api/ucretli-uret", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(govde),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "AI istegi basarisiz");
+  return data.text;
+}
+
 // Uretilen konu anlatimi metnini BAGIMSIZ bir AI cagrisiyla kisaca denetler
 // (bilgi hatasi, mantik hatasi, yabanci dil/alfabe karismasi). Metni ENGELLEMEZ,
 // sadece sorun bulursa altina kisa bir uyari ekler - ogrenci icerigi kaybetmez.
@@ -2531,10 +2544,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const secilenTatil = TATIL_TURLERI.find((t) => t.key === tatilTuru);
     setTatilProgramiYukleniyor(true); setHata(""); setTatilProgramiMesaj(""); setTatilProgramiListesi(null);
     try {
-      const zayifMetni = zayifDersler.length > 0 ? `Ozellikle zayif oldugu dersler: ${zayifDersler.join(", ")}.` : "";
-      const p = `Sen bir LGS calisma kocususun. ${zayifMetni} Ogrenci ${sinif}. sinifta, "${secilenTatil.ad}" donemine giriyor (${secilenTatil.gun} gunluk). ${secilenTatil.key === "yaz" ? `Yaz tatili UZUN oldugu icin, tempo dusuk-orta tutulmali, her gun 1-1.5 saatlik hafif ama DUZENLI bir aliskanlik kurmali, tukenmisligi onlemek icin haftada 1 gun tam dinlenme olmali. Once zayif konulara odaklan (eksik kapatma), ama sure uzun oldugu icin ILERI HAZIRLIK da ekle: gorevlerin bir kismi bir sonraki sinifin/donemin konularina hafif bir on bakis olsun. Gorev cesitliligi onemli - sirayla konu anlatimi, soru cozumu, kisa test, fasikul calismasi, deneme/tekrar gibi FARKLI turlerde gorevler dagit, hep ayni turden gorev verme.` : secilenTatil.key === "yariyil" ? "Yariyil tatili orta uzunlukta, once zayif konulari kapatmaya, sonra 2. donem'e hazirliga odaklanmali." : "Ara tatil kisa, sadece son donemdeki zayif konulari toparlamaya ve dinlenmeye odaklanmali, agir yeni konu YOK."} Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (120-160 kelime) bir konusma - tatilin ruhuna uygun (dinlenmeyi de onemsediginizi belirt). (2) "program": ${secilenTatil.gun} GUNUN HER BIRI icin bir gorev nesnesi - {"gunNo":1,"ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev"}. Haftada en az 1 gun "Dinlenme" olarak ayarla (agir calisma yok). SADECE JSON dondur, markdown kullanma:
-{"mesaj":"...","program":[{"gunNo":1,"ders":"...","gorev":"..."}, ...]}`;
-      const cevap = await aiIstek(p, Math.min(6000, 800 + secilenTatil.gun * 120), cihazIdRef.current, true, null, secilenTatil.gerekliPaket);
+      const cevap = await ucretliUret({ islem: "tatil_programi", cihazId: cihazIdRef.current, sinif, tatilTuru: secilenTatil.key, zayifDersler });
       const temiz = jsonMetniTemizle(cevap);
       const baslangic = temiz.indexOf("{");
       const bitis = temiz.lastIndexOf("}");
@@ -2577,12 +2587,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     try {
       for (const dersAdi of BURSLULUK_DERSLER) {
         setBurslulukAsama(dersAdi);
-        const uniteler = dersinUniteleri(dersAdi, sinif).join(", ");
-        const sosyalDinNotu = dersAdi === "Sosyal Bilgiler" ? ` ONEMLI: Gercek IOKBS'de Sosyal Bilgiler sorularinin bir kismi Din Kulturu ve Ahlak Bilgisi konularini da icerir - hazirladigin ${burslulukSoruSayisi} sorunun yaklasik %20-25'ini (${sinif}. sinif Din Kulturu mufredatindan) Din Kulturu konularindan yap, kalanini Sosyal Bilgiler'den yap.` : "";
-        const kaliteMetniBursluluk = KALITE_REFERANSLARI[dersAdi] ? ` Ders icerik kalitesi referansi: ${KALITE_REFERANSLARI[dersAdi]}` : "";
-        const p = `Sen bursluluk sinavi (IOKBS) hazirlik uzmanisin. "${dersAdi}" dersinden, ${sinif}. sinif mufredatinin TAMAMINI (uniteler: ${uniteler}) kapsayacak sekilde, dengeli dagilmis ${burslulukSoruSayisi} coktan secmeli soru hazirla.${sosyalDinNotu} ${BAGLAM_TEMELLI_SORU_TALIMATI} Sorular gercek IOKBS sinavi zorlugunda ve tarzinda olsun - Editor Yayinlari, Data Yayinlari ve IQ Yayinlari'nin IOKBS/PYBS hazirlik kitaplarindaki soru tarzi ve zorluk seviyesini referans al (resmi MEB kaynagi degil, ozel sinav hazirlik yayinlari, ancak IOKBS'e ozel en yaygin kabul goren kaynaklar bunlardir).${kaliteMetniBursluluk} Her soru icin "aciklama" alaninda dogru cevabin nedenini 1-2 cumleyle anlat. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
-[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"orta","aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-        const cevap = await aiIstek(p, Math.min(6000, 500 + burslulukSoruSayisi * 450), cihazIdRef.current, true, null, "bursluluk");
+        const cevap = await ucretliUret({ islem: "bursluluk", cihazId: cihazIdRef.current, sinif, dersAdi, soruSayisi: burslulukSoruSayisi });
         const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
         sonuc[dersAdi] = soruJsonAyikla(temiz);
         setBurslulukSorular({ ...sonuc });

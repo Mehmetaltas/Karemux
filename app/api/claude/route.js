@@ -40,10 +40,12 @@ export async function POST(req) {
     // Ucretli ozellik yetkisi: sunucunun prompt'tan buldugu paket onceliklidir, istemci beyani (gerekliPaket) yalnizca yedek.
     const istenenPaket = sunucuGerekliPaket(prompt) || gerekliPaket;
     if (istenenPaket) {
+      // Faz 2: ucretli ozellikler /api/ucretli-uret ucuna tasindi; genel vekil bunlari artik hic islemez.
       const erisimVar = await hasPackageFeature(req, cihazId, istenenPaket);
       if (!erisimVar) {
         return Response.json({ error: "Bu ozellik icin ilgili paketi satin almalisin." }, { status: 403 });
       }
+      return Response.json({ error: "Bu ozellik ayri bir uctan kullanilir." }, { status: 400 });
     }
 
     const limit = await gunlukLimitKontrolEt(req, cihazId);
