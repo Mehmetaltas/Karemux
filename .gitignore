@@ -16,3 +16,21 @@ android-ogrenci/.gradle/
 android-ogrenci/build/
 android-ogrenci/app/build/
 android-ogrenci/*.keystore
+
+# admin Android projesi - build ciktilari ve anahtar asla commit edilmez
+android-admin/.gradle/
+android-admin/build/
+android-admin/app/build/
+android-admin/*.keystore
+
+# kurum Android projesi - build ciktilari ve anahtar asla commit edilmez
+android-kurum/.gradle/
+android-kurum/build/
+android-kurum/app/build/
+android-kurum/*.keystore
+
+# veli Android projesi - build ciktilari ve anahtar asla commit edilmez
+android-veli/.gradle/
+android-veli/build/
+android-veli/app/build/
+android-veli/*.keystore
