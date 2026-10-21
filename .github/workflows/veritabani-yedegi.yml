@@ -16,8 +16,13 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$BACKUP_SIFRESI" || { echo "BACKUP_SIFRESI secret tanimli degil"; exit 1; }
+          test -n "$DATABASE_URL" || { echo "::error::DATABASE_URL secret tanimli degil"; exit 1; }
           DOGRUDAN_URL="${DATABASE_URL/-pooler/}"
-          docker run --rm -e DOGRUDAN_URL postgres:18 sh -c 'pg_dump --no-owner --no-privileges "$DOGRUDAN_URL"' > yedek.sql
+          export DOGRUDAN_URL
+          if ! docker run --rm -e DOGRUDAN_URL postgres:18 sh -c 'pg_dump --no-owner --no-privileges "$DOGRUDAN_URL"' > yedek.sql 2> hata.txt; then
+            echo "::error::pg_dump basarisiz: $(head -c 700 hata.txt | tr '\n' ' ' | sed -E 's#postgres(ql)?://[^ ]*#<adres>#g')"
+            exit 1
+          fi
           BOYUT=$(stat -c%s yedek.sql)
           TABLO=$(grep -c '^CREATE TABLE' yedek.sql || true)
           echo "Dokum boyutu: $BOYUT bayt, tablo sayisi: $TABLO"
