@@ -1,0 +1,70 @@
+name: Yedegi Ac ve Dogrula
+
+on:
+  workflow_dispatch:
+    inputs:
+      calisma_no:
+        description: 'Yedek calismasinin numarasi (bos birakirsan en son basarili yedek)'
+        required: false
+        default: ''
+      mod:
+        description: 'dogrula = yedegi ac ve say, yukle = RESTORE_DATABASE_URL veritabanina yukle'
+        type: choice
+        options: [dogrula, yukle]
+        default: dogrula
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  ac:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Yedek calismasini bul
+        id: bul
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GIRDI: ${{ inputs.calisma_no }}
+        run: |
+          set -euo pipefail
+          RID="$GIRDI"
+          if [ -z "$RID" ]; then
+            RID=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow veritabani-yedegi.yml --status success --limit 1 --json databaseId -q '.[0].databaseId')
+          fi
+          test -n "$RID" || { echo "Basarili yedek calismasi bulunamadi"; exit 1; }
+          echo "Kullanilan yedek calismasi: $RID"
+          echo "rid=$RID" >> "$GITHUB_OUTPUT"
+      - name: Yedegi indir
+        uses: actions/download-artifact@v4
+        with:
+          name: veritabani-yedegi
+          run-id: ${{ steps.bul.outputs.rid }}
+          github-token: ${{ github.token }}
+      - name: Yedegi coz ve dogrula
+        env:
+          BACKUP_SIFRESI: ${{ secrets.BACKUP_SIFRESI }}
+        run: |
+          set -euo pipefail
+          F=$(ls yedek-*.sql.gz.enc | head -1)
+          echo "Dosya: $F"
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:BACKUP_SIFRESI -in "$F" | gunzip > cozulmus.sql
+          echo "Cozulmus boyut: $(stat -c%s cozulmus.sql) bayt"
+          echo "Tablo sayisi: $(grep -c '^CREATE TABLE' cozulmus.sql || true)"
+          echo "Veri blogu (COPY) sayisi: $(grep -c '^COPY ' cozulmus.sql || true)"
+          echo "--- tablo adlari ---"
+          grep '^CREATE TABLE' cozulmus.sql | sed 's/CREATE TABLE //; s/ (.*//' | head -80
+          echo "--- sonuc: yedek BASARIYLA acildi ---"
+      - name: Yedegi yukle (yalniz mod=yukle)
+        if: ${{ inputs.mod == 'yukle' }}
+        env:
+          HEDEF: ${{ secrets.RESTORE_DATABASE_URL }}
+          URETIM: ${{ secrets.DATABASE_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$HEDEF" || { echo "RESTORE_DATABASE_URL secret tanimli degil"; exit 1; }
+          if [ "${HEDEF/-pooler/}" = "${URETIM/-pooler/}" ]; then echo "HEDEF uretim veritabaniyla ayni, durduruldu"; exit 1; fi
+          HEDEF_DOGRUDAN="${HEDEF/-pooler/}"
+          export HEDEF_DOGRUDAN
+          docker run --rm -i -e HEDEF_DOGRUDAN postgres:18 sh -c 'psql "$HEDEF_DOGRUDAN" -v ON_ERROR_STOP=1 -q' < cozulmus.sql
+          echo "Yukleme tamamlandi"
