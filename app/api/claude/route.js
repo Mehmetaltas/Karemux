@@ -73,7 +73,9 @@ export async function POST(req) {
       }
     }
 
-    const metin = await aiCagir({ prompt: sonPrompt, maxTokens, jsonModu, tur });
+    // maxTokens istemciden gelir: sayi degilse 1000, ust sinir 8192 (Gemini'nin zaten uyguladigi sinir; digerlerinde sinirsizdi).
+    const guvenliMaxTokens = Number.isFinite(maxTokens) ? Math.min(Math.max(Math.floor(maxTokens), 1), 8192) : 1000;
+    const metin = await aiCagir({ prompt: sonPrompt, maxTokens: guvenliMaxTokens, jsonModu, tur });
     aiKullanimLoglaSessizce(metin, ragKullanildi);
     return Response.json({ text: metin, kalanHak: Math.max(0, limit.limit - limit.kullanim), ragKullanildi });
   } catch (e) {

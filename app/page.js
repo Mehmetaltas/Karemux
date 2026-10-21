@@ -3535,6 +3535,34 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   const [paragrafMetni, setParagrafMetni] = useState("");
   const [paragrafPufNoktalari, setParagrafPufNoktalari] = useState("");
 
+  // Eski sekme uyarisi: sekme acikken yeni surum yayinlandiysa kullaniciya haber verilir (zorla yenilenmez, sinav yarida kalmasin).
+  const [yeniSurumVar, setYeniSurumVar] = useState(false);
+  const acilisSurumuRef = useRef(null);
+  const sonSurumRef = useRef(null);
+  useEffect(() => {
+    let iptal = false;
+    async function surumuOku() {
+      try {
+        const r = await fetch("/api/surum", { cache: "no-store" });
+        if (!r.ok) return null;
+        const j = await r.json();
+        return typeof j.surum === "string" && j.surum ? j.surum : null;
+      } catch (e) { return null; }
+    }
+    async function kontrol() {
+      const s = await surumuOku();
+      if (iptal || !s) return;
+      sonSurumRef.current = s;
+      if (acilisSurumuRef.current === null) { acilisSurumuRef.current = s; return; }
+      if (s !== acilisSurumuRef.current) setYeniSurumVar(true);
+    }
+    kontrol();
+    const aralik = setInterval(kontrol, 5 * 60 * 1000);
+    const gorunur = () => { if (document.visibilityState === "visible") kontrol(); };
+    document.addEventListener("visibilitychange", gorunur);
+    return () => { iptal = true; clearInterval(aralik); document.removeEventListener("visibilitychange", gorunur); };
+  }, []);
+
   async function paragrafPratigiUret() {
     if (!ders || !konu.trim()) return;
     setYukleniyor("paragraf"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
@@ -3907,6 +3935,13 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
   return (
     <main style={{ minHeight: "100vh", background: COLORS.bg, fontFamily: "system-ui, sans-serif", padding: "24px 14px" }}>
+      {yeniSurumVar && (
+        <div role="status" className="yazdirma-disi" style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 300, background: "#1B2430", color: "#fff", padding: "10px 14px", fontSize: 13, display: "flex", gap: 10, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+          <span>Yeni sürüm yayında. Devam eden bir sınavın varsa bitirdikten sonra yenile.</span>
+          <button onClick={() => window.location.reload()} style={{ padding: "6px 14px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Yenile</button>
+          <button onClick={() => { acilisSurumuRef.current = sonSurumRef.current; setYeniSurumVar(false); }} style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid rgba(255,255,255,0.4)", background: "transparent", color: "#fff", fontSize: 12.5, cursor: "pointer" }}>Sonra</button>
+        </div>
+      )}
       <style>{`
         @media print {
           body * { visibility: hidden; }
