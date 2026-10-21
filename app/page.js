@@ -1410,7 +1410,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     const unite = dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers);
     if (!unite) return;
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
-    setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false);
+    setYukleniyor("quiz"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
     try {
       // Faz E: sorular SUNUCUDA hazirlanir (once soru bankasi, yetmezse AI); manuel alt baslik varsa banka atlanir.
       const oturum = await pratikOturumuBaslat({
@@ -1420,6 +1420,23 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       setQuiz(oturum.sorular);
     } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Sorular uretilemedi, tekrar dene.")); }
+    finally { if (secilenDersRef.current === dersAtCagri) setYukleniyor(null); }
+  }
+
+  // Koc ekraninda 20 soruluk paragraf pratigi (metin + puf noktalari + 20 soru). Unite tamamlama isaretlemez.
+  async function oneriliUniteParagraf() {
+    const dersAtCagri = secilenDers;
+    const unite = dersSecimModu === "manuel" ? manuelUnite : oneriliUniteHesapla(secilenDers);
+    if (!unite) return;
+    setDers(secilenDers); setUniteSec(unite); setKonu(unite);
+    setYukleniyor("paragraf"); setHata(""); setCevaplar({}); setGonderildi(false); setParagrafMetni(""); setParagrafPufNoktalari("");
+    try {
+      const oturum = await pratikOturumuBaslat({ pratikTuru: "paragraf", ders: secilenDers, sinif, konu: unite, unite });
+      if (secilenDersRef.current !== dersAtCagri) return;
+      setParagrafMetni(oturum.paragraf?.metin || "");
+      setParagrafPufNoktalari((oturum.paragraf?.pufNoktalari || []).join("\n"));
+      setQuiz(oturum.sorular);
+    } catch (e) { if (secilenDersRef.current === dersAtCagri) setHata(temizHataMesaji(e, "Paragraf pratigi olusturulamadi, tekrar dene.")); }
     finally { if (secilenDersRef.current === dersAtCagri) setYukleniyor(null); }
   }
 
@@ -3877,6 +3894,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     // Faz E: puanlama, ilerleme ve Hata Kitapcigi kaydi SUNUCUDA yapilir; burada yalnizca yerel tamamlama isareti kalir.
     const veri = await pratikQuizGonder();
     if (!veri) return;
+    if (paragrafMetni) return; // paragraf pratigi unite tamamlama sayilmaz
     if (veri.toplam > 0 && veri.dogru / veri.toplam >= 0.7) {
       if (uniteSec && aktifAltKonu) {
         altKonuTamamlandiIsaretle(ders, uniteSec, aktifAltKonu);
@@ -4610,6 +4628,9 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                         {yukleniyor === "quiz" ? "Uretiliyor..." : "✍️ 5 Soru Coz"}
                       </button>
                     </div>
+                    <button className="kx-btn" onClick={oneriliUniteParagraf} disabled={yukleniyor} style={{ width: "100%", marginTop: 8, padding: "9px 0", borderRadius: 8, border: `1.5px solid ${COLORS.mustard}`, background: "transparent", color: COLORS.mustard, fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                      {yukleniyor === "paragraf" ? "Hazirlaniyor… (1 dk kadar surebilir)" : "📖 20 Soruluk Paragraf Pratigi"}
+                    </button>
                     <button onClick={() => teknikleriGetir(secilenDers)} style={{ width: "100%", marginTop: 8, padding: "8px 0", borderRadius: 8, border: "none", background: "rgba(255,255,255,0.15)", color: COLORS.page, fontWeight: 600, fontSize: 11.5, cursor: "pointer" }}>
                       🧠 Bu dersi nasıl çalışmalıyım?
                     </button>
@@ -4674,6 +4695,19 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                       </div>
                     );
                   })()}
+
+                  {paragrafMetni && (
+                    <div style={{ background: "#FFF8E8", borderRadius: 12, padding: 16, marginBottom: 14, border: `1px solid ${COLORS.mustard}`, whiteSpace: "pre-wrap", fontSize: 14, lineHeight: 1.6 }}>
+                      <p style={{ fontWeight: 700, fontSize: 12, marginBottom: 8, color: "#8A6D00" }}>📖 METIN</p>
+                      {paragrafMetni}
+                      {paragrafPufNoktalari && (
+                        <>
+                          <p style={{ fontWeight: 700, fontSize: 12, margin: "14px 0 8px", color: "#8A6D00" }}>💡 PUF NOKTALARI / ALTIN KURALLAR</p>
+                          {paragrafPufNoktalari}
+                        </>
+                      )}
+                    </div>
+                  )}
 
                   {quiz && (
                     <div style={{ background: "#FAF6EE", borderRadius: 10, padding: 16, border: `1px solid ${COLORS.line}` }}>
