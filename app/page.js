@@ -39,7 +39,6 @@ function OptikFormSablonu({ soruSayisi, baslik }) {
     </div>
   );
 }
-import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 
 const DUYURULAR = [
   { ikon: "🧭", baslik: "Seviye Tespiti ile basla", metin: "6 dersten 12 soru — nerede guclu, nerede zayif oldugunu 5 dakikada ogren." },
@@ -502,8 +501,8 @@ function cihazIdAl() {
   return id;
 }
 
-// Tarayicidan DOGRUDAN Anthropic'e degil, kendi /api/claude route'umuza istek atiyoruz.
-// API anahtari sadece sunucuda (Vercel env) tutulur.
+// Tarayicidan DOGRUDAN yapay zekaya degil, kendi /api/ai-islem ucumuza (islem kodu + yapisal girdi) istek atiyoruz.
+// Prompt'lar SUNUCUDA kurulur (lib/ai-islemleri.js); API anahtarlari sadece sunucuda tutulur.
 function donusumLogla(olayTuru, cihazId, meta) {
   try {
     fetch("/api/donusum/logla", {
@@ -518,19 +517,6 @@ function donusumLogla(olayTuru, cihazId, meta) {
 // tipte, hangi parametrelerle" karar aldiriyor. Gercek cizimi lib/gorsel-motoru.js
 // yapiyor (kural-bazli, matematiksel olarak dogru). AI HICBIR ZAMAN dogrudan
 // SVG/cizim uretmiyor.
-const GORSEL_TIPI_REHBERI = `Eger bu konu icin bir egitim gorseli GERCEKTEN faydali olacaksa (ozellikle geometri/grafik/sema iceren konularda), su tiplerden birini sec ve parametrelerini doldur:
-- ucgen: {a,b,c (kenar uzunluklari sayi, opsiyonel), kenarEtiketleri:{ab,bc,ac (string, orn "5 cm")}, aciEtiketleri:{a,b,c}, vurgulananKose:"A"|"B"|"C"}
-- dortgen: {tip:"kare"|"dikdortgen", kenarEtiketleri:{ust,sol}}
-- cember: {yaricapEtiketi (string), capGoster (bool)}
-- aci: {derece (0-360 sayi), etiket (string)}
-- cokgen: {kenarSayisi (sayi), etiket (string)}
-- sayi_dogrusu: {min,max (sayi), noktalar:[{deger (sayi), etiket, doluMu (bool)}]}
-- koordinat_duzlemi: {fonksiyonTipi:"dogrusal"|"karesel", katsayilar:{m,n} veya {a,b,c}, noktalar:[{x,y,etiket}]}
-- cizgi_grafigi veya sutun_grafigi: {veriler:[sayilar], etiketler:[string]}
-- pasta_grafigi: {veriler:[sayilar], etiketler:[string]}
-- fen_semasi: {anahtar:"su_dongusu"|"gunes_sistemi"|"elektrik_devresi"|"hucre_yapisi"|"sindirim_sistemi"}
-Gorsel gerekmiyorsa gerekli:false don. SADECE JSON dondur: {"gerekli":true veya false,"gorselTipi":"...","parametreler":{...}}`;
-
 // AI'nin JSON cevaplarini ayiklamak icin (18 yerde 3 varyantli tekrar
 // ediyordu - 14 Eylul, TEK KONU MOTORU'nun 2. adimi) merkezi hale getirildi.
 // Modul seviyesinde (component disinda) - gorselKararIste gibi diger
@@ -551,8 +537,7 @@ function jsonMetniTemizle(cevap, opts) {
 
 async function gorselKararIste(ders, konu, sinif, cihazId) {
   try {
-    const p = `"${ders}" dersinden "${konu}" konusu, ${sinif}. sinif seviyesinde. ${GORSEL_TIPI_REHBERI}`;
-    const cevap = await aiIstek(p, 600, cihazId, true, null, null, "gorsel_karar");
+    const cevap = await aiIslem("gorsel_karar", { ders, konu, sinif }, cihazId);
     const temiz = jsonMetniTemizle(cevap);
     const baslangic = temiz.indexOf("{");
     const bitis = temiz.lastIndexOf("}");
@@ -565,11 +550,11 @@ async function gorselKararIste(ders, konu, sinif, cihazId) {
   }
 }
 
-async function aiIstek(prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket, tur) {
-  const res = await fetch("/api/claude", {
+async function aiIslem(islem, girdi, cihazId) {
+  const res = await fetch("/api/ai-islem", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt, maxTokens, cihazId, jsonModu, ragDersi, gerekliPaket, tur }),
+    body: JSON.stringify({ islem, girdi, cihazId }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "AI istegi basarisiz");
@@ -595,11 +580,7 @@ async function ucretliUret(govde) {
 // Denetim basarisiz olursa (AI hatasi, timeout) sessizce gecilir (fail-open).
 async function icerikDenetle(metin, baglam, cihazId) {
   try {
-    const p = `Sen bagimsiz bir egitim icerigi kalite kontrolorusun. ${baglam} Asagidaki metni incele: acik bir bilgi/mantik hatasi var mi, ya da Turkce disi bir dil/alfabe (Ingilizce kelime, Kiril, Cince vb.) karismis mi? SADECE JSON dondur: {"temizMi":true} ya da {"temizMi":false,"sorun":"kisa aciklama, en fazla 15 kelime"}
-
-METIN:
-${metin.slice(0, 3000)}`;
-    const cevap = await aiIstek(p, 300, cihazId, true);
+    const cevap = await aiIslem("icerik_denetle", { metin: metin.slice(0, 3000), baglam }, cihazId);
     const temiz = jsonMetniTemizle(cevap);
     const veri = JSON.parse(temiz.slice(temiz.indexOf("{"), temiz.lastIndexOf("}") + 1));
     return veri.temizMi === false ? (veri.sorun || "Otomatik denetimde isaretlendi") : null;
@@ -631,15 +612,6 @@ function temizHataMesaji(e, varsayilan) {
   const teknikMi = /JSON|Unexpected token|position \d+|SyntaxError|is not a function|undefined is not|Cannot read prop/i.test(ham);
   return teknikMi ? varsayilan : ham;
 }
-
-// MEB'in "Turkiye Yuzyili Maarif Modeli" kapsaminda yayinladigi "Baglam Temelli
-// Coktan Secmeli Soru Yazim Kilavuzu"na dayanan ortak talimat parcasi. Sorularin
-// SADECE bilgi degil, bilgiyle ne yapilabildigini olcmesini; gercekci bir senaryo/veri
-// baglaminda kurulmasini (baglam SUS DEGIL, cozum icin gerekli); ve celdiricilerin
-// rastgele degil, spesifik kavram yanilgilarini hedeflemesini saglar. Puanlama zaten
-// objektif (dogru/yanlis, net hesabi) oldugundan bu yontemle tam uyumludur, ayrica
-// bir puanlama degisikligi gerektirmez.
-const BAGLAM_TEMELLI_SORU_TALIMATI = `Sorulari "Baglam Temelli Soru" yaklasimiyla yaz: her soru gercekci bir senaryo, veri veya durum (gunluk hayat, bilimsel veri, tarihsel belge, etik ikilem vb.) icinde kurulsun - soyut "bir sayi" veya "bir sekil" gibi baglamsiz sorulardan kacin. ONEMLI: Baglam SUS DEGIL, cozum icin ZORUNLU olmali - baglamdaki veri kullanilmadan, sadece genel bilgiyle cozulebilen bir soru gecersizdir. Her soru sadece bilgiyi degil, o bilgiyle NE YAPILABILDIGINI (problem cozme, sorgulama, ust duzey dusunme) olcsun. Celdiriciler (yanlis siklar) rastgele olmamali, ogrencinin gercekten yapabilecegi SPESIFIK bir kavram yanilgisini yansitmali. YAZIM: Turkce'ye ozgu karakterleri (i, g, u, s, o, c, I harflerinin noktali/simgeli hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye indirgenmis (sadeleştirilmemiş, noktasiz) yazma - orn. "ogrenci" degil "öğrenci", "icin" degil "için" yaz.`;
 
 // AI'dan gelen soru listesi JSON'unu ayiklar. Bazen cevap token limitine takilip
 // yarida kesilebiliyor (ozellikle uzun/karmasik konularda) - bu durumda son
@@ -809,13 +781,7 @@ export default function Ana() {
     if (soruAciklamalari[index]) return; // zaten var
     setSoruAciklamaYukleniyor(index);
     try {
-      const p = `Bir ogrenci su coktan secmeli soruyu yanlis cevapladi:
-Soru: ${soru}
-Secenekler: ${secenekler.join(" | ")}
-Ogrencinin verdigi cevap: ${secenekler[secilenIndex] || "bos birakildi"}
-Dogru cevap: ${secenekler[dogruIndex]}
-Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDEN yanlis oldugunu, kisa (60-90 kelime), net ve ogretici bir dille acikla. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma. Markdown kullanma, sadece duz metin.`;
-      const cevap = await aiIstek(p, 500, cihazIdRef.current);
+      const cevap = await aiIslem("soru_aciklama", { soru, secenekler, dogruIndex, secilenIndex: Number.isInteger(secilenIndex) && secilenIndex >= 0 ? secilenIndex : null }, cihazIdRef.current);
       const temiz = cevap.replace(/\*\*/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "").replace(/\s*\(\d{1,4}\)\s*/g, " ");
       setSoruAciklamalari((eski) => ({ ...eski, [index]: temiz }));
     } catch (e) {
@@ -978,10 +944,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
 
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false);
     try {
-      const p = durum.tur >= 2
-        ? `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrenciye ${oncekiSinif}. sinif "${dersAdi}" temel konularini DAHA ONCE bir kez anlattin ama ogrenci testte basarili olamadi - yani ilk anlatim yeterli gelmedi. Bu sefer FARKLI BIR YAKLASIMLA anlat: farkli, gunluk hayattan daha somut ornekler kullan, kavramlari daha yavas ve adim adim ac, olasi kafa karistirici noktalari ONCEDEN tahmin edip aciklayarak onle. Her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut ornek coz. Bu, DAHA DETAYLI ve DAHA DERINLEMESINE bir anlatim olmali. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 550-650 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`
-        : `Sen deneyimli, alaninda uzman bir "${dersAdi}" ogretmenisin. Ogrencinin ${oncekiSinif}. sinif temeli zayif cikti, once bunu guclendirmemiz gerekiyor. ${oncekiSinif}. sinif "${dersAdi}" mufredatinin EN TEMEL ve EN ONEMLI kavramlarini, sade ve anlasilir bir dille anlat - once tanim, sonra "Ornek:" diye etiketlenmis somut ornek, gerekirse formul/kural. Konu basliklarina ayirarak yaz. En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle. Toplamda 350-450 kelime. SADECE duz metin yaz, markdown/LaTeX kullanma. SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
-      const cevap = await aiIstek(p, durum.tur >= 2 ? 4200 : 3000, cihazIdRef.current);
+      const cevap = await aiIslem("ders_tekrar", { dersAdi, sinif, tur: durum.tur }, cihazIdRef.current);
       if (secilenDersRef.current !== dersAdi) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = metinTemizle(cevap);
       const uyari = await icerikDenetle(temizMetin, `Bu "${dersAdi}" dersi ${oncekiSinif}. sinif temel konu tekrari anlatimi.`, cihazIdRef.current);
@@ -1399,16 +1362,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     setDers(secilenDers); setUniteSec(unite); setKonu(unite);
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
     try {
-      const zorlukMetni = { basit: "cok basit ve yavas", orta: "orta seviyede", zor: "ileri seviyede" }[zorlukSec] || "orta seviyede";
-      const temelUyarisi = gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"
-        ? ` ONEMLI: Bu ogrencinin bir onceki sinif temeli zayif olcyuldu, bu yuzden konuya girmeden once cok kisa (1-2 cumle) bir "on bilgi hatirlatmasi" ekle, temel kavramlari atlamadan anlat.`
-        : "";
-      const kapsamSiniri = (dersSecimModu === "manuel" && manuelAltBaslik.length > 0)
-        ? ` SADECE su alt basliklara odaklan: ${manuelAltBaslik.join(", ")}. Unitenin diger alt basliklarina girme.`
-        : "";
-      const p = `Sen deneyimli, alaninda uzman bir "${secilenDers}" ogretmenisin. "${unite}" unitesinin TAMAMINI, ${sinif}. sinifta okuyan bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, piyasadaki en iyi LGS yayinlarindan daha derin ve daha kullanisli bir sekilde anlat.${temelUyarisi}${kapsamSiniri} SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME - piyasadaki bircok kaynak bu hatayi yapiyor ve gercek sinavda ogrenciler zorlaniyor. Gercek LGS sorularindaki zorluk seviyesini yansitacak derinlikte anlat, yuzeysel gecme. Anlatimi ASAGIDAKI 6 BASLIK ALTINDA yaz - HER BASLIK BUYUK HARFLERLE, KENDI SATIRINDA, BASKA HICBIR KELIME OLMADAN yazilmali: HIZLI OGREN (2-3 cumlelik cok kisa ozet, ana fikri 30 saniyede yakalatir), TEMEL ANLATIM (konunun temel mantigi, ana kavramlar, TANIM+SOMUT ORNEK ile, 150-200 kelime), DERIN ANLATIM (konunun NEDEN ve NASIL calistigi, daha derin bakisla, birden fazla cozum yontemi varsa dahil et, 200-250 kelime), PUF NOKTALARI (sinavda zaman kazandiran 3-4 pratik kisayol/teknik, her biri "- " ile baslayan ayri satir), SIK YAPILAN HATALAR (ogrencilerin bu konuda sik yaptigi 3-4 hata, her biri "- " ile baslayan ayri satir), YENI NESIL UYGULAMA (bu bilgiyi gercek bir yeni nesil LGS tarzi problemde nasil kullanacagini gosteren somut bir ornek, 120-150 kelime). SADECE bu 6 baslik ve icerikleriyle yaz, baska hicbir aciklama/giris cumlesi ekleme, markdown kullanma. Matematik ifadelerini normal klavye karakterleriyle yaz (orn. "kok 12", "3 uzeri 2"). SADECE Turkce yaz, baska dilden TEK KELIME bile kullanma. Turkce'ye ozgu noktali/simgeli karakterleri (i, g, u, s, o, c harflerinin ozel hallerini) DOGRU ve EKSIKSIZ kullan, ASCII'ye sadelestirilmis yazma.`;
-      const altBaslikEkSayisi = Math.max(0, (manuelAltBaslik?.length || 1) - 1);
-      const cevap = await aiIstek(p, 5500 + altBaslikEkSayisi * 1200, cihazIdRef.current, false, secilenDers);
+      const cevap = await aiIslem("onerili_unite", { secilenDers, unite, sinif, zorlukSec, gecenYilZayif: !!(gecenYilRaporu && gecenYilRaporu.seviye === "Zayif"), manuelAltBaslik: dersSecimModu === "manuel" ? manuelAltBaslik : [] }, cihazIdRef.current);
       if (secilenDersRef.current !== dersAtCagri) return; // Bu sirada baska bir derse gecilmis - eski cevabi gosterme
       const temizMetin = metinTemizle(cevap);
       const uyari = await icerikDenetle(temizMetin, `Bu "${secilenDers}" dersi "${unite}" konusu anlatimi.`, cihazIdRef.current);
@@ -1539,9 +1493,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     }
     setAltKonuYukleniyor(true);
     try {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${dersAdi}" dersinin "${uniteAdi}" unitesini, ogrencinin sirayla calisabilecegi 4-6 kisa ALT KONU basligina bol (orn. "Asal Carpanlar", "EBOB Hesabi" gibi kisa, 2-4 kelimelik basliklar). Bu senin onerdigin bir calisma sirasi olsun, MEB'in resmi bir listesi oldugunu iddia etme. SADECE JSON dizisi dondur, baska hicbir aciklama ekleme, markdown kullanma:
-["Alt Konu 1","Alt Konu 2","Alt Konu 3"]`;
-      const cevap = await aiIstek(p, 500, cihazIdRef.current, true);
+      const cevap = await aiIslem("alt_konu", { dersAdi, uniteAdi }, cihazIdRef.current);
       const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
       const baslangic = temiz.indexOf("[");
       const bitis = temiz.lastIndexOf("]");
@@ -2058,12 +2010,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function kelimeKartlariUret() {
     setKelimeKartiYukleniyor(true); setHata(""); setKelimeKartlari(null); setKelimeKartiIndex(0); setKelimeKartiCevrildi(false);
     try {
-      const p = kelimeKartiDers === "Ingilizce"
-        ? `Sen Ingilizce ogretmenisin. "${kelimeKartiUnite}" konusuyla ilgili, ${sinif}. sinif seviyesine uygun 10 Ingilizce kelime karti hazirla. Kalite referansi: Milestone Ingilizce LGS Denemesi (Levent Cilek, TEAM ELT Publishing) ve Marka Yayinlari LGS Ingilizce Deneme serisi tarzinda - LGS formatina uygun, dengeli kelime secimi. Her kart icin: Ingilizce kelime, Turkce anlami, ve o kelimeyi kullanan BASIT bir Ingilizce ornek cumle (parantez icinde Turkce cevirisiyle). SADECE JSON dondur, markdown kullanma:
-[{"kelime":"...","anlam":"...","ornekCumle":"... (Turkce ceviri)"}]`
-        : `Sen Turkce ogretmenisin. ${sinif}. sinif seviyesine uygun, ogrencilerin kelime hazinesini zenginlestirecek 10 Turkce kelime (az bilinen ama seviyeye uygun, edebi metinlerde/LGS'de karsilarina cikabilecek kelimeler) hazirla. Kalite referansi: ${KALITE_REFERANSLARI["Turkce"]} Her kart icin: kelime, kisa ve net anlami, ve o kelimeyi kullanan bir ornek cumle. SADECE JSON dondur, markdown kullanma:
-[{"kelime":"...","anlam":"...","ornekCumle":"..."}]`;
-      const cevap = await aiIstek(p, 1800, cihazIdRef.current, true);
+      const cevap = await aiIslem("kelime_karti", { kelimeKartiDers, kelimeKartiUnite, sinif }, cihazIdRef.current);
       const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true });
       const baslangic = temiz.indexOf("[");
       const bitis = temiz.lastIndexOf("]");
@@ -2316,8 +2263,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (seviyeKonuAcikId === u.id) { setSeviyeKonuAcikId(null); return; } // tekrar tiklarsa kapansin
     setSeviyeKonuAcikId(u.id); setSeviyeKonuMetni(""); setSeviyeKonuYukleniyor(true); setHata("");
     try {
-      const p = `Sen deneyimli bir "${u.ders}" ogretmenisin. "${u.unite}" konusunu, ${u.kaynak_sinif}. sinif seviyesinde bir ogrenciye, MEB mufredati kazanimlarina sadik kalarak, sade ve anlasilir bir dille anlat. Once kisa bir giris, sonra ana kavramlar (her biri icin tanim, somut bir gunluk hayat ornegi ve kisa bir cozumlu ornek), sonda 3 maddelik "dikkat edilecek noktalar / sik yapilan hatalar". Toplam 450-600 kelime, konuyu yuzeysel gecme, gercek bir ders anlatimi kadar derinlikli olsun. SADECE duz metin yaz, markdown/LaTeX kullanma. Tum metin SADECE Turkce olmali, Latin alfabesi disinda (Kiril, Cince, Arapca vb.) TEK BIR karakter bile kullanma, Ingilizce/Almanca/Fransizca/Ispanyolca gibi bati dillerinden de TEK KELIME bile kullanma.`;
-      const cevap = await aiIstek(p, 2500, cihazIdRef.current);
+      const cevap = await aiIslem("seviye_konu", { ders: u.ders, unite: u.unite, kaynak_sinif: u.kaynak_sinif }, cihazIdRef.current);
       const uyari = await icerikDenetle(cevap, `Bu "${u.ders}" dersi "${u.unite}" konusu anlatimi.`, cihazIdRef.current);
       setSeviyeKonuMetni(uyari ? `${cevap}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : cevap);
     } catch (e) {
@@ -2622,10 +2568,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function paragrafSorusuUret() {
     setParagrafYukleniyor(true); setHata(""); setParagrafSoru(null); setParagrafCevap(null); setParagrafGonderildi(false);
     try {
-      const zorlukMetni = { kolay: "kisa ve net, temel seviyede", orta: "orta uzunlukta, LGS standart zorlukta", zor: "uzun, cok katmanli, ust duzey dusunme gerektiren (LGS'nin en zor sorulari tarzinda)" }[paragrafZorluk];
-      const p = `Sen bir Turkce ogretmenisin ve LGS paragraf sorulari konusunda uzmansin. ${sinif}. sinif seviyesinde, "${paragrafTuru}" turunde, ${zorlukMetni} BIR paragraf sorusu hazirla. ${BAGLAM_TEMELLI_SORU_TALIMATI} Kalite referansi: ${KALITE_REFERANSLARI["Turkce"]} Paragraf gercek bir LGS paragrafi kalitesinde olsun - 100-180 kelime arasi, akici, gercek bir konu (bilim, sanat, tarih, gunluk hayat, cevre vb.) hakkinda olsun, yapay/bosluk doldurma hissi vermesin. Celdiriciler ozellikle bu paragraf turune ozgu tipik hatalari yansitsin (orn. Ana Fikir sorusunda "dogru ama paragrafin butununu kapsamayan" bir secenegi celdirici olarak kullan). SADECE JSON dondur, markdown kullanma:
-{"paragraf":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"aciklama":"...","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}`;
-      const cevap = await aiIstek(p, 1800, cihazIdRef.current, true);
+      const cevap = await aiIslem("paragraf", { sinif, paragrafTuru, paragrafZorluk }, cihazIdRef.current);
       const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true });
       const baslangic = temiz.indexOf("{");
       const bitis = temiz.lastIndexOf("}");
@@ -2664,9 +2607,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (formulKartCache[anahtar]) return;
     setFormulKartYukleniyor(true);
     try {
-      const kaliteMetniFormul = KALITE_REFERANSLARI[dersAdi] ? ` Kalite referansi: ${KALITE_REFERANSLARI[dersAdi]}` : "";
-      const p = `Sen "${dersAdi}" dersi ogretmenisin. "${uniteAdi}" unitesinin EN ONEMLI 8-10 formulunu/kuralini/sinavda-dikkat noktasini, ${sinif}. sinif seviyesinde, COK KISA bir "hizli bakis karti" formatinda listele.${kaliteMetniFormul} HER MADDE TEK SATIR ve EN FAZLA 12 KELIME olsun (formul + 2-4 kelimelik aciklama) - uzun cumle YASAK. SADECE Turkce yaz, markdown kullanma (yildiz vb.), her maddeyi yeni satirda '•' ile basla. Son maddeyi MUTLAKA tamamla, yarim birakma.`;
-      const cevap = await aiIstek(p, 1800, cihazIdRef.current);
+      const cevap = await aiIslem("formul", { dersAdi, uniteAdi, sinif }, cihazIdRef.current);
       const temiz = cevap.replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/[\u4e00-\u9fff\u0600-\u06ff\u0400-\u04ff\u0900-\u097f\u0e00-\u0e7f\u0590-\u05ff]+/g, "")
         .split("\n").filter((satir) => satir.trim().length > 3).join("\n"); // yarim kalmis (sadece "•" gibi) satirlari at
       setFormulKartCache((eski) => ({ ...eski, [anahtar]: temiz }));
@@ -2717,9 +2658,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         return;
       }
 
-      const veriMetni = ozet.map((o) => `${o.ders}: ${o.testSayisi} test, ortalama net ${o.ortalamaNet}, en son net ${o.sonNet}`).join("; ");
-      const p = `Sen bir egitim kocususun. Su gercek sinav verilerine dayanarak DERIN, KISISEL bir karne/durum degerlendirmesi yaz: ${veriMetni}. Su noktalara deg: (1) En guclu oldugu 1-2 dersi somut sayilarla ovun, (2) En cok destege ihtiyaci olan 1-2 dersi nazik ama net sekilde belirt, (3) Son sinav ile ortalamasini kiyaslayip bir trend yorumu yap (yukseliyor mu, sabit mi, dususte mi), (4) Somut, uygulanabilir 2-3 tavsiye ver. Sicak, samimi, gercekci bir mentor tonu kullan - ne asiri ovucu ne cesaret kirici ol. 250-320 kelime, SADECE Turkce duz metin, markdown kullanma. Turkce'ye ozgu noktali/simgeli karakterleri DOGRU ve EKSIKSIZ kullan.`;
-      const yorum = await aiIstek(p, 1600, cihazIdRef.current);
+      const yorum = await aiIslem("karne", { ozet }, cihazIdRef.current);
       setKarneYorum(yorum);
     } catch (e) {
       setKarneYorum("Karne olusturulamadi, tekrar dene.");
@@ -3332,9 +3271,6 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (!ders || !konu.trim()) return;
     setYukleniyor("aciklama"); setHata(""); setAciklama(""); setAciklamaGorselSvg(null); setQuiz(null); setGonderildi(false); setTeknikOnerisi(null);
     try {
-      const uniteMetni = uniteSec ? ` (${uniteSec} unitesinden)` : "";
-      const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
-      const zorlukMetni = { basit: "cok basit ve yavas, temel seviyeden baslayarak", orta: "orta seviyede, ders kitabi diline uygun", zor: "ileri seviyede, LGS'de sik cikan zorlayici detaylara da deginerek" }[zorlukSec];
       // Icerik Onbellegi (4 Eylul) - once cache'e bak, varsa AI'ya gitmeden kullan
       const onbellekParam = new URLSearchParams({ sinif: String(sinif), ders, unite: uniteSec || "", konu: konu.trim(), zorlukSeviyesi: zorlukSec || "", icerikTuru: "konu_anlatimi" });
       try {
@@ -3363,8 +3299,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
         }
       } catch (paketHata) { /* konu_paketi erisilemezse eski akisa devam et */ }
 
-      const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusunu${uniteMetni}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye ${zorlukMetni} ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
-      const cevap = await aiIstek(p, 3200, cihazIdRef.current);
+      const cevap = await aiIslem("konu_anlat", { ders, konu: konu.trim(), uniteSec: uniteSec || "", sinif, zorlukSec }, cihazIdRef.current);
       const temizMetin = metinTemizle(cevap);
       const uyari = await icerikDenetle(temizMetin, `Bu "${ders}" dersi "${konu}" konusu anlatimi.`, cihazIdRef.current);
       const nihaiMetin = uyari ? `${temizMetin}\n\n[Otomatik kalite kontrolu notu: ${uyari} - bir yetiskinle birlikte gozden gecirebilirsin.]` : temizMetin;
@@ -3437,13 +3372,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
       }
 
       if (!anlatimMetni) {
-        const yasMetni = { 5: "10-11", 6: "11-12", 7: "12-13", 8: "13-14" }[sinif] || "13-14";
         const konuListesi = konuSec.split(",").map((s) => s.trim()).filter(Boolean);
         const tekKonuMu = konuListesi.length <= 1;
         const parcaMetinler = [];
         for (const tekKonuAdi of (konuListesi.length > 0 ? konuListesi : [konuSec.trim()])) {
-          const pAnlatim = `Sen deneyimli, alaninda uzman bir "${dersSec}" ogretmenisin. "${tekKonuAdi}" konusunu${uniteSec ? ` (${uniteSec} unitesinden)` : ""}, ${sinif}. sinifta okuyan ${yasMetni} yasindaki bir ogrenciye orta seviyede, ders kitabi diline uygun ama PROFESYONEL ve KALITELI bir dille, ozel ders yayinlarinin (MEB yayinlarindan daha ust seviye) kalitesinde anlat. SESIN COK ONEMLI - SU KURALA KESINLIKLE UY: Yazdigin HER CUMLE, gercek bir ogretmenin sinifta veya ozel derste, karsisindaki tek bir ogrenciye soyleyecegi CUMLE gibi olmali. Ornek FARK: "Once toplam ogrenci sayisi 24'tur. En az bir ders alanlar = 10+12-6=16." gibi SOGUK/DERS KITABI cumleleri KESINLIKLE YAZMA. Onun yerine: "Bak, once elimizdeki toplam sayiya bakalim: 24 ogrenci var. Simdi 'en az bir ders alan' kac kisi, onu bulalim..." gibi, KONUSUR gibi yaz. Her 2-3 cumlede bir "bak", "simdi", "dikkat et", "iste burada" gibi bir hitap MUTLAKA olsun. Cumleler kisa olsun (ortalama 8-12 kelime), art arda uzun/resmi cumleler yazma. ONEMLI: Konuyu OLDUGUNDAN KOLAY GOSTERME, gercek sinav zorlugunu yansit. AYNEN SU FORMATTA yaz (basliklari birebir kullan): once konunun tanimini ve neden onemli oldugunu 2-3 cumleyle ver. Sonra her alt kavram icin "Ornek:" diye etiketlenmis en az bir somut, sayisal ornek coz (adim adim). En sonda MUTLAKA "DIKKAT EDILECEK NOKTALAR" basligiyla, 2-4 maddelik ("- " ile baslayan) kisa bir liste ekle (sik yapilan hatalar, ipuclari). Toplamda 350-450 kelime. SADECE duz metin yaz: markdown (yildiz **, baslik #), LaTeX (dolar isareti $, \\sqrt, \\frac gibi komutlar) KULLANMA. Matematik ifadelerini normal klavye karakterleriyle yaz (ornek: "karekok 12", "3 uzeri 2", "1/2" gibi). SADECE Turkce yaz, Latin alfabesi disinda (Cince, Arapca, Kiril vb.) TEK BIR karakter bile kullanma. Ingilizce, Almanca, Fransizca, Portekizce, Ispanyolca gibi herhangi bir bati dilinden de TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan.`;
-          const parca = await aiIstek(pAnlatim, 3200, cihazIdRef.current);
+          const parca = await aiIslem("konu_anlat", { ders: dersSec, konu: tekKonuAdi, uniteSec: uniteSec || "", sinif, zorlukSec: "orta" }, cihazIdRef.current);
           parcaMetinler.push(tekKonuMu ? parca : `📌 ${tekKonuAdi}\n\n${parca}`);
         }
         anlatimMetni = parcaMetinler.join("\n\n");
@@ -3588,15 +3521,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
     if (zayifDersler.length === 0) return;
     setYukleniyor("plan"); setHata(""); setPlan(""); setHaftalikGorevListesi(null);
     try {
-      const ilerlemeOzeti = zayifDersler.map((d) => {
-        const tamamlanan = (tamamlananUniteler[d] || []).length;
-        const toplam = dersinUniteleri(d, sinif).length;
-        return toplam > 0 ? `${d}: ${tamamlanan}/${toplam} unite tamamlanmis` : null;
-      }).filter(Boolean).join(", ");
-      const kisiselBaglam = [
-        ilerlemeOzeti ? `Guncel ilerlemesi: ${ilerlemeOzeti}. Bu gercek veriyi dikkate alarak konus.` : "",
-      ].filter(Boolean).join(" ");
-      let konuOzeti = "";
+      // Sunucu prompt'u kurar: burada yalniz yapisal veri toplanir (ders -> tamamlanan unite sayisi,
+      // ders -> en cok hata yapilan 3 alt konu, en iyi/en kotu calisma saati).
+      const tamamlananSayilari = {};
+      zayifDersler.forEach((d) => { tamamlananSayilari[d] = (tamamlananUniteler[d] || []).length; });
+      let zayifAltKonular = null;
       try {
         const istRes = await fetch(`/api/hata-kitapcigi?cihazId=${cihazIdRef.current}&istatistik=true`);
         const istVeri = await istRes.json();
@@ -3606,12 +3535,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           if (!dersBazli[r.ders]) dersBazli[r.ders] = [];
           dersBazli[r.ders].push(r);
         });
-        konuOzeti = Object.keys(dersBazli).map((d) => {
-          const enZayif = dersBazli[d].sort((a, b) => b.hata_sayisi - a.hata_sayisi).slice(0, 3).map((r) => r.alt_konu).join(", ");
-          return `${d}: ${enZayif}`;
-        }).join("; ");
+        zayifAltKonular = {};
+        Object.keys(dersBazli).forEach((d) => {
+          zayifAltKonular[d] = dersBazli[d].sort((a, b) => b.hata_sayisi - a.hata_sayisi).slice(0, 3).map((r) => r.alt_konu);
+        });
       } catch (e) { /* istatistik alinamazsa genel devam et */ }
-      let saatlikNot = "";
+      let saatlik = null;
       try {
         const hafizaRes = await fetch(`/api/ogrenme-hafizasi?cihazId=${cihazIdRef.current}`);
         const hafizaVeri = await hafizaRes.json();
@@ -3620,13 +3549,11 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
           const enIyi = saatler[0];
           const enKotu = saatler[saatler.length - 1];
           if (Number(enIyi.basari_orani) > Number(enKotu.basari_orani)) {
-            saatlikNot = ` Ogrenci saat ${enIyi.saat}:00 civarinda daha basarili oluyor, saat ${enKotu.saat}:00 civarinda daha cok zorlaniyor - agir konulari ona gore onerebilirsin.`;
+            saatlik = { enIyiSaat: Number(enIyi.saat), enKotuSaat: Number(enKotu.saat) };
           }
         }
       } catch (e) { /* hafiza verisi alinamazsa genel devam et */ }
-      const p = `Sen bir LGS calisma kocususun - samimi bir MENTOR gibi konus. ${kisiselBaglam} Zayif dersler: ${zayifDersler.join(", ")}.${konuOzeti ? ` En cok zorlandigi ALT KONULAR (oncelik sirasiyla): ${konuOzeti}. Gorevleri mumkun oldugunca bu SPESIFIK konulara gore yaz, genel ders adiyla yetinme.` : ""}${saatlikNot} Haftalik ${haftalikSaat} saat, sinava ${kalanHafta} hafta kaldi. Iki parca uret: (1) "mesaj": ogrenciye sicak, kisa (150-200 kelime) bir konusma metni - programi ozetle, plato/basari notunu ekle. (2) "program": Pazartesi'den Pazar'a kadar HER GUN icin bir gorev nesnesi (bos gunler icin de "Dinlenme" gibi bir ders yaz) - {"gun":"Pazartesi","ders":"Matematik","gorev":"Kisa, somut, TEK CUMLELIK gorev tanimi"}. SADECE su JSON formatinda don, baska aciklama ekleme, markdown kullanma:
-{"mesaj":"...","program":[{"gun":"Pazartesi","ders":"...","gorev":"..."},{"gun":"Sali","ders":"...","gorev":"..."},{"gun":"Carsamba","ders":"...","gorev":"..."},{"gun":"Persembe","ders":"...","gorev":"..."},{"gun":"Cuma","ders":"...","gorev":"..."},{"gun":"Cumartesi","ders":"...","gorev":"..."},{"gun":"Pazar","ders":"...","gorev":"..."}]}`;
-      const cevap = await aiIstek(p, 2200, cihazIdRef.current, true);
+      const cevap = await aiIslem("plan", { sinif, zayifDersler, haftalikSaat, kalanHafta, tamamlananSayilari, zayifAltKonular, saatlik }, cihazIdRef.current);
       const temiz = jsonMetniTemizle(cevap);
       const baslangic = temiz.indexOf("{");
       const bitis = temiz.lastIndexOf("}");
@@ -3818,10 +3745,7 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
   async function seviyeTespitiYap() {
     setYukleniyor("seviye"); setHata(""); setSeviyeCevaplar({}); setSeviyeSorulari(null); setSeviyeRaporu(null);
     try {
-      const dersListesi = gorunurDersler(sinif).map((d) => d.ad).join(", ");
-      const p = `Sen bir egitim kurumunda seviye tespit sinavi hazirlayan bir olcme-degerlendirme uzmanisin. Su derslerin HER BIRINDEN 2'ser soru olmak uzere toplam 12 soruluk bir SEVIYE TESPIT SINAVI hazirla: ${dersListesi}. ${sinif}. sinif seviyesinde, her dersten 1 kolay 1 orta zorlukta soru olsun. Her sorunun hangi derse ait oldugunu "ders" alaninda MUTLAKA belirt (yukaridaki isimlerle BIREBIR ayni yaz). Sorular mantik yurutme gerektirsin, ezber bilgi sorma. Tum metinler SADECE Turkce olmali, Latin alfabesi disinda TEK BIR karakter bile kullanma, ayrica Ingilizce/Almanca/Fransizca/Portekizce gibi baska dilden TEK KELIME bile kullanma, sadece oz Turkce kelimeler kullan. SADECE JSON dondur, baska hicbir aciklama ekleme:
-[{"ders":"Matematik","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"soru hangi beceriyi olcuyor (orn. islem becerisi, yorumlama, uygulama - kisa 2-4 kelime)","tahminiSureSaniye":45,"yayginHata":"ogrencilerin bu tarz soruda en sik yaptigi hata (kisa, 1 cumle)","cozumTeknigi":"bu soruyu hizli cozmenin pratik teknigi (kisa, 1 cumle)"}]`;
-      const cevap = await aiIstek(p, 5000, cihazIdRef.current, true);
+      const cevap = await aiIslem("seviye_tespit", { sinif }, cihazIdRef.current);
       const temiz = jsonMetniTemizle(cevap, { dilFiltresi: true, parantezTemizle: true });
       const seviyeSorulariUretilen = soruJsonAyikla(temiz);
       setSeviyeSorulari(seviyeSorulariUretilen);

@@ -7,7 +7,7 @@ import { BAGLAM_TEMELLI_SORU_TALIMATI } from "@/lib/soru-talimati-sunucu";
 
 // Faz 2 (21 Ekim): UCRETLI ozellikler (tatil programi, bursluluk) icin prompt'u SUNUCU kurar.
 // Istemci yalniz yapisal parametre gonderir; prompt gonderemez, bu yuzden paket kontrolu
-// prompt metnini yeniden yazarak atlatilamaz. Genel /api/claude vekili bu ozellikleri ayrica reddeder.
+// prompt metnini yeniden yazarak atlatilamaz. Genel /api/claude vekili tamamen kapatildi (410).
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
