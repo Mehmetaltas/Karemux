@@ -2,6 +2,7 @@ import { aiCagir } from "@/lib/ai";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { ilgiliBilgiParcalariniGetir } from "@/lib/rag";
 import { hasPackageFeature } from "@/lib/paket";
+import { sunucuGerekliPaket } from "@/lib/ucretli-prompt-kurallari";
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 import { ogrenmeHafizasiGetir } from "@/lib/ogrenme-hafizasi";
@@ -36,8 +37,10 @@ export async function POST(req) {
       return Response.json({ error: "Gecersiz istek" }, { status: 400 });
     }
 
-    if (gerekliPaket) {
-      const erisimVar = await hasPackageFeature(req, cihazId, gerekliPaket);
+    // Ucretli ozellik yetkisi: sunucunun prompt'tan buldugu paket onceliklidir, istemci beyani (gerekliPaket) yalnizca yedek.
+    const istenenPaket = sunucuGerekliPaket(prompt) || gerekliPaket;
+    if (istenenPaket) {
+      const erisimVar = await hasPackageFeature(req, cihazId, istenenPaket);
       if (!erisimVar) {
         return Response.json({ error: "Bu ozellik icin ilgili paketi satin almalisin." }, { status: 403 });
       }
