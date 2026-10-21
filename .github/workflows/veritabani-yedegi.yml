@@ -31,10 +31,10 @@ jobs:
           gzip -9 -c yedek.sql | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:BACKUP_SIFRESI -out "yedek-$(date -u +%F).sql.gz.enc"
           rm yedek.sql
           ls -l yedek-*.enc
-      - name: Sifreli yedegi sakla (30 gun)
+      - name: Sifreli yedegi sakla (14 gun)
         uses: actions/upload-artifact@v4
         with:
           name: veritabani-yedegi
           path: yedek-*.sql.gz.enc
-          retention-days: 30
+          retention-days: 14
           if-no-files-found: error
