@@ -75,7 +75,7 @@ export async function POST(req) {
     }
 
     const maxTokens = Math.min(Math.max(Math.floor(tanim.maxTokens(hazir)), 1), 8192);
-    const metin = await aiCagir({ prompt: sonPrompt, maxTokens, jsonModu: !!tanim.jsonModu, tur: tanim.tur });
+    const metin = await aiCagir({ prompt: sonPrompt, maxTokens, jsonModu: !!tanim.jsonModu, tur: tanim.tur || `ai_islem_${islem}` });
     aiKullanimLoglaSessizce(metin, ragKullanildi);
     return Response.json({ text: metin, kalanHak: Math.max(0, limit.limit - limit.kullanim), ragKullanildi });
   } catch (e) {

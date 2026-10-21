@@ -67,7 +67,7 @@ export async function POST(req) {
     }
 
     if (typeof prompt !== "string" || prompt.length < 50) return Response.json({ error: "Istek olusturulamadi" }, { status: 500 });
-    const metin = await aiCagir({ prompt, maxTokens, jsonModu: true });
+    const metin = await aiCagir({ prompt, maxTokens, jsonModu: true, tur: `ucretli_${gerekliPaket}` });
     return Response.json({ text: metin });
   } catch (e) {
     console.error(e);
