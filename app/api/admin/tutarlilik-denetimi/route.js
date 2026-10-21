@@ -56,22 +56,32 @@ export async function GET(req) {
     // 4. konu_paketi kayitlarinin kalite kontrolu (16 Eylul) - eski kayitlarda
     // kaliteKontrol alani hic yok, yeni kayitlarda var ama gecti:false olabilir.
     // Her ikisini de tek seferde taze calistirip yakalar.
+    // Yalniz OGRENCIYE SUNULABILECEK paketler bulgu sayilir: ogretmen onayli satirlar ve kalite kontrolu gecmis NULL
+    // satirlar (konu-paketi onbellegi bunlari sunar). Kalite kontrolunden gecemeyen 'bekliyor' (ogretmen incelemesi bekleyen)
+    // ve eski kalitesiz NULL satirlar sunulmaz; bilgi olarak ayri raporlanir, aksi halde haftalik denetim her zaman basarisiz gorunurdu.
     const konuPaketleri = await sql`
-      SELECT id, ders, sinif, konu, icerik_json FROM icerik_onbellek
+      SELECT id, ders, sinif, konu, onay_durumu, icerik_json FROM icerik_onbellek
       WHERE icerik_turu = 'konu_paketi'
     `;
+    let yayinDisiKaliteSorunlu = 0, incelemeBekleyen = 0;
     for (const kp of konuPaketleri) {
       const sonuc = kaliteKontrolYap("konu_paketi", kp.icerik_json);
-      if (!sonuc.gecti) {
+      if (sonuc.gecti) continue;
+      let p = kp.icerik_json;
+      if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { p = null; } }
+      const sunulabilir = kp.onay_durumu === "onaylandi" || (kp.onay_durumu === null && p && p.kaliteKontrol && p.kaliteKontrol.gecti === true);
+      if (sunulabilir) {
         bulgular.push({
           tur: "konu_paketi_kalite_sorunu",
           id: kp.id,
           ders: kp.ders,
           sinif: kp.sinif,
           konu: kp.konu,
+          onayDurumu: kp.onay_durumu,
           detay: sonuc.uyarilar.join("; "),
         });
-      }
+      } else if (kp.onay_durumu === "bekliyor") incelemeBekleyen++;
+      else yayinDisiKaliteSorunlu++;
     }
 
     // 5. soru_bankasi'nda yabanci karakter iceren sorular (16 Eylul,
@@ -122,6 +132,7 @@ export async function GET(req) {
       bulgular,
       not: bulgular.length === 0 ? "Su an bilinen desenlerde tutarsizlik bulunamadi." : "Yukaridaki bulgular manuel incelenmeli.",
       mufredatKapsamiDersSinifSayisi: dersSinifKombinasyonlari.length,
+      bilgi: { incelemeBekleyenKonuPaketi: incelemeBekleyen, yayinDisiKaliteSorunluKonuPaketi: yayinDisiKaliteSorunlu },
     });
   } catch (e) {
     return Response.json({ error: e.message }, { status: 500 });

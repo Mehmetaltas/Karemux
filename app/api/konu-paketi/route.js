@@ -55,12 +55,25 @@ export async function GET(req) {
     }
 
     // 1. Cache kontrolu
-    const mevcut = await sql`
-      SELECT id, icerik_json FROM icerik_onbellek
+    // Kalite kontrolunden GECEN paket onay_durumu NULL olarak yazilir; eskiden yalniz 'onaylandi' satirlar onbellekten
+    // sunuldugu icin gecen paketler hic kullanilmiyor, her istek yeniden uretiliyor ve yeni satir ekliyordu (canli veri:
+    // 5 konuda 40 tekrar satir, yalniz 1 onayli). Artik ogretmen onayli satir ya da kalite kontrolu gecmis (kaliteKontrol.gecti)
+    // satir sunulur; ogrenciye zaten bu halde gosterilmis icerik tekrar uretilmez. Basarisiz/bekleyen paket sunulmaz.
+    const adaylar = await sql`
+      SELECT id, onay_durumu, icerik_json FROM icerik_onbellek
       WHERE sinif = ${Number(sinif)} AND ders = ${ders} AND unite = ${unite}
-        AND konu = ${konu} AND icerik_turu = 'konu_paketi' AND onay_durumu = 'onaylandi'
-      LIMIT 1
+        AND konu = ${konu} AND icerik_turu = 'konu_paketi' AND (onay_durumu = 'onaylandi' OR onay_durumu IS NULL)
+      ORDER BY (onay_durumu = 'onaylandi') DESC NULLS LAST, olusturulma DESC
+      LIMIT 5
     `;
+    const mevcut = [];
+    for (const a of adaylar) {
+      if (!a.icerik_json) continue;
+      if (a.onay_durumu === "onaylandi") { mevcut.push(a); break; }
+      let p = a.icerik_json;
+      if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { continue; } }
+      if (p && p.kaliteKontrol && p.kaliteKontrol.gecti === true) { mevcut.push(a); break; }
+    }
     if (mevcut.length > 0 && mevcut[0].icerik_json) {
       await sql`UPDATE icerik_onbellek SET kullanim_sayisi = kullanim_sayisi + 1, son_kullanim = now() WHERE id = ${mevcut[0].id}`;
       return Response.json({ kaynak: "cache", paket: paketiHerkeseAc(mevcut[0].icerik_json) });
@@ -201,7 +214,20 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     if (cihazId === OTOMASYON_TEST_CIHAZ_ID) {
       return Response.json({ kaynak: "yeni_uretim", paket: paketiHerkeseAc(paket), testModu: true });
     }
-    try {
+    // Ayni konu icin zaten 'bekliyor' satiri varsa yenisi eklenmez ve ogretmene tekrar e-posta gonderilmez
+    // (canli veri: 2 konuda 11 bekleyen satir, her yeniden uretim kuyruga ve gelen kutusuna yeni kayit ekliyordu).
+    let zatenBekliyor = false;
+    if (onayDurumu === "bekliyor") {
+      try {
+        const var1 = await sql`
+          SELECT 1 FROM icerik_onbellek
+          WHERE sinif = ${Number(sinif)} AND ders = ${ders} AND unite = ${unite} AND konu = ${konu}
+            AND icerik_turu = 'konu_paketi' AND onay_durumu = 'bekliyor' LIMIT 1
+        `;
+        zatenBekliyor = var1.length > 0;
+      } catch (e) { /* kontrol basarisizsa eski davranis: kaydet */ }
+    }
+    if (!zatenBekliyor) try {
       const cacheSonuc = await sql`
         INSERT INTO icerik_onbellek (sinif, ders, unite, konu, zorluk_seviyesi, icerik_turu, icerik, icerik_json, kullanim_sayisi, olusturulma, son_kullanim, onay_durumu)
         VALUES (${Number(sinif)}, ${ders}, ${unite}, ${konu}, '', 'konu_paketi', ${paket.anlatim.temelAnlatim || ""}, ${JSON.stringify(paket)}, 1, now(), now(), ${onayDurumu})
@@ -217,7 +243,7 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
     } catch (e) { console.error("konu_paketi cache yazilamadi:", e); }
 
     // Isaretlenen paket icin eslesen branstaki ogretmen(ler)e bildirim gonder
-    if (onayDurumu === "bekliyor") {
+    if (onayDurumu === "bekliyor" && !zatenBekliyor) {
       try {
         const ilgiliOgretmenler = await sql`SELECT eposta, ad FROM ogretmenler WHERE brans = ${ders} AND aktif = true`;
         for (const o of ilgiliOgretmenler) {
