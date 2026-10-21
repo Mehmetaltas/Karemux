@@ -192,7 +192,7 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
 
     // Eleme sonrasi 15'in altinda kalirsa (canli kanit 21 Ekim: 13, 12 soru; denetim 4-7 soru eliyor) eksik kismi KUCUK bir ikinci cagriyla
     // tamamla: yalniz eksik + 3 yedek soru istenir, ayni bagimsiz denetimden gecer. Sure yetmiyorsa (60 sn sinir) atlanir; eski davranis korunur.
-    if (soruHavuzuKaliteGecen.length < 15 && Date.now() - istekBaslangicMs < 34000) {
+    if (soruHavuzuKaliteGecen.length < 15 && Date.now() - istekBaslangicMs < 32000) {
       try {
         const eksikSayi = 15 - soruHavuzuKaliteGecen.length;
         const istenenYeni = eksikSayi + 3;
@@ -206,13 +206,13 @@ ${mevcutSorular}
 
 TAM ${istenenYeni} YENI soru uret (zorluk ihtiyaci: ${ihtiyac}; kalanini orta yap). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap, acikca yanlis celdiriciler olsun. Tum metinler SADECE Turkce olmali.
 SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"${kontrolIfadesiTalimati}}]}`;
-        const { metin: tamamlaCevap } = await aiCagirDetay({ prompt: tamamlaPrompt, maxTokens: 900 + istenenYeni * 450, jsonModu: true, tur: "konu_paketi_tamamlama" }, null, 20000);
+        const { metin: tamamlaCevap } = await aiCagirDetay({ prompt: tamamlaPrompt, maxTokens: 900 + istenenYeni * 450, jsonModu: true, tur: "konu_paketi_tamamlama" }, null, 14000);
         const yeniHam = jsonAyikla(tamamlaCevap);
         const yeniFormatGecen = (Array.isArray(yeniHam.sorular) ? yeniHam.sorular : []).filter((x) =>
           soruFormatGecerliMi(x, { soruTrimGerekli: true, dersUniteGerekli: false })
         );
         if (yeniFormatGecen.length > 0) {
-          const yeniDenetim = await sorulariDenetle(yeniFormatGecen, denetimBaglami, 9000);
+          const yeniDenetim = await sorulariDenetle(yeniFormatGecen, denetimBaglami, 7000);
           soruHavuzuKaliteGecen = soruHavuzuKaliteGecen.concat(yeniDenetim.gecenler);
           soruHavuzuElenen += yeniDenetim.elenenSayisi + (yeniHam.sorular.length - yeniFormatGecen.length);
           paket.soruHavuzuTamamlandi = yeniDenetim.gecenler.length;
@@ -222,7 +222,7 @@ SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","
     // Odev sayisi 6'nin altinda kalirsa (canli: 5, ve Ingilizce 7'de 2-3) eksik odevler kucuk bir ikinci cagriyla tamamlanir.
     const odevGecerli = (o) => o && typeof o.soru === "string" && o.soru.trim() && typeof o.cozum === "string" && o.cozum.trim();
     if (Array.isArray(paket.odevSorulari)) paket.odevSorulari = paket.odevSorulari.filter(odevGecerli);
-    if ((paket.odevSorulari || []).length < 6 && Date.now() - istekBaslangicMs < 44000) {
+    if ((paket.odevSorulari || []).length < 6 && Date.now() - istekBaslangicMs < 40000) {
       try {
         const eksikOdev = 6 - (paket.odevSorulari || []).length;
         const mevcutOdev = (paket.odevSorulari || []).map((o, i) => `${i + 1}. ${o.soru}`).join("\n");
@@ -231,7 +231,7 @@ ${mevcutOdev || "(yok)"}
 
 TAM ${eksikOdev} YENI acik uclu soru uret, her biri icin adim adim detayli cozum yaz. Tum metinler SADECE Turkce olmali.
 SADECE JSON dondur: {"odevSorulari":[{"soru":"...", "cozum":"adim adim detayli cozum metni"}]}`;
-        const { metin: odevCevap } = await aiCagirDetay({ prompt: odevPrompt, maxTokens: 800 + eksikOdev * 700, jsonModu: true, tur: "konu_paketi_odev_tamamlama" }, null, 20000);
+        const { metin: odevCevap } = await aiCagirDetay({ prompt: odevPrompt, maxTokens: 800 + eksikOdev * 700, jsonModu: true, tur: "konu_paketi_odev_tamamlama" }, null, 15000);
         const yeniOdev = jsonAyikla(odevCevap);
         const eklenecek = (Array.isArray(yeniOdev.odevSorulari) ? yeniOdev.odevSorulari : []).filter(odevGecerli).slice(0, eksikOdev);
         if (eklenecek.length > 0) paket.odevSorulari = (paket.odevSorulari || []).concat(eklenecek);
