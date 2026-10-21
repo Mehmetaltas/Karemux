@@ -48,6 +48,7 @@ function dengeliKirp(sorular, hedef) {
 export async function GET(req) {
   try {
     const u = new URL(req.url);
+    const istekBaslangicMs = Date.now();
     const sinif = u.searchParams.get("sinif");
     const ders = u.searchParams.get("ders");
     const konu = u.searchParams.get("konu");
@@ -186,8 +187,38 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
       + " havuzunda kullanilacak, ogrenciye dogrudan gosterilecek,"
       + " cok yuksek dogruluk gerekiyor.";
     const denetimSonucu = await sorulariDenetle(soruHavuzuFormatGecen, denetimBaglami);
-    const soruHavuzuKaliteGecen = denetimSonucu.gecenler;
-    const soruHavuzuElenen = denetimSonucu.elenenSayisi;
+    let soruHavuzuKaliteGecen = denetimSonucu.gecenler;
+    let soruHavuzuElenen = denetimSonucu.elenenSayisi;
+
+    // Eleme sonrasi 15'in altinda kalirsa (canli kanit 21 Ekim: 13, 12 soru; denetim 4-7 soru eliyor) eksik kismi KUCUK bir ikinci cagriyla
+    // tamamla: yalniz eksik + 3 yedek soru istenir, ayni bagimsiz denetimden gecer. Sure yetmiyorsa (60 sn sinir) atlanir; eski davranis korunur.
+    if (soruHavuzuKaliteGecen.length < 15 && Date.now() - istekBaslangicMs < 34000) {
+      try {
+        const eksikSayi = 15 - soruHavuzuKaliteGecen.length;
+        const istenenYeni = eksikSayi + 3;
+        const kota = { kolay: 5, orta: 6, zor: 4 };
+        const var1 = { kolay: 0, orta: 0, zor: 0 };
+        soruHavuzuKaliteGecen.forEach((x) => { const z = typeof x?.zorluk === "string" ? x.zorluk.trim().toLowerCase() : ""; if (z in var1) var1[z]++; });
+        const ihtiyac = ["kolay", "orta", "zor"].map((z) => `${Math.max(0, kota[z] - var1[z])} ${z}`).join(", ");
+        const mevcutSorular = soruHavuzuKaliteGecen.map((x, i) => `${i + 1}. ${x.soru}`).join("\n");
+        const tamamlaPrompt = `Sen deneyimli bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin ${sinif}. sinif seviyesinde coktan secmeli sorular hazirlayacaksin. Asagidaki sorular ZATEN var, bunlari ve bunlara benzer sorulari TEKRARLAMA:
+${mevcutSorular}
+
+TAM ${istenenYeni} YENI soru uret (zorluk ihtiyaci: ${ihtiyac}; kalanini orta yap). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap, acikca yanlis celdiriciler olsun. Tum metinler SADECE Turkce olmali.
+SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"${kontrolIfadesiTalimati}}]}`;
+        const { metin: tamamlaCevap } = await aiCagirDetay({ prompt: tamamlaPrompt, maxTokens: 900 + istenenYeni * 450, jsonModu: true, tur: "konu_paketi_tamamlama" }, null, 20000);
+        const yeniHam = jsonAyikla(tamamlaCevap);
+        const yeniFormatGecen = (Array.isArray(yeniHam.sorular) ? yeniHam.sorular : []).filter((x) =>
+          soruFormatGecerliMi(x, { soruTrimGerekli: true, dersUniteGerekli: false })
+        );
+        if (yeniFormatGecen.length > 0) {
+          const yeniDenetim = await sorulariDenetle(yeniFormatGecen, denetimBaglami, 9000);
+          soruHavuzuKaliteGecen = soruHavuzuKaliteGecen.concat(yeniDenetim.gecenler);
+          soruHavuzuElenen += yeniDenetim.elenenSayisi + (yeniHam.sorular.length - yeniFormatGecen.length);
+          paket.soruHavuzuTamamlandi = yeniDenetim.gecenler.length;
+        }
+      } catch (tamamlaHatasi) { console.warn("konu_paketi havuz tamamlama basarisiz:", ders, konu, tamamlaHatasi.message); }
+    }
     if (soruHavuzuKaliteGecen.length === 0) {
       return Response.json(
         { error: "Soru havuzu kalite denetiminden gecemedi, tekrar dene" },
