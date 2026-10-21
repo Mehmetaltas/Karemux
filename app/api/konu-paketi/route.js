@@ -14,6 +14,21 @@ import { paketiHerkeseAc } from "@/lib/halka-acik-paket";
 
 export const maxDuration = 60;
 
+// Soru havuzu icin 18 soru istenir (6 kolay, 7 orta, 5 zor); bagimsiz denetim bazi sorulari eler (canli: havuzlar 10-14 soruya
+// inmisti, kalite kontrolu 15 istiyor). Denetimden sonra zorluk dagilimi korunarak 15'e kirpilir (5 kolay, 6 orta, 4 zor).
+function dengeliKirp(sorular, hedef) {
+  if (!Array.isArray(sorular) || sorular.length <= hedef) return sorular;
+  const kota = { kolay: 5, orta: 6, zor: 4 };
+  const sayac = { kolay: 0, orta: 0, zor: 0 };
+  const secili = new Set();
+  sorular.forEach((s, i) => {
+    const z = typeof s?.zorluk === "string" ? s.zorluk.trim().toLowerCase() : "";
+    if (z in kota && sayac[z] < kota[z]) { sayac[z]++; secili.add(i); }
+  });
+  sorular.forEach((s, i) => { if (secili.size < hedef && !secili.has(i)) secili.add(i); });
+  return sorular.filter((s, i) => secili.has(i));
+}
+
 // TEK KONU MOTORU - Adim 1 (14 Eylul). Bir konu icin TEK AI cagrisiyla
 // anlatim+soru havuzu+odev URETIP icerik_onbellek'e icerik_json olarak
 // yazan endpoint. Cache varsa AI'ya HIC gitmez (maliyet=0). Bu, mevcut
@@ -119,7 +134,7 @@ SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska 
   ]
 }
 
-soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
+soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
 
     const { metin: cevap, saglayici } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
     let paket = jsonAyikla(cevap);
@@ -179,7 +194,7 @@ soruHavuzu TAM 15 soru icersin: 5 kolay, 6 orta, 4 zor (sirali ver). odevSorular
         { status: 500 }
       );
     }
-    paket.soruHavuzu = soruHavuzuKaliteGecen;
+    paket.soruHavuzu = dengeliKirp(soruHavuzuKaliteGecen, 15);
     paket.soruHavuzuElenen = soruHavuzuElenen;
 
     // 14 Ekim: eleme sonrasi havuz 15'in altina inebilir (canli kanit:
