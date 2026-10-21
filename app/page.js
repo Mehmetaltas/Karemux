@@ -6820,6 +6820,12 @@ Ogrenciye, dogru cevabin NEDEN dogru oldugunu ve ogrencinin verdigi cevabin NEDE
                   </div>
                 )}
 
+                {ulusalSonuc.cevapAnahtariKapanista && (!ulusalSonuc.cevapAnahtari || ulusalSonuc.cevapAnahtari.length === 0) && (
+                  <p style={{ marginTop: 14, fontSize: 11.5, color: "#C5CBD3", textAlign: "center" }}>
+                    Cevap anahtarı, deneme herkes için kapandığında açılır{ulusalSonuc.kapanis ? ` (${new Date(ulusalSonuc.kapanis).toLocaleString("tr-TR")})` : ""}.
+                  </p>
+                )}
+
                 {ulusalSonuc.cevapAnahtari && ulusalSonuc.cevapAnahtari.length > 0 && (
                   <div style={{ marginTop: 18 }}>
                     <button onClick={() => setCevapAnahtariAcik((eski) => !eski)} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: `1px solid ${COLORS.mustard}`, background: "transparent", color: COLORS.mustard, fontWeight: 700, fontSize: 12, cursor: "pointer" }}>

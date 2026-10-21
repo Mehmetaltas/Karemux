@@ -24,6 +24,7 @@ const pool = new pg.Pool({
 });
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const PUANLAMA_SURUMU = 2; // Vercel lib/puanlama.js ile ayni net formulu (dogru - yanlis/3)
 function kullaniciIdCoz(req) {
   try {
     const token = req.cookies?.karemux_token;
@@ -146,11 +147,15 @@ app.get("/aktif", async (req, res) => {
 // POST /gonder - Vercel'deki /api/ulusal-deneme/gonder ile AYNI mantik
 app.post("/gonder", async (req, res) => {
   try {
-    const { ulusalDenemeId, cevaplar } = req.body;
+    const { ulusalDenemeId, cevaplar } = req.body || {};
+    if (!cevaplar || typeof cevaplar !== "object") return res.status(400).json({ error: "Gecersiz cevaplar" });
     const kullaniciId = await kullaniciIdVeyaGolge(req);
     if (!kullaniciId) return res.status(401).json({ error: "Giris yapmalisin" });
 
     const deneme = await pool.query(`SELECT sorular, kapanis, ders FROM ulusal_denemeler WHERE id = $1`, [ulusalDenemeId]);
+    // acilis kontrolu: acilmamis denemeye gonderim kabul edilmez
+    const acilisKontrol = await pool.query(`SELECT acilis FROM ulusal_denemeler WHERE id = $1`, [ulusalDenemeId]);
+    if (acilisKontrol.rows[0] && new Date(acilisKontrol.rows[0].acilis) > new Date()) return res.status(400).json({ error: "Bu deneme henuz acilmadi" });
     if (deneme.rows.length === 0) return res.status(404).json({ error: "Deneme bulunamadi" });
     if (new Date(deneme.rows[0].kapanis) < new Date()) return res.status(400).json({ error: "Bu denemenin suresi doldu" });
 
@@ -180,6 +185,20 @@ app.post("/gonder", async (req, res) => {
     }
     const net = Math.max(0, dogru - yanlis / 3);
 
+    const kullanici = await pool.query(`SELECT kurum_id, hedef_il, hedef_ilce FROM kullanicilar WHERE id = $1`, [kullaniciId]);
+    // Atomik tek gonderim: ON CONFLICT DO NOTHING (UNIQUE index varsa yarisi kapatir),
+    // WHERE NOT EXISTS ise indeks yokken de ayni anda tekrar eklemeyi onler.
+    const eklenen = await pool.query(
+      `INSERT INTO ulusal_deneme_sonuclari (ulusal_deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net, il, ilce, puanlama_surumu)
+       SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+       WHERE NOT EXISTS (SELECT 1 FROM ulusal_deneme_sonuclari WHERE ulusal_deneme_id = $1 AND kullanici_id = $2)
+       ON CONFLICT DO NOTHING
+       RETURNING id`,
+      [ulusalDenemeId, kullaniciId, kullanici.rows[0]?.kurum_id || null, dogru, yanlis, bos, net,
+       kullanici.rows[0]?.hedef_il || null, kullanici.rows[0]?.hedef_ilce || null, PUANLAMA_SURUMU]
+    );
+    if (eklenen.rows.length === 0) return res.status(400).json({ error: "Bu denemeyi zaten cozdun" });
+
     if (hataSatirlari.length > 0) {
       try {
         const degerSatirlari = hataSatirlari.map((_, idx) => {
@@ -193,15 +212,9 @@ app.post("/gonder", async (req, res) => {
       } catch (e) { /* engelleme */ }
     }
 
-    const kullanici = await pool.query(`SELECT kurum_id FROM kullanicilar WHERE id = $1`, [kullaniciId]);
-    await pool.query(
-      `INSERT INTO ulusal_deneme_sonuclari (ulusal_deneme_id, kullanici_id, kurum_id, dogru, yanlis, bos, net)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-      [ulusalDenemeId, kullaniciId, kullanici.rows[0]?.kurum_id || null, dogru, yanlis, bos, net]
-    );
-
     const karne = Object.keys(altKonuOzet).map((k) => ({ altKonu: k, ...altKonuOzet[k] }));
-    const cevapAnahtari = sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama }));
+    // Deneme hala acikken diger ogrenciler cozuyor: cevap anahtari kapanistan sonra /cevap-anahtari ile verilir.
+    const cevapAnahtari = [];
 
     const siralamaSorgu = await pool.query(
       `WITH siralamalar AS (
@@ -215,10 +228,30 @@ app.post("/gonder", async (req, res) => {
     const toplamKatilimci = siralamaSorgu.rows[0]?.toplam || 1;
     const yuzdelikDilim = toplamKatilimci > 0 ? Math.round((1 - siram / toplamKatilimci) * 100) : null;
 
-    res.json({ dogru, yanlis, bos, net, karne, cevapAnahtari, siram, toplamKatilimci, yuzdelikDilim });
+    res.json({ dogru, yanlis, bos, net, karne, cevapAnahtari, cevapAnahtariKapanista: true, kapanis: deneme.rows[0].kapanis, siram, toplamKatilimci, yuzdelikDilim });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "Gonderilemedi: " + e.message });
+  }
+});
+
+// GET /cevap-anahtari - sadece deneme KAPANDIKTAN sonra ve yalniz denemeyi cozmus kullaniciya
+app.get("/cevap-anahtari", async (req, res) => {
+  try {
+    const ulusalDenemeId = Number(req.query.ulusalDenemeId);
+    if (!Number.isInteger(ulusalDenemeId)) return res.status(400).json({ error: "Gecersiz deneme" });
+    const kullaniciId = kullaniciIdCoz(req) || (req.query.cihazId ? await kullaniciIdVeyaGolge(req) : null);
+    if (!kullaniciId) return res.status(401).json({ error: "Giris yapmalisin" });
+    const deneme = await pool.query(`SELECT sorular, kapanis FROM ulusal_denemeler WHERE id = $1`, [ulusalDenemeId]);
+    if (deneme.rows.length === 0) return res.status(404).json({ error: "Deneme bulunamadi" });
+    if (new Date(deneme.rows[0].kapanis) > new Date()) return res.status(403).json({ error: "Cevap anahtari deneme kapandiktan sonra acilir", kapanis: deneme.rows[0].kapanis });
+    const cozdu = await pool.query(`SELECT id FROM ulusal_deneme_sonuclari WHERE ulusal_deneme_id = $1 AND kullanici_id = $2`, [ulusalDenemeId, kullaniciId]);
+    if (cozdu.rows.length === 0) return res.status(403).json({ error: "Bu denemeyi cozmedin" });
+    const sorular = abKitapciğiOlustur(deneme.rows[0].sorular, `${kullaniciId}-${ulusalDenemeId}`);
+    res.json({ cevapAnahtari: sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama })) });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Alinamadi" });
   }
 });
 
