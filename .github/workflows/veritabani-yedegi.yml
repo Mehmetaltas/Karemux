@@ -1,0 +1,35 @@
+name: Veritabani Yedegi
+
+on:
+  schedule:
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+
+jobs:
+  yedek:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dokum al, dogrula, sifrele
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_SIFRESI: ${{ secrets.BACKUP_SIFRESI }}
+        run: |
+          set -euo pipefail
+          test -n "$BACKUP_SIFRESI" || { echo "BACKUP_SIFRESI secret tanimli degil"; exit 1; }
+          DOGRUDAN_URL="${DATABASE_URL/-pooler/}"
+          docker run --rm -e DOGRUDAN_URL postgres:18 sh -c 'pg_dump --no-owner --no-privileges "$DOGRUDAN_URL"' > yedek.sql
+          BOYUT=$(stat -c%s yedek.sql)
+          TABLO=$(grep -c '^CREATE TABLE' yedek.sql || true)
+          echo "Dokum boyutu: $BOYUT bayt, tablo sayisi: $TABLO"
+          test "$BOYUT" -gt 20000 || { echo "Dokum cok kucuk, yedek gecersiz"; exit 1; }
+          test "$TABLO" -ge 10 || { echo "Beklenen tablolar yok, yedek gecersiz"; exit 1; }
+          gzip -9 -c yedek.sql | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass env:BACKUP_SIFRESI -out "yedek-$(date -u +%F).sql.gz.enc"
+          rm yedek.sql
+          ls -l yedek-*.enc
+      - name: Sifreli yedegi sakla (30 gun)
+        uses: actions/upload-artifact@v4
+        with:
+          name: veritabani-yedegi
+          path: yedek-*.sql.gz.enc
+          retention-days: 30
+          if-no-files-found: error
