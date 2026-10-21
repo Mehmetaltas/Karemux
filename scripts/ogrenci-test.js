@@ -19,7 +19,7 @@ const TEST_EDILECEK = [
 
 async function konuPaketiTestEt(tanim) {
   const url = `${SITE_URL}/api/konu-paketi?sinif=${tanim.sinif}&ders=${encodeURIComponent(tanim.ders)}&konu=${encodeURIComponent(tanim.konu)}&unite=${encodeURIComponent(tanim.unite || "")}&cihazId=${TEST_CIHAZ_ID}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: { "x-otomasyon-anahtari": process.env.OGRENCI_TEST_SONUC_ANAHTARI || "" } });
   const data = await res.json();
   if (!res.ok) return { basarili: false, hata: data.error || `HTTP ${res.status}` };
   const gecerliMi = data.paket?.anlatim && Array.isArray(data.paket?.soruHavuzu) && data.paket.soruHavuzu.length > 0;
@@ -33,7 +33,7 @@ async function konuPaketiTestEt(tanim) {
 
 async function seviyeTespitTestEt(tanim) {
   const res = await fetch(`${SITE_URL}/api/seviye-tespit/olustur`, {
-    method: "POST", headers: { "Content-Type": "application/json" },
+    method: "POST", headers: { "Content-Type": "application/json", "x-otomasyon-anahtari": process.env.OGRENCI_TEST_SONUC_ANAHTARI || "" },
     body: JSON.stringify({ konular: tanim.konular, cihazId: TEST_CIHAZ_ID }),
   });
   const data = await res.json();
