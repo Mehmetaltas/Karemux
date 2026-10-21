@@ -50,11 +50,13 @@ export async function POST(req) {
     if (!kullaniciId) return Response.json({ error: "Giris yapmalisin" }, { status: 401 });
 
     let oturumId = null;
+    let mevcutSayi = 0;
     if (g.oturumId != null) {
       if (!/^\d+$/.test(String(g.oturumId))) return Response.json({ error: "Gecersiz oturum" }, { status: 400 });
-      const mevcut = await sql`SELECT id FROM sinav_oturumlari WHERE id = ${g.oturumId} AND kullanici_id = ${kullaniciId} AND kullanildi = false`;
+      const mevcut = await sql`SELECT id, jsonb_array_length(sorular) AS sayi FROM sinav_oturumlari WHERE id = ${g.oturumId} AND kullanici_id = ${kullaniciId} AND kullanildi = false`;
       if (mevcut.length === 0) return Response.json({ error: "Sinav oturumu bulunamadi veya gonderilmis" }, { status: 400 });
       oturumId = mevcut[0].id;
+      mevcutSayi = Number(mevcut[0].sayi) || 0;
     }
 
     // Gecen yil genel degerlendirmesi ders basina BIR kez yapilir (sonuc satiri varsa yeni oturum acilmaz).
@@ -71,6 +73,15 @@ export async function POST(req) {
       );
     }
 
+    // Deneme/yazili: onceki partilerde gecerlilik filtresi / denetim soru dusurduyse bu parti eksigi tamamlar
+    // ve +1 yedek soru ister; denetimden sonra hedefe kirpilir (17-19/20 benzeri eksik sinav sorununa karsi).
+    // Istemci partileri EN_FAZLA_PARTI buyuklugunde keser, son parti kalani alir: onceki toplam = min(partiNo*10, toplam-adet).
+    const eksikTamamlanir = sinavTuru === "deneme" || sinavTuru === "yazili";
+    const oncekiBeklenen = Math.min(partiNo * EN_FAZLA_PARTI, toplam - adet);
+    const eksik = eksikTamamlanir && oturumId !== null ? Math.max(0, Math.min(4, oncekiBeklenen - mevcutSayi)) : 0;
+    const hedef = eksikTamamlanir ? Math.min(adet + eksik, 12) : adet;      // bu partiden sonra kalmasi gereken soru sayisi
+    const istenen = eksikTamamlanir ? Math.min(hedef + 1, 12) : adet;      // modelden istenen (yedek dahil)
+
     const soruTalimati = await soruTalimatiSecSunucu(sinif);
     // Ders seviye: resmi unite listesi (istemcideki dersinUniteleri ile ayni mantik: sinifa ozel yoksa MUFREDAT).
     let uniteler = [];
@@ -84,7 +95,7 @@ export async function POST(req) {
       ? gecenYilPromptuOlustur({ ders, sinif, adet, soruTalimati })
       : dersSeviye
       ? dersSeviyePromptuOlustur({ ders, sinif, adet, uniteler, soruTalimati })
-      : sinavPromptuOlustur({ ders, sinif, sinavTuru, yaziliDonemNo, kapsamAciklama, adet, toplam, partiNo, soruTalimati });
+      : sinavPromptuOlustur({ ders, sinif, sinavTuru, yaziliDonemNo, kapsamAciklama, adet: istenen, toplam: toplam > adet ? Math.max(toplam, istenen + 1) : istenen, partiNo, soruTalimati });
     try {
       const ogrenmeOzeti = await ogrenmeHafizasiGetir(kullaniciId);
       if (ogrenmeOzeti) {
@@ -94,7 +105,7 @@ export async function POST(req) {
 
     let cevap;
     try {
-      cevap = await aiCagir({ prompt: istem, maxTokens: Math.min(8000, 500 + adet * 480), jsonModu: true, tur: "sinav_uretimi" });
+      cevap = await aiCagir({ prompt: istem, maxTokens: Math.min(8000, 500 + istenen * 480), jsonModu: true, tur: "sinav_uretimi" });
     } catch (e) {
       console.error(e);
       return Response.json({ error: "AI servisi yanit vermedi, tekrar dene" }, { status: 502 });
@@ -106,7 +117,7 @@ export async function POST(req) {
     } catch (e) {
       return Response.json({ error: "Sorular uretilemedi, tekrar dene" }, { status: 502 });
     }
-    let sorular = ham.filter(sinavSorusuGecerliMi).slice(0, adet);
+    let sorular = ham.filter(sinavSorusuGecerliMi).slice(0, istenen);
     if (sorular.length === 0) return Response.json({ error: "Gecerli soru uretilemedi, tekrar dene" }, { status: 502 });
     if (dersSeviye) sorular = sorular.map((s) => ({ ...s, unite: uniteEsle(s.unite, uniteler) }));
 
@@ -119,6 +130,9 @@ export async function POST(req) {
       if (denetim.gecenler.length === 0) return Response.json({ error: "Sorular kalite denetiminden gecemedi, tekrar dene" }, { status: 502 });
       sorular = denetim.gecenler; denetlendi = true;
     }
+
+    // Yedek dahil gelen fazla sorular denetimden sonra hedefe kirpilir.
+    if (sorular.length > hedef) sorular = sorular.slice(0, hedef);
 
     // Anahtarli sorular sunucuda saklanir.
     const json = JSON.stringify(sorular);
