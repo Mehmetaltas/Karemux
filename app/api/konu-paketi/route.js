@@ -219,6 +219,24 @@ SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","
         }
       } catch (tamamlaHatasi) { console.warn("konu_paketi havuz tamamlama basarisiz:", ders, konu, tamamlaHatasi.message); }
     }
+    // Odev sayisi 6'nin altinda kalirsa (canli: 5, ve Ingilizce 7'de 2-3) eksik odevler kucuk bir ikinci cagriyla tamamlanir.
+    const odevGecerli = (o) => o && typeof o.soru === "string" && o.soru.trim() && typeof o.cozum === "string" && o.cozum.trim();
+    if (Array.isArray(paket.odevSorulari)) paket.odevSorulari = paket.odevSorulari.filter(odevGecerli);
+    if ((paket.odevSorulari || []).length < 6 && Date.now() - istekBaslangicMs < 44000) {
+      try {
+        const eksikOdev = 6 - (paket.odevSorulari || []).length;
+        const mevcutOdev = (paket.odevSorulari || []).map((o, i) => `${i + 1}. ${o.soru}`).join("\n");
+        const odevPrompt = `Sen deneyimli bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin ${sinif}. sinif seviyesinde ACIK UCLU (coktan secmeli DEGIL) odev sorulari hazirla. Su sorular ZATEN var, bunlari tekrarlama:
+${mevcutOdev || "(yok)"}
+
+TAM ${eksikOdev} YENI acik uclu soru uret, her biri icin adim adim detayli cozum yaz. Tum metinler SADECE Turkce olmali.
+SADECE JSON dondur: {"odevSorulari":[{"soru":"...", "cozum":"adim adim detayli cozum metni"}]}`;
+        const { metin: odevCevap } = await aiCagirDetay({ prompt: odevPrompt, maxTokens: 800 + eksikOdev * 700, jsonModu: true, tur: "konu_paketi_odev_tamamlama" }, null, 20000);
+        const yeniOdev = jsonAyikla(odevCevap);
+        const eklenecek = (Array.isArray(yeniOdev.odevSorulari) ? yeniOdev.odevSorulari : []).filter(odevGecerli).slice(0, eksikOdev);
+        if (eklenecek.length > 0) paket.odevSorulari = (paket.odevSorulari || []).concat(eklenecek);
+      } catch (odevHatasi) { console.warn("konu_paketi odev tamamlama basarisiz:", ders, konu, odevHatasi.message); }
+    }
     if (soruHavuzuKaliteGecen.length === 0) {
       return Response.json(
         { error: "Soru havuzu kalite denetiminden gecemedi, tekrar dene" },
