@@ -67,9 +67,8 @@ export async function GET(req) {
     for (const kp of konuPaketleri) {
       const sonuc = kaliteKontrolYap("konu_paketi", kp.icerik_json);
       if (sonuc.gecti) continue;
-      let p = kp.icerik_json;
-      if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { p = null; } }
-      const sunulabilir = kp.onay_durumu === "onaylandi" || (kp.onay_durumu === null && p && p.kaliteKontrol && p.kaliteKontrol.gecti === true);
+      // Bu noktada taze kontrol BASARISIZ: onbellek yalniz ogretmen onayli satiri sunar (NULL satir taze kontrolden gecerse sunulur).
+      const sunulabilir = kp.onay_durumu === "onaylandi";
       if (sunulabilir) {
         bulgular.push({
           tur: "konu_paketi_kalite_sorunu",

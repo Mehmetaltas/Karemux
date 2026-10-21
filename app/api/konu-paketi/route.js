@@ -72,7 +72,10 @@ export async function GET(req) {
       if (a.onay_durumu === "onaylandi") { mevcut.push(a); break; }
       let p = a.icerik_json;
       if (typeof p === "string") { try { p = JSON.parse(p); } catch (e) { continue; } }
-      if (p && p.kaliteKontrol && p.kaliteKontrol.gecti === true) { mevcut.push(a); break; }
+      // Saklanan damgaya degil TAZE kontrole bakilir: eski satirlarda damga 'gecti' iken havuz sonradan 15'in altina inmis olabilir (canli: id 60).
+      let temiz = false;
+      try { temiz = !!p && kaliteKontrolYap("konu_paketi", p).gecti === true; } catch (e) { temiz = false; }
+      if (temiz) { mevcut.push(a); break; }
     }
     if (mevcut.length > 0 && mevcut[0].icerik_json) {
       await sql`UPDATE icerik_onbellek SET kullanim_sayisi = kullanim_sayisi + 1, son_kullanim = now() WHERE id = ${mevcut[0].id}`;
