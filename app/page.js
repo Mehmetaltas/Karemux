@@ -113,7 +113,7 @@ const MUFREDAT = {
   "Fen Bilimleri": ["Mevsimler ve Iklim", "DNA ve Genetik Kod", "Basinc", "Madde ve Endustri", "Basit Makineler", "Enerji Donusumleri ve Cevre Bilimi", "Elektrik Yukleri ve Elektrik Enerjisi"],
   "Turkce": ["Fiilimsiler", "Cumlenin Ogeleri", "Cumle Turleri", "Anlatim Bozukluklari", "Yazim Kurallari", "Noktalama Isaretleri", "Paragrafta Anlam", "Soz Sanatlari", "Fiilde Cati"],
   "T.C. Inkilap Tarihi": ["Bir Kahraman Doguyor", "Milli Uyanis: Bagimsizlik Yolunda Atilan Adimlar", "Ya Istiklal Ya Olum", "Ataturkculuk ve Cagdaslasan Turkiye", "Demokratiklesme Cabalari", "Ataturk Donemi Turk Dis Politikasi", "Ataturk'un Olumu ve Sonrasi", "II. Dunya Savasi Surecinde Turkiye"],
-  "Din Kulturu": ["Kader Inanci", "Zekat ve Sadaka", "Hz. Muhammed'in Ornekligi", "Kur'an-i Kerim'de Sunulan Ornek Sahsiyetler", "Din ve Hayat"],
+  "Din Kulturu": ["Kader Inanci", "Zekat ve Sadaka", "Din ve Hayat", "Hz. Muhammed'in Ornekligi", "Kur'an-i Kerim ve Ozellikleri"],
   // 8. sinif Ingilizce - resmi PDF'ten (english-regular 2-8, Agustos 2026) DOGRULANDI.
   // Ingilizce'nin gecis takvimi diger derslerden FARKLI - 8. sinif da yeni mufredatta.
   "Ingilizce": ["Friendship", "Teen Life", "In The Kitchen", "On The Phone", "The Internet", "Adventures", "Tourism", "Chores", "Science", "Natural Forces"],
@@ -180,7 +180,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // alt basligi esliyoruz - LGS'nin dilbilgisi agirligi kaybolmasin diye.
   "4::Turkce": ["Okuma Kulturu", "Milli Mucadele ve Ataturk", "Erdemler", "Bilim ve Teknoloji", "Doga ve Evren", "Milli Kulturumuz", "Cocuk Dunyasi", "Saglik ve Spor"],
   "5::Turkce": ["Oyun Dunyasi", "Ataturk'u Tanimak", "Duygularimi Taniyorum", "Geleneklerimiz", "Iletisim ve Sosyal Iliskiler", "Saglikli Yasiyorum"],
-  "4::Din Kulturu": ["Gunluk Hayat ve Din", "Allah Sevgisi", "Peygamberlerin Sevgisi", "Ahlaki Degerlerimiz", "Haklar ve Sorumluluklar"],
+  "4::Din Kulturu": ["Gunluk Hayattaki Dini Ifadeler", "Islam'i Taniyalim", "Guzel Ahlak", "Hz. Muhammed'i Taniyalim", "Din ve Temizlik"],
   "5::Din Kulturu": ["Allah Inanci", "Namaz", "Kur'an-i Kerim", "Peygamber Kissalari", "Mimarimizde Dini Motifler"],
   // 5/6/7. sinif Ingilizce - resmi PDF'ten (english-regular 2-8, Agustos 2026) DOGRULANDI.
   "4::Ingilizce": ["Classroom Rules", "Nationality", "Cartoon Characters", "Free Time", "My Day", "Fun with Science", "Jobs", "My Clothes", "My Friends", "Food and Drinks"],
@@ -374,11 +374,11 @@ const DOGRULANMIS_ALT_KONULAR = {
 
   // ==== 5. SINIF DIN KULTURU (yeni mufredat - resmi MEB 5 ana unite) ====
   // 4. sinif - resmi PDF'ten (din_kultur_4_8, Agustos 2026) DOGRULANDI.
-  "Din Kulturu::Gunluk Hayat ve Din::4": ["Gunluk Hayatta Dini Ifadeler", "Temizlik ve Saglikli Beslenme", "Sukur"],
-  "Din Kulturu::Allah Sevgisi::4": ["Allahin Birligi ve Yuceligi", "Allahin Kullarina Sevgisi", "Dua, Kelime-i Tevhit ve Sehadet"],
-  "Din Kulturu::Peygamberlerin Sevgisi::4": ["Peygamberlerin Cocuklarla Iliskisi", "Cevre ve Calismayi Sevme"],
-  "Din Kulturu::Ahlaki Degerlerimiz::4": ["Adalet", "Sabir", "Yardimseverlik"],
-  "Din Kulturu::Haklar ve Sorumluluklar::4": ["Temel Hak ve Ozgurlukler", "Mahremiyet", "Allaha ve Insanlara Karsi Sorumluluklar"],
+  "Din Kulturu::Gunluk Hayattaki Dini Ifadeler::4": ["Gunluk Konusmalarda Dini Ifadeler", "Dilek ve Dualarda Gecen Dini Ifadeler", "Bir Dua Taniyorum: Subhaneke Duasi ve Anlami"],
+  "Din Kulturu::Islam'i Taniyalim::4": ["Islam'in Inanc Esaslari", "Islam'in Sartlari", "Kur'an-i Kerim", "Bir Dua Taniyorum: Amentu Duasi ve Anlami"],
+  "Din Kulturu::Guzel Ahlak::4": ["Din Guzel Ahlaktir", "Insani Iliskilerin Temeli: Sevgi ve Saygi", "Bir Sure Taniyorum: Fatiha Suresi ve Anlami"],
+  "Din Kulturu::Hz. Muhammed'i Taniyalim::4": ["Hz. Muhammed'in (sav) Dogdugu Cevre", "Hz. Muhammed'in (sav) Ailesi", "Hz. Muhammed'in (sav) Dogumu", "Cocukluk ve Genclik Yillari", "Hz. Muhammed'in (sav) Mekke ve Medine Yillari", "Bir Dua Taniyorum: Salli ve Barik Dualari ve Anlamlari"],
+  "Din Kulturu::Din ve Temizlik::4": ["Islam Dini ve Temizlik", "Bedenimi ve Giysilerimi Temiz Tutarim", "Evimi ve Okulumu Temiz Tutarim", "Cevremi Temiz Tutarim"],
   "Din Kulturu::Allah Inanci::5": ["Evrendeki Mukemmel Duzen", "Allah'in Varligi ve Birligi", "Allah'in Guzel Isimleri", "Bir Sure Ogreniyorum: Ihlas Suresi"],
   "Din Kulturu::Namaz::5": ["Allah'in Huzurunda Olmak: Namaz", "Namazin Kilinisi", "Namazin Insana Kazandirdiklari", "Bir Dua Ogreniyorum: Tahiyyat Duasi"],
   "Din Kulturu::Kur'an-i Kerim::5": ["Kur'an-i Kerim'in Ic Duzeni", "Kur'an-i Kerim'in Temel Ozellikleri", "Kur'an-i Kerim'in Ana Konulari", "Bir Sure Ogreniyorum: Kevser Suresi"],
@@ -474,11 +474,11 @@ const DOGRULANMIS_ALT_KONULAR = {
   "T.C. Inkilap Tarihi::Ataturk'un Olumu ve Sonrasi": ["Ataturk'un Olumune Iliskin Degerlendirmeler", "Ataturk'un Fikir ve Eserlerinin Kalicilik Bilinci"],
   "T.C. Inkilap Tarihi::II. Dunya Savasi Surecinde Turkiye": ["Ataturk'un II. Dunya Savasi Oncesi Tespitleri", "II. Dunya Savasi'nin Turkiye'ye Etkileri", "Cok Partili Siyasi Hayata Gecis"],
   // Din Kulturu ve Ahlak Bilgisi (8. sinif) - MEB resmi ogretim programindan (DKAB.8.x)
-  "Din Kulturu::Kader Inanci": ["Kader ve Kaza Inanci", "Ilim-Irade-Sorumluluk Iliskisi", "Kader ile Ilgili Yanlis Anlayislar"],
-  "Din Kulturu::Zekat ve Sadaka": ["Zekat Ibadeti", "Sadaka Ibadeti", "Maun Suresi"],
-  "Din Kulturu::Din ve Hayat": ["Din Birey ve Toplum Iliskisi", "Can Nesil Akil Mal Din Emniyeti", "Hz. Yusuf'un Ornek Hayati", "Asr Suresi"],
-  "Din Kulturu::Hz. Muhammed'in Ornekligi": ["Cesaret ve Kararlilik", "Hakki Gozetme", "Insanlara Deger Verme", "Hikmetli Soz ve Davranislar", "Kureys Suresi"],
-  "Din Kulturu::Kur'an-i Kerim'de Sunulan Ornek Sahsiyetler": ["Kur'an'in Temel Kaynaklari", "Kur'an'in Ana Konulari", "Kur'an'in Ozellikleri", "Hz. Nuh'un Tevhide Daveti"],
+  "Din Kulturu::Kader Inanci": ["Kader ve Kaza Inanci", "Insanin Iradesi ve Kader", "Kaderle Ilgili Kavramlar", "Bir Peygamber Taniyorum: Hz. Musa (a.s.)", "Bir Ayet Taniyorum: Ayetelkursi ve Anlami"],
+  "Din Kulturu::Zekat ve Sadaka": ["Islam'in Paylasma ve Yardimlasmaya Verdigi Onem", "Zekat ve Sadaka Ibadeti", "Zekat ve Sadakanin Bireysel ve Toplumsal Faydalari", "Bir Peygamber Taniyorum: Hz. Suayb (a.s.)", "Bir Sure Taniyorum: Maun Suresi ve Anlami"],
+  "Din Kulturu::Din ve Hayat": ["Din, Birey ve Toplum", "Dinin Temel Gayesi", "Bir Peygamber Taniyorum: Hz. Yusuf (a.s.)", "Bir Sure Taniyorum: Asr Suresi ve Anlami"],
+  "Din Kulturu::Hz. Muhammed'in Ornekligi": ["Hz. Muhammed'in (sav) Dogrulugu ve Guvenilir Kisiligi", "Hz. Muhammed'in (sav) Merhametli ve Affedici Olusu", "Hz. Muhammed'in (sav) Istisareye Onem Vermesi", "Hz. Muhammed'in Davasindaki Cesaret ve Kararliligi", "Hz. Muhammed'in (sav) Hakki Gozetmedeki Hassasiyeti", "Hz. Muhammed'in (sav) Insanlara Deger Vermesi", "Bir Sure Taniyorum: Kureys Suresi ve Anlami"],
+  "Din Kulturu::Kur'an-i Kerim ve Ozellikleri": ["Islam Dininin Temel Kaynaklari", "Kur'an-i Kerim'in Ana Konulari", "Kur'an-i Kerim'in Temel Ozellikleri", "Bir Peygamber Taniyorum: Hz. Nuh (a.s.)"],
   // Ingilizce (8. sinif) - MEB resmi ogretim programi HER UNITEYI ayni beceri
   // cercevesiyle yapilandirir: Listening, Speaking, Reading, Writing (dogrulanmis format).
 };

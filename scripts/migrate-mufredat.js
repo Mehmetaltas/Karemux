@@ -41,7 +41,7 @@ async function main() {
         for (const altKonu of altKonular) {
           await client.query(
             `INSERT INTO mufredat (sinif, ders, unite, alt_konu, mufredat_turu, dogrulanma_kaynagi)
-             VALUES ($1, $2, $3, $4, 'yeni_maarif_2024', 'resmi_pdf_dogrulu') ON CONFLICT DO NOTHING`,
+             VALUES ($1, $2, $3, $4, ${sinif === 4 ? "'eski_2018'" : "'yeni_maarif_2024'"}, 'resmi_pdf_dogrulu') ON CONFLICT DO NOTHING`,
             [sinif, ders, unite, altKonu]
           );
           eklenen++;

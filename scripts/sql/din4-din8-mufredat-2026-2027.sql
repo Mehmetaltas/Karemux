@@ -1,0 +1,52 @@
+DELETE FROM mufredat WHERE ders='Din Kulturu' AND sinif=4;
+
+INSERT INTO mufredat (sinif, ders, unite, alt_konu, mufredat_turu, dogrulanma_kaynagi) VALUES
+(4,'Din Kulturu','Gunluk Hayattaki Dini Ifadeler','Gunluk Konusmalarda Dini Ifadeler','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Gunluk Hayattaki Dini Ifadeler','Dilek ve Dualarda Gecen Dini Ifadeler','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Gunluk Hayattaki Dini Ifadeler','Bir Dua Taniyorum: Subhaneke Duasi ve Anlami','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Islam''i Taniyalim','Islam''in Inanc Esaslari','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Islam''i Taniyalim','Islam''in Sartlari','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Islam''i Taniyalim','Kur''an-i Kerim','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Islam''i Taniyalim','Bir Dua Taniyorum: Amentu Duasi ve Anlami','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Guzel Ahlak','Din Guzel Ahlaktir','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Guzel Ahlak','Insani Iliskilerin Temeli: Sevgi ve Saygi','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Guzel Ahlak','Bir Sure Taniyorum: Fatiha Suresi ve Anlami','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Hz. Muhammed''i Taniyalim','Hz. Muhammed''in (sav) Dogdugu Cevre','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Hz. Muhammed''i Taniyalim','Hz. Muhammed''in (sav) Ailesi','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Hz. Muhammed''i Taniyalim','Hz. Muhammed''in (sav) Dogumu','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Hz. Muhammed''i Taniyalim','Cocukluk ve Genclik Yillari','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Hz. Muhammed''i Taniyalim','Hz. Muhammed''in (sav) Mekke ve Medine Yillari','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Hz. Muhammed''i Taniyalim','Bir Dua Taniyorum: Salli ve Barik Dualari ve Anlamlari','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Din ve Temizlik','Islam Dini ve Temizlik','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Din ve Temizlik','Bedenimi ve Giysilerimi Temiz Tutarim','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Din ve Temizlik','Evimi ve Okulumu Temiz Tutarim','eski_2018','resmi_yillik_plan_2026_2027'),
+(4,'Din Kulturu','Din ve Temizlik','Cevremi Temiz Tutarim','eski_2018','resmi_yillik_plan_2026_2027');
+
+DELETE FROM mufredat WHERE ders='Din Kulturu' AND sinif=8;
+
+INSERT INTO mufredat (sinif, ders, unite, alt_konu, mufredat_turu, dogrulanma_kaynagi) VALUES
+(8,'Din Kulturu','Kader Inanci','Kader ve Kaza Inanci','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kader Inanci','Insanin Iradesi ve Kader','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kader Inanci','Kaderle Ilgili Kavramlar','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kader Inanci','Bir Peygamber Taniyorum: Hz. Musa (a.s.)','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kader Inanci','Bir Ayet Taniyorum: Ayetelkursi ve Anlami','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Zekat ve Sadaka','Islam''in Paylasma ve Yardimlasmaya Verdigi Onem','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Zekat ve Sadaka','Zekat ve Sadaka Ibadeti','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Zekat ve Sadaka','Zekat ve Sadakanin Bireysel ve Toplumsal Faydalari','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Zekat ve Sadaka','Bir Peygamber Taniyorum: Hz. Suayb (a.s.)','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Zekat ve Sadaka','Bir Sure Taniyorum: Maun Suresi ve Anlami','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Din ve Hayat','Din, Birey ve Toplum','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Din ve Hayat','Dinin Temel Gayesi','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Din ve Hayat','Bir Peygamber Taniyorum: Hz. Yusuf (a.s.)','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Din ve Hayat','Bir Sure Taniyorum: Asr Suresi ve Anlami','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Hz. Muhammed''in Ornekligi','Hz. Muhammed''in (sav) Dogrulugu ve Guvenilir Kisiligi','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Hz. Muhammed''in Ornekligi','Hz. Muhammed''in (sav) Merhametli ve Affedici Olusu','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Hz. Muhammed''in Ornekligi','Hz. Muhammed''in (sav) Istisareye Onem Vermesi','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Hz. Muhammed''in Ornekligi','Hz. Muhammed''in Davasindaki Cesaret ve Kararliligi','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Hz. Muhammed''in Ornekligi','Hz. Muhammed''in (sav) Hakki Gozetmedeki Hassasiyeti','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Hz. Muhammed''in Ornekligi','Hz. Muhammed''in (sav) Insanlara Deger Vermesi','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Hz. Muhammed''in Ornekligi','Bir Sure Taniyorum: Kureys Suresi ve Anlami','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kur''an-i Kerim ve Ozellikleri','Islam Dininin Temel Kaynaklari','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kur''an-i Kerim ve Ozellikleri','Kur''an-i Kerim''in Ana Konulari','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kur''an-i Kerim ve Ozellikleri','Kur''an-i Kerim''in Temel Ozellikleri','eski_2018','resmi_yillik_plan_2026_2027'),
+(8,'Din Kulturu','Kur''an-i Kerim ve Ozellikleri','Bir Peygamber Taniyorum: Hz. Nuh (a.s.)','eski_2018','resmi_yillik_plan_2026_2027');
