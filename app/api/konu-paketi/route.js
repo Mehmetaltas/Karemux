@@ -158,6 +158,20 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
     const sema = p.indexOf("SADECE JSON dondur, markdown kullanma.");
     const baslik = sema > 0 ? p.slice(0, sema) : p;
     const jsonKurali = "SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:\n\n";
+    // 22 Ekim: canli kanit - bir parcanin JSON'u bozuk geldi ("Expected ',' or ']' ... position 7853") ve tum paket 500 verdi.
+    // Her parca kendi basina ayristirilir; bozuksa (sure varsa) FARKLI bir saglayiciyla bir kez daha uretilir.
+    const parcaCoz = async (parametreler, butceMs) => {
+      const r = await aiCagirDetay(parametreler, null, butceMs);
+      try {
+        return { veri: jsonAyikla(r.metin), saglayici: r.saglayici };
+      } catch (e) {
+        console.warn("konu_paketi parca JSON bozuk, farkli saglayiciyla tekrar:", parametreler.tur, r.saglayici, e.message);
+        if (Date.now() - istekBaslangicMs > 32000) throw e;
+        const alt = ["gemini", "anthropic", "groq"].filter((x) => x !== r.saglayici);
+        const r2 = await aiCagirDetay(parametreler, alt, 20000);
+        return { veri: jsonAyikla(r2.metin), saglayici: r2.saglayici };
+      }
+    };
     const parcaliUret = async (butceMs) => {
       const anlatimPrompt = (duzeltme) => `${baslik}${jsonKurali}{
   "anlatim": {
@@ -187,16 +201,15 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). Her soruda 
 odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
 
       const anlatimUret = async () => {
-        let r = await aiCagirDetay({ prompt: anlatimPrompt(""), maxTokens: 4500, jsonModu: true, tur: "konu_paketi_anlatim" }, null, butceMs);
-        let a = jsonAyikla(r.metin);
+        let r = await parcaCoz({ prompt: anlatimPrompt(""), maxTokens: 4500, jsonModu: true, tur: "konu_paketi_anlatim" }, butceMs);
+        let a = r.veri;
         const metinler = () => [a?.anlatim?.temelAnlatim, a?.anlatim?.derinAnlatim, a?.anlatim?.yeniNesilUygulama].join(" \n ");
         let hatalar = usEsitligiHatalari(metinler());
         if (hatalar.length > 0) {
           console.warn("konu_paketi anlatim SAYISAL HATA, yeniden uretiliyor:", ders, konu, hatalar);
           try {
-            const r2 = await aiCagirDetay({ prompt: anlatimPrompt(`\nONCEKI DENEMEDE su hesaplar YANLIS yazilmisti: ${hatalar.join("; ")}. Bunlari DOGRU sonucla yaz.`), maxTokens: 4500, jsonModu: true, tur: "konu_paketi_anlatim" }, null, Math.min(butceMs, 20000));
-            const a2 = jsonAyikla(r2.metin);
-            if (a2?.anlatim?.temelAnlatim) { a = a2; r = r2; hatalar = usEsitligiHatalari(metinler()); }
+            const r2 = await parcaCoz({ prompt: anlatimPrompt(`\nONCEKI DENEMEDE su hesaplar YANLIS yazilmisti: ${hatalar.join("; ")}. Bunlari DOGRU sonucla yaz.`), maxTokens: 4500, jsonModu: true, tur: "konu_paketi_anlatim" }, Math.min(butceMs, 20000));
+            if (r2.veri?.anlatim?.temelAnlatim) { a = r2.veri; r = r2; hatalar = usEsitligiHatalari(metinler()); }
           } catch (e) { /* ilk anlatimla devam */ }
         }
         return { anlatim: a.anlatim, saglayici: r.saglayici, sayisalHata: hatalar };
@@ -204,13 +217,13 @@ odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin 
 
       const [an, so, od] = await Promise.allSettled([
         anlatimUret(),
-        aiCagirDetay({ prompt: soruPrompt, maxTokens: 7500, jsonModu: true, tur: "konu_paketi" }, null, butceMs),
-        aiCagirDetay({ prompt: odevPrompt, maxTokens: 4500, jsonModu: true, tur: "konu_paketi_odev" }, null, butceMs),
+        parcaCoz({ prompt: soruPrompt, maxTokens: 7500, jsonModu: true, tur: "konu_paketi" }, butceMs),
+        parcaCoz({ prompt: odevPrompt, maxTokens: 4500, jsonModu: true, tur: "konu_paketi_odev" }, butceMs),
       ]);
       if (an.status !== "fulfilled" || !an.value.anlatim) throw new Error("Anlatim uretilemedi: " + (an.reason?.message || "bos"));
       if (so.status !== "fulfilled") throw new Error("Soru havuzu uretilemedi: " + (so.reason?.message || "bos"));
-      const sorular = jsonAyikla(so.value.metin);
-      const odevler = od.status === "fulfilled" ? jsonAyikla(od.value.metin) : {};
+      const sorular = so.value.veri || {};
+      const odevler = od.status === "fulfilled" ? (od.value.veri || {}) : {};
       return {
         paket: { anlatim: an.value.anlatim, soruHavuzu: sorular.soruHavuzu, odevSorulari: Array.isArray(odevler.odevSorulari) ? odevler.odevSorulari : [] },
         saglayici: so.value.saglayici,
