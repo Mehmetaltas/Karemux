@@ -14,6 +14,22 @@ import { paketiHerkeseAc } from "@/lib/halka-acik-paket";
 
 export const maxDuration = 60;
 
+// 22 Ekim: canli kanit - anlatimda "(3^2)^3 = 3^6 = 72" (dogrusu 729) cikti. Capraz dogrulama yalniz SORULARA bakiyor,
+// anlatimdaki sayisal hata yakalanmiyordu. Burada "a^b = sonuc" biciminde yazilmis ESITLIKLER sunucuda hesaplanip dogrulanir.
+// Zincirli/ifadeli esitlikler (2^3=2*2*2, 2^3.2^2=...) bilerek atlanir: sonuc sayisindan sonra * . x ^ / + - gelirse eslesme yok sayilir.
+function usEsitligiHatalari(metin) {
+  const hatalar = [];
+  const re = /(\d{1,3})\^(\d{1,2})\s*=\s*(\d{1,15})(?![\d.,]|\s*[-*·×x^\/+])/g;
+  let m;
+  while ((m = re.exec(String(metin || ""))) !== null) {
+    const taban = Number(m[1]), us = Number(m[2]), yazilan = Number(m[3]);
+    const dogru = Math.pow(taban, us);
+    if (Number.isSafeInteger(dogru) && dogru !== yazilan) hatalar.push(`${taban}^${us} = ${dogru} (yazilan: ${yazilan})`);
+  }
+  return hatalar;
+}
+
+
 // Soru havuzu icin 18 soru istenir (6 kolay, 7 orta, 5 zor); bagimsiz denetim bazi sorulari eler (canli: havuzlar 10-14 soruya
 // inmisti, kalite kontrolu 15 istiyor). Denetimden sonra zorluk dagilimi korunarak 15'e kirpilir (5 kolay, 6 orta, 4 zor).
 function dengeliKirp(sorular, hedef) {
@@ -137,9 +153,73 @@ SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska 
 
 soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
 
-    const { metin: cevap, saglayici } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" });
-    let paket = jsonAyikla(cevap);
-    let uretimSaglayicisi = saglayici;
+    // 22 Ekim: TEK 10.000 token'lik cagri yerine UC PARALEL parca (canli kanit: tek cagri 53,7 sn surdu, anlatim talimatin
+    // %50'si kadar kisa geldi). Anlatim ve soru havuzu zorunlu; odev opsiyonel (eksikse asagidaki tamamlama adimi doldurur).
+    const sema = p.indexOf("SADECE JSON dondur, markdown kullanma.");
+    const baslik = sema > 0 ? p.slice(0, sema) : p;
+    const jsonKurali = "SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:\n\n";
+    const parcaliUret = async (butceMs) => {
+      const anlatimPrompt = (duzeltme) => `${baslik}${jsonKurali}{
+  "anlatim": {
+    "hizliOgren": "30 saniyede ozet, 2-3 cumle",
+    "temelAnlatim": "konunun temel mantigi, ana kavramlar, TANIM+SOMUT ORNEK ile, EN AZ 150 kelime",
+    "derinAnlatim": "konunun NEDEN ve NASIL calistigi, daha derin bakis, EN AZ 200 kelime",
+    "pufNoktalari": ["sinavda zaman kazandiran pratik kisayol/teknik 1", "teknik 2", "teknik 3"],
+    "sikHatalar": ["ogrencilerin sik yaptigi hata 1", "hata 2", "hata 3"],
+    "yeniNesilUygulama": "gercek bir yeni nesil LGS tarzi problemde bu bilginin nasil kullanilacagini gosteren somut ornek, EN AZ 120 kelime"
+  }
+}
+
+Uzunluk hedeflerini KISALTMA. Metindeki TUM sayisal hesaplari (us, carpma, bolme, toplama) yazmadan once tek tek yeniden hesapla; yanlis sonuc YAZMA.${duzeltme || ""}`;
+      const soruPrompt = `${baslik}${jsonKurali}{
+  "soruHavuzu": [
+    {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"${kontrolIfadesiTalimati}}
+  ]
+}
+
+soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap olsun.`;
+      const odevPrompt = `${baslik}${jsonKurali}{
+  "odevSorulari": [
+    {"soru":"...", "cozum":"adim adim detayli cozum metni"}
+  ]
+}
+
+odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
+
+      const anlatimUret = async () => {
+        let r = await aiCagirDetay({ prompt: anlatimPrompt(""), maxTokens: 4500, jsonModu: true, tur: "konu_paketi_anlatim" }, null, butceMs);
+        let a = jsonAyikla(r.metin);
+        const metinler = () => [a?.anlatim?.temelAnlatim, a?.anlatim?.derinAnlatim, a?.anlatim?.yeniNesilUygulama].join(" \n ");
+        let hatalar = usEsitligiHatalari(metinler());
+        if (hatalar.length > 0) {
+          console.warn("konu_paketi anlatim SAYISAL HATA, yeniden uretiliyor:", ders, konu, hatalar);
+          try {
+            const r2 = await aiCagirDetay({ prompt: anlatimPrompt(`\nONCEKI DENEMEDE su hesaplar YANLIS yazilmisti: ${hatalar.join("; ")}. Bunlari DOGRU sonucla yaz.`), maxTokens: 4500, jsonModu: true, tur: "konu_paketi_anlatim" }, null, Math.min(butceMs, 20000));
+            const a2 = jsonAyikla(r2.metin);
+            if (a2?.anlatim?.temelAnlatim) { a = a2; r = r2; hatalar = usEsitligiHatalari(metinler()); }
+          } catch (e) { /* ilk anlatimla devam */ }
+        }
+        return { anlatim: a.anlatim, saglayici: r.saglayici, sayisalHata: hatalar };
+      };
+
+      const [an, so, od] = await Promise.allSettled([
+        anlatimUret(),
+        aiCagirDetay({ prompt: soruPrompt, maxTokens: 7500, jsonModu: true, tur: "konu_paketi" }, null, butceMs),
+        aiCagirDetay({ prompt: odevPrompt, maxTokens: 4500, jsonModu: true, tur: "konu_paketi_odev" }, null, butceMs),
+      ]);
+      if (an.status !== "fulfilled" || !an.value.anlatim) throw new Error("Anlatim uretilemedi: " + (an.reason?.message || "bos"));
+      if (so.status !== "fulfilled") throw new Error("Soru havuzu uretilemedi: " + (so.reason?.message || "bos"));
+      const sorular = jsonAyikla(so.value.metin);
+      const odevler = od.status === "fulfilled" ? jsonAyikla(od.value.metin) : {};
+      return {
+        paket: { anlatim: an.value.anlatim, soruHavuzu: sorular.soruHavuzu, odevSorulari: Array.isArray(odevler.odevSorulari) ? odevler.odevSorulari : [] },
+        saglayici: so.value.saglayici,
+      };
+    };
+
+    const ilk = await parcaliUret(38000);
+    let paket = ilk.paket;
+    let uretimSaglayicisi = ilk.saglayici;
 
     if (!paket.anlatim || !Array.isArray(paket.soruHavuzu) || paket.soruHavuzu.length === 0) {
       return Response.json({ error: "Paket uretilemedi, tekrar dene" }, { status: 500 });
@@ -161,8 +241,7 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
     if (kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon"))) {
       console.warn("konu_paketi ASCII-transliterasyon supheli, YENIDEN uretiliyor:", ders, konu);
       try {
-        const { metin: cevap2, saglayici: saglayici2 } = await aiCagirDetay({ prompt: p, maxTokens: 10000, jsonModu: true, tur: "konu_paketi" }, null, 20000); // 23 Eylul: kisa butce - bu retry, ana uretim+gorsel karari UZERINE eklenip 60sn sinirini asmamali (GERCEK testte kanitlandi)
-        const paket2 = jsonAyikla(cevap2);
+        const { paket: paket2, saglayici: saglayici2 } = await parcaliUret(20000); // 23 Eylul: kisa butce - bu retry, ana uretim+gorsel karari UZERINE eklenip 60sn sinirini asmamali (GERCEK testte kanitlandi)
         if (paket2.anlatim && Array.isArray(paket2.soruHavuzu) && paket2.soruHavuzu.length > 0) {
           paket2.gorselSvg = paket.gorselSvg;
           paket = paket2;
