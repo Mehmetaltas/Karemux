@@ -29,7 +29,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "6::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
   "7::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme ve Degisimler", "Donusum", "Geometrik Nicelikler", "Geometrik Sekiller", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
 
-  "4::Fen Bilimleri": ["Bilime Yolculuk", "Saglikli Besleniyorum", "Dunyamizi Kesfedelim", "Maddenin Degisimi", "Miknatisi Kesfediyorum", "Enerji Dedektifleri", "Isigin Pesinde", "Surdurulebilir Sehirler ve Topluluklar"],
+  "4::Fen Bilimleri": ["Yer Kabugu ve Dunya'mizin Hareketleri", "Besinlerimiz", "Kuvvetin Etkileri", "Maddenin Ozellikleri", "Aydinlatma ve Ses Teknolojileri", "Insan ve Cevre", "Basit Elektrik Devreleri"],
   "5::Fen Bilimleri": ["Gokyuzundeki Komsularimiz ve Biz", "Kuvveti Taniyalim", "Canlilarin Yapisina Yolculuk", "Isigin Dunyasi", "Maddenin Dogasi", "Yasamimizdaki Elektrik", "Surdurulebilir Yasam ve Geri Donusum"],
   // 6. sinif Fen Bilimleri - Maarif Modeli'ne gore GUNCELLENDI (Agustos 2026, coklu
   // kaynaktan dogrulandi: 7 unite, Vucudumuzdaki Sistemler/Uygulamali Bilim ayrimi
@@ -55,7 +55,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // 5/6/7. sinif Ingilizce - resmi PDF'ten (english-regular 2-8, Agustos 2026) DOGRULANDI.
   "4::Ingilizce": ["Classroom Rules", "Nationality", "Cartoon Characters", "Free Time", "My Day", "Fun with Science", "Jobs", "My Clothes", "My Friends", "Food and Drinks"],
   "5::Ingilizce": ["School Life", "Classroom Life", "Personal Life", "Family Life", "Life in the Neighbourhood & City", "Life in the World", "Life in Nature", "Life in the Universe & Future"],
-  "4::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
+  "4::Sosyal Bilgiler": ["Birey ve Toplum", "Kultur ve Miras", "Insanlar, Yerler ve Cevreler", "Bilim, Teknoloji ve Toplum", "Uretim, Dagitim ve Tuketim", "Etkin Vatandaslik", "Kuresel Baglantilar"],
   "5::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
   "6::Turkce": ["Dilimizin Zenginligi", "Bagimsizlik Yolu", "Farkli Dunyalar", "Iletisim ve Sosyal Iliskiler", "Bilim ve Teknoloji", "Lider Ruhlar"],
   "7::Turkce": ["Hayat Boyu Gelisim", "Bir Hilal Ugruna", "Iletisim ve Sosyal Iliskiler", "Turk Sanati", "Okuma Kulturu", "Hak ve Sorumluluklar"],
@@ -81,8 +81,8 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Geometri::4": ["Geometrik Cisimler ve Sekiller", "Uzamsal Iliskiler", "Geometride Temel Kavramlar"],
   "Matematik::Olcme::4": ["Uzunluk Olcme", "Cevre Olcme", "Alan Olcme", "Zaman Olcme", "Tartma", "Sivi Olcme"],
   "Matematik::Veri Isleme::4": ["Veri Toplama ve Degerlendirme"],
-  "Matematik::Sayilar ve Nicelikler::5": ["Cok Basamakli Sayilari Okuma ve Yazma", "Basamak Degerlerini Cozumleme", "Dogal Sayilarla Dort Islem Iceren Problem Cozme", "Kesirler", "Kesirlerin Farkli Gosterimleri", "Kesirlerin Karsilastirilmasi"],
-  "Matematik::Islemlerle Cebirsel Dusunme::5": ["Cebirsel Dusunme", "Esitligin Korunumu", "Degisme-Birlesme ve Dagilma Ozellikleri", "Islem Onceligi", "Oruntuler", "Temel Aritmetik Islemler ve Algoritma"],
+  "Matematik::Sayilar ve Nicelikler::5": ["Cok Basamakli Sayilari Okuma ve Yazma", "Basamak Degerlerini Cozumleme", "Dogal Sayilarla Dort Islem Iceren Problem Cozme", "Kesirlerin Farkli Gosterimleri", "Kesirlerin Karsilastirilmasi"],
+  "Matematik::Islemlerle Cebirsel Dusunme::5": ["Esitligin Korunumu", "Degisme-Birlesme ve Dagilma Ozellikleri", "Islem Onceligi", "Oruntuler", "Temel Aritmetik Islemler ve Algoritma"],
   "Matematik::Geometrik Sekiller::5": ["Temel Geometrik Cizimler ve Insalar", "Aci Olcme", "Cokgenler ve Cember"],
   "Matematik::Geometrik Nicelikler::5": ["Dikdortgenin Cevre Uzunlugu ve Alani"],
   "Matematik::Istatistiksel Arastirma Sureci::5": ["Kategorik Veri Dagilimlari"],
@@ -94,14 +94,13 @@ const DOGRULANMIS_ALT_KONULAR = {
   // 4. sinif - resmi PDF'ten (2024programfen345678Onayli.pdf, Agustos 2026) DOGRULANDI.
   // Not: 2 unitenin (Bilime Yolculuk, Isigin Pesinde) aciklamasi PDF'te sayfa
   // kesintisi yuzunden tam cikarilamadi, unite isminden makul cikarim yapildi.
-  "Fen Bilimleri::Bilime Yolculuk::4": ["Bilimin Ozellikleri", "Bilimsel Bilgi Kaynaklarinin Guvenilirligi"],
-  "Fen Bilimleri::Saglikli Besleniyorum::4": ["Besin Gruplari", "Dengeli Beslenme"],
-  "Fen Bilimleri::Dunyamizi Kesfedelim::4": ["Dunyanin Sekli", "Dunyanin Yapisi (Hava-Su-Tas-Canli Kure)", "Dunyanin Hareketleri"],
-  "Fen Bilimleri::Maddenin Degisimi::4": ["Maddelerin Hal Degisimi", "Isi Etkisiyle Degisim"],
-  "Fen Bilimleri::Miknatisi Kesfediyorum::4": ["Miknatis Kutuplari ve Etkilesimi", "Miknatisin Etki Ettigi Maddeler"],
-  "Fen Bilimleri::Enerji Dedektifleri::4": ["Basit Elektrik Devresi", "Yenilenebilir ve Yenilenemeyen Enerji Kaynaklari"],
-  "Fen Bilimleri::Isigin Pesinde::4": ["Isik Kaynaklari", "Golge Olusumu"],
-  "Fen Bilimleri::Surdurulebilir Sehirler ve Topluluklar::4": ["Surdurulebilir Yasam Alani Kurma"],
+  "Fen Bilimleri::Yer Kabugu ve Dunya'mizin Hareketleri::4": ["Yer Kabugunun Yapisi", "Dunya'mizin Hareketleri"],
+  "Fen Bilimleri::Besinlerimiz::4": ["Besinler ve Ozellikleri"],
+  "Fen Bilimleri::Kuvvetin Etkileri::4": ["Kuvvetin Cisimler Uzerindeki Etkileri", "Miknatislarin Uyguladigi Kuvvet"],
+  "Fen Bilimleri::Maddenin Ozellikleri::4": ["Maddeyi Niteleyen Ozellikler", "Maddenin Olculebilir Ozellikleri", "Maddenin Halleri", "Maddenin Isi Etkisiyle Degisimi", "Saf Madde ve Karisim"],
+  "Fen Bilimleri::Aydinlatma ve Ses Teknolojileri::4": ["Aydinlatma Teknolojileri", "Uygun Aydinlatma", "Isik Kirliligi", "Gecmisten Gunumuze Ses Teknolojileri", "Ses Kirliligi"],
+  "Fen Bilimleri::Insan ve Cevre::4": ["Bilincli Tuketici"],
+  "Fen Bilimleri::Basit Elektrik Devreleri::4": ["Basit Elektrik Devreleri"],
   "Fen Bilimleri::Gunes Sistemi ve Tutulmalar::6": ["Gunes Sistemi", "Gunes ve Ay Tutulmalari"],
   "Fen Bilimleri::Kuvvetin Etkisinde Hareket::6": ["Bileske Kuvvet", "Sabit Suratli ve Sabit Hizli Hareket"],
   "Fen Bilimleri::Canlilarda Sistemler::6": ["Bitki ve Hayvanlarda Ureme, Buyume ve Gelisme", "Denetleyici ve Duzenleyici Sistemler"],
@@ -119,13 +118,13 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Fen Bilimleri::Surdurulebilir Yasam ve Enerji::7": ["Besin Zinciri ve Enerji Akisi", "Surdurulebilir Yasam"],
 
   // ==== 5. SINIF FEN BILIMLERI (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
-  "Fen Bilimleri::Gokyuzundeki Komsularimiz ve Biz::5": ["Gunes'in Yapisi ve Donme Hareketi", "Ay'in Ozellikleri Donme ve Dolanma Hareketleri", "Dunya'miz ve Gokyuzundeki Komsularimiz"],
-  "Fen Bilimleri::Kuvveti Taniyalim::5": ["Kuvvetin Buyuklugu ve Dinamometre", "Agirlik ve Yer Cekimi", "Surtunme Kuvveti"],
+  "Fen Bilimleri::Gokyuzundeki Komsularimiz ve Biz::5": ["Gokyuzundeki Komsumuz: Gunes", "Gokyuzundeki Komsumuz: Ay", "Dunya'miz ve Gokyuzundeki Komsularimiz"],
+  "Fen Bilimleri::Kuvveti Taniyalim::5": ["Kuvvet ve Kuvvetin Olculmesi", "Kutle ve Agirlik Iliskisi", "Surtunme Kuvveti"],
   "Fen Bilimleri::Canlilarin Yapisina Yolculuk::5": ["Hucre ve Organelleri", "Destek ve Hareket Sistemi"],
-  "Fen Bilimleri::Isigin Dunyasi::5": ["Isigin Yayilmasi", "Madde ve Isik (Saydam-Yari Saydam-Opak)", "Golge Olusumu"],
-  "Fen Bilimleri::Maddenin Dogasi::5": ["Maddenin Tanecikli Yapisi", "Isi ve Sicaklik", "Isi Iletimi (Iletken-Yalitkan)"],
-  "Fen Bilimleri::Yasamimizdaki Elektrik::5": ["Devre Elemanlari ve Sembolleri", "Devre Semalari"],
-  "Fen Bilimleri::Surdurulebilir Yasam ve Geri Donusum::5": ["Geri Donusum ve Cevre Bilinci", "Dogal Kaynaklarin Korunumu"],
+  "Fen Bilimleri::Isigin Dunyasi::5": ["Isigin Yayilmasi", "Madde ve Isik", "Tam Golgenin Olusumu"],
+  "Fen Bilimleri::Maddenin Dogasi::5": ["Maddenin Tanecikli Yapisi", "Isi ve Sicaklik", "Maddenin Hal Degisimi", "Madde ve Isi"],
+  "Fen Bilimleri::Yasamimizdaki Elektrik::5": ["Devre Elemanlarinin Sembollerle Gosterimi ve Devre Semalari", "Basit Bir Elektrik Devresinde Ampul Parlakligini Etkileyen Degiskenler"],
+  "Fen Bilimleri::Surdurulebilir Yasam ve Geri Donusum::5": ["Evsel Atiklar ve Geri Donusum"],
 
   // ==== 5/6/7. SINIF TURKCE (standart pedagojik siniflandirma - Matematik/Fen kadar
   // resmi kaynaktan tek tek dogrulanmadi, ORTA guven seviyesi) ====
@@ -260,18 +259,19 @@ const DOGRULANMIS_ALT_KONULAR = {
   // ==== 5. SINIF SOSYAL BILGILER (yeni mufredat - 6/7'den FARKLI ogrenme alani isimleri) ====
   // 5. sinif - PDF'den DOGRULANMIS/hassaslastirilmis (Agustos 2026)
   // 4. sinif - resmi PDF'ten (2024programsos4567Onayli.pdf, Agustos 2026) DOGRULANDI.
-  "Sosyal Bilgiler::Birlikte Yasamak::4": ["Sosyal Bilgiler Dersinin Katkilari", "Bireysel Ozelliklere Saygi", "Toplumsal Birlik"],
-  "Sosyal Bilgiler::Evimiz Dunya::4": ["Harita Kullanarak Konum ve Yon Bulma", "Doga ve Insan Iliskisi", "Afetlerin Etkilerini Azaltma"],
-  "Sosyal Bilgiler::Ortak Mirasimiz::4": ["Gecmisten Gunumuze Oyun ve Oyuncaklar", "Aile Tarihi", "Yakin Cevredeki Ortak Miras Ogeleri"],
-  "Sosyal Bilgiler::Yasayan Demokrasimiz::4": ["Cumhuriyetin Ilani ve Ataturk", "Cumhuriyetin Getirdigi Degisimler", "Okulda Demokratik Katilim"],
-  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::4": ["Dogal Kaynaklarin Tuketimi", "Istek ve Ihtiyac Arasindaki Secimler", "Uretim-Dagitim-Tuketim Sureci"],
-  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::4": ["Cevrim Ici Guvenlik Kurallari", "Bilim Insanlarinin Cocukluk Hayati"],
-  "Sosyal Bilgiler::Birlikte Yasamak::5": ["Gruplar ve Gruplardaki Roller", "Kulturel Ozelliklere Saygi", "Yardimlasma ve Dayanisma"],
-  "Sosyal Bilgiler::Evimiz Dunya::5": ["Ilin Goreceli Konumu", "Dogal ve Beseri Cevre Degisimi", "Afetlere Karsi Farkindalik", "Komsu Devletler"],
-  "Sosyal Bilgiler::Ortak Mirasimiz::5": ["Ildeki Ortak Miras Ogeleri", "Anadolu'daki Ilk Yerlesimler", "Mezopotamya ve Anadolu Medeniyetleri"],
-  "Sosyal Bilgiler::Yasayan Demokrasimiz::5": ["Demokrasi-Cumhuriyet Iliskisi", "Etkin Vatandaslik", "Temel Hak ve Sorumluluklar", "Basvuru Yapilabilecek Kurumlar"],
-  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::5": ["Kaynaklari Verimli Kullanma", "Butce Planlama", "Ildeki Ekonomik Faaliyetler"],
-  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::5": ["Teknolojik Urunlerin Bilincli Kullanimi", "Sosyal Bilimlerin Calisma Alanlari"],
+  "Sosyal Bilgiler::Birey ve Toplum::4": ["Resmi kimlik belgesini inceleyerek kisisel kimligine iliskin cikarimlarda bulunur", "Yasamina iliskin belli basli olaylari kronolojik siraya koyar", "Bireysel ilgi, ihtiyac ve yeteneklerini tanir", "Kendisini farkli ozelliklere sahip diger bireylerin yerine koyar", "Diger bireylerin farkli ozelliklerini saygi ile karsilar"],
+  "Sosyal Bilgiler::Kultur ve Miras::4": ["Sozlu, yazili, gorsel kaynaklar ve nesnelerden yararlanarak aile tarihi calismasi yapar", "Ailesi ve cevresindeki milli kulturu yansitan ogeleri arastirarak ornekler verir", "Geleneksel cocuk oyunlarini degisim ve sureklilik acisindan gunumuzdeki oyunlarla karsilastirir", "Milli Mucadele kahramanlarinin hayatlarindan hareketle Milli Mucadele'nin onemini kavrar"],
+  "Sosyal Bilgiler::Insanlar, Yerler ve Cevreler::4": ["Cevresindeki herhangi bir yerin konumu ile ilgili cikarimlarda bulunur", "Gunluk yasaminda kullandigi mekanlarin krokisini cizer", "Yasadigi cevredeki dogal ve beseri unsurlari ayirt eder", "Cevresinde meydana gelen hava olaylarini gozlemleyerek bulgularini resimli grafiklere aktarir", "Yasadigi yer ve cevresindeki yer sekilleri ve nufus ozellikleri hakkinda cikarimlarda bulunur", "Afet oncesi, sirasi ve sonrasina yonelik gerekli hazirliklari yapar"],
+  "Sosyal Bilgiler::Bilim, Teknoloji ve Toplum::4": ["Cevresindeki teknolojik urunleri, kullanim alanlarina gore siniflandirir", "Teknolojik urunlerin gecmisteki ve bugunku kullanimlarini karsilastirir", "Kullandigi teknolojik urunlerin mucitlerini ve bu urunlerin zaman icerisindeki gelisimini arastirir", "Cevresindeki ihtiyaclardan yola cikarak kendine ozgu urunler tasarlamaya yonelik fikirler gelistirir", "Teknolojik urunleri kendisine, baskalarina ve dogaya zarar vermeden kullanir"],
+  "Sosyal Bilgiler::Uretim, Dagitim ve Tuketim::4": ["Istek ve ihtiyaclarini ayirt ederek ikisi arasinda bilincli secimler yapar", "Ailesi ve yakin cevresindeki baslica ekonomik faaliyetleri tanir", "Sorumluluk sahibi bir birey olarak bilincli tuketici davranislari sergiler", "Kendine ait ornek bir butce olusturur", "Cevresindeki kaynaklari israf etmeden kullanir"],
+  "Sosyal Bilgiler::Etkin Vatandaslik::4": ["Cocuk olarak sahip oldugu haklara ornekler verir", "Aile ve okul yasamindaki soz ve eylemlerinin sorumlulugunu alir", "Okul yasaminda gerekli gordugu egitsel sosyal etkinlikleri onerir", "Ulkesinin bagimsizligi ile bireysel ozgurlugu arasindaki iliskiyi aciklar"],
+  "Sosyal Bilgiler::Kuresel Baglantilar::4": ["Dunya uzerindeki cesitli ulkeleri tanitir", "Turkiye'nin komsulari ve diger Turk Cumhuriyetleri ile olan iliskilerini kavrar", "Farkli ulkelere ait kulturel unsurlarla ulkemizin sahip oldugu kulturel unsurlari karsilastirir", "Farkli kulturlere saygi gosterir"],
+  "Sosyal Bilgiler::Birlikte Yasamak::5": ["Gruplar ve Roller", "Kulturel Ozelliklere Saygi ve Birlikte Yasama Kulturu", "Yardimlasma ve Dayanisma Faaliyetlerinin Toplumsal Birlige Etkisi"],
+  "Sosyal Bilgiler::Evimiz Dunya::5": ["Yasadigi Ilin Goreceli Konumu", "Yasadigi Ilde Dogal ve Beseri Cevredeki Degisim", "Yasadigi Ilde Meydana Gelebilecek Afetlerin Etkileri", "Ulkemize Komsu Devletler"],
+  "Sosyal Bilgiler::Ortak Mirasimiz::5": ["Ortak Miras Ogeleri", "Anadolu'nun Ilk Yerlesim Yerlerinde Sosyal Hayat", "Mezopotamya ve Anadolu Medeniyetlerinin Ortak Mirasa Katkilari"],
+  "Sosyal Bilgiler::Yasayan Demokrasimiz::5": ["Demokrasi ve Cumhuriyet Kavraminin Temel Nitelikleri", "Etkin Vatandasin Ozellikleri ve Onemi", "Temel Haklar, Sorumluluklar ve Onemi", "Ihtiyac Durumunda veya Sorunlarin Cozumunde Basvurulabilecek Kurumlar"],
+  "Sosyal Bilgiler::Hayatimizdaki Ekonomi::5": ["Kaynaklarin Verimli Kullanimi", "Butce Olusturma", "Yasadigim Ildeki Ekonomik Faaliyetler"],
+  "Sosyal Bilgiler::Teknoloji ve Sosyal Bilimler::5": ["Teknolojik Gelismelerin Toplum Hayatina Etkileri", "Teknolojik Urunlerin Bilincli Kullanimi"],
   "Matematik::Carpanlar ve Katlar": ["Asal Carpanlara Ayirma", "EBOB Hesaplama", "EKOK Hesaplama", "Aralarinda Asal Sayilar"],
   "Matematik::Uslu Ifadeler": ["Tam Sayi Kuvvetleri", "Uslu Ifadelerde Temel Kurallar", "Bilimsel Gosterim"],
   "Matematik::Karekoklu Ifadeler": ["Tam Kare Olmayan Sayinin Karekoku", "Kareklu Ifadeleri Sadelestirme", "Kareklu Ifadelerde Carpma-Bolme", "Kareklu Ifadelerde Toplama-Cikarma", "Rasyonel ve Irrasyonel Sayilar"],
@@ -287,11 +287,11 @@ const DOGRULANMIS_ALT_KONULAR = {
 
   // ==== 6/7. SINIF MATEMATIK - resmi MEB PDF'inden (2024programmat5678Onayli.pdf,
   // kullanici tarafindan yuklendi, Agustos 2026) TAM DOGRULANDI ====
-  "Matematik::Sayilar ve Nicelikler::6": ["Bir Dogal Sayinin Carpanlari ve Katlari", "Bolunebilme Kriterleri", "Asal Sayilar ve Asal Carpanlar", "Kesirlerle Islemler", "Ondalik Gosterimleri Cozumleme", "Kesir-Bolme Iliskisi", "Kesirlerle Dort Islem Iceren Problem Cozme", "Uzunluk Olcme"],
+  "Matematik::Sayilar ve Nicelikler::6": ["Bir Dogal Sayinin Carpanlari ve Katlari", "Bolunebilme Kriterleri", "Asal Sayilar ve Asal Carpanlar", "Ondalik Gosterimleri Cozumleme", "Kesir-Bolme Iliskisi", "Kesirlerle Dort Islem Iceren Problem Cozme", "Uzunluk Olcme"],
   "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::6": ["Bilinmeyen Nicelikler", "Oruntu", "Cebirsel Ifadeler ve Algoritma"],
   "Matematik::Geometrik Sekiller::6": ["Iki Paralel Dogrunun Bir Kesen ile Olusturdugu Acilar", "Ucgenin Acilari", "Yamuk, Paralelkenar, Eskenar Dortgen, Dikdortgen ve Karenin Kenar, Aci ve Kosegen Ozellikleri"],
   "Matematik::Geometrik Nicelikler::6": ["Uzunluk ve Alan Olcme Birimleri Arasindaki Iliski", "Paralelkenar ve Ucgenin Alani", "Cemberin ve Capin Uzunluklari Arasindaki Iliski", "Cemberde Merkez Aci ve Gordugu Yay Uzunlugu"],
-  "Matematik::Istatistiksel Arastirma Sureci::6": ["Kategorik ve Nicel (Kesikli) Veri Dagilimlari"],
+  "Matematik::Istatistiksel Arastirma Sureci::6": ["Kategorik ve Nicel (Kesikli) Veri Dagilimlari", "Kategorik ve Nicel (Surekli) Veri Dagilimlari"],
   "Matematik::Veriden Olasiliga::6": ["Deneysel Olasilik"],
 
   "Matematik::Sayilar ve Nicelikler::7": ["Tam Sayilar", "Rasyonel Sayilar ve Farkli Temsilleri", "Rasyonel Sayilarda Karsilastirma ve Siralama", "Rasyonel Sayilarla Islemler ve Problem Cozme", "Oran", "Orantili Durumlar", "Dogru Orantili Durumlara Iliskin Problem Cozme"],
@@ -304,10 +304,10 @@ const DOGRULANMIS_ALT_KONULAR = {
   // Fen Bilimleri (8. sinif) - MEB resmi ogretim programi kazanimlarindan (F.8.1 - F.8.7)
   "Fen Bilimleri::Mevsimler ve Iklim": ["Mevsimlerin Olusumu", "Iklim ve Hava Hareketleri"],
   "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon", "Biyoteknoloji"],
-  "Fen Bilimleri::Basinc": ["Kati Basinci", "Sivi Basinci"],
-  "Fen Bilimleri::Madde ve Endustri": ["Periyodik Sistem", "Fiziksel ve Kimyasal Degisim", "Kimyasal Tepkimeler", "Asitler ve Bazlar"],
+  "Fen Bilimleri::Basinc": ["Kati Basinci", "Sivi Basinci", "Kati, Sivi ve Gazlarin Basinc Ozellikleri ve Uygulamalari"],
+  "Fen Bilimleri::Madde ve Endustri": ["Periyodik Sistem", "Fiziksel ve Kimyasal Degisimler", "Kimyasal Tepkimeler", "Asitler ve Bazlar", "Maddenin Isi ile Etkilesimi", "Turkiye'de Kimya Endustrisi"],
   "Fen Bilimleri::Basit Makineler": ["Basit Makineler"],
-  "Fen Bilimleri::Enerji Donusumleri ve Cevre Bilimi": ["Besin Zinciri ve Enerji Akisi", "Fotosentez ve Solunum", "Kuresel Iklim Degisikligi"],
+  "Fen Bilimleri::Enerji Donusumleri ve Cevre Bilimi": ["Besin Zinciri ve Enerji Akisi", "Enerji Donusumleri (Fotosentez ve Solunum)", "Madde Dongulari ve Cevre Sorunlari", "Surdurulebilir Kalkinma"],
   "Fen Bilimleri::Elektrik Yukleri ve Elektrik Enerjisi": ["Elektrik Yukleri ve Elektriklenme", "Elektrik Yuklu Cisimler", "Elektrik Enerjisinin Donusumu"],
   // Turkce (8. sinif) - MEB resmi ogretim programindan (T.8.x) - sadece cok maddeli/net
   // dogrulanabilen uniteler eklendi, tek-kazanimli olanlar (Cumle Turleri, Fiilde Cati,
