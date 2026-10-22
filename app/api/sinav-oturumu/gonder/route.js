@@ -3,6 +3,7 @@ import { kullaniciIdCoz } from "@/lib/kullanici";
 import { puanla, netHesapla } from "@/lib/puanlama";
 import { sinavSonucuKaydet } from "@/lib/sinav-sonuc-kaydet";
 import { hataKitapcigiKaydet } from "@/lib/hata-kitapcigi-kaydet";
+import { sureKaydet, telafiGorevleriYaz } from "@/lib/sinav-telafi";
 
 // Faz E - SINAV OTURUMU puanlamasi. Puanlama, hata kitapcigi ve sinav_sonuclari kaydi
 // TAMAMEN sunucuda; tarayicidan yalnizca { oturumId, cevaplar } gelir. Cevap anahtari
@@ -22,7 +23,7 @@ export async function POST(req) {
       UPDATE sinav_oturumlari SET kullanildi = true
       WHERE id = ${gelenId} AND kullanici_id = ${kullaniciId} AND kullanildi = false
         AND (meta->>'pratikTuru' IS NULL OR meta->>'tamam' = 'true')
-      RETURNING id, sorular, meta, now() AS talep
+      RETURNING id, sorular, meta, now() AS talep, olusturulma AS baslangic
     `;
     if (oturum.length === 0) return Response.json({ error: "Sinav bulunamadi veya zaten gonderilmis" }, { status: 400 });
     oturumId = oturum[0].id;
@@ -92,7 +93,15 @@ export async function POST(req) {
       } catch (e) { console.error("Hata kitapcigi kaydi basarisiz:", e.message); }
     }
 
+    // Sure kaydi + telafi zinciri (Sinav Merkezi madde 19). Hata sonucu bozmaz. Pratik ve ders-seviye oturumlari telafi uretmez.
+    let sureSn = null, telafiGorevSayisi = 0;
+    try {
+      sureSn = await sureKaydet({ kullaniciId, tur: meta.kayitTuru || (pratik ? `pratik_${meta.pratikTuru}` : "deneme"), ders: meta.kayitDersAdi || meta.ders || "Genel", oturumBaslangic: oturum[0].baslangic, talep: oturum[0].talep, puan, soruSayisi: sorular.length });
+      if (!pratik && !dersSeviye && meta.kayitTuru !== "gecen_yil_genel") telafiGorevSayisi = await telafiGorevleriYaz({ kullaniciId, cihazId, ders: meta.ders, altKonuKirilim });
+    } catch (e) { console.error("Sure/telafi kaydi basarisiz:", e.message); }
+
     return Response.json({
+      sureSn, telafiGorevSayisi,
       dogru: puan.dogru, yanlis: puan.yanlis, bos: puan.bos, net: puan.net, toplam: sorular.length,
       zorlukKirilim, altKonuKirilim, uniteKirilim, oncekiNet, testNo, kayitDersAdi: meta.kayitDersAdi || meta.ders || "",
       anahtar: sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama || null })),

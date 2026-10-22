@@ -50,6 +50,27 @@ export async function GET(req) {
       });
     }
 
+    // Sure analizi (Sinav Merkezi madde 19): sinav_sure_kaydi'ndan ders basina ORTALAMA soru basi sure. Tablo henuz yoksa/bossa atlanir.
+    try {
+      const sureler = await sql`
+        SELECT ders, COUNT(*)::int AS adet, SUM(sure_sn)::float AS sure, SUM(soru_sayisi)::float AS soru, SUM(yanlis)::float AS yanlis, SUM(bos)::float AS bos
+        FROM (SELECT * FROM sinav_sure_kaydi WHERE kullanici_id = ${kullaniciId} AND tur NOT LIKE 'pratik_%' ORDER BY olusturulma DESC LIMIT 60) t
+        GROUP BY ders
+      `;
+      for (const r of sureler) {
+        const d = dersler.find((x) => x.ders === r.ders);
+        if (!d || !(r.soru > 0)) continue;
+        d.sureKayitSayisi = r.adet;
+        d.soruBasiSn = Math.round(r.sure / r.soru);
+        // Kural: soru basina cok kisa sure + yuksek yanlis orani = acele; cok boş + uzun sure = zaman yonetimi.
+        // Esikler sezgisel (resmi bir norm degil); yalnizca >= 2 sinav kaydi varsa etiket konur.
+        if (r.adet >= 2) {
+          if (d.soruBasiSn < 25 && r.yanlis / r.soru >= 0.3) d.etiketler.push("Aceleci");
+          if (d.soruBasiSn > 120 && r.bos / r.soru >= 0.25) d.etiketler.push("Zaman yetmiyor");
+        }
+      }
+    } catch (e) { /* sure tablosu henuz yok: sessizce atla */ }
+
     // Sinif ortalamasi (en az GRUP_MIN farkli ogrenci)
     if (sinif && dersler.length > 0) {
       try {
@@ -87,6 +108,8 @@ export async function GET(req) {
       oneriler.push(`${sirali[0].ders} dersinde ${sirali[0].sinavSayisi} sınav kaydın var; kıyas için diğer derslerde de deneme çöz.`);
     }
     for (const d of dersler) {
+      if (d.etiketler.includes("Aceleci")) oneriler.push(`${d.ders}: soru başına ortalama ${d.soruBasiSn} sn harcıyorsun ve yanlış oranın yüksek. Soruyu iki kez oku, işaretlemeden önce şıkları ele.`);
+      if (d.etiketler.includes("Zaman yetmiyor")) oneriler.push(`${d.ders}: soru başına ortalama ${d.soruBasiSn} sn harcıyorsun ve boş sayın yüksek. Takıldığın soruyu geç, sona dön.`);
       if (d.fark !== null && d.fark < 0) oneriler.push(`${d.ders}: önceki sınava göre ${Math.abs(d.fark)} net düştün. Hata Kitapçığındaki ${d.ders} sorularını tekrar et.`);
       if (d.yanlis > 0 && d.bos === 0 && d.yanlis >= d.dogru / 2) oneriler.push(`${d.ders}: yanlışların net kaybettiriyor (4 yanlış 1 doğruyu götürür). Emin olmadığın soruda iki seçeneği eleyemiyorsan boş bırakmayı dene.`);
       if (d.sinifOrtalamasi !== undefined && d.sonNet < d.sinifOrtalamasi) oneriler.push(`${d.ders}: sınıf ortalamasının (${d.sinifOrtalamasi}) ${Math.round((d.sinifOrtalamasi - d.sonNet) * 100) / 100} net altındasın.`);

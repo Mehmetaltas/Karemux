@@ -7633,6 +7633,7 @@ export default function Ana() {
                           {d.etiketler.map((e) => <span key={e} style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: e === "Yükselişte" ? "rgba(61,163,93,0.15)" : "rgba(232,80,63,0.12)", color: e === "Yükselişte" ? RENK_BASARI : "#B3392B" }}>{e}</span>)}
                         </div>
                       )}
+                      {d.soruBasiSn > 0 && <p style={{ fontSize: 11.5, color: COLORS.muted, marginTop: 5 }}>Soru başına ortalama {d.soruBasiSn} sn ({d.sureKayitSayisi} sınav)</p>}
                       <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 11.5, color: COLORS.muted }}>
                         Hedef net
                         <input type="number" inputMode="decimal" value={hedefNetler[d.ders] ?? ""} onChange={(e) => hedefNetKaydet(d.ders, e.target.value)} style={{ width: 64, padding: "4px 6px", borderRadius: 6, border: `1px solid ${COLORS.line}`, fontSize: 12 }} />
