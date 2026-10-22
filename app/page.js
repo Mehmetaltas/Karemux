@@ -301,11 +301,11 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Turkce::Hak ve Sorumluluklar::7": ["Hak", "Sorumluluk", "Adalet", "Ozgürlük", "Esitlik", "Baris", "Karsilastirma", "Cozümleme", "Degerlendirme", "Sozlü Sunum", "Coklu Ortam Ogeleri", "Gecis ve Baglanti Ifadeleri", "Acik ve Ortük Ifade"],
 
   // ==== 6/7. SINIF DIN KULTURU ====
-  "Din Kulturu::Peygamber ve Ilahi Kitap Inanci::6": ["Peygamberlik Kavrami", "Ilahi Kitaplar"],
-  "Din Kulturu::Ramazan ve Oruc::6": ["Ramazan Ayinin Onemi", "Oruc Ibadeti ve Cesitleri"],
-  "Din Kulturu::Ahlaki Davranislar::6": ["Dogru Sozlu Olma", "Merhamet ve Adab-i Muaseret"],
-  "Din Kulturu::Peygamberliginden Once Hz. Muhammed::6": ["Cocukluk ve Genclik Donemi", "Ticaret Hayati"],
-  "Din Kulturu::Kulturumuzdeki Dini Motifler::6": ["Mimaride Dini Ogeler", "Sanatta Dini Motifler"],
+  "Din Kulturu::Peygamber ve Ilahi Kitap Inanci::6": ["Insanlara Rehber: Peygamber", "Peygamberlerin Ilettigi Mesaj: Vahiy", "Ilahi Kitaplar", "Bir Sure Ogreniyorum: Felak Suresi"],
+  "Din Kulturu::Ramazan ve Oruc::6": ["Oruc ve Kur'an Ayi Ramazan", "Oruc Ibadeti", "Orucun Insana Kazandirdiklari", "Bir Dua Ogreniyorum: Iftar Duasi"],
+  "Din Kulturu::Ahlaki Davranislar::6": ["Dogru Sozlu Olmak", "Merhametli Olmak", "Adap ve Nezaket Kurallarina Uymak", "Vatanimizi Sevmek", "Bir Dua Ogreniyorum: Kunut Dualari"],
+  "Din Kulturu::Peygamberliginden Once Hz. Muhammed::6": ["Hz. Muhammed'in (sav) Dogdugu Cevre", "Hz. Muhammed'in (sav) Ailesi ve Cocuklugu", "Hz. Muhammed'in (sav) Genclik Yillari", "Bir Sure Ogreniyorum: Fil Suresi"],
+  "Din Kulturu::Kulturumuzdeki Dini Motifler::6": ["Gelenegimizde Dinin Izleri", "Edebiyatimizda Dinin Izleri", "Musikimizde Dinin Izleri"],
   "Din Kulturu::Melek ve Ahiret Inanci::7": ["Meleklere Iman", "Ahiret Hayati"],
   "Din Kulturu::Hac Umre ve Kurban::7": ["Hac Ibadeti", "Umre", "Kurban Ibadeti"],
   "Din Kulturu::Islam Dusuncesinde Yorumlar::7": ["Mezhep Kavrami", "Yorum Farkliliklarina Saygi"],
