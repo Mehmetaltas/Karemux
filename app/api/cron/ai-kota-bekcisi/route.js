@@ -3,7 +3,7 @@ import { yoneticiUyar } from "@/lib/uyari";
 
 export const dynamic = "force-dynamic";
 
-// 22 Ekim (Madde 42): yapay zeka kota ve maliyet bekcisi. Her 3 saatte son 3 saatin ai_saglayici_log kayitlarina bakar;
+// 22 Ekim (Madde 42): yapay zeka kota ve maliyet bekcisi. Günde bir kez son 24 saatin ai_saglayici_log kayitlarina bakar;
 // Gemini 429 (gunluk kota) yigilmasi, genel basarisizlik orani ve gunluk tahmini maliyet esigi asilinca yoneticiye Telegram uyarisi yollar.
 // Ayni uyari 6 saatte bir kez gider (lib/uyari.js). Esik: AI_GUNLUK_MALIYET_ESIGI_TL (varsayilan 50).
 export async function GET(req) {
@@ -16,16 +16,16 @@ export async function GET(req) {
              COUNT(*)::int AS toplam,
              COUNT(*) FILTER (WHERE basarili = false)::int AS basarisiz,
              COUNT(*) FILTER (WHERE basarili = false AND hata LIKE '%429%')::int AS kota
-      FROM ai_saglayici_log WHERE olusturulma > now() - interval '3 hours' GROUP BY saglayici
+      FROM ai_saglayici_log WHERE olusturulma > now() - interval '24 hours' GROUP BY saglayici
     `;
     const uyarilar = [];
     const toplam = ozet.reduce((t, r) => t + r.toplam, 0);
     const basarisiz = ozet.reduce((t, r) => t + r.basarisiz, 0);
     for (const r of ozet) {
-      if (r.kota >= 5) uyarilar.push({ anahtar: `kota-${r.saglayici}`, mesaj: `🟠 KAREMUX: ${r.saglayici} son 3 saatte ${r.kota} kez kota/429 verdi (${r.toplam} istek). Yedek sağlayıcılar devrede; kapasiteyi kontrol et.` });
+      if (r.kota >= 5) uyarilar.push({ anahtar: `kota-${r.saglayici}`, mesaj: `🟠 KAREMUX: ${r.saglayici} son 24 saatte ${r.kota} kez kota/429 verdi (${r.toplam} istek). Yedek sağlayıcılar devrede; kapasiteyi kontrol et.` });
     }
     if (toplam >= 10 && basarisiz / toplam > 0.3) {
-      uyarilar.push({ anahtar: "ai-basarisizlik", mesaj: `🔴 KAREMUX: Son 3 saatte yapay zekâ çağrılarının %${Math.round((basarisiz / toplam) * 100)}'i başarısız (${basarisiz}/${toplam}). Öğrenciler "tekrar dene" hatası görüyor olabilir.` });
+      uyarilar.push({ anahtar: "ai-basarisizlik", mesaj: `🔴 KAREMUX: Son 24 saatte yapay zekâ çağrılarının %${Math.round((basarisiz / toplam) * 100)}'i başarısız (${basarisiz}/${toplam}). Öğrenciler "tekrar dene" hatası görüyor olabilir.` });
     }
     let maliyetTl = null;
     try {

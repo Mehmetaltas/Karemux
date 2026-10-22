@@ -54,7 +54,7 @@
     },
     {
       "path": "/api/cron/ai-kota-bekcisi",
-      "schedule": "0 */3 * * *"
+      "schedule": "0 7 * * *"
     }
   ]
 }
