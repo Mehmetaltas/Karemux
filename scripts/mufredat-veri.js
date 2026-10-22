@@ -48,7 +48,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // konulari (isim tamlamasi, fiilimsi vb.) bu temalarin ICINDE isleniyor. Biz de
   // gercek ders sirasina uygun sekilde, her temaya bir dilbilgisi/metin becerisi
   // alt basligi esliyoruz - LGS'nin dilbilgisi agirligi kaybolmasin diye.
-  "4::Turkce": ["Dinleme ve Izleme", "Konusma", "Okuma", "Yazma"],
+  "4::Turkce": ["Okuma Kulturu", "Milli Mucadele ve Ataturk", "Erdemler", "Bilim ve Teknoloji", "Doga ve Evren", "Milli Kulturumuz", "Cocuk Dunyasi", "Saglik ve Spor"],
   "5::Turkce": ["Oyun Dunyasi", "Ataturk'u Tanimak", "Duygularimi Taniyorum", "Geleneklerimiz", "Iletisim ve Sosyal Iliskiler", "Saglikli Yasiyorum"],
   "4::Din Kulturu": ["Gunluk Hayat ve Din", "Allah Sevgisi", "Peygamberlerin Sevgisi", "Ahlaki Degerlerimiz", "Haklar ve Sorumluluklar"],
   "5::Din Kulturu": ["Allah Inanci", "Namaz", "Kur'an-i Kerim", "Peygamber Kissalari", "Mimarimizde Dini Motifler"],
@@ -135,10 +135,14 @@ const DOGRULANMIS_ALT_KONULAR = {
   // 4. sinif - resmi PDF'ten (2024programtur1234Onayli.pdf, Agustos 2026) DOGRULANDI.
   // Not: 1-4. sinif Turkce, 5-8'den FARKLI olarak tema degil DIL BECERISI
   // bazinda yapilandirilmis (Dinleme/Konusma/Okuma/Yazma).
-  "Turkce::Dinleme ve Izleme::4": ["Dinleme/Izlemeyi Yonetme", "Dinlediklerinden Anlam Olusturma", "Dinlediklerini Cozumleme", "Dinleme Surecini Degerlendirme"],
-  "Turkce::Konusma::4": ["Konusmayi Yonetme", "Konusmada Icerik Olusturma", "Konusma Kurallarini Uygulama", "Konusma Surecini Degerlendirme"],
-  "Turkce::Okuma::4": ["Okuma Surecini Yonetme", "Okuduklarindan Anlam Olusturma", "Okuduklarini Cozumleme", "Okuma Surecini Degerlendirme"],
-  "Turkce::Yazma::4": ["Yazili Anlatimi Yonetme", "Yazida Icerik Olusturma", "Yazim Kurallarini Uygulama", "Yazma Surecini Degerlendirme"],
+  "Turkce::Okuma Kulturu::4": ["Turkce Konus", "Evimizdeki Kutuphane", "Dijital Tayfa: Yanlis Haber Yagmuru", "Kitaplar Ne Ise Yarar?", "Hikayesi Olmayan Kitap"],
+  "Turkce::Milli Mucadele ve Ataturk::4": ["Gozum Arkada Kalmayacak", "Mehmet Akif Ersoy", "Haci Ibrahim Efendi: Mehmetcige Dikilen Botlar", "Canakkale", "Canakkale Gecilmez Mustafa Kemal Yenilmez"],
+  "Turkce::Erdemler::4": ["Iyilestirici Guc: Sevgi", "Maysa ile Bulut", "Hasta Ziyareti", "Ciftci ve Ogullari", "Iyi Dilekler Gunu"],
+  "Turkce::Bilim ve Teknoloji::4": ["Bilim Nedir?", "Olimpiyatlarin Arkasindaki Bilim", "Hayata Varim", "Otomobil Ucar Gider", "Robotlari Ustasi, El Cezeri"],
+  "Turkce::Doga ve Evren::4": ["Alo! Kayin Agaci mi?", "Gunes Nasil Calisir?", "Orman Dostlari: Agaclandirma", "Gokyuzunde Bir Yaris", "Nedir Bu Iklim Degisikligi?"],
+  "Turkce::Milli Kulturumuz::4": ["Anadolu Bacilari (Anadolu Kadinlar Birligi)", "Dunyanin Ilk Alisveris Merkezi: Kapalicarsi", "Zamane Kedisi Fildir: Yatiya Misafir", "Geleneksel Turk Okculugu", "Keloglan'in Fasulyesi"],
+  "Turkce::Cocuk Dunyasi::4": ["Diyor ki", "Guzel Anilari Biriktirmek", "Arkadasim 23 Nisan", "Bestas ve Iki Ceviz Bileti", "Ucurtmalar Nasil Ucar?", "Sagligimi Korurum"],
+  "Turkce::Saglik ve Spor::4": ["Telasa Kapilma, Ilk Yardimi Hatirla!", "Cig Kofte Spor/Lahmacun Spor", "Tahinci Dede", "Haydi Doga Yuruyusune!"],
   "Turkce::Oyun Dunyasi::5": ["Strateji, yontem ve teknik", "Konusma sureci", "Soz varligi", "Yuzey anlam", "Gorsel unsurlar", "Akici okuma", "Metnin anahtar kelimeleri", "Hazirliksiz konusma", "Yazida icerik ve yapi", "Beden dili", "Yazim kurallari", "Noktalama isaretleri", "Dil yapilari ve soz varligi"],
   "Turkce::Ataturk'u Tanimak::5": ["Materyal secimi", "Strateji, yontem ve teknik", "Soz varligi", "Yuzey anlam", "Siir", "Soz sanatlari", "Oykuleyici metin", "Metnin bolumleri", "Akici okuma", "Yazida icerik ve yapi", "Konusmada amac ve icerik", "Baglanti ifadeleri", "Yazim kurallari", "Noktalama isaretleri", "Dil yapilari ve soz varligi"],
   "Turkce::Duygularimi Taniyorum::5": ["Materyal secimi", "Strateji, yontem ve teknik", "Soz varligi", "Yuzey anlam", "Derin anlam", "Hikaye unsurlari", "Metnin bolumleri", "Dusunceyi gelistirme yollari", "Coklu ortam ogeleri", "Yaratici konusma ve yazma", "Yazida icerik ve yapi", "Soru sorma", "Baglanti ifadeleri", "Yazim kurallari", "Noktalama isaretleri", "Dil yapilari ve soz varligi"],
