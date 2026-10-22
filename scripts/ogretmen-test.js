@@ -84,6 +84,8 @@ async function calistir() {
   console.log(`\nSonuc: ${sonuclar.length - basarisizlar.length}/${sonuclar.length} basarili.`);
   if (basarisizlar.length > 0) {
     console.error("BASARISIZ ARACLAR:", basarisizlar.map((s) => s.tur).join(", "));
+    // GitHub annotation: hata nedeni log indirmeden kontrol listesinde gorunur
+    for (const b of basarisizlar) console.log(`::error title=Ogretmen arac ${b.tur}::${String(b.hata).replace(/[\r\n]+/g, " ").slice(0, 400)}`);
     process.exit(1);
   }
 }
