@@ -160,7 +160,7 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
     // 22 Ekim: TEK 10.000 token'lik cagri yerine UC PARALEL parca (canli kanit: tek cagri 53,7 sn surdu, anlatim talimatin
     // %50'si kadar kisa geldi). Anlatim ve soru havuzu zorunlu; odev opsiyonel (eksikse asagidaki tamamlama adimi doldurur).
     const sema = p.indexOf("SADECE JSON dondur, markdown kullanma.");
-    const harfKurali = "TÜRKÇE HARFLER: Türkçe metinlerde ı, İ, ğ, ü, ş, ö, ç harflerini MUTLAKA doğru kullan; ASCII'ye sadeleştirilmiş yazma ('şimdi', 'önce', 'için', 'çünkü', 'örnek' yaz; 'simdi', 'once', 'icin', 'cunku', 'ornek' YAZMA).\n\n";
+    const harfKurali = "TÜRKÇE HARFLER: Türkçe metinlerde ı, İ, ğ, ü, ş, ö, ç harflerini MUTLAKA doğru kullan; ASCII'ye sadeleştirilmiş yazma ('şimdi', 'önce', 'için', 'çünkü', 'örnek' yaz; 'simdi', 'once', 'icin', 'cunku', 'ornek' YAZMA). Konu adi ASCII verildiyse (ornek: 'Uslu Ifadeler', 'Carpanlar ve Katlar') metinde HER ZAMAN dogru Turkce halini yaz ('Üslü İfadeler', 'Çarpanlar ve Katlar'). 'konuştuğumuz', 'yaptığımız' gibi sert sessiz sonrasi ek 't' ile yazilir ('konuşduğumuz' YAZMA).\n\n";
     const baslik = (sema > 0 ? p.slice(0, sema) : p) + harfKurali;
     // 22 Ekim: canli kanit - ortak baslikdaki "canli diyalog" kisiligi soru parcalarina da gidince soru metinleri sohbet girisi
     // oldu ("Bak, simdi baslayalim. 2^3 ifadesinin degeri kactir?"). Kisilik YALNIZ anlatim parcasinda kalir; soru/odev kisa basliklidir.
@@ -190,11 +190,11 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
       const anlatimPrompt = (duzeltme) => `${baslik}${jsonKurali}{
   "anlatim": {
     "hizliOgren": "30 saniyede ozet, 2-3 cumle",
-    "temelAnlatim": "konunun temel mantigi, ana kavramlar, TANIM+SOMUT ORNEK ile, EN AZ 150 kelime",
-    "derinAnlatim": "konunun NEDEN ve NASIL calistigi, daha derin bakis, EN AZ 200 kelime",
+    "temelAnlatim": "konunun temel mantigi, ana kavramlar, TANIM+SOMUT ORNEK ile, 150-200 kelime (200 kelimeyi ASMA)",
+    "derinAnlatim": "konunun NEDEN ve NASIL calistigi, daha derin bakis, 200-250 kelime (250 kelimeyi ASMA)",
     "pufNoktalari": ["sinavda zaman kazandiran pratik kisayol/teknik 1", "teknik 2", "teknik 3"],
     "sikHatalar": ["ogrencilerin sik yaptigi hata 1", "hata 2", "hata 3"],
-    "yeniNesilUygulama": "gercek bir yeni nesil LGS tarzi problemde bu bilginin nasil kullanilacagini gosteren somut ornek, EN AZ 120 kelime"
+    "yeniNesilUygulama": "gercek bir yeni nesil LGS tarzi problemde bu bilginin nasil kullanilacagini gosteren somut ornek, 120-150 kelime (150 kelimeyi ASMA)"
   }
 }
 
