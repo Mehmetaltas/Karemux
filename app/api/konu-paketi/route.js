@@ -19,7 +19,7 @@ export const maxDuration = 60;
 // Zincirli/ifadeli esitlikler (2^3=2*2*2, 2^3.2^2=...) bilerek atlanir: sonuc sayisindan sonra * . x ^ / + - gelirse eslesme yok sayilir.
 function usEsitligiHatalari(metin) {
   const hatalar = [];
-  const re = /(\d{1,3})\^(\d{1,2})\s*=\s*(\d{1,15})(?![\d.,]|\s*[-*·×x^\/+])/g;
+  const re = /(\d{1,3})\^(\d{1,2})\s*=\s*(\d{1,15})(?![\d.,]|\s*[-*·×x^/+])/g;
   let m;
   while ((m = re.exec(String(metin || ""))) !== null) {
     const taban = Number(m[1]), us = Number(m[2]), yazilan = Number(m[3]);
