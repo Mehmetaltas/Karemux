@@ -185,20 +185,20 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
 }
 
 Uzunluk hedeflerini KISALTMA. Metindeki TUM sayisal hesaplari (us, carpma, bolme, toplama) yazmadan once tek tek yeniden hesapla; yanlis sonuc YAZMA.${duzeltme || ""}`;
-      const soruPrompt = `${baslik}${jsonKurali}{
+      const soruPrompt = (adet, dagilim, ek) => `${baslik}${jsonKurali}{
   "soruHavuzu": [
     {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"${kontrolIfadesiTalimati}}
   ]
 }
 
-soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap olsun.`;
-      const odevPrompt = `${baslik}${jsonKurali}{
+soruHavuzu TAM ${adet} soru icersin: ${dagilim} (sirali ver). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap olsun.${ek}`;
+      const odevPrompt = (adet, ek) => `${baslik}${jsonKurali}{
   "odevSorulari": [
     {"soru":"...", "cozum":"adim adim detayli cozum metni"}
   ]
 }
 
-odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.`;
+odevSorulari TAM ${adet} acik uclu soru icersin (coktan secmeli DEGIL), her biri icin adim adim detayli cozum ver.${ek}`;
 
       const anlatimUret = async () => {
         let r = await parcaCoz({ prompt: anlatimPrompt(""), maxTokens: 4500, jsonModu: true, tur: "konu_paketi_anlatim" }, butceMs);
@@ -215,21 +215,39 @@ odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin 
         return { anlatim: a.anlatim, saglayici: r.saglayici, sayisalHata: hatalar };
       };
 
-      const [an, so, od] = await Promise.allSettled([
+      // 22 Ekim: canli kanit - Anthropic ~100-130 token/sn; 7.500 token'lik tek soru cagrisi 28 sn, ucretsiz katman 503 beklemesi
+      // eklenince 60 sn asildi (504). Soru ve odev ikiser YARIM cagriya bolunur (hepsi paralel).
+      const [an, so1, so2, od1, od2] = await Promise.allSettled([
         anlatimUret(),
-        parcaCoz({ prompt: soruPrompt, maxTokens: 7500, jsonModu: true, tur: "konu_paketi" }, butceMs),
-        parcaCoz({ prompt: odevPrompt, maxTokens: 4500, jsonModu: true, tur: "konu_paketi_odev" }, butceMs),
+        parcaCoz({ prompt: soruPrompt(9, "6 kolay, 3 orta", " Bu, 18 soruluk havuzun ILK YARISI: temel kural ve dogrudan hesaplama sorulari."), maxTokens: 4000, jsonModu: true, tur: "konu_paketi" }, butceMs),
+        parcaCoz({ prompt: soruPrompt(9, "4 orta, 5 zor", " Bu, 18 soruluk havuzun IKINCI YARISI: kolay sorulari TEKRARLAMA; yorum, kural birlestirme ve yeni nesil LGS tarzi sorular agirlikli olsun."), maxTokens: 4000, jsonModu: true, tur: "konu_paketi" }, butceMs),
+        parcaCoz({ prompt: odevPrompt(3, ""), maxTokens: 3000, jsonModu: true, tur: "konu_paketi_odev" }, butceMs),
+        parcaCoz({ prompt: odevPrompt(3, " Bu, 6 odevlik setin IKINCI YARISI: farkli beceri ve baglamlara odaklan, konuyu farkli acilardan sorgula."), maxTokens: 3000, jsonModu: true, tur: "konu_paketi_odev" }, butceMs),
       ]);
       if (an.status !== "fulfilled" || !an.value.anlatim) throw new Error("Anlatim uretilemedi: " + (an.reason?.message || "bos"));
-      if (so.status !== "fulfilled") throw new Error("Soru havuzu uretilemedi: " + (so.reason?.message || "bos"));
-      const sorular = so.value.veri || {};
-      const odevler = od.status === "fulfilled" ? (od.value.veri || {}) : {};
+      const soruParcalari = [so1, so2].filter((x) => x.status === "fulfilled");
+      if (soruParcalari.length === 0) throw new Error("Soru havuzu uretilemedi: " + (so1.reason?.message || "bos"));
+      const gorulen = new Set();
+      const soruHavuzu = [];
+      for (const x of soruParcalari) {
+        for (const q of Array.isArray(x.value.veri?.soruHavuzu) ? x.value.veri.soruHavuzu : []) {
+          const anahtar = String(q?.soru || "").trim().toLowerCase();
+          if (!anahtar || gorulen.has(anahtar)) continue;
+          gorulen.add(anahtar);
+          soruHavuzu.push(q);
+        }
+      }
+      const odevSorulari = [od1, od2]
+        .filter((x) => x.status === "fulfilled")
+        .flatMap((x) => (Array.isArray(x.value.veri?.odevSorulari) ? x.value.veri.odevSorulari : []));
       return {
-        paket: { anlatim: an.value.anlatim, soruHavuzu: sorular.soruHavuzu, odevSorulari: Array.isArray(odevler.odevSorulari) ? odevler.odevSorulari : [] },
-        saglayici: so.value.saglayici,
+        paket: { anlatim: an.value.anlatim, soruHavuzu, odevSorulari },
+        saglayici: soruParcalari[0].value.saglayici,
       };
     };
 
+    // Gorsel karari parcalarla PARALEL baslar (birbirine bagimli degil); sonucu asagida beklenir.
+    const gorselSozu = gorselKararIsteSunucu(ders, konu, sinif).catch(() => null);
     const ilk = await parcaliUret(38000);
     let paket = ilk.paket;
     let uretimSaglayicisi = ilk.saglayici;
@@ -240,7 +258,7 @@ odevSorulari TAM 6 acik uclu soru icersin (coktan secmeli DEGIL), her biri icin 
 
     // 23 Eylul: Gorsel Motoru eklendi - Full Audit'te bulundu, arsivin temel
     // tasi olan bu route'ta hic gorsel yoktu (materyal-uret'te vardi).
-    paket.gorselSvg = await gorselKararIsteSunucu(ders, konu, sinif);
+    paket.gorselSvg = await gorselSozu;
 
     // 2.5 Kalite Kontrolu - uretimi ENGELLEMEZ, sadece isaretler
     let kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
@@ -352,7 +370,8 @@ SADECE JSON dondur: {"odevSorulari":[{"soru":"...", "cozum":"adim adim detayli c
 
     // Katman 3 - capraz-model dogrulama (GOLGE MOD, sadece log, engellemez, hic throw etmez)
     const soruOzeti = JSON.stringify((paket.soruHavuzu || []).map((s) => ({ soru: s.soru, secenekler: s.secenekler, dogruIndex: s.dogruIndex })));
-    const caprazSonuc = await ikinciGorusAl(uretimSaglayicisi, soruOzeti);
+    // 22 Ekim: golge mod (yalniz log) - sure kisitliysa atlanir, 60 sn sinirini zorlamasin
+    const caprazSonuc = Date.now() - istekBaslangicMs < 40000 ? await ikinciGorusAl(uretimSaglayicisi, soruOzeti) : null;
     if (caprazSonuc?.hataVarMi) console.warn("konu_paketi CAPRAZ-MODEL uyari (GOLGE MOD):", ders, konu, caprazSonuc.bulgular);
 
     // Katman 4 - mufredat sinir kontrolu (SADE, 18 Eylul: yapay-matematik
