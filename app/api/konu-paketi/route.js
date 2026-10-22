@@ -3,6 +3,7 @@ import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kal
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { kazanimBlogu } from "@/lib/kazanimlar";
 import { resendIstemcisi } from "@/lib/email";
 import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
 import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
@@ -135,7 +136,7 @@ ONEMLI UYARI: "Aferin", "tam da bunu bekliyordum", "harikasin" gibi KALIP OVGU/T
 
 Kalite referansi: ${kaliteReferansi}
 ${soruTalimati}
-
+${kazanimBlogu(ders, sinif, konu, unite)}
 SADECE JSON dondur, markdown kullanma. ${dilKurali}:
 
 {
