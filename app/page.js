@@ -111,7 +111,7 @@ function gorunurDersler(sinifNo) {
 const MUFREDAT = {
   "Matematik": ["Carpanlar ve Katlar", "Uslu Ifadeler", "Karekoklu Ifadeler", "Veri Analizi", "Olasilik", "Cebirsel Ifadeler ve Ozdeslikler", "Dogrusal Denklemler", "Esitsizlikler", "Ucgenler", "Eslik ve Benzerlik", "Donusum Geometrisi", "Geometrik Cisimler"],
   "Fen Bilimleri": ["Mevsimler ve Iklim", "DNA ve Genetik Kod", "Basinc", "Madde ve Endustri", "Basit Makineler", "Enerji Donusumleri ve Cevre Bilimi", "Elektrik Yukleri ve Elektrik Enerjisi"],
-  "Turkce": ["Fiilimsiler", "Cumlenin Ogeleri", "Cumle Turleri", "Anlatim Bozukluklari", "Yazim Kurallari", "Noktalama Isaretleri", "Paragrafta Anlam", "Soz Sanatlari", "Fiilde Cati"],
+  "Turkce": ["Okuma Kulturu", "Milli Mucadele ve Ataturk", "Erdemler", "Milli Kulturumuz", "Bilim ve Teknoloji", "Duygular", "Doga ve Evren", "Saglik ve Spor"],
   "T.C. Inkilap Tarihi": ["Bir Kahraman Doguyor", "Milli Uyanis: Bagimsizlik Yolunda Atilan Adimlar", "Milli Bir Destan: Ya Istiklal Ya Olum!", "Ataturkculuk ve Cagdaslasan Turkiye", "Demokratiklesme Cabalari", "Ataturk Donemi Turk Dis Politikasi", "Ataturk'un Olumu ve Sonrasi"],
   "Din Kulturu": ["Kader Inanci", "Zekat ve Sadaka", "Din ve Hayat", "Hz. Muhammed'in Ornekligi", "Kur'an-i Kerim ve Ozellikleri"],
   // 8. sinif Ingilizce - resmi PDF'ten (english-regular 2-8, Agustos 2026) DOGRULANDI.
@@ -449,21 +449,16 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Fen Bilimleri::Basit Makineler": ["Basit Makineler"],
   "Fen Bilimleri::Enerji Donusumleri ve Cevre Bilimi": ["Besin Zinciri ve Enerji Akisi", "Enerji Donusumleri (Fotosentez ve Solunum)", "Madde Dongulari ve Cevre Sorunlari", "Surdurulebilir Kalkinma"],
   "Fen Bilimleri::Elektrik Yukleri ve Elektrik Enerjisi": ["Elektrik Yukleri ve Elektriklenme", "Elektrik Yuklu Cisimler", "Elektrik Enerjisinin Donusumu"],
-  // Turkce (8. sinif) - MEB resmi ogretim programindan (T.8.x) - sadece cok maddeli/net
-  // dogrulanabilen uniteler eklendi, tek-kazanimli olanlar (Cumle Turleri, Fiilde Cati,
-  // Yazim Kurallari, Noktalama, Soz Sanatlari) icin yeterli veri bulunamadi, AI onerisinde kaldi.
-  "Turkce::Fiilimsiler": ["Isim-Fiil (Mastar)", "Sifat-Fiil (Ortac)", "Zarf-Fiil (Baglac-Fiil)"],
-  "Turkce::Cumlenin Ogeleri": ["Ozne", "Yuklem", "Nesne", "Dolayli Tumlec", "Zarf Tumleci"],
-  "Turkce::Anlatim Bozukluklari": ["Anlam Yonunden Anlatim Bozukluklari", "Dil Bilgisi Yonunden Anlatim Bozukluklari"],
-  "Turkce::Paragrafta Anlam": ["Ana Fikir Belirleme", "Ozetleme", "Baslik Belirleme", "Yardimci Fikir Belirleme"],
-  // Cumle Turleri (T.8.4.19) ve Fiilde Cati (T.8.4.20) resmi kazanimda TEK madde
-  // ("kavramsal tanimlamalara girilmez") - asagidaki kirilim standart pedagojik
-  // siniflandirma, resmi ayri kazanim numarasi degil.
-  "Turkce::Cumle Turleri": ["Yapisina Gore Cumleler", "Anlamina Gore Cumleler", "Yuklemin Turune Gore Cumleler"],
-  "Turkce::Fiilde Cati": ["Ozne-Yuklem Iliskisine Gore Fiil Catisi", "Nesne-Yuklem Iliskisine Gore Fiil Catisi"],
-  "Turkce::Yazim Kurallari": ["Buyuk Harflerin Kullanimi", "Birlesik Kelimelerin Yazimi", "Sayilarin Yazimi", "Kisaltmalarin Yazimi"],
-  "Turkce::Noktalama Isaretleri": ["Nokta ve Virgul", "Soru ve Unlem Isareti", "Tirnak ve Kesme Isareti"],
-  "Turkce::Soz Sanatlari": ["Benzetme", "Kisilestirme", "Abartma", "Konusturma"],
+  // Turkce (8. sinif) - 2026-2027 MEB resmi yillik plani (Turkce 8. SINIF MEB YILLIK PLAN): 8 tema, 32 metin;
+  // alt konu = planin KONU/METIN sutunu harfiyen; sondaki T.8.x kazanimlari ayni haftalarda planda yer alan dil bilgisi kazanimlaridir.
+  "Turkce::Okuma Kulturu": ["Kagidin Seruveni", "Camur Tabletten Elektronik Tablete: Kitap", "Umutla Umutsuzluk", "Ataturk Bizimle (Dinleme/Izleme Metni)"],
+  "Turkce::Milli Mucadele ve Ataturk": ["Bu Vatan Kimin?", "215 Okkalik Mermi Nasil Kaldirildi?", "Memleketin Hayati Soz Konusu", "Ataturk ve Egitim, Ogretim, Ogretmen (Dinleme/Izleme Metni)", "Cumlenin ogelerini ayirt eder (T.8.4.18)"],
+  "Turkce::Erdemler": ["Bir Somun Ekmekten Alinan Ders", "Gardasim", "Yanlislarimiz...", "Mese ile Saz (Dinleme/Izleme Metni)"],
+  "Turkce::Milli Kulturumuz": ["Ergenekon Destani", "Turkiye", "Bir Hikaye Yaz Icinde Insan Olsun", "Turk Halk Edebiyati: Asik Veysel (Dinleme/Izleme Metni)", "Cumle turlerini tanir (T.8.4.19)"],
+  "Turkce::Bilim ve Teknoloji": ["Hezarfen Ahmet Celebi", "Yanki Odasi Nedir?", "Hava Nasil Oralarda?", "Uzayin Derinliklerine Yolculuk: Robotlar Gezegeni (Dinleme/Izleme Metni)"],
+  "Turkce::Duygular": ["Tepedeki Yalniz Agac", "Bu Cagri Sanadir", "Umut...", "Dostluk Dedigin (Dinleme/Izleme Metni)", "Fiillerin cati ozelliklerinin anlama olan katkisini kavrar (T.8.4.20)"],
+  "Turkce::Doga ve Evren": ["Ardahan'dan Gelen Mektup", "Bitkiler Nasil Hareket Eder?", "Gazli Gol", "Gokyuzunden Mektuplar Kar Kristalleri (Dinleme/Izleme Metni)", "Metindeki anlatim bozukluklarini belirler (T.8.3.8)"],
+  "Turkce::Saglik ve Spor": ["Kahvaltinin Onemi", "Spor Yap, Beynin Formda Kalsin!", "Obezite Nedir?", "Ataturk ve Spor (Dinleme/Izleme Metni)"],
   // T.C. Inkilap Tarihi ve Ataturkculuk (8. sinif) - MEB resmi ogretim programindan (ITA.8.x)
   "T.C. Inkilap Tarihi::Bir Kahraman Doguyor": ["Avrupa'daki gelismelerin yansimalari baglaminda Osmanli Devleti'nin yirminci yuzyilin", "Mustafa Kemal'in cocukluk ve ogrenim hayatindan hareketle onun kisilik ozelliklerinin olusumu hakkinda cikarimlarda bulunur", "Genclik doneminde Mustafa Kemal'in fikir hayatini etkileyen onemli kisileri ve olaylari kavrar", "Mustafa Kemal'in askerlik hayati ile ilgili olaylari ve olgulari onun kisilik ozellikleri ile iliskilendirir"],
   "T.C. Inkilap Tarihi::Milli Uyanis: Bagimsizlik Yolunda Atilan Adimlar": ["Birinci Dunya Savasi'nin sebeplerini ve savasin baslamasina yol acan gelismeleri kavrar", "Birinci Dunya Savasi'nda Osmanli Devleti'nin durumu hakkinda cikarimlarda bulunur", "Mondros Ateskes Antlasmasi'nin imzalanmasi ve uygulanmasi karsisinda Osmanli yonetiminin, Mustafa Kemal'in ve halkin tutumunu analiz eder", "Kuva-yi Milliye'nin olusum surecini ve sonrasinda meydana gelen gelismeleri kavrar", "Milli Mucadele'nin hazirlik doneminde Mustafa Kemal'in yaptigi calismalari analiz eder", "Misakimilli'nin kabulunu ve Buyuk Millet Meclisinin acilisini vatanin butunlugu esasi ile “ulusal egemenlik” ve “tam bagimsizlik” ilkeleri ile iliskil", "Buyuk Millet Meclisine karsi ayaklanmalar ile ayaklanmalarin bastirilmasi icin alinan tedbirleri analiz eder", "Mustafa Kemal'in ve Turk milletinin Sevr Antlasmasi'na karsi tepkilerini degerlendirir"],

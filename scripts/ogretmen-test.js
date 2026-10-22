@@ -9,7 +9,7 @@ const TEST_EDILECEK = [
   { tur: "calisma_kagidi", sinif: 8, ders: "Matematik", konu: "Uslu Ifadeler" },
   { tur: "soru_seti", sinif: 8, ders: "Matematik", konu: "Uslu Ifadeler" },
   { tur: "yazili", sinif: 8, ders: "Fen Bilimleri", konu: "Basinc" },
-  { tur: "fasikul", sinif: 8, ders: "Turkce", konu: "Fiilimsiler" },
+  { tur: "fasikul", sinif: 8, ders: "Turkce", konu: "Okuma Kulturu" },
   { tur: "kazanim_testi", sinif: 8, ders: "Matematik", konu: "Uslu Ifadeler" },
   { tur: "tekrar_paketi", sinif: 8, ders: "Fen Bilimleri", konu: "Basinc" },
   { tur: "odev_paketi", sinif: 5, ders: "Turkce", konu: "Oyun Dunyasi" },
