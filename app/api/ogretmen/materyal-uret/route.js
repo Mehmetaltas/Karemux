@@ -51,6 +51,7 @@ import { ogretmenGunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
 import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
+import { dilKurali } from "@/lib/dil-kurali";
 
 // Gorsel Motoru - 23 Eylul'de paylasilan lib/gorsel-karar-sunucu.js'ye
 // tasindi (konu-paketi ve ders-plani-uret de aynisini kullaniyor artik).
@@ -99,7 +100,7 @@ export async function POST(req) {
     const kaliteReferansi = KALITE_REFERANSLARI[ders] || "";
 
     if (tanim.ciktiTipi === "metin") {
-      const p = `Sen deneyimli bir ${ders} ogretmenisin. Ogretmenin sundugu su notlardan, "${tanim.baslik}" hazirla: "${ogretmenNotu.trim()}". ${tanim.aciklama}. Profesyonel, nazik ve yapici bir dille yaz, sadece ogretmenin belirttigi bilgileri kullan, uydurma detay ekleme. SADECE JSON dondur: {"baslik":"...","icerik":"..."}. Tum metinler SADECE Turkce olmali.`;
+      const p = `Sen deneyimli bir ${ders} ogretmenisin. Ogretmenin sundugu su notlardan, "${tanim.baslik}" hazirla: "${ogretmenNotu.trim()}". ${tanim.aciklama}. Profesyonel, nazik ve yapici bir dille yaz, sadece ogretmenin belirttigi bilgileri kullan, uydurma detay ekleme. SADECE JSON dondur: {"baslik":"...","icerik":"..."}. ${dilKurali(ders, "Tum metinler SADECE Turkce olmali")}.`;
       const { veri } = await aiCagirVeJsonAyikla(p, 2000, true);
       if (!veri.icerik) return Response.json({ error: "Materyal uretilemedi, tekrar dene" }, { status: 500 });
       if (ogretmenOturum?.id) {
@@ -114,7 +115,7 @@ export async function POST(req) {
     }
 
     if (tanim.ciktiTipi === "acik_uclu") {
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}. ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI: Bu sorular ACIK UCLU olmali - coktan secmeli SIK (A/B/C/D) OLMAMALI, ogrenci kendi cozumunu yazmali. Her soru icin "cozum" alaninda, ogrencinin kontrol edebilecegi ADIM ADIM, DETAYLI bir cozum ver (sadece sonuc degil, tum adimlari goster) - SESIN COK ONEMLI: cozumu, sicak bir ogretmenin evde tek basina calisan ogrenciye yaninda oturup anlatiyormus gibi yaz. SOGUK/DERS KITABI cumleleri ("Once X hesaplanir, sonra Y bulunur.") KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi burada dikkat et..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden "${konu}" konusuyla ilgili ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}. ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI: Bu sorular ACIK UCLU olmali - coktan secmeli SIK (A/B/C/D) OLMAMALI, ogrenci kendi cozumunu yazmali. Her soru icin "cozum" alaninda, ogrencinin kontrol edebilecegi ADIM ADIM, DETAYLI bir cozum ver (sadece sonuc degil, tum adimlari goster) - SESIN COK ONEMLI: cozumu, sicak bir ogretmenin evde tek basina calisan ogrenciye yaninda oturup anlatiyormus gibi yaz. SOGUK/DERS KITABI cumleleri ("Once X hesaplanir, sonra Y bulunur.") KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi burada dikkat et..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun. SADECE JSON dondur, markdown kullanma. ${dilKurali(ders, "Tum metinler SADECE Turkce olmali")}:
 {"baslik":"...","ozet":"kisa konu ozeti (yoksa bos birak)","sorular":[{"soru":"...","cozum":"adim adim detayli cozum metni","zorluk":"kolay"}]}`;
 
       const { veri, uretimSaglayicisi } = await aiCagirVeJsonAyikla(p, 7000, false); // 22 Eylul: 4000 yetersizdi, acik uclu detayli cozumler kesiliyordu (GERCEK testte kanitlandi: yarim kalmis JSON hatasi)
@@ -152,7 +153,7 @@ export async function POST(req) {
         ? `\n\nBu dersin GERCEK mufredat uniteleri (SADECE bu listeden sec, kendi uydurma):\n${gercekUniteler.map((u) => "- " + u.unite).join("\n")}`
         : "";
 
-      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinin TAMAMINI (tek uniteyle sinirli DEGIL) kapsayan, gercek bir sinav kitapcigi kalitesinde "${tanim.baslik}" hazirla. ${sinif}. sinif seviyesinde ${tanim.soruSayisi} soru olsun. ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI KURALLAR: (1) Sorular EN AZ 5 FARKLI UNITEDEN gelsin, tek bir uniteye yogunlasma - her sorunun hangi uniteden geldigini "unite" alaninda belirt, ${gercekUniteler.length > 0 ? "AŞAĞIDAKİ GERÇEK ÜNİTE LİSTESİNDEN BİREBİR SEÇEREK" : "gercekci bir isimle"}. (2) Zorluk dagilimi TAM OLARAK soyle olsun: ilk %20'si kolay, ortadaki %55'i orta, son %25'i zor (sirali ver). (3) Gercekci bir sinav suresi oner (soru basina ortalama 100 saniye hesabiyla). (4) Kisa, net bir sinav yonergesi yaz (ogrenciye nasil cevaplayacagini anlatan 1-2 cumle). (5) Her soru icin ayrica "beceri" (soru hangi beceriyi olcuyor, 2-4 kelime), "tahminiSureSaniye" (sayisal), "yayginHata" (ogrencilerin bu tarz soruda en sik yaptigi hata, kisa), "cozumTeknigi" (hizli cozum ipucu, kisa) alanlarini da doldur. SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:${uniteListesiMetni}
+      const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinin TAMAMINI (tek uniteyle sinirli DEGIL) kapsayan, gercek bir sinav kitapcigi kalitesinde "${tanim.baslik}" hazirla. ${sinif}. sinif seviyesinde ${tanim.soruSayisi} soru olsun. ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} ONEMLI KURALLAR: (1) Sorular EN AZ 5 FARKLI UNITEDEN gelsin, tek bir uniteye yogunlasma - her sorunun hangi uniteden geldigini "unite" alaninda belirt, ${gercekUniteler.length > 0 ? "AŞAĞIDAKİ GERÇEK ÜNİTE LİSTESİNDEN BİREBİR SEÇEREK" : "gercekci bir isimle"}. (2) Zorluk dagilimi TAM OLARAK soyle olsun: ilk %20'si kolay, ortadaki %55'i orta, son %25'i zor (sirali ver). (3) Gercekci bir sinav suresi oner (soru basina ortalama 100 saniye hesabiyla). (4) Kisa, net bir sinav yonergesi yaz (ogrenciye nasil cevaplayacagini anlatan 1-2 cumle). (5) Her soru icin ayrica "beceri" (soru hangi beceriyi olcuyor, 2-4 kelime), "tahminiSureSaniye" (sayisal), "yayginHata" (ogrencilerin bu tarz soruda en sik yaptigi hata, kisa), "cozumTeknigi" (hizli cozum ipucu, kisa) alanlarini da doldur. SADECE JSON dondur, markdown kullanma. ${dilKurali(ders, "Tum metinler SADECE Turkce olmali")}:${uniteListesiMetni}
 {"baslik":"...","yonerge":"...","sinavSuresiDk":40,"sorular":[{"unite":"...","soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay","beceri":"...","tahminiSureSaniye":45,"yayginHata":"...","cozumTeknigi":"..."}]}`;
 
       const { veri, uretimSaglayicisi } = await aiCagirVeJsonAyikla(p, 8000, true);
@@ -188,7 +189,7 @@ export async function POST(req) {
     }
 
     const notMetni = tanim.notGerekli ? ` Ogretmenin belirttigi hedef: "${ogretmenNotu.trim()}" - sorulari BUNA GORE hedefle.` : "";
-    const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${tur === "brans_denemesi" ? "" : ` "${konu}" konusuyla ilgili`} ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}.${notMetni} ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali:
+    const p = `Sen bir LGS/ortaokul ogretmenisin. "${ders}" dersinden${tur === "brans_denemesi" ? "" : ` "${konu}" konusuyla ilgili`} ${sinif}. sinif seviyesinde bir "${tanim.baslik}" hazirla: ${tanim.aciklama}.${notMetni} ${soruTalimati}${kaliteReferansi ? " Kalite referansi: " + kaliteReferansi : ""} SADECE JSON dondur, markdown kullanma. ${dilKurali(ders, "Tum metinler SADECE Turkce olmali")}:
 {"baslik":"...","ozet":"kisa konu ozeti (yoksa bos birak)","sorular":[{"soru":"...","secenekler":["A) ...","B) ...","C) ...","D) ..."],"dogruIndex":0,"zorluk":"kolay"}]}`;
 
     const { veri, uretimSaglayicisi } = await aiCagirVeJsonAyikla(p, 7000, true);

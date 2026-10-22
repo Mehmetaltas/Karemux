@@ -7,6 +7,7 @@ import { jsonAyikla } from "@/lib/json-ayikla";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
 import { gorselKararIsteSunucu } from "@/lib/gorsel-karar-sunucu";
 import { soruTalimatiSecSunucu } from "@/lib/soru-talimati-sunucu";
+import { dilKurali } from "@/lib/dil-kurali";
 
 export const maxDuration = 60;
 
@@ -53,7 +54,7 @@ ONEMLI TERMINOLOJI: "Kazanim" DEGIL "Ogrenme Ciktisi" de, "Mufredat" DEGIL "Maar
 Kalite referansi: ${kaliteReferansi}
 ${soruTalimati}
 
-SADECE JSON dondur, markdown kullanma. SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma, bati dillerinden TEK KELIME bile kullanma:
+SADECE JSON dondur, markdown kullanma. ${dilKurali(ders, "SADECE Turkce yaz, Latin alfabesi disinda TEK BIR karakter bile kullanma, bati dillerinden TEK KELIME bile kullanma")}:
 
 {
   "ogrenmeCiktisi": "bu konunun ogrenme ciktisi ifadesi, MEB tarzinda net bir cumle",

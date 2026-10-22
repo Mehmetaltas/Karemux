@@ -122,6 +122,11 @@ export async function GET(req) {
     const kontrolIfadesiTalimati = ders === "Matematik"
       ? `, "kontrolIfadesi":"Sorunun cevabi TEK BIR SAYI ise (sozel problem OLSA BILE), cevabi veren TAMAMEN SAYISAL bir ifade yaz (orn. 3^2*3^4 veya 20*22). SADECE cevap harfli/degiskenli (x/y/a iceren) ise BOS STRING birak"`
       : "";
+    // 22 Ekim: canli kanit - Ingilizce paket TURKCE gecmis zaman/genis zaman anlatti ve Turkce cumlelerle soru sordu; cunku
+    // "Tum metinler SADECE Turkce" kurali dersten bagimsizdi. Ingilizce dersinde ogretilen dil Ingilizce'dir.
+    const dilKurali = ders === "Ingilizce"
+      ? "Aciklama ve anlatim metinleri Turkce yazilsin (ogrenci Turkce konusan bir ortaokul ogrencisi). ANCAK bu bir INGILIZCE dersidir: ogretilen konunun ornek cumleleri, kelimeleri ve diyaloglari INGILIZCE yazilmali (yaninda Turkce aciklama/karsilik verilebilir). Coktan secmeli SORU metinleri ve SECENEKLER INGILIZCE olmali (gercek LGS Ingilizce sinavi gibi); sadece 'aciklama' ve 'cozum' alanlari Turkce olsun. Konu INGILIZCE dilbilgisi/kelime konusudur: Turkce cumleyi Ingilizce kurala gore degerlendirmeyi isteyen soru YAZMA, Turkce dilbilgisi ANLATMA. Cince/Arapca/Kiril gibi baska alfabeler kullanma"
+      : "Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma";
     const soruTalimati = await soruTalimatiSecSunucu(sinif);
     const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin, ${sinif}. sinif seviyesinde TAM bir konu paketi hazirla.
 
@@ -132,7 +137,7 @@ ONEMLI UYARI: "Aferin", "tam da bunu bekliyordum", "harikasin" gibi KALIP OVGU/T
 Kalite referansi: ${kaliteReferansi}
 ${soruTalimati}
 
-SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:
+SADECE JSON dondur, markdown kullanma. ${dilKurali}:
 
 {
   "anlatim": {
@@ -157,7 +162,7 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
     // %50'si kadar kisa geldi). Anlatim ve soru havuzu zorunlu; odev opsiyonel (eksikse asagidaki tamamlama adimi doldurur).
     const sema = p.indexOf("SADECE JSON dondur, markdown kullanma.");
     const baslik = sema > 0 ? p.slice(0, sema) : p;
-    const jsonKurali = "SADECE JSON dondur, markdown kullanma. Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma:\n\n";
+    const jsonKurali = `SADECE JSON dondur, markdown kullanma. ${dilKurali}:\n\n`;
     // 22 Ekim: canli kanit - bir parcanin JSON'u bozuk geldi ("Expected ',' or ']' ... position 7853") ve tum paket 500 verdi.
     // Her parca kendi basina ayristirilir; bozuksa (sure varsa) FARKLI bir saglayiciyla bir kez daha uretilir.
     const parcaCoz = async (parametreler, butceMs) => {
@@ -314,7 +319,7 @@ odevSorulari TAM ${adet} acik uclu soru icersin (coktan secmeli DEGIL), her biri
         const tamamlaPrompt = `Sen deneyimli bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin ${sinif}. sinif seviyesinde coktan secmeli sorular hazirlayacaksin. Asagidaki sorular ZATEN var, bunlari ve bunlara benzer sorulari TEKRARLAMA:
 ${mevcutSorular}
 
-TAM ${istenenYeni} YENI soru uret (zorluk ihtiyaci: ${ihtiyac}; kalanini orta yap). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap, acikca yanlis celdiriciler olsun. Tum metinler SADECE Turkce olmali.
+TAM ${istenenYeni} YENI soru uret (zorluk ihtiyaci: ${ihtiyac}; kalanini orta yap). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap, acikca yanlis celdiriciler olsun. ${dilKurali}.
 SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"${kontrolIfadesiTalimati}}]}`;
         const { metin: tamamlaCevap } = await aiCagirDetay({ prompt: tamamlaPrompt, maxTokens: 900 + istenenYeni * 450, jsonModu: true, tur: "konu_paketi_tamamlama" }, null, 14000);
         const yeniHam = jsonAyikla(tamamlaCevap);
@@ -339,7 +344,7 @@ SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","
         const odevPrompt = `Sen deneyimli bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin ${sinif}. sinif seviyesinde ACIK UCLU (coktan secmeli DEGIL) odev sorulari hazirla. Su sorular ZATEN var, bunlari tekrarlama:
 ${mevcutOdev || "(yok)"}
 
-TAM ${eksikOdev} YENI acik uclu soru uret, her biri icin adim adim detayli cozum yaz. Tum metinler SADECE Turkce olmali.
+TAM ${eksikOdev} YENI acik uclu soru uret, her biri icin adim adim detayli cozum yaz. ${dilKurali}.
 SADECE JSON dondur: {"odevSorulari":[{"soru":"...", "cozum":"adim adim detayli cozum metni"}]}`;
         const { metin: odevCevap } = await aiCagirDetay({ prompt: odevPrompt, maxTokens: 800 + eksikOdev * 700, jsonModu: true, tur: "konu_paketi_odev_tamamlama" }, null, 15000);
         const yeniOdev = jsonAyikla(odevCevap);
