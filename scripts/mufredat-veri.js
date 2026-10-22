@@ -6,7 +6,7 @@ const MUFREDAT = {
   "Din Kulturu": ["Kader Inanci", "Zekat ve Sadaka", "Hz. Muhammed'in Ornekligi", "Kur'an-i Kerim'de Sunulan Ornek Sahsiyetler", "Din ve Hayat"],
   // 8. sinif Ingilizce - resmi PDF'ten (english-regular 2-8, Agustos 2026) DOGRULANDI.
   // Ingilizce'nin gecis takvimi diger derslerden FARKLI - 8. sinif da yeni mufredatta.
-  "Ingilizce": ["School Life & Education", "Classroom Life & Learning", "Personal Life & Well-Being", "Family Life & Home", "Life in the Neighbourhood & City", "Life in the World and Culture", "Life in Nature & Global Problems", "Life in the Universe & Future"],
+  "Ingilizce": ["Friendship", "Teen Life", "In The Kitchen", "On The Phone", "The Internet", "Adventures", "Tourism", "Chores", "Science", "Natural Forces"],
 };
 
 const MUFREDAT_DIGER_SINIFLAR = {
@@ -53,7 +53,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "4::Din Kulturu": ["Gunluk Hayat ve Din", "Allah Sevgisi", "Peygamberlerin Sevgisi", "Ahlaki Degerlerimiz", "Haklar ve Sorumluluklar"],
   "5::Din Kulturu": ["Allah Inanci", "Namaz", "Kur'an-i Kerim", "Peygamber Kissalari", "Mimarimizde Dini Motifler"],
   // 5/6/7. sinif Ingilizce - resmi PDF'ten (english-regular 2-8, Agustos 2026) DOGRULANDI.
-  "4::Ingilizce": ["School Life", "Classroom Life", "Personal Life", "Family Life", "Homes Houses and the Neighbourhood", "Life in the City and the World"],
+  "4::Ingilizce": ["Classroom Rules", "Nationality", "Cartoon Characters", "Free Time", "My Day", "Fun with Science", "Jobs", "My Clothes", "My Friends", "Food and Drinks"],
   "5::Ingilizce": ["School Life", "Classroom Life", "Personal Life", "Family Life", "Life in the Neighbourhood & City", "Life in the World", "Life in Nature", "Life in the Universe & Future"],
   "4::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
   "5::Sosyal Bilgiler": ["Birlikte Yasamak", "Evimiz Dunya", "Ortak Mirasimiz", "Yasayan Demokrasimiz", "Hayatimizdaki Ekonomi", "Teknoloji ve Sosyal Bilimler"],
@@ -65,7 +65,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   "6::Din Kulturu": ["Peygamber ve Ilahi Kitap Inanci", "Ramazan ve Oruc", "Ahlaki Davranislar", "Peygamberliginden Once Hz. Muhammed", "Kulturumuzdeki Dini Motifler"],
   "7::Din Kulturu": ["Melek ve Ahiret Inanci", "Hac Umre ve Kurban", "Islam Dusuncesinde Yorumlar", "Peygamber Olarak Hz. Muhammed", "Yasayan Dunya Dinleri"],
   "6::Ingilizce": ["School Life", "Classroom Life", "Personal Life", "Family Life", "Life in the Neighbourhood & City", "Life in the World & Culture", "Life in Nature & Global Problems", "Life in the Universe & Future"],
-  "7::Ingilizce": ["School Life & Education", "Classroom Life & Learning", "Personal Life & Well-Being", "Family Life & Home", "Life in the Neighbourhood & City", "Life in the World & Culture", "Life in Nature", "Life in the Universe & Future"],
+  "7::Ingilizce": ["Appearance And Personality", "Sports", "Biographies", "Wild Animals", "Television", "Celebrations", "Dreams", "Public Buildings", "Environment", "Planets"],
   // 6. sinif Sosyal Bilgiler - resmi MEB PDF'inden (2024programsos4567Onayli.pdf)
   // DOGRULANDI (Agustos 2026): eski 7-alanli yapi (Birey ve Toplum vb.) YANLIS,
   // yeni mufredatta 4/5/6/7. siniflarin HEPSI AYNI 6 ogrenme alanini kullaniyor.
@@ -119,7 +119,7 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Fen Bilimleri::Surdurulebilir Yasam ve Enerji::7": ["Besin Zinciri ve Enerji Akisi", "Surdurulebilir Yasam"],
 
   // ==== 5. SINIF FEN BILIMLERI (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
-  "Fen Bilimleri::Gokyuzundeki Komsularimiz ve Biz::5": ["Gunes'in Yapisi ve Donme Hareketi", "Ay'in Ozellikleri Donme ve Dolanma Hareketleri"],
+  "Fen Bilimleri::Gokyuzundeki Komsularimiz ve Biz::5": ["Gunes'in Yapisi ve Donme Hareketi", "Ay'in Ozellikleri Donme ve Dolanma Hareketleri", "Dunya'miz ve Gokyuzundeki Komsularimiz"],
   "Fen Bilimleri::Kuvveti Taniyalim::5": ["Kuvvetin Buyuklugu ve Dinamometre", "Agirlik ve Yer Cekimi", "Surtunme Kuvveti"],
   "Fen Bilimleri::Canlilarin Yapisina Yolculuk::5": ["Hucre ve Organelleri", "Destek ve Hareket Sistemi"],
   "Fen Bilimleri::Isigin Dunyasi::5": ["Isigin Yayilmasi", "Madde ve Isik (Saydam-Yari Saydam-Opak)", "Golge Olusumu"],
@@ -181,14 +181,36 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Ingilizce::Life in the World & Culture::6": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
   "Ingilizce::Life in Nature & Global Problems::6": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
   "Ingilizce::Life in the Universe & Future::6": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::School Life & Education::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Classroom Life & Learning::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Personal Life & Well-Being::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Family Life & Home::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in the Neighbourhood & City::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in the World & Culture::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in Nature::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in the Universe & Future::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Classroom Rules::4": ["Asking for permission", "Making simple requests", "Telling someone what to do", "Naming numbers"],
+  "Ingilizce::Nationality::4": ["Identifying countries and nationalities", "Talking about locations of cities"],
+  "Ingilizce::Cartoon Characters::4": ["Expressing ability and inability", "Talking about possessions"],
+  "Ingilizce::Free Time::4": ["Expressing likes and dislikes", "Making simple inquiries", "Asking for clarification"],
+  "Ingilizce::My Day::4": ["Talking about daily routines", "Making simple inquiries", "Telling the time and days"],
+  "Ingilizce::Fun with Science::4": ["Giving and responding to simple instructions", "Making simple inquiries", "Talking about locations"],
+  "Ingilizce::Jobs::4": ["Describing what people do and expressing what people like", "Making inquiries"],
+  "Ingilizce::My Clothes::4": ["Describing the weather", "Making simple requests", "Naming the seasons of the year"],
+  "Ingilizce::My Friends::4": ["Describing people", "Talking about possessions"],
+  "Ingilizce::Food and Drinks::4": ["Making offers", "Expressing basic needs and feelings"],
+  "Ingilizce::Appearance And Personality::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Sports::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Biographies::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Wild Animals::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Television::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Celebrations::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Dreams::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Public Buildings::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Environment::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Planets::7": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Friendship": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Teen Life": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::In The Kitchen": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::On The Phone": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::The Internet": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Adventures": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Tourism": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Chores": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Science": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
+  "Ingilizce::Natural Forces": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
 
   // ==== 6/7. SINIF SOSYAL BILGILER (7 ortak ogrenme alani, standart alt basliklar) ====
   // Asagidaki 6./7. sinif Sosyal Bilgiler alt konulari, resmi MEB PDF'inden
@@ -222,12 +244,6 @@ const DOGRULANMIS_ALT_KONULAR = {
 
   // ==== 5. SINIF INGILIZCE (yeni mufredat - resmi MEB 10 unite) ====
   // 4. sinif - resmi PDF'ten (english-regular, Agustos 2026) DOGRULANDI.
-  "Ingilizce::School Life::4": ["Okulda Kisiler", "Gunluk Rutinler", "Sevilen Aktiviteler", "Sevilen Aylar", "Milli Gunler"],
-  "Ingilizce::Classroom Life::4": ["Ders Konulari", "Sinif Etkinlikleri", "Mevsimler"],
-  "Ingilizce::Personal Life::4": ["Fiziksel Gorunum ve Kisilik", "Kiyafetler", "Hobiler ve Yetenekler", "Hava Durumu", "Karsilastirmalar"],
-  "Ingilizce::Family Life::4": ["Aile Uyelerinin Meslekleri", "Aile Aliskanliklari", "Aile Islerinin Yurutulmesi"],
-  "Ingilizce::Homes Houses and the Neighbourhood::4": ["Mahalledeki Hizmet Yerleri", "Deniz Canlilari ve Yasam Alanlari", "Ev Turleri"],
-  "Ingilizce::Life in the City and the World::4": ["Saglikli-Saglisiz Yiyecekler", "Ulusal ve Uluslararasi Yemekler", "Ulkeler", "Tatiller"],
   "Ingilizce::School Life::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
   "Ingilizce::Classroom Life::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
   "Ingilizce::Personal Life::5": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
@@ -267,7 +283,7 @@ const DOGRULANMIS_ALT_KONULAR = {
 
   // ==== 6/7. SINIF MATEMATIK - resmi MEB PDF'inden (2024programmat5678Onayli.pdf,
   // kullanici tarafindan yuklendi, Agustos 2026) TAM DOGRULANDI ====
-  "Matematik::Sayilar ve Nicelikler::6": ["Dogal Sayilarin Carpanlari ve Katlari", "Bir Dogal Sayinin Carpanlari ve Katlari", "Bolunebilme Kriterleri", "Asal Sayilar ve Asal Carpanlar", "Kesirlerle Islemler", "Ondalik Gosterimleri Cozumleme", "Kesir-Bolme Iliskisi", "Kesirlerle Dort Islem Iceren Problem Cozme", "Uzunluk Olcme"],
+  "Matematik::Sayilar ve Nicelikler::6": ["Bir Dogal Sayinin Carpanlari ve Katlari", "Bolunebilme Kriterleri", "Asal Sayilar ve Asal Carpanlar", "Kesirlerle Islemler", "Ondalik Gosterimleri Cozumleme", "Kesir-Bolme Iliskisi", "Kesirlerle Dort Islem Iceren Problem Cozme", "Uzunluk Olcme"],
   "Matematik::Islemlerle Cebirsel Dusunme ve Degisimler::6": ["Bilinmeyen Nicelikler", "Oruntu", "Cebirsel Ifadeler ve Algoritma"],
   "Matematik::Geometrik Sekiller::6": ["Iki Paralel Dogrunun Bir Kesen ile Olusturdugu Acilar", "Ucgenin Acilari", "Yamuk, Paralelkenar, Eskenar Dortgen, Dikdortgen ve Karenin Kenar, Aci ve Kosegen Ozellikleri"],
   "Matematik::Geometrik Nicelikler::6": ["Uzunluk ve Alan Olcme Birimleri Arasindaki Iliski", "Paralelkenar ve Ucgenin Alani", "Cemberin ve Capin Uzunluklari Arasindaki Iliski", "Cemberde Merkez Aci ve Gordugu Yay Uzunlugu"],
@@ -283,9 +299,9 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Matematik::Veriden Olasiliga::7": ["Teorik Olasilik"],
   // Fen Bilimleri (8. sinif) - MEB resmi ogretim programi kazanimlarindan (F.8.1 - F.8.7)
   "Fen Bilimleri::Mevsimler ve Iklim": ["Mevsimlerin Olusumu", "Iklim ve Hava Hareketleri"],
-  "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon"],
+  "Fen Bilimleri::DNA ve Genetik Kod": ["DNA ve Genetik Kod Yapisi", "Kalitim", "Mutasyon ve Modifikasyon", "Adaptasyon", "Biyoteknoloji"],
   "Fen Bilimleri::Basinc": ["Kati Basinci", "Sivi Basinci"],
-  "Fen Bilimleri::Madde ve Endustri": ["Periyodik Sistem", "Fiziksel ve Kimyasal Degisim", "Isinma ve Hal Degisimi"],
+  "Fen Bilimleri::Madde ve Endustri": ["Periyodik Sistem", "Fiziksel ve Kimyasal Degisim", "Kimyasal Tepkimeler", "Asitler ve Bazlar"],
   "Fen Bilimleri::Basit Makineler": ["Basit Makineler"],
   "Fen Bilimleri::Enerji Donusumleri ve Cevre Bilimi": ["Besin Zinciri ve Enerji Akisi", "Fotosentez ve Solunum", "Kuresel Iklim Degisikligi"],
   "Fen Bilimleri::Elektrik Yukleri ve Elektrik Enerjisi": ["Elektrik Yukleri ve Elektriklenme", "Elektrik Yuklu Cisimler", "Elektrik Enerjisinin Donusumu"],
@@ -321,14 +337,6 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Din Kulturu::Kur'an-i Kerim'de Sunulan Ornek Sahsiyetler": ["Kur'an'in Temel Kaynaklari", "Kur'an'in Ana Konulari", "Kur'an'in Ozellikleri", "Hz. Nuh'un Tevhide Daveti"],
   // Ingilizce (8. sinif) - MEB resmi ogretim programi HER UNITEYI ayni beceri
   // cercevesiyle yapilandirir: Listening, Speaking, Reading, Writing (dogrulanmis format).
-  "Ingilizce::School Life & Education": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Classroom Life & Learning": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Personal Life & Well-Being": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Family Life & Home": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in the Neighbourhood & City": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in the World and Culture": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in Nature & Global Problems": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
-  "Ingilizce::Life in the Universe & Future": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
 };
 
 module.exports = { MUFREDAT, MUFREDAT_DIGER_SINIFLAR, DOGRULANMIS_ALT_KONULAR };
