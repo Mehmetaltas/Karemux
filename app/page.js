@@ -7431,15 +7431,15 @@ export default function Ana() {
               <p style={{ fontSize: 13, color: COLORS.muted }}>OYSS ortaokul 5, 6 ve 7. sınıfları kapsar. Sınıfını profilinden değiştirebilirsin.</p>
             ) : (
               <>
-                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Ders</label>
-                <select value={oyssDers} onChange={(e) => { setOyssDers(e.target.value); setOyssUnite(""); setOyssSorular(null); }} style={{ width: "100%", padding: 9, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 10, fontSize: 13 }}>
+                <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Ders</p>
+                <select aria-label="Ders" value={oyssDers} onChange={(e) => { setOyssDers(e.target.value); setOyssUnite(""); setOyssSorular(null); }} style={{ width: "100%", padding: 9, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 10, fontSize: 13 }}>
                   <option value="">Ders seç</option>
                   {gorunurDersler(sinif).map((d) => d.ad).filter((ad) => ad !== "T.C. Inkilap Tarihi" && !(ad === "Ingilizce" && sinif === 7)).map((ad) => <option key={ad} value={ad}>{{ Turkce: "Türkçe", "Din Kulturu": "Din Kültürü", Ingilizce: "İngilizce" }[ad] || ad}</option>)}
                 </select>
                 {oyssDers && (
                   <>
-                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Ünite / tema (isteğe bağlı)</label>
-                    <select value={oyssUnite} onChange={(e) => setOyssUnite(e.target.value)} style={{ width: "100%", padding: 9, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 12, fontSize: 13 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Ünite / tema (isteğe bağlı)</p>
+                    <select aria-label="Ünite veya tema" value={oyssUnite} onChange={(e) => setOyssUnite(e.target.value)} style={{ width: "100%", padding: 9, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 12, fontSize: 13 }}>
                       <option value="">Tüm dönem</option>
                       {dersinUniteleri(oyssDers, sinif).map((u) => <option key={u} value={u}>{u}</option>)}
                     </select>

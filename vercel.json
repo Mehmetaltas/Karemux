@@ -47,6 +47,14 @@
     {
       "path": "/api/cron/odeme-temizlik",
       "schedule": "0 3 5 * *"
+    },
+    {
+      "path": "/api/cron/meb-degisiklik-takip",
+      "schedule": "0 8 * * 1"
+    },
+    {
+      "path": "/api/cron/ai-kota-bekcisi",
+      "schedule": "0 */3 * * *"
     }
   ]
 }
