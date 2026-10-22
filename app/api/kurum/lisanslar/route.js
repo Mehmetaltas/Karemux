@@ -12,7 +12,7 @@ export async function GET(req) {
       SELECT l.id, l.plan, l.koltuk_sayisi, l.tutar_tl, l.odendi, l.satin_alma_tarihi,
              COUNT(a.id)::int AS kullanilan_koltuk
       FROM kurum_lisans_satin_alma l
-      LEFT JOIN abonelikler a ON a.kurum_lisans_id = l.id AND a.durum = 'aktif'
+      LEFT JOIN abonelikler a ON a.kurum_lisans_id = l.id AND a.durum = 'aktif' AND (a.bitis IS NULL OR a.bitis > now())
       WHERE l.kurum_id = ${yonetici.kurumId} AND l.odendi = true
       GROUP BY l.id
       ORDER BY l.satin_alma_tarihi DESC

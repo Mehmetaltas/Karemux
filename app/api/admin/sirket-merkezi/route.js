@@ -42,7 +42,7 @@ export async function GET(req) {
     const aktifAbonelik = await sql`
       SELECT COUNT(*)::int AS adet FROM abonelikler a
       JOIN kullanicilar u ON u.id = a.kullanici_id
-      WHERE a.durum = 'aktif'
+      WHERE a.durum = 'aktif' AND (a.bitis IS NULL OR a.bitis > now())
         AND u.eposta NOT LIKE '%mehmetaltas%' AND u.eposta NOT LIKE '%karemuxegitim%'
     `;
     const soruBankasi = await sql`SELECT COUNT(*)::int AS adet FROM soru_bankasi`;

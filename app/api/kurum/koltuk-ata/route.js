@@ -15,7 +15,7 @@ export async function POST(req) {
 
     const lisansSonuc = await sql`
       SELECT l.id, l.plan, l.koltuk_sayisi, p.sure_gun,
-             (SELECT COUNT(*) FROM abonelikler a WHERE a.kurum_lisans_id = l.id AND a.durum = 'aktif')::int AS kullanilan
+             (SELECT COUNT(*) FROM abonelikler a WHERE a.kurum_lisans_id = l.id AND a.durum = 'aktif' AND (a.bitis IS NULL OR a.bitis > now()))::int AS kullanilan
       FROM kurum_lisans_satin_alma l
       JOIN paketler p ON p.anahtar = l.plan
       WHERE l.id = ${lisansId} AND l.kurum_id = ${yonetici.kurumId} AND l.odendi = true

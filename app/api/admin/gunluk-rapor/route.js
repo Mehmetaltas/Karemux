@@ -37,7 +37,7 @@ export async function GET(req) {
       SELECT COUNT(*)::int AS adet FROM kullanicilar WHERE olusturulma::date = CURRENT_DATE
     `;
     const aktifPremium = await sql`
-      SELECT COUNT(*)::int AS adet FROM abonelikler WHERE durum = 'aktif'
+      SELECT COUNT(*)::int AS adet FROM abonelikler WHERE durum = 'aktif' AND (bitis IS NULL OR bitis > now())
     `;
     const toplamKullanici = await sql`SELECT COUNT(*)::int AS adet FROM kullanicilar`;
 

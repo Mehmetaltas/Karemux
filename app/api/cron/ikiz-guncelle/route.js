@@ -46,7 +46,7 @@ export async function GET(req) {
     await degiskenGuncelle("sekizinci_sinif_eksik_unite_sayisi", sekizEksik[0].c);
     guncellenenler.push("sekizinci_sinif_eksik_unite_sayisi");
 
-    const aktifOgrenci = await sql`SELECT COUNT(*)::int AS c FROM abonelikler WHERE durum = 'aktif'`;
+    const aktifOgrenci = await sql`SELECT COUNT(*)::int AS c FROM abonelikler WHERE durum = 'aktif' AND (bitis IS NULL OR bitis > now())`;
     await degiskenGuncelle("aktif_ogrenci_sayisi", aktifOgrenci[0].c);
     guncellenenler.push("aktif_ogrenci_sayisi");
 

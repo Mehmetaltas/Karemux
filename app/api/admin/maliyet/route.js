@@ -58,7 +58,7 @@ export async function GET(req) {
         CASE
           WHEN k.eposta LIKE '%mehmetaltas%' OR k.eposta LIKE '%karemuxegitim%' THEN 'kendim'
           WHEN k.eposta LIKE '%@anon.karemux.com%' THEN 'anonim'
-          WHEN EXISTS (SELECT 1 FROM abonelikler a WHERE a.kullanici_id = k.id AND a.durum = 'aktif') THEN 'ucretli'
+          WHEN EXISTS (SELECT 1 FROM abonelikler a WHERE a.kullanici_id = k.id AND a.durum = 'aktif' AND (a.bitis IS NULL OR a.bitis > now())) THEN 'ucretli'
           ELSE 'ucretsiz'
         END AS kategori,
         COUNT(DISTINCT g.kullanici_id)::int AS kullaniciSayisi,
@@ -84,7 +84,7 @@ export async function GET(req) {
       SELECT p.anahtar, p.ad, p.fiyat_tl, COUNT(DISTINCT a.kullanici_id)::int AS aktifAbone,
         COALESCE(SUM(g.ai_istek_sayisi), 0)::int AS toplamIstek
       FROM paketler p
-      LEFT JOIN abonelikler a ON a.plan = p.anahtar AND a.durum = 'aktif'
+      LEFT JOIN abonelikler a ON a.plan = p.anahtar AND a.durum = 'aktif' AND (a.bitis IS NULL OR a.bitis > now())
       LEFT JOIN gunluk_kullanim g ON g.kullanici_id = a.kullanici_id AND g.tarih >= date_trunc('month', CURRENT_DATE)
       WHERE p.aktif = true
       GROUP BY p.anahtar, p.ad, p.fiyat_tl
