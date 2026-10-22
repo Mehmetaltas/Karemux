@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
+import { qrMatris } from "@/lib/qr";
 
 const T = {
   bg: "#F5F5F7", page: "#fff", ink: "#1D1D1F", muted: "#76767A",
@@ -97,6 +98,8 @@ export default function KurumPaneli() {
   const [logoYukleniyor, setLogoYukleniyor] = useState(false);
   const [logoHata, setLogoHata] = useState("");
   const [ogrenciler, setOgrenciler] = useState(null);
+  const [okulNoHata, setOkulNoHata] = useState("");
+  const [qrAcikId, setQrAcikId] = useState(null);
   const [duyurular, setDuyurular] = useState(null);
   const [duyuruBaslik, setDuyuruBaslik] = useState("");
   const [duyuruIcerik, setDuyuruIcerik] = useState("");
@@ -285,6 +288,32 @@ export default function KurumPaneli() {
       const data = await res.json();
       if (res.ok) setOgrenciler(data.ogrenciler || []);
     } catch {}
+  }
+
+  async function okulNoGuncelle(ogrenciId, okulNo) {
+    setOkulNoHata("");
+    try {
+      const res = await fetch("/api/kurum/ogrenciler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ogrenciId, okulNo }),
+      });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); setOkulNoHata(d.error || "Okul no kaydedilemedi"); }
+      ogrencileriGetir();
+    } catch { setOkulNoHata("Okul no kaydedilemedi"); }
+  }
+
+  function girisQrSvg(okulNo) {
+    const url = `${window.location.origin}/?k=${encodeURIComponent(kurum?.kurum_kodu || "")}&no=${encodeURIComponent(okulNo)}`;
+    const m = qrMatris(url);
+    const n = m.length;
+    const yol = m.map((r, y) => r.map((d, x) => (d ? `M${x + 4} ${y + 4}h1v1h-1z` : "")).join("")).join("");
+    return (
+      <svg viewBox={`0 0 ${n + 8} ${n + 8}`} width="180" height="180" role="img" aria-label="Giriş QR kodu" shapeRendering="crispEdges">
+        <rect width={n + 8} height={n + 8} fill="#fff" />
+        <path d={yol} fill="#000" />
+      </svg>
+    );
   }
 
   async function subeGuncelle(ogrenciId, sube) {
@@ -711,8 +740,31 @@ export default function KurumPaneli() {
                 placeholder="Şube (örn. A)"
                 style={{ width: 70, padding: "6px 8px", borderRadius: 6, border: `1px solid ${T.line}`, fontSize: 12, textAlign: "center" }}
               />
+              <input
+                aria-label={`${o.ad} icin okul no`}
+                defaultValue={o.okul_no || ""}
+                onBlur={(e) => { if (e.target.value.trim() !== (o.okul_no || "")) okulNoGuncelle(o.id, e.target.value); }}
+                placeholder="Okul no"
+                style={{ width: 80, padding: "6px 8px", borderRadius: 6, border: `1px solid ${T.line}`, fontSize: 12, textAlign: "center" }}
+              />
+              {o.okul_no && (
+                <button onClick={() => setQrAcikId(qrAcikId === o.id ? null : o.id)} style={{ padding: "6px 8px", borderRadius: 6, border: `1px solid ${T.line}`, background: "#fff", fontSize: 11, fontWeight: 600, cursor: "pointer" }}>QR</button>
+              )}
             </div>
           ))}
+          {okulNoHata && <p role="alert" style={{ fontSize: 12, color: "#C0392B", marginTop: 8 }}>{okulNoHata}</p>}
+          <p style={{ fontSize: 11, color: T.muted, marginTop: 8, lineHeight: 1.5 }}>Okul no verilen öğrenci, giriş ekranında kurum kodu ({kurum?.kurum_kodu || "—"}) + okul no + şifre ile girebilir. QR, bu bilgileri giriş ekranına otomatik doldurur; şifre yine gerekir.</p>
+          {qrAcikId && (() => {
+            const o = (ogrenciler || []).find((x) => x.id === qrAcikId);
+            if (!o?.okul_no) return null;
+            return (
+              <div style={{ marginTop: 12, textAlign: "center", padding: 12, background: "#fff", borderRadius: 10, border: `1px solid ${T.line}` }}>
+                {girisQrSvg(o.okul_no)}
+                <p style={{ fontSize: 12, fontWeight: 600, marginTop: 6 }}>{o.ad} · No {o.okul_no}</p>
+                <button onClick={() => window.print()} style={{ marginTop: 8, padding: "6px 12px", borderRadius: 6, border: `1px solid ${T.line}`, background: "#fff", fontSize: 12, cursor: "pointer" }}>Yazdır</button>
+              </div>
+            );
+          })()}
         </section>
 
         <section style={{ background: T.page, borderRadius: 12, padding: 16, marginTop: 16, border: `1px solid ${T.line}` }}>

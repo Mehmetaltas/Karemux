@@ -2798,6 +2798,9 @@ export default function Ana() {
   }, [hesap]);
 
   const [hesapModu, setHesapModu] = useState("giris"); // "giris" | "kayit"
+  const [kurumGirisi, setKurumGirisi] = useState(false);
+  const [kurumKoduGir, setKurumKoduGir] = useState("");
+  const [okulNoGir, setOkulNoGir] = useState("");
   const [epostaGir, setEpostaGir] = useState("");
   const [sifreGir, setSifreGir] = useState("");
   const [beniHatirlaOgrenci, setBeniHatirlaOgrenci] = useState(true);
@@ -3044,6 +3047,16 @@ export default function Ana() {
     }
   }
 
+  // Kurumun bastigi QR / baglanti: /?k=KURUMKODU&no=OKULNO -> giris ekranini kurum bilgileriyle acar (sifre yine gerekir)
+  useEffect(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const k = (q.get("k") || "").trim().toUpperCase().slice(0, 40);
+      const no = (q.get("no") || "").trim().slice(0, 20);
+      if (k && no) { setKurumKoduGir(k); setOkulNoGir(no); setKurumGirisi(true); setHesapModu("giris"); setMod("hesap"); }
+    } catch {}
+  }, []);
+
   useEffect(() => {
     fetch("/api/auth/me").then((r) => r.json()).then((d) => {
       if (d.girisYapmis) setHesap(d.kullanici);
@@ -3192,15 +3205,19 @@ export default function Ana() {
       setHesapHata("Veli/ebeveyn e-postası zorunludur - ilerlemeni takip edebilmesi için gerekli.");
       return;
     }
-    const url = hesapModu === "giris" ? "/api/auth/login" : "/api/auth/register";
+    const kurumlaGiris = hesapModu === "giris" && kurumGirisi;
+    const url = kurumlaGiris ? "/api/auth/kurum-kodu-giris" : hesapModu === "giris" ? "/api/auth/login" : "/api/auth/register";
     try {
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ eposta: epostaGir, sifre: sifreGir, ad: adGir, rol: rolSec, veliEposta: veliEpostaGir, beniHatirla: beniHatirlaOgrenci }),
+        body: JSON.stringify(kurumlaGiris
+          ? { kurumKodu: kurumKoduGir, okulNo: okulNoGir, sifre: sifreGir, beniHatirla: beniHatirlaOgrenci }
+          : { eposta: epostaGir, sifre: sifreGir, ad: adGir, rol: rolSec, veliEposta: veliEpostaGir, beniHatirla: beniHatirlaOgrenci }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
+      if (kurumlaGiris && data.eposta) setEpostaGir(data.eposta);
 
       // E-posta 2FA (11 Eylul) - giriste sifre dogru olsa da oturum henuz
       // acilmadi, once kod dogrulanmali. Kayitta bu adim yok, direkt devam eder.
@@ -5863,7 +5880,19 @@ export default function Ana() {
                     )}
                   </>
                 )}
+                {hesapModu === "giris" && (
+                  <button onClick={() => { setKurumGirisi(!kurumGirisi); setHesapHata(""); }} style={{ border: "none", background: "none", color: COLORS.coral, fontSize: 12, cursor: "pointer", textDecoration: "underline", marginBottom: 8, padding: 0 }}>
+                    {kurumGirisi ? "E-posta ile giriş yap" : "Kurum kodu + okul no ile giriş yap"}
+                  </button>
+                )}
+                {hesapModu === "giris" && kurumGirisi ? (
+                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                    <input value={kurumKoduGir} autoComplete="off" aria-label="Kurum kodu" onChange={(e) => setKurumKoduGir(e.target.value.toUpperCase())} placeholder="Kurum kodu" style={{ flex: 1, minWidth: 0, boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+                    <input value={okulNoGir} autoComplete="off" aria-label="Okul no" onChange={(e) => setOkulNoGir(e.target.value)} placeholder="Okul no" style={{ width: 90, boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}` }} />
+                  </div>
+                ) : (
                 <input value={epostaGir} autoComplete="off" aria-label="E-posta" onChange={(e) => setEpostaGir(e.target.value)} placeholder="E-posta" type="email" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 8 }} />
+                )}
                 <GosterGizleInput value={sifreGir} autoComplete="off" onChange={(e) => setSifreGir(e.target.value)} placeholder="Sifre (en az 6 karakter)" style={{ width: "100%", boxSizing: "border-box", padding: "9px 10px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, marginBottom: 6 }} />
                 {hesapModu === "giris" && (
                   <label style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, fontSize: 11.5, color: COLORS.muted, cursor: "pointer" }}>
