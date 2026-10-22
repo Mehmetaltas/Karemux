@@ -1,5 +1,5 @@
 import { aiCagirDetay, ikinciGorusAl } from "@/lib/ai";
-import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kaliteLoglariniKaydet } from "@/lib/kalite-motoru";
+import { kaliteKontrolYap, deterministikKontrolYap, mufredatSinirKontrolYap, kaliteLoglariniKaydet, asciiTurkceDuzelt } from "@/lib/kalite-motoru";
 import { jsonAyikla } from "@/lib/json-ayikla";
 import { sql } from "@/lib/db";
 import { KALITE_REFERANSLARI } from "@/lib/kalite-referanslari";
@@ -129,7 +129,7 @@ export async function GET(req) {
     const soruTalimati = await soruTalimatiSecSunucu(sinif);
     const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin, ${sinif}. sinif seviyesinde TAM bir konu paketi hazirla.
 
-SESIN COK ONEMLI: Bu bir DERS KITABI DEGIL, gercek bir ogretmenin sinifta/ozel derste, karsisindaki TEK BIR ogrenciyle yaptigi CANLI bir diyalog. "Once X hesaplanir" gibi SOGUK cumleleri KESINLIKLE YAZMA. Onun yerine "Bak, once suna bakalim...", "Simdi..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun.
+SESIN COK ONEMLI: Bu bir DERS KITABI DEGIL, gercek bir ogretmenin sinifta/ozel derste, karsisindaki TEK BIR ogrenciyle yaptigi CANLI bir diyalog. "Once X hesaplanir" gibi SOGUK cumleleri KESINLIKLE YAZMA. Onun yerine "Bak, önce şuna bakalım...", "Şimdi..." gibi KONUSUR gibi yaz. Her 2-3 cumlede bir hitap MUTLAKA olsun, cumleler kisa (8-12 kelime) olsun.
 
 ONEMLI UYARI: "Aferin", "tam da bunu bekliyordum", "harikasin" gibi KALIP OVGU/TESVIK cumlelerini KULLANMA - bunlar yazida yapay/mekanik durur, gercek bir insan boyle konusmaz her cumlede. Sabit bir soru-cevap sablonunu (her paragrafta "Peki... dersin?" gibi) HER YERDE TEKRARLAMA - bu da mekanik/muhurlenmis hissettirir. Bunun yerine: konuya ve baglama gore DOGAL, DEGISKEN bir anlatim kur - bazen ogrenciye kisa bir soru sorup cevaplayabilirsin, bazen sadece "bak/simdi" ile devam edebilirsin, bazen bir hatayi onceden tahmin edip uyarabilirsin. Hangi teknigi ne zaman kullanacagina konu KENDI belirlesin, sabit bir kalip her paragrafta zorunlu DEGIL. Amac, bir insanin GERCEKTEN konusuyormus gibi DOGAL, degisken bir akis - ayni cumle yapisini/kalibi tekrar tekrar KOPYALAMA.
 
@@ -160,7 +160,17 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
     // 22 Ekim: TEK 10.000 token'lik cagri yerine UC PARALEL parca (canli kanit: tek cagri 53,7 sn surdu, anlatim talimatin
     // %50'si kadar kisa geldi). Anlatim ve soru havuzu zorunlu; odev opsiyonel (eksikse asagidaki tamamlama adimi doldurur).
     const sema = p.indexOf("SADECE JSON dondur, markdown kullanma.");
-    const baslik = sema > 0 ? p.slice(0, sema) : p;
+    const harfKurali = "TÜRKÇE HARFLER: Türkçe metinlerde ı, İ, ğ, ü, ş, ö, ç harflerini MUTLAKA doğru kullan; ASCII'ye sadeleştirilmiş yazma ('şimdi', 'önce', 'için', 'çünkü', 'örnek' yaz; 'simdi', 'once', 'icin', 'cunku', 'ornek' YAZMA).\n\n";
+    const baslik = (sema > 0 ? p.slice(0, sema) : p) + harfKurali;
+    // 22 Ekim: canli kanit - ortak baslikdaki "canli diyalog" kisiligi soru parcalarina da gidince soru metinleri sohbet girisi
+    // oldu ("Bak, simdi baslayalim. 2^3 ifadesinin degeri kactir?"). Kisilik YALNIZ anlatim parcasinda kalir; soru/odev kisa basliklidir.
+    const sesIdx = p.indexOf("SESIN COK ONEMLI");
+    const kalIdx = p.indexOf("Kalite referansi:");
+    const baslikSoru = (sesIdx > 0 && kalIdx > sesIdx && sema > kalIdx
+      ? p.slice(0, sesIdx) + p.slice(kalIdx, sema)
+      : baslik)
+      + harfKurali
+      + "ONEMLI: Soru ve odev metinleri KISA, resmi ve sinav diline uygun olmali. 'Bak', 'Simdi', 'Hadi' gibi konusma hitaplarini veya sohbet girislerini SORU METNINDE KULLANMA. Bir sozcugun 'alti cizili' oldugunu soyleme (gosterilemez); hedef sozcugu tirnak icinde yaz.\n\n";
     const jsonKurali = `SADECE JSON dondur, markdown kullanma. ${dilKurali}:\n\n`;
     // 22 Ekim: canli kanit - bir parcanin JSON'u bozuk geldi ("Expected ',' or ']' ... position 7853") ve tum paket 500 verdi.
     // Her parca kendi basina ayristirilir; bozuksa (sure varsa) FARKLI bir saglayiciyla bir kez daha uretilir.
@@ -189,14 +199,14 @@ soruHavuzu TAM 18 soru icersin: 6 kolay, 7 orta, 5 zor (sirali ver). odevSorular
 }
 
 Uzunluk hedeflerini KISALTMA. Metindeki TUM sayisal hesaplari (us, carpma, bolme, toplama) yazmadan once tek tek yeniden hesapla; yanlis sonuc YAZMA.${duzeltme || ""}`;
-      const soruPrompt = (adet, dagilim, ek) => `${baslik}${jsonKurali}{
+      const soruPrompt = (adet, dagilim, ek) => `${baslikSoru}${jsonKurali}{
   "soruHavuzu": [
     {"soru":"...", "secenekler":["A) ...","B) ...","C) ...","D) ..."], "dogruIndex":0, "zorluk":"kolay", "aciklama":"kisa cozum aciklamasi"${kontrolIfadesiTalimati}}
   ]
 }
 
 soruHavuzu TAM ${adet} soru icersin: ${dagilim} (sirali ver). Her soruda tam 4 secenek, tek ve tartismasiz dogru cevap olsun.${ek}`;
-      const odevPrompt = (adet, ek) => `${baslik}${jsonKurali}{
+      const odevPrompt = (adet, ek) => `${baslikSoru}${jsonKurali}{
   "odevSorulari": [
     {"soru":"...", "cozum":"adim adim detayli cozum metni"}
   ]
@@ -273,7 +283,7 @@ odevSorulari TAM ${adet} acik uclu soru icersin (coktan secmeli DEGIL), her biri
     // "Yildiz" TUM metin boyunca). Bu, diger uyarilardan farkli olarak
     // TEK SEFERLIK bir yeniden uretimi HAKLI CIKARIR (yanlis-pozitif riski
     // cok dusuk) - digerleri gibi sadece isaretlemekle YETINILMEZ.
-    if (kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon"))) {
+    if (kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon")) && Date.now() - istekBaslangicMs < 28000) { // 22 Ekim: sure kisitliysa yeniden uretme (canli: 53,5 sn), paket 'bekliyor' olarak isaretlenip ogretmen kuyruguna girer
       console.warn("konu_paketi ASCII-transliterasyon supheli, YENIDEN uretiliyor:", ders, konu);
       try {
         const { paket: paket2, saglayici: saglayici2 } = await parcaliUret(20000); // 23 Eylul: kisa butce - bu retry, ana uretim+gorsel karari UZERINE eklenip 60sn sinirini asmamali (GERCEK testte kanitlandi)
@@ -287,8 +297,10 @@ odevSorulari TAM ${adet} acik uclu soru icersin (coktan secmeli DEGIL), her biri
     }
     paket.kaliteKontrol = kaliteSonucu;
 
+    // 22 Ekim: "alti cizili sozcuk" diyen ama cizgi gosterilemeyen sorular cevaplanamaz (canli: Fiilimsiler) -> elenir.
+    const cevaplanamazMi = (q) => /alt[ıi]\s*çizili|alti\s*cizili|altı\s*çizilmiş|\bunderlined\b/i.test(String(q?.soru || ""));
     const soruHavuzuFormatGecen = (paket.soruHavuzu || []).filter((s) =>
-      soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: false })
+      soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: false }) && !cevaplanamazMi(s)
     );
     if (soruHavuzuFormatGecen.length === 0) {
       return Response.json(
@@ -365,6 +377,19 @@ SADECE JSON dondur: {"odevSorulari":[{"soru":"...", "cozum":"adim adim detayli c
     // icin eksik paket "gecti" damgasi alip ogretmen kuyruguna GIRMIYORDU.
     // Kontrolu son haliyle yeniden calistiriyoruz: eksik paket artik
     // 'bekliyor' olur ve ogretmene gercek nedenle bildirilir.
+    // 22 Ekim: esik altinda kalan tekil ASCII kacaklari ("Simdi" -> "Şimdi") deterministik duzeltilir. Toptan ASCII supheli
+    // paketlerde UYGULANMAZ (yoksa kontrol maskelenir; paket 'bekliyor' olarak ogretmen kuyruguna girer).
+    if (!kaliteSonucu.uyarilar.some((u) => u.includes("ASCII-transliterasyon"))) {
+      if (paket.anlatim && typeof paket.anlatim === "object") {
+        for (const k of Object.keys(paket.anlatim)) {
+          const v = paket.anlatim[k];
+          paket.anlatim[k] = Array.isArray(v) ? v.map(asciiTurkceDuzelt) : asciiTurkceDuzelt(v);
+        }
+      }
+      for (const q of paket.soruHavuzu || []) {
+        if (q && typeof q === "object") { q.soru = asciiTurkceDuzelt(q.soru); q.aciklama = asciiTurkceDuzelt(q.aciklama); }
+      }
+    }
     kaliteSonucu = kaliteKontrolYap("konu_paketi", paket);
     paket.kaliteKontrol = kaliteSonucu;
 
