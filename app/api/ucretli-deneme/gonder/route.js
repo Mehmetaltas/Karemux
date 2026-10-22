@@ -122,6 +122,11 @@ export async function POST(req) {
     const genelSiram = genelSiralama.findIndex((r) => Number(r.net) <= netYuvarlanmis) + 1;
     const genelOrtalama = genelKatilimci > 0 ? Math.round((genelSiralama.reduce((t, r) => t + Number(r.net), 0) / genelKatilimci) * 100) / 100 : null;
 
+    // 22 Ekim: siralama gizlilik/anlamlilik esigi - cok az katilimci varken "1/1" veya birebir tahmin edilebilir sira gosterilmez.
+    const SIRALAMA_MIN_KATILIMCI = 5;
+    const kurumSiralamaGorunur = kurumKatilimci !== null && kurumKatilimci >= SIRALAMA_MIN_KATILIMCI;
+    const genelSiralamaGorunur = genelKatilimci >= SIRALAMA_MIN_KATILIMCI;
+
     const karne = Object.keys(altKonuOzet).map((k) => ({ altKonu: k, ...altKonuOzet[k] }));
     // Kitapcik sirasinda: ekranda gorulen soru sirasiyla birebir eslesir.
     const cevapAnahtari = sorular.map((s) => ({ dogruIndex: s.dogruIndex, aciklama: s.aciklama || null }));
@@ -131,6 +136,7 @@ export async function POST(req) {
       yanlisSoruNo, bosSoruNo, cevapAnahtari, karne,
       kurumSiram, kurumKatilimci, kurumOrtalama,
       genelSiram, genelKatilimci, genelOrtalama,
+      kurumSiralamaGorunur, genelSiralamaGorunur, siralamaMinKatilimci: SIRALAMA_MIN_KATILIMCI,
     });
   } catch (e) {
     console.error(e);

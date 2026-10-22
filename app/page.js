@@ -1659,6 +1659,35 @@ export default function Ana() {
     }
   }
 
+  const [analizVeri, setAnalizVeri] = useState(null);
+  const [analizYukleniyor, setAnalizYukleniyor] = useState(false);
+  const [hedefNetler, setHedefNetler] = useState({});
+  async function analizGetir() {
+    setAnalizYukleniyor(true);
+    try {
+      const res = await fetch(`/api/sinav-analizi?cihazId=${cihazIdRef.current}`);
+      setAnalizVeri(await res.json());
+    } catch (e) {
+      setAnalizVeri({ dersler: [], konular: [], oneriler: [], sinavSayisi: 0 });
+    } finally {
+      setAnalizYukleniyor(false);
+    }
+  }
+  function hedefNetKaydet(ders, deger) {
+    setHedefNetler((eski) => {
+      const yeni = { ...eski, [ders]: deger };
+      try { localStorage.setItem("kx_hedef_net", JSON.stringify(yeni)); } catch (e) { /* tarayici depolamasi kapali olabilir */ }
+      return yeni;
+    });
+  }
+  useEffect(() => {
+    if (mod === "sinavanaliz") {
+      try { const k = localStorage.getItem("kx_hedef_net"); if (k) setHedefNetler(JSON.parse(k)); } catch (e) { /* yoksay */ }
+      analizGetir();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: mod degisince veri cek deseni
+  }, [mod]);
+
   useEffect(() => {
     if (mod === "kutuphanem" && !kutuphaneVeri) kutuphaneGetir();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: mod degisince veri cek deseni
@@ -6908,14 +6937,24 @@ export default function Ana() {
                   <div><p style={{ color: "#FF6B5E", fontSize: 16, fontWeight: 800 }}>{ucretliSonuc.yanlis}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>YANLIŞ</p></div>
                   <div><p style={{ color: "#8A968E", fontSize: 16, fontWeight: 800 }}>{ucretliSonuc.bos}</p><p style={{ color: "#8A968E", fontSize: 9.5 }}>BOŞ</p></div>
                 </div>
-                <div style={{ background: "rgba(232,179,57,0.15)", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 12, marginBottom: 12 }}>
-                  <p style={{ color: COLORS.mustard, fontSize: 13, fontWeight: 800 }}>Kurumunda {ucretliSonuc.kurumKatilimci} kişi arasında {ucretliSonuc.kurumSiram}. sıradasın</p>
-                  {ucretliSonuc.kurumOrtalama !== null && <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>Kurum ortalaması: {ucretliSonuc.kurumOrtalama}</p>}
-                </div>
+                {ucretliSonuc.kurumKatilimci > 0 && (
+                  <div style={{ background: "rgba(232,179,57,0.15)", border: `1.5px solid ${COLORS.mustard}`, borderRadius: 10, padding: 12, marginBottom: 12 }}>
+                    <p style={{ color: COLORS.mustard, fontSize: 13, fontWeight: 800 }}>
+                      {ucretliSonuc.kurumSiralamaGorunur
+                        ? `Kurumunda ${ucretliSonuc.kurumKatilimci} kişi arasında ${ucretliSonuc.kurumSiram}. sıradasın`
+                        : `Kurum sıralaması için en az ${ucretliSonuc.siralamaMinKatilimci || 5} katılımcı gerekir (şu an ${ucretliSonuc.kurumKatilimci})`}
+                    </p>
+                    {ucretliSonuc.kurumSiralamaGorunur && ucretliSonuc.kurumOrtalama !== null && <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>Kurum ortalaması: {ucretliSonuc.kurumOrtalama}</p>}
+                  </div>
+                )}
                 {ucretliSonuc.genelKatilimci > 0 && (
                   <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 10, padding: 12, marginBottom: 12 }}>
-                    <p style={{ color: "#C5CBD3", fontSize: 12, fontWeight: 700 }}>Genelde {ucretliSonuc.genelKatilimci} kişi arasında {ucretliSonuc.genelSiram}. sıradasın</p>
-                    {ucretliSonuc.genelOrtalama !== null && <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>Genel ortalama: {ucretliSonuc.genelOrtalama}</p>}
+                    <p style={{ color: "#C5CBD3", fontSize: 12, fontWeight: 700 }}>
+                      {ucretliSonuc.genelSiralamaGorunur
+                        ? `Genelde ${ucretliSonuc.genelKatilimci} kişi arasında ${ucretliSonuc.genelSiram}. sıradasın`
+                        : `Genel sıralama için en az ${ucretliSonuc.siralamaMinKatilimci || 5} katılımcı gerekir (şu an ${ucretliSonuc.genelKatilimci})`}
+                    </p>
+                    {ucretliSonuc.genelSiralamaGorunur && ucretliSonuc.genelOrtalama !== null && <p style={{ color: "#8A968E", fontSize: 10.5, marginTop: 3 }}>Genel ortalama: {ucretliSonuc.genelOrtalama}</p>}
                   </div>
                 )}
                 {ucretliSonuc.karne && ucretliSonuc.karne.length > 0 && (
@@ -7334,6 +7373,73 @@ export default function Ana() {
           </div>
         )}
 
+        {mod === "sinavanaliz" && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>📊 Sınav Analizlerim</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 14 }}>Netlerin, güçlü ve zayıf derslerin, tekrar etmen gereken konular.</p>
+            {analizYukleniyor ? (
+              <p aria-live="polite" style={{ fontSize: 13, color: COLORS.muted }}>Yükleniyor...</p>
+            ) : analizVeri && analizVeri.dersler.length === 0 ? (
+              <p style={{ fontSize: 13, color: COLORS.muted }}>Henüz analiz edilecek sınav yok. Bir deneme veya yazılı çözünce burada görünür.</p>
+            ) : analizVeri ? (
+              <>
+                {analizVeri.oneriler.length > 0 && (
+                  <div style={{ background: "rgba(232,179,57,0.12)", border: `1px solid ${COLORS.mustard}`, borderRadius: 10, padding: 12, marginBottom: 14 }}>
+                    <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Durum ve Öneriler</p>
+                    {analizVeri.oneriler.map((o, i) => <p key={i} style={{ fontSize: 12, color: "#3A4550", padding: "3px 0" }}>• {o}</p>)}
+                  </div>
+                )}
+                {analizVeri.dersler.map((d) => {
+                  const hedef = Number(hedefNetler[d.ders]);
+                  const hedefVar = Number.isFinite(hedef) && hedefNetler[d.ders] !== "" && hedefNetler[d.ders] !== undefined;
+                  const toplam = d.dogru + d.yanlis + d.bos;
+                  return (
+                    <div key={d.ders} style={{ padding: "10px 0", borderBottom: `1px solid ${COLORS.line}` }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
+                        <span style={{ fontSize: 13, fontWeight: 700 }}>{d.ders}</span>
+                        <span style={{ fontSize: 13, fontWeight: 800 }}>
+                          {d.sonNet} net {d.fark !== null && <span style={{ fontSize: 11.5, color: d.fark >= 0 ? RENK_BASARI : COLORS.coral }}>{d.fark >= 0 ? "▲" : "▼"} {Math.abs(d.fark)}</span>}
+                        </span>
+                      </div>
+                      {toplam > 0 && (
+                        <div role="img" aria-label={`${d.dogru} doğru, ${d.yanlis} yanlış, ${d.bos} boş`} style={{ display: "flex", height: 8, borderRadius: 4, overflow: "hidden", margin: "6px 0", background: COLORS.line }}>
+                          <div style={{ width: `${(d.dogru / toplam) * 100}%`, background: RENK_BASARI }} />
+                          <div style={{ width: `${(d.yanlis / toplam) * 100}%`, background: COLORS.coral }} />
+                          <div style={{ width: `${(d.bos / toplam) * 100}%`, background: "#B9C1C9" }} />
+                        </div>
+                      )}
+                      <p style={{ fontSize: 11, color: COLORS.muted }}>
+                        {d.dogru} D · {d.yanlis} Y · {d.bos} B · ortalama {d.ortalamaNet} · {d.sinavSayisi} sınav
+                        {d.sinifOrtalamasi !== undefined && ` · sınıf ort. ${d.sinifOrtalamasi}`}
+                      </p>
+                      {d.etiketler.length > 0 && (
+                        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 5 }}>
+                          {d.etiketler.map((e) => <span key={e} style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: e === "Yükselişte" ? "rgba(61,163,93,0.15)" : "rgba(232,80,63,0.12)", color: e === "Yükselişte" ? RENK_BASARI : "#B3392B" }}>{e}</span>)}
+                        </div>
+                      )}
+                      <label style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, fontSize: 11.5, color: COLORS.muted }}>
+                        Hedef net
+                        <input type="number" inputMode="decimal" value={hedefNetler[d.ders] ?? ""} onChange={(e) => hedefNetKaydet(d.ders, e.target.value)} style={{ width: 64, padding: "4px 6px", borderRadius: 6, border: `1px solid ${COLORS.line}`, fontSize: 12 }} />
+                        {hedefVar && <span style={{ fontWeight: 700, color: d.sonNet >= hedef ? RENK_BASARI : COLORS.coral }}>{d.sonNet >= hedef ? "Hedefe ulaştın" : `Hedefe ${Math.round((hedef - d.sonNet) * 100) / 100} net var`}</span>}
+                      </label>
+                    </div>
+                  );
+                })}
+                {analizVeri.konular.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Konu Analizi (çözülmemiş hatalar)</p>
+                    {analizVeri.konular.map((k, i) => (
+                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
+                        <span>{k.ders} · {k.konu}</span>
+                        <span><b>{k.hata}</b> hata <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: "rgba(232,80,63,0.12)", color: "#B3392B", marginLeft: 6 }}>{k.etiket}</span></span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+        )}
         {mod === "kutuphanem" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>📚 Kütüphanem</p>
