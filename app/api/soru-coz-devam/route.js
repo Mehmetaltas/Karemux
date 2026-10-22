@@ -1,6 +1,8 @@
 // Soru Coz sonrasi "anlamadim, acikla" tarzi takip sohbeti. Orijinal soru+cozum
 // metnini baglam olarak kullanir - gorseli tekrar gondermeye gerek yok.
 import { aiCagir } from "@/lib/ai";
+import { kullaniciIdCoz } from "@/lib/kullanici";
+import { hafizayiPromptaEkle } from "@/lib/ogrenme-hafizasi";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { moderasyonKontrolEt } from "@/lib/moderasyon";
 import { gorselSoruErisimVarMi } from "@/lib/paket";
@@ -54,7 +56,9 @@ gereksiz giris cumleleri kurma, direkt konuya gir.
 BICIM: SADECE duz metin, markdown (yildiz) veya LaTeX ($, backslash) KESINLIKLE kullanma.
 Matematik ifadelerini sade klavye karakterleriyle yaz. SADECE Turkce yaz.`;
 
-    const cevap = await aiCagir(imageBase64 ? { prompt: talimat, imageBase64, mediaType, maxTokens: 700 } : { prompt: talimat, maxTokens: 700 });
+    const kullaniciId = await kullaniciIdCoz(req, cihazId);
+    const hafizaliTalimat = await hafizayiPromptaEkle(kullaniciId, talimat);
+    const cevap = await aiCagir(imageBase64 ? { prompt: hafizaliTalimat, imageBase64, mediaType, maxTokens: 700 } : { prompt: hafizaliTalimat, maxTokens: 700 });
     const cevapTemiz = cevap
       .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
       .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")

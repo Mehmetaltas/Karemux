@@ -1,5 +1,7 @@
 // Fotografla soru cozumu - lib/ai.js soyutlamasi + gunluk kullanim limiti ile.
 import { aiCagir } from "@/lib/ai";
+import { kullaniciIdCoz } from "@/lib/kullanici";
+import { hafizayiPromptaEkle } from "@/lib/ogrenme-hafizasi";
 import { gunlukLimitKontrolEt } from "@/lib/ratelimit";
 import { gorselSoruErisimVarMi } from "@/lib/paket";
 import { jsonAyikla } from "@/lib/json-ayikla";
@@ -37,7 +39,9 @@ SADECE JSON dondur, markdown/LaTeX kullanma. Matematik ifadelerini sade klavye k
 Eger gorsel bir soru degilse ya da okunamiyorsa, SADECE {"hata":"aciklama"} dondur. Sadece Turkce yaz.
 {"ipucu":"...","cozum":"..."}`;
 
-    const hamCevap = await aiCagir({ prompt: talimat, imageBase64, mediaType, maxTokens: 1800, jsonModu: true });
+    const kullaniciId = await kullaniciIdCoz(req, cihazId);
+    const hafizaliTalimat = await hafizayiPromptaEkle(kullaniciId, talimat);
+    const hamCevap = await aiCagir({ prompt: hafizaliTalimat, imageBase64, mediaType, maxTokens: 1800, jsonModu: true });
     const temizle = (s) => (s || "")
       .replace(/\*\*/g, "").replace(/#+\s?/g, "").replace(/\$\$?/g, "")
       .replace(/\\sqrt\{([^}]*)\}/g, "karekok $1").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
