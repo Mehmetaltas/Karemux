@@ -354,11 +354,11 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Din Kulturu::Peygamberlerin Sevgisi::4": ["Peygamberlerin Cocuklarla Iliskisi", "Cevre ve Calismayi Sevme"],
   "Din Kulturu::Ahlaki Degerlerimiz::4": ["Adalet", "Sabir", "Yardimseverlik"],
   "Din Kulturu::Haklar ve Sorumluluklar::4": ["Temel Hak ve Ozgurlukler", "Mahremiyet", "Allaha ve Insanlara Karsi Sorumluluklar"],
-  "Din Kulturu::Allah Inanci::5": ["Allah'in Varligi ve Birligi", "Allah'in Sifatlari"],
-  "Din Kulturu::Namaz::5": ["Namazin Onemi", "Namazin Kilinisi"],
-  "Din Kulturu::Kur'an-i Kerim::5": ["Kur'an'i Tanima", "Kur'an Okuma Kurallarinin Temelleri"],
-  "Din Kulturu::Peygamber Kissalari::5": ["Peygamber Kissalarindan Ornekler", "Kissalardan Alinacak Dersler"],
-  "Din Kulturu::Mimarimizde Dini Motifler::5": ["Cami Mimarisi", "Dini Motiflerin Sanattaki Yansimalari"],
+  "Din Kulturu::Allah Inanci::5": ["Evrendeki Mukemmel Duzen", "Allah'in Varligi ve Birligi", "Allah'in Guzel Isimleri", "Bir Sure Ogreniyorum: Ihlas Suresi"],
+  "Din Kulturu::Namaz::5": ["Allah'in Huzurunda Olmak: Namaz", "Namazin Kilinisi", "Namazin Insana Kazandirdiklari", "Bir Dua Ogreniyorum: Tahiyyat Duasi"],
+  "Din Kulturu::Kur'an-i Kerim::5": ["Kur'an-i Kerim'in Ic Duzeni", "Kur'an-i Kerim'in Temel Ozellikleri", "Kur'an-i Kerim'in Ana Konulari", "Bir Sure Ogreniyorum: Kevser Suresi"],
+  "Din Kulturu::Peygamber Kissalari::5": ["Allah'in Elcileri: Peygamberler", "Kur'an-i Kerim'den Ogutler: Peygamber Kissalari", "Bir Sure Ogreniyorum: Kureys Suresi"],
+  "Din Kulturu::Mimarimizde Dini Motifler::5": ["Dinin Mimarimize Etkisi", "Camileri Taniyalim", "Kulturumuzden Cami Ornekleri"],
 
   // ==== 5. SINIF INGILIZCE (yeni mufredat - resmi MEB 10 unite) ====
   // 4. sinif - resmi PDF'ten (english-regular, Agustos 2026) DOGRULANDI.
