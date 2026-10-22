@@ -35,6 +35,8 @@ export async function POST(req) {
     await sql`DELETE FROM canli_ders_katilimcilari WHERE ogrenci_id = ${kullaniciId}`;
     await sql`DELETE FROM geri_bildirimler WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM konu_hakimiyet WHERE kullanici_id = ${kullaniciId}`;
+    // Ogretmen sinif baglantisi (tablo ilk sinif olusturulunca kurulur; yoksa sessizce gec)
+    await sql`DELETE FROM ogretmen_sinif_ogrencileri WHERE kullanici_id = ${kullaniciId}`.catch(() => {});
     await sql`DELETE FROM tek_konu_oturumu WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM ucretli_deneme_sonuclari WHERE kullanici_id = ${kullaniciId}`;
     await sql`DELETE FROM guvenlik_denemeleri WHERE anahtar = ${kullanici[0].eposta}`;

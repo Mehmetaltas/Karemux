@@ -32,6 +32,7 @@ const MENU = [
   { kod: "eksik-konu-paketi", ad: "🧩 Eksik Konu Paketi", hazir: true, tur: "eksik_konu_paketi" },
   { kod: "veli-ozeti", ad: "👨‍👩‍👧 Veli Bilgilendirme Özeti", hazir: true, tur: "veli_ozeti" },
   { kod: "sinif-analizi", ad: "📈 Sınıf Başarı Analizi", hazir: true, tur: "sinif_analizi" },
+  { kod: "siniflarim", ad: "🏫 Sınıflarım (Öğrenci Bağlantısı)", hazir: true },
   { kod: "ders-plani", ad: "📋 Ders Planı Üret (Maarif Modeli)", hazir: true },
   { kod: "materyallerim", ad: "🗂️ Materyallerim", hazir: true },
   { kod: "inceleme", ad: "🔍 İçerik İncelemesi", hazir: true },
@@ -389,6 +390,7 @@ export default function OgretmenPanel() {
         {["calisma-kagidi", "soru-seti", "yazili", "fasikul", "kazanim-testi", "tekrar-paketi", "odev-paketi", "brans-denemesi", "eksik-konu-paketi", "veli-ozeti", "sinif-analizi"].includes(sekme) && (
           <MateryalUreticisi key={sekme} tur={MENU.find((m) => m.kod === sekme)?.tur} dersVarsayilan={ogretmen.brans} />
         )}
+        {sekme === "siniflarim" && <Siniflarim />}
         {sekme === "materyallerim" && <Materyallerim />}
         {sekme === "inceleme" && <IcerikIncelemesi />}
         {sekme === "ders-plani" && <DersPlaniUret />}
@@ -596,6 +598,110 @@ function IcerikIncelemesi() {
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={() => karaVer(k.id, "onayla")} disabled={islemYapiliyor} style={{ flex: 1, padding: "8px 0", borderRadius: 7, border: "none", background: "#2AAE7F", color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>✓ Onayla</button>
               <button onClick={() => setRedFormAcik(k.id)} disabled={islemYapiliyor} style={{ flex: 1, padding: "8px 0", borderRadius: 7, border: "1px solid #E8503F", background: "#fff", color: "#E8503F", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>✕ Reddet</button>
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Siniflarim() {
+  const [siniflar, setSiniflar] = useState(null);
+  const [yeniAd, setYeniAd] = useState("");
+  const [hata, setHata] = useState("");
+  const [acikId, setAcikId] = useState(null);
+  const [analiz, setAnaliz] = useState(null);
+  const [yukleniyor, setYukleniyor] = useState(false);
+
+  async function listele() {
+    const r = await fetch("/api/ogretmen/sinif");
+    const d = await r.json();
+    setSiniflar(d.siniflar || []);
+  }
+  useEffect(() => { listele(); }, []);
+
+  async function olustur() {
+    setHata("");
+    const r = await fetch("/api/ogretmen/sinif", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ad: yeniAd }) });
+    const d = await r.json();
+    if (!r.ok) { setHata(d.error || "Sınıf oluşturulamadı"); return; }
+    setYeniAd("");
+    listele();
+  }
+  async function sil(id) {
+    await fetch("/api/ogretmen/sinif", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
+    if (acikId === id) { setAcikId(null); setAnaliz(null); }
+    listele();
+  }
+  async function analizAc(id) {
+    setAcikId(id); setAnaliz(null); setYukleniyor(true);
+    try {
+      const r = await fetch(`/api/ogretmen/sinif-analiz?id=${id}`);
+      const d = await r.json();
+      setAnaliz(r.ok ? d : { hata: d.error || "Analiz getirilemedi" });
+    } catch (e) {
+      setAnaliz({ hata: "Analiz getirilemedi" });
+    } finally {
+      setYukleniyor(false);
+    }
+  }
+  const durumEtiketi = { iyi: "İyi", dusus: "Düşüşte", pasif: "Pasif", veri_yok: "Veri yok" };
+
+  return (
+    <div>
+      <p style={{ fontSize: 13, color: "#666", marginBottom: 12, lineHeight: 1.5 }}>
+        Sınıf oluştur, kodu öğrencilerinle paylaş. Öğrenci kodu kendi girerek katılır ve istediği an ayrılabilir. Sen yalnızca sınav netlerinin özetini ve çözülmemiş hata konularını görürsün.
+      </p>
+      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <input aria-label="Yeni sınıf adı" placeholder="Sınıf adı (ör. 7/A Matematik)" value={yeniAd} onChange={(e) => setYeniAd(e.target.value)} maxLength={60} style={{ flex: 1, padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", fontSize: 13 }} />
+        <button onClick={olustur} disabled={yeniAd.trim().length < 2} style={{ padding: "8px 14px", borderRadius: 8, border: "none", background: C.yesil, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Oluştur</button>
+      </div>
+      {hata && <p role="alert" style={{ fontSize: 12.5, color: "#B3392B", marginBottom: 8 }}>{hata}</p>}
+      {siniflar === null ? <p aria-live="polite" style={{ fontSize: 13, color: "#999" }}>Yükleniyor...</p> : siniflar.length === 0 ? (
+        <p style={{ fontSize: 13, color: "#999" }}>Henüz sınıf oluşturmadın.</p>
+      ) : siniflar.map((sn) => (
+        <div key={sn.id} style={{ background: "#fff", borderRadius: 10, border: "1px solid #E5DFD3", padding: 14, marginBottom: 10 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, margin: 0 }}>{sn.ad}</p>
+              <p style={{ fontSize: 12, color: "#777", margin: "2px 0 0" }}>Sınıf kodu: <b style={{ letterSpacing: 2, fontSize: 14 }}>{sn.kod}</b> · {sn.ogrenci_sayisi} öğrenci</p>
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              <button onClick={() => analizAc(sn.id)} style={{ padding: "7px 12px", borderRadius: 7, border: "1px solid #ddd", background: "#fff", fontSize: 12.5, cursor: "pointer" }}>Analiz</button>
+              <button onClick={() => sil(sn.id)} aria-label="Sınıfı sil" style={{ background: "none", border: "none", color: "#FF6B5E", fontSize: 16, cursor: "pointer" }}>🗑️</button>
+            </div>
+          </div>
+          {acikId === sn.id && (
+            <div style={{ marginTop: 12, borderTop: "1px solid #eee", paddingTop: 10 }}>
+              {yukleniyor ? <p aria-live="polite" style={{ fontSize: 13, color: "#999" }}>Analiz hazırlanıyor...</p> : analiz?.hata ? <p style={{ fontSize: 13, color: "#B3392B" }}>{analiz.hata}</p> : analiz && (
+                <>
+                  {analiz.oneriler.map((o, i) => <p key={i} style={{ fontSize: 12.5, padding: "3px 0" }}>• {o}</p>)}
+                  {analiz.ogrenciler.length > 0 && (
+                    <div style={{ marginTop: 10 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>Öğrenciler</p>
+                      {analiz.ogrenciler.map((o, i) => (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "4px 0", borderBottom: "1px solid #f0f0f0" }}>
+                          <span>{o.ad}{o.sinif ? ` (${o.sinif}. sınıf)` : ""}</span>
+                          <span>{o.ortalamaNet !== null ? `${o.ortalamaNet} net · ` : ""}{o.cozulmemisHata} hata · <b style={{ color: o.durum === "iyi" ? "#3DA35D" : "#B3392B" }}>{durumEtiketi[o.durum]}</b></span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {analiz.dersler.length > 0 && (
+                    <div style={{ marginTop: 10 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>Ders ortalamaları (son 60 gün)</p>
+                      {analiz.dersler.map((d) => <p key={d.ders} style={{ fontSize: 12, padding: "2px 0" }}>{d.ders}: {d.ortalamaNet} net ({d.ogrenciSayisi} öğrenci)</p>)}
+                    </div>
+                  )}
+                  {analiz.zayifKonular.length > 0 && (
+                    <div style={{ marginTop: 10 }}>
+                      <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}>Ortak zayıf konular</p>
+                      {analiz.zayifKonular.map((k, i) => <p key={i} style={{ fontSize: 12, padding: "2px 0" }}>{k.ders} · {k.konu}: {k.etkilenenOgrenci} öğrenci, {k.hata} hata</p>)}
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
         </div>

@@ -1706,6 +1706,34 @@ export default function Ana() {
       setOyssYukleniyor("");
     }
   }
+  const [sinifKodu, setSinifKodu] = useState("");
+  const [ogrSiniflari, setOgrSiniflari] = useState(null);
+  const [sinifMesaj, setSinifMesaj] = useState("");
+  async function ogrSiniflariGetir() {
+    try {
+      const res = await fetch(`/api/ogrenci-sinif?cihazId=${cihazIdRef.current}`);
+      const d = await res.json();
+      setOgrSiniflari(d.siniflar || []);
+    } catch (e) { setOgrSiniflari([]); }
+  }
+  async function sinifaKatil() {
+    setSinifMesaj("");
+    try {
+      const res = await fetch("/api/ogrenci-sinif", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cihazId: cihazIdRef.current, kod: sinifKodu }) });
+      const d = await res.json();
+      if (!res.ok) { setSinifMesaj(d.error || "Katılınamadı"); return; }
+      setSinifKodu(""); setSinifMesaj(`${d.sinif.ad} sınıfına katıldın.`);
+      ogrSiniflariGetir();
+    } catch (e) { setSinifMesaj("Katılınamadı, tekrar dene."); }
+  }
+  async function siniftanAyril(sinifId) {
+    await fetch("/api/ogrenci-sinif", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cihazId: cihazIdRef.current, islem: "ayril", sinifId }) });
+    ogrSiniflariGetir();
+  }
+  useEffect(() => {
+    if (mod === "ogretmensinifi") ogrSiniflariGetir();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- bilincli: mod degisince veri cek deseni
+  }, [mod]);
   const [analizVeri, setAnalizVeri] = useState(null);
   const [analizYukleniyor, setAnalizYukleniyor] = useState(false);
   const [hedefNetler, setHedefNetler] = useState({});
@@ -7477,6 +7505,30 @@ export default function Ana() {
                   );
                 })}
               </>
+            )}
+          </div>
+        )}
+        {mod === "ogretmensinifi" && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>🏫 Öğretmen Sınıfım</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 12, lineHeight: 1.5 }}>
+              Öğretmenin sana bir sınıf kodu verdiyse buraya gir. Katılırsan öğretmenin <b>yalnızca sınav netlerinin özetini ve çözülmemiş hata konularını</b> görür; çözdüğün sorular, mesajların ve kişisel bilgilerin paylaşılmaz. İstediğin an sınıftan ayrılabilirsin.
+            </p>
+            <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+              <input aria-label="Sınıf kodu" value={sinifKodu} onChange={(e) => setSinifKodu(e.target.value.toUpperCase())} maxLength={6} placeholder="6 haneli kod" style={{ flex: 1, padding: "9px 10px", borderRadius: 8, border: `1px solid ${COLORS.line}`, fontSize: 14, letterSpacing: 2 }} />
+              <button onClick={sinifaKatil} disabled={sinifKodu.trim().length !== 6} style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, cursor: "pointer" }}>Katıl</button>
+            </div>
+            {sinifMesaj && <p role="status" style={{ fontSize: 12.5, color: COLORS.muted, marginBottom: 8 }}>{sinifMesaj}</p>}
+            {ogrSiniflari && ogrSiniflari.length > 0 && (
+              <div style={{ marginTop: 10 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Katıldığın sınıflar</p>
+                {ogrSiniflari.map((sn) => (
+                  <div key={sn.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12.5 }}>
+                    <span>{sn.ad} · {sn.ogretmen_ad}{sn.brans ? ` (${sn.brans})` : ""}</span>
+                    <button onClick={() => siniftanAyril(sn.id)} style={{ border: "none", background: "none", color: COLORS.coral, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Ayrıl</button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
