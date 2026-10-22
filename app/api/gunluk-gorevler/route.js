@@ -6,6 +6,40 @@ import { kullaniciIdCoz } from "@/lib/kullanici";
 const EN_FAZLA_GOREV = 30;
 const metinSinirla = (v, en) => (v === undefined || v === null ? "" : String(v).trim().slice(0, en));
 
+
+// 22 Ekim (Madde 35): gorev tamamlama artik yalniz oz-bildirim degil. Gorevin gunu ve dersi icin sunucuda gercek bir calisma kaydi
+// (sinav sonucu, tamamlanmis pratik oturumu, tek konu testi, hata kitapcigi kaydi) varsa "dogrulandi" isaretlenir.
+const sade = (t) => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ı/g, "i").replace(/İ/g, "i").toLowerCase().trim();
+const GUN_SIRASI = ["pazartesi", "sali", "carsamba", "persembe", "cuma", "cumartesi", "pazar"];
+const DERS_ANAHTARLARI = ["matematik", "fen", "turkce", "inkilap", "sosyal", "din", "ingilizce"];
+const dersAnahtari = (d) => DERS_ANAHTARLARI.find((k) => sade(d).includes(k)) || sade(d);
+function gorevTarihi(g) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(g.gun)) return g.gun;
+  const idx = GUN_SIRASI.indexOf(sade(g.gun));
+  if (idx < 0 || !g.hafta_baslangic) return null;
+  const t = new Date(g.hafta_baslangic);
+  if (Number.isNaN(t.getTime())) return null;
+  t.setUTCDate(t.getUTCDate() + idx);
+  return t.toISOString().slice(0, 10);
+}
+async function gorevleriDogrula(kullaniciId, gorevler) {
+  const tarihli = gorevler.map((g) => ({ g, tarih: gorevTarihi(g) }));
+  const tarihler = [...new Set(tarihli.map((x) => x.tarih).filter(Boolean))];
+  if (tarihler.length === 0) return gorevler.map((g) => ({ ...g, dogrulandi: false }));
+  const kayitlar = await sql`
+    SELECT tarih::text AS tarih, ders FROM (
+      SELECT (olusturulma AT TIME ZONE 'Europe/Istanbul')::date AS tarih, split_part(ders, '::', 1) AS ders FROM sinav_sonuclari WHERE kullanici_id = ${kullaniciId}
+      UNION ALL SELECT (olusturulma AT TIME ZONE 'Europe/Istanbul')::date, ders FROM tek_konu_oturumu WHERE kullanici_id = ${kullaniciId}
+      UNION ALL SELECT (olusturulma AT TIME ZONE 'Europe/Istanbul')::date, ders FROM hata_kitapcigi WHERE kullanici_id = ${kullaniciId}
+      UNION ALL SELECT (olusturulma AT TIME ZONE 'Europe/Istanbul')::date, meta->>'ders' FROM sinav_oturumlari WHERE kullanici_id = ${kullaniciId} AND kullanildi = true
+    ) x WHERE tarih = ANY(${tarihler}::date[])
+  `;
+  return tarihli.map(({ g, tarih }) => ({
+    ...g,
+    dogrulandi: !!tarih && kayitlar.some((k) => k.tarih === tarih && dersAnahtari(k.ders) === dersAnahtari(g.ders)),
+  }));
+}
+
 export async function POST(req) {
   try {
     const { cihazId, haftaBaslangic, gorevler } = await req.json(); // gorevler: [{gun, ders, gorev}]
@@ -42,7 +76,11 @@ export async function GET(req) {
     const gorevler = kullaniciId
       ? await sql`SELECT id, gun, ders, gorev, kaynak, tamamlandi, hafta_baslangic FROM gunluk_gorevler WHERE kullanici_id = ${kullaniciId} ORDER BY hafta_baslangic DESC, id ASC LIMIT 50`
       : await sql`SELECT id, gun, ders, gorev, kaynak, tamamlandi, hafta_baslangic FROM gunluk_gorevler WHERE cihaz_id = ${cihazId} ORDER BY hafta_baslangic DESC, id ASC LIMIT 50`;
-    return Response.json({ gorevler });
+    let sonuc = gorevler;
+    if (kullaniciId) {
+      try { sonuc = await gorevleriDogrula(kullaniciId, gorevler); } catch (e) { console.error("Gorev dogrulama atlandi:", e.message); }
+    }
+    return Response.json({ gorevler: sonuc });
   } catch (e) {
     console.error(e);
     return Response.json({ error: "Getirilemedi" }, { status: 500 });

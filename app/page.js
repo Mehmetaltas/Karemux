@@ -5646,6 +5646,7 @@ export default function Ana() {
                           <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 0", fontSize: 12.5, borderBottom: `1px solid ${COLORS.line}` }}>
                             <button onClick={() => gorevTamamlandiIsaretle(g.id)} style={{ width: 18, height: 18, borderRadius: 5, border: `1.5px solid ${COLORS.line}`, background: "#fff", cursor: "pointer", flexShrink: 0, padding: 0 }} title="Tamamlandi olarak isaretle" />
                             <span style={{ flex: 1 }}><strong>{g.gun}</strong> · {g.ders}: {g.gorev}</span>
+                            {g.dogrulandi && <span style={{ fontSize: 9.5, color: RENK_BASARI, fontWeight: 700 }}>✓ çalışma kaydın var</span>}
                             <span style={{ fontSize: 9.5, color: COLORS.muted, textTransform: "uppercase" }}>{g.kaynak}</span>
                           </div>
                         ))}
