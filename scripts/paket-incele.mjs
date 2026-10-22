@@ -19,8 +19,8 @@ const p = j.paket;
 const havuz = p.soruHavuzu || [];
 const hepsi = JSON.stringify(p);
 console.log("Anlatim uzunlugu:", (p.anlatim?.temelAnlatim || "").length, "karakter");
-console.log("Soru sayisi:", havuz.length, "| elenen:", (p.soruHavuzuElenen || []).length, "| odev:", (p.odev || p.odevler || []).length || "?");
-console.log("Kalite kontrol:", JSON.stringify(p.kaliteKontrol || {}).slice(0, 200));
+console.log("Soru sayisi:", havuz.length, "| odev sayisi:", (p.odevSorulari || []).length);
+console.log("Kalite kontrol / elenen sayisi: herkese acik pakette GIZLI (cevap anahtari sizmasin diye); gercek kalite verisi icin Neon'da ai_saglayici_log ve icerik_onbellek.onay_durumu (bekliyor/null) bakilir.");
 console.log("Bozuk karakter (Ã, Ä, �):", /[ÃÄ�]/.test(hepsi) ? "VAR" : "yok");
 console.log("Turkce karakter (ğüşıöç):", (hepsi.match(/[ğüşıöçĞÜŞİÖÇ]/g) || []).length, "adet");
 const gecersiz = havuz.filter((s) => !s.soru || !Array.isArray(s.secenekler) || s.secenekler.length < 4).length; // dogruIndex herkese acik pakette gizli, o yuzden bakilmaz

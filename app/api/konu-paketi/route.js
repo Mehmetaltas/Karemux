@@ -336,7 +336,7 @@ SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","
         const { metin: tamamlaCevap } = await aiCagirDetay({ prompt: tamamlaPrompt, maxTokens: 900 + istenenYeni * 450, jsonModu: true, tur: "konu_paketi_tamamlama" }, null, 14000);
         const yeniHam = jsonAyikla(tamamlaCevap);
         const yeniFormatGecen = (Array.isArray(yeniHam.sorular) ? yeniHam.sorular : []).filter((x) =>
-          soruFormatGecerliMi(x, { soruTrimGerekli: true, dersUniteGerekli: false })
+          soruFormatGecerliMi(x, { soruTrimGerekli: true, dersUniteGerekli: false }) && !cevaplanamazMi(x)
         );
         if (yeniFormatGecen.length > 0) {
           const yeniDenetim = await sorulariDenetle(yeniFormatGecen, denetimBaglami, 7000);
@@ -346,6 +346,14 @@ SADECE JSON dondur: {"sorular":[{"soru":"...", "secenekler":["A) ...","B) ...","
         }
       } catch (tamamlaHatasi) { console.warn("konu_paketi havuz tamamlama basarisiz:", ders, konu, tamamlaHatasi.message); }
     }
+    // 22 Ekim: tamamlama adimi mevcut bir soruyu tekrarlayabiliyordu (canli: 'Tekrar eden soru: 1') -> metne gore tekilleştir.
+    { const gorulen = new Set();
+      soruHavuzuKaliteGecen = soruHavuzuKaliteGecen.filter((q) => {
+        const k = String(q?.soru || "").trim().toLowerCase();
+        if (!k || gorulen.has(k)) return false;
+        gorulen.add(k);
+        return true;
+      }); }
     // Odev sayisi 6'nin altinda kalirsa (canli: 5, ve Ingilizce 7'de 2-3) eksik odevler kucuk bir ikinci cagriyla tamamlanir.
     const odevGecerli = (o) => o && typeof o.soru === "string" && o.soru.trim() && typeof o.cozum === "string" && o.cozum.trim();
     if (Array.isArray(paket.odevSorulari)) paket.odevSorulari = paket.odevSorulari.filter(odevGecerli);
