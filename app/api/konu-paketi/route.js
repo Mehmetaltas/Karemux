@@ -233,8 +233,8 @@ odevSorulari TAM ${adet} acik uclu soru icersin (coktan secmeli DEGIL), her biri
       // eklenince 60 sn asildi (504). Soru ve odev ikiser YARIM cagriya bolunur (hepsi paralel).
       const [an, so1, so2, od1, od2] = await Promise.allSettled([
         anlatimUret(),
-        parcaCoz({ prompt: soruPrompt(9, "6 kolay, 3 orta", " Bu, 18 soruluk havuzun ILK YARISI: temel kural ve dogrudan hesaplama sorulari."), maxTokens: 4000, jsonModu: true, tur: "konu_paketi" }, butceMs),
-        parcaCoz({ prompt: soruPrompt(9, "4 orta, 5 zor", " Bu, 18 soruluk havuzun IKINCI YARISI: kolay sorulari TEKRARLAMA; yorum, kural birlestirme ve yeni nesil LGS tarzi sorular agirlikli olsun."), maxTokens: 4000, jsonModu: true, tur: "konu_paketi" }, butceMs),
+        parcaCoz({ prompt: soruPrompt(10, "6 kolay, 4 orta", " Bu, 20 soruluk havuzun ILK YARISI: temel kural ve dogrudan hesaplama sorulari."), maxTokens: 4400, jsonModu: true, tur: "konu_paketi" }, butceMs),
+        parcaCoz({ prompt: soruPrompt(10, "4 orta, 6 zor", " Bu, 20 soruluk havuzun IKINCI YARISI: kolay sorulari TEKRARLAMA; yorum, kural birlestirme ve yeni nesil LGS tarzi sorular agirlikli olsun."), maxTokens: 4400, jsonModu: true, tur: "konu_paketi" }, butceMs),
         parcaCoz({ prompt: odevPrompt(3, ""), maxTokens: 3000, jsonModu: true, tur: "konu_paketi_odev" }, butceMs),
         parcaCoz({ prompt: odevPrompt(3, " Bu, 6 odevlik setin IKINCI YARISI: farkli beceri ve baglamlara odaklan, konuyu farkli acilardan sorgula."), maxTokens: 3000, jsonModu: true, tur: "konu_paketi_odev" }, butceMs),
       ]);
@@ -315,6 +315,7 @@ odevSorulari TAM ${adet} acik uclu soru icersin (coktan secmeli DEGIL), her biri
     const denetimSonucu = await sorulariDenetle(soruHavuzuFormatGecen, denetimBaglami);
     let soruHavuzuKaliteGecen = denetimSonucu.gecenler;
     let soruHavuzuElenen = denetimSonucu.elenenSayisi;
+    soruHavuzuElenen += (paket.soruHavuzu || []).filter(cevaplanamazMi).length; // gorunurluk: 'alti cizili' filtresinin eledikleri
 
     // Eleme sonrasi 15'in altinda kalirsa (canli kanit 21 Ekim: 13, 12 soru; denetim 4-7 soru eliyor) eksik kismi KUCUK bir ikinci cagriyla
     // tamamla: yalniz eksik + 3 yedek soru istenir, ayni bagimsiz denetimden gecer. Sure yetmiyorsa (60 sn sinir) atlanir; eski davranis korunur.
