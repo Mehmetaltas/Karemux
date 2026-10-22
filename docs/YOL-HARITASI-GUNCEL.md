@@ -5,7 +5,7 @@ Bu belge, `docs/` altındaki eski raporların (FULL-AUDIT-TAKIP, V3-DALGA-PLANI,
 ## 1. Piyasaya çıkış engelleri (A sınıfı)
 | # | Madde | Durum |
 |---|---|---|
-| 1 | AI kapasitesi ve içerik kalitesi: Gemini ücretsiz 20 istek/gün/model (sıfırlanma ~10:00 İstanbul, 22 Ekim'de doğrulandı); Groq TPM 8000; OpenRouter kredi yok | 🔶 KISMEN — 22 Ekim: gizli `AI_PROVIDER_ORDER_JSON` (65 gün önce) Anthropic'i devre dışı bırakıyordu, kaldırıldı; `konu_paketi` 3 paralel parçaya bölündü (53,7 sn → 34,9 sn, anlatım 82 → 173 kelime), anlatımda `a^b=sonuç` doğrulaması eklendi. KALAN: Gemini faturalama kararı (kullanıcı), yoğun saatte kapasite ölçümü |
+| 1 | AI kapasitesi ve içerik kalitesi (konu paketi akışı kapatıldı, bkz. §7): Gemini ücretsiz 20 istek/gün/model (sıfırlanma ~10:00 İstanbul, 22 Ekim'de doğrulandı); Groq TPM 8000; OpenRouter kredi yok | 🔶 KISMEN — 22 Ekim: gizli `AI_PROVIDER_ORDER_JSON` (65 gün önce) Anthropic'i devre dışı bırakıyordu, kaldırıldı; `konu_paketi` 3 paralel parçaya bölündü (53,7 sn → 34,9 sn, anlatım 82 → 173 kelime), anlatımda `a^b=sonuç` doğrulaması eklendi. KALAN: Gemini faturalama kararı (kullanıcı), yoğun saatte kapasite ölçümü |
 | 2 | Ulusal deneme (VPS server.js) cevap anahtarı sızıntısı, çift gönderim, snapshot | ✅ KAPANDI 21 Ekim, canlıda kanıtlı (anahtar boş, çift gönderim 400/400, anahtar ucu 403); kod `vps/karemux-deneme/` altında |
 | 3 | Ücretli özellik yetkisi sunucuda | ✅ canlı kanıtlı (ayrı uç + vekil reddi). Faz 2 tamamlandı |
 | 4 | Yedekleme | ✅ gece şifreli pg_dump (GitHub, 14 gün) + restore iş akışı + VPS JSON dışa aktarım + Contabo yedek. Kalan: VPS yedek dizini izinleri (`chmod -R go-rwx`), Actions maillerini 1-2 gün izleme |
@@ -48,3 +48,18 @@ Gerçek kodda var + test edildi + canlıda doğrulandı + sonucu belgelendi. Tah
 - **Tüm AI sırası**: kodun varsayılanı `gemini,anthropic` (JSON) — Vercel ortam değişkeni YOK; yeniden tanımlanırsa bu varsayılanı geçersiz kılar, dikkat.
 - **Araçlar**: `scripts/ai-islem-test.mjs` (14 akış canlı doğrulama), `scripts/paket-incele.mjs` (konu paketi kalite raporu: süre, kelime sayıları, bozuk karakter).
 - Not: `ogrenci-test.js` otomasyon modunda paketi KAYDETMEZ ve önbellekten dönebilir; üretimi kanıtlamak için önce `icerik_onbellek` satırlarını silip `paket-incele.mjs` kullan.
+
+## 7. 22 Ekim — konu paketi (konu_paketi) kalite ve kapasite düzeltmeleri (canlıda kanıtlı)
+Canlı testlerle bulunan ve düzeltilen sorunlar (kanıt: `scripts/paket-incele.mjs` + `ai_saglayici_log`):
+- **Gizli ortam değişkeni:** `AI_PROVIDER_ORDER_JSON` (65 gün önce tanımlı, değeri gizli) Anthropic'i devre dışı bırakıyordu → kaldırıldı. Yeniden tanımlanırsa kodun varsayılanını (`gemini,anthropic`) geçersiz kılar.
+- **Süre:** tek 10k-token çağrı 53,7 sn / 504 veriyordu → 5 paralel çağrı (anlatım, soru 10+10, ödev 3+3) + paralel görsel kararı + süre korumalı gölge kontrol. Şimdi 23-37 sn.
+- **Gemini 429/503:** her çağrıya 10-15 sn kaybettiriyordu → `lib/ai.js` içinde kısa soğuma (429: 10 dk, 503: 90 sn).
+- **Bozuk JSON:** bir parça bozuk gelirse farklı sağlayıcıyla bir kez yeniden üretilir; ödev parçası opsiyoneldir.
+- **Anlatımda sayısal hata** ("3^6 = 72"): `a^b=sonuç` eşitlikleri sunucuda hesaplanıp doğrulanır, yanlışsa anlatım hatalı eşitlikler belirtilerek yeniden üretilir.
+- **İngilizce dersi:** "SADECE Türkçe" kuralı İngilizce dersini Türkçe cümlelerle ürettiriyordu → `lib/dil-kurali.js` (ders bazlı; Türkçe derslerde kural AYNEN korunur). Pratik, sınav, deneme, seviye, öğretmen araçlarına uygulandı. İngilizce önbelleği temizlendi.
+- **ASCII Türkçe** ("simdi/bakalim"): prompt'taki ASCII örnekler modele bunu öğretiyordu → örnekler düzeltildi, kısmi ASCII tespiti (`asciiTurkceKacaklari`) ve tekil kaçakların otomatik onarımı (`asciiTurkceDuzelt`) eklendi; toptan ASCII paketler yeniden üretilir veya öğretmen kuyruğuna (bekliyor) düşer.
+- **Gerileme (bölmeden doğan):** canlı-diyalog kişiliği soru parçalarına sızıyordu → soru/ödev parçalarına ayrı kısa başlık.
+- "Altı çizili sözcük" soruları (cevaplanamaz) elenir; tamamlama sonrası tekrar eden sorular tekilleştirilir.
+- **Doğrulama (22 Ekim, son tur):** Türkçe / Matematik / İngilizce paketleri 36,7 / 29,2 / 23,4 sn, 15 soru + 6 ödev, tekrar yok; ilk üç sorunun cevapları tek tek doğru.
+
+Açık kalanlar: (1) soru bankasındaki 614 öğretmen İngilizce sorusunun 456'sında Türkçe soru kökü var (hatalı değil, LGS biçiminden farklı); (2) müfredat verisinde ASCII konu adları ("Uslu Ifadeler") anlatıma sızıyor; (3) anlatımlar hedef uzunluğun üstünde; (4) Gemini faturalama kararı (kullanıcı); (5) yoğun saatte eşzamanlı kapasite testi; (6) `ogrenci-test.js` otomasyon modunda paketi kaydetmez ve önbellekten dönebilir (üretimi kanıtlamak için `paket-incele.mjs`).
