@@ -148,7 +148,7 @@ const MUFREDAT_DIGER_SINIFLAR = {
   // yapisi (Carpanlar ve Katlar, Kesirlerle Islemler gibi ayri ayri) YANLISTI - resmi
   // program her sinifta sadece 6-7 GENIS "TEMA" kullaniyor, kucuk konular bu temalarin
   // ICINDE isleniyor. 8. sinif hala eski (2018) mufredatta oldugu icin degistirilmedi.
-  "4::Matematik": ["Sayilar ve Nicelikler", "Islemlerden Cebirsel Dusunmeye", "Nesnelerin Geometrisi", "Olaylarin Olasiligi ve Veriye Dayali Arastirma"],
+  "4::Matematik": ["Sayilar ve Islemler", "Geometri", "Olcme", "Veri Isleme"],
   "5::Matematik": ["Sayilar ve Nicelikler", "Islemlerle Cebirsel Dusunme", "Geometrik Sekiller", "Geometrik Nicelikler", "Istatistiksel Arastirma Sureci", "Veriden Olasiliga"],
   // 6. sinif Matematik - Turkiye Yuzyili Maarif Modeli'ne (2025-26'da 6. sinifa gecti)
   // gore GUNCELLENDI. Sayilar alani (Carpanlar/EBOB-EKOK/Ondalik) buyuk olcude ayni
@@ -217,10 +217,10 @@ function dersinUniteleri(dersAdi, sinifNo) {
 const DOGRULANMIS_ALT_KONULAR = {
   // ==== 5. SINIF MATEMATIK (yeni mufredat - Turkiye Yuzyili Maarif Modeli) ====
   // 4. sinif - resmi PDF'ten (2024programmat1234Onayli.pdf, Agustos 2026) DOGRULANDI.
-  "Matematik::Sayilar ve Nicelikler::4": ["Cok Basamakli Sayilarin Temsili", "Sayilari Siralama", "Ritmik Sayma", "Sayi ve Sekil Oruntuleri", "Basit-Bilesik-Tam Sayili Kesirler", "Denk Kesirler", "Paydalari Esit Kesirlerle Toplama-Cikarma"],
-  "Matematik::Islemlerden Cebirsel Dusunmeye::4": ["Zihinden Toplama-Cikarma", "Dort Basamakli Sayilarla Islemler", "Carpma-Bolme Tahmini ve Kisa Yollari", "Dort Islem Gerektiren Problemler", "Esitligin Farkli Anlamlari"],
-  "Matematik::Nesnelerin Geometrisi::4": ["Geometrik Cisimlerin Acinimlari", "Kose ve Kenarlarina Gore Sekiller", "Cevre Uzunlugu Olcme", "Alan Tahmini", "Aci Kavrami ve Olcme", "Dar-Genis Aci Siniflandirma", "Simetri"],
-  "Matematik::Olaylarin Olasiligi ve Veriye Dayali Arastirma::4": ["Olasilik (Imkansiz-Olabilir-Kesin)", "Kategorik ve Nicel Veri ile Arastirma"],
+  "Matematik::Sayilar ve Islemler::4": ["Dogal Sayilar", "Dogal Sayilarla Toplama Islemi", "Dogal Sayilarla Cikarma Islemi", "Dogal Sayilarla Carpma Islemi", "Dogal Sayilarla Bolme Islemi", "Kesirler", "Kesirlerle Islemler"],
+  "Matematik::Geometri::4": ["Geometrik Cisimler ve Sekiller", "Uzamsal Iliskiler", "Geometride Temel Kavramlar"],
+  "Matematik::Olcme::4": ["Uzunluk Olcme", "Cevre Olcme", "Alan Olcme", "Zaman Olcme", "Tartma", "Sivi Olcme"],
+  "Matematik::Veri Isleme::4": ["Veri Toplama ve Degerlendirme"],
   "Matematik::Sayilar ve Nicelikler::5": ["Cok Basamakli Sayilari Okuma ve Yazma", "Basamak Degerlerini Cozumleme", "Dogal Sayilarla Dort Islem Iceren Problem Cozme", "Kesirler", "Kesirlerin Farkli Gosterimleri", "Kesirlerin Karsilastirilmasi"],
   "Matematik::Islemlerle Cebirsel Dusunme::5": ["Cebirsel Dusunme", "Esitligin Korunumu", "Degisme-Birlesme ve Dagilma Ozellikleri", "Islem Onceligi", "Oruntuler", "Temel Aritmetik Islemler ve Algoritma"],
   "Matematik::Geometrik Sekiller::5": ["Temel Geometrik Cizimler ve Insalar", "Aci Olcme", "Cokgenler ve Cember"],
