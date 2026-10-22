@@ -306,11 +306,11 @@ const DOGRULANMIS_ALT_KONULAR = {
   "Din Kulturu::Ahlaki Davranislar::6": ["Dogru Sozlu Olmak", "Merhametli Olmak", "Adap ve Nezaket Kurallarina Uymak", "Vatanimizi Sevmek", "Bir Dua Ogreniyorum: Kunut Dualari"],
   "Din Kulturu::Peygamberliginden Once Hz. Muhammed::6": ["Hz. Muhammed'in (sav) Dogdugu Cevre", "Hz. Muhammed'in (sav) Ailesi ve Cocuklugu", "Hz. Muhammed'in (sav) Genclik Yillari", "Bir Sure Ogreniyorum: Fil Suresi"],
   "Din Kulturu::Kulturumuzdeki Dini Motifler::6": ["Gelenegimizde Dinin Izleri", "Edebiyatimizda Dinin Izleri", "Musikimizde Dinin Izleri"],
-  "Din Kulturu::Melek ve Ahiret Inanci::7": ["Meleklere Iman", "Ahiret Hayati"],
-  "Din Kulturu::Hac Umre ve Kurban::7": ["Hac Ibadeti", "Umre", "Kurban Ibadeti"],
-  "Din Kulturu::Islam Dusuncesinde Yorumlar::7": ["Mezhep Kavrami", "Yorum Farkliliklarina Saygi"],
-  "Din Kulturu::Peygamber Olarak Hz. Muhammed::7": ["Peygamberlik Gorevi", "Ornek Kisiligi"],
-  "Din Kulturu::Yasayan Dunya Dinleri::7": ["Yahudilik ve Hristiyanlik", "Hinduizm ve Budizm"],
+  "Din Kulturu::Melek ve Ahiret Inanci::7": ["Varliklar Alemi", "Dunya ve Ahiret Hayati", "Melek ve Ahiret Inancinin Insana Kazandirdiklari", "Bir Sure Ogreniyorum: Nas Suresi"],
+  "Din Kulturu::Hac Umre ve Kurban::7": ["Hac ve Umre Ibadeti", "Kurban Ibadeti", "Hac ve Kurban Ibadetinin Kulturumuze Yansimalari", "Bir Sure Ogreniyorum: Kafirun Suresi"],
+  "Din Kulturu::Islam Dusuncesinde Yorumlar::7": ["Din Anlayisindaki Yorum Farkliliklari", "Islam Dusuncesinde Yorum Bicimleri", "Kulturumuzdeki Tasavvufi Yorumlar", "Alevilik Bektasilik ile Ilgili Temel Kavramlar ve Cem Erkanlari"],
+  "Din Kulturu::Peygamber Olarak Hz. Muhammed::7": ["Hz. Muhammed'in Daveti: Mekke Donemi", "Hicret", "Hz. Muhammed'in Daveti: Medine Donemi", "Bir Sure Ogreniyorum: Nasr Suresi"],
+  "Din Kulturu::Yasayan Dunya Dinleri::7": ["Yahudilik", "Hristiyanlik", "Hinduizm", "Budizm"],
 
   // ==== 6/7. SINIF INGILIZCE (8. sinifla ayni beceri-bazli yapi: Dinleme/Konusma/Okuma/Yazma) ====
   "Ingilizce::School Life::6": ["Dinleme (Listening)", "Konusma (Speaking)", "Okuma (Reading)", "Yazma (Writing)"],
