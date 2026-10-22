@@ -11,6 +11,7 @@ import { soruFormatGecerliMi } from "@/lib/soruFormatDogrula";
 import { sorulariDenetle } from "@/lib/soruKalite";
 import { OTOMASYON_TEST_CIHAZ_ID } from "@/lib/otomasyon-test";
 import { paketiHerkeseAc } from "@/lib/halka-acik-paket";
+import { dilKurali as dilKuraliYardimci } from "@/lib/dil-kurali";
 
 export const maxDuration = 60;
 
@@ -124,9 +125,7 @@ export async function GET(req) {
       : "";
     // 22 Ekim: canli kanit - Ingilizce paket TURKCE gecmis zaman/genis zaman anlatti ve Turkce cumlelerle soru sordu; cunku
     // "Tum metinler SADECE Turkce" kurali dersten bagimsizdi. Ingilizce dersinde ogretilen dil Ingilizce'dir.
-    const dilKurali = ders === "Ingilizce"
-      ? "Aciklama ve anlatim metinleri Turkce yazilsin (ogrenci Turkce konusan bir ortaokul ogrencisi). ANCAK bu bir INGILIZCE dersidir: ogretilen konunun ornek cumleleri, kelimeleri ve diyaloglari INGILIZCE yazilmali (yaninda Turkce aciklama/karsilik verilebilir). Coktan secmeli SORU metinleri ve SECENEKLER INGILIZCE olmali (gercek LGS Ingilizce sinavi gibi); sadece 'aciklama' ve 'cozum' alanlari Turkce olsun. Konu INGILIZCE dilbilgisi/kelime konusudur: Turkce cumleyi Ingilizce kurala gore degerlendirmeyi isteyen soru YAZMA, Turkce dilbilgisi ANLATMA. Cince/Arapca/Kiril gibi baska alfabeler kullanma"
-      : "Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma";
+    const dilKurali = dilKuraliYardimci(ders, "Tum metinler SADECE Turkce olmali, baska dilden TEK KELIME bile kullanma");
     const soruTalimati = await soruTalimatiSecSunucu(sinif);
     const p = `Sen deneyimli, alaninda uzman bir "${ders}" ogretmenisin. "${konu}" konusu${unite ? ` (${unite} unitesinden)` : ""} icin, ${sinif}. sinif seviyesinde TAM bir konu paketi hazirla.
 
