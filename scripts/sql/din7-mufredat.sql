@@ -1,5 +1,3 @@
-DELETE FROM mufredat WHERE sinif = 7 AND ders = 'Din Kulturu';
-
 INSERT INTO mufredat (sinif, ders, unite, alt_konu, mufredat_turu, dogrulanma_kaynagi) VALUES
 (7,'Din Kulturu','Melek ve Ahiret Inanci','Varliklar Alemi','yeni_maarif_2024','resmi_yillik_plan_2026_2027'),
 (7,'Din Kulturu','Melek ve Ahiret Inanci','Dunya ve Ahiret Hayati','yeni_maarif_2024','resmi_yillik_plan_2026_2027'),
@@ -20,6 +18,7 @@ INSERT INTO mufredat (sinif, ders, unite, alt_konu, mufredat_turu, dogrulanma_ka
 (7,'Din Kulturu','Yasayan Dunya Dinleri','Yahudilik','yeni_maarif_2024','resmi_yillik_plan_2026_2027'),
 (7,'Din Kulturu','Yasayan Dunya Dinleri','Hristiyanlik','yeni_maarif_2024','resmi_yillik_plan_2026_2027'),
 (7,'Din Kulturu','Yasayan Dunya Dinleri','Hinduizm','yeni_maarif_2024','resmi_yillik_plan_2026_2027'),
-(7,'Din Kulturu','Yasayan Dunya Dinleri','Budizm','yeni_maarif_2024','resmi_yillik_plan_2026_2027');
+(7,'Din Kulturu','Yasayan Dunya Dinleri','Budizm','yeni_maarif_2024','resmi_yillik_plan_2026_2027')
+ON CONFLICT (sinif, ders, unite, alt_konu) DO UPDATE SET mufredat_turu = EXCLUDED.mufredat_turu, dogrulanma_kaynagi = EXCLUDED.dogrulanma_kaynagi;
 
 SELECT count(*) FROM mufredat WHERE sinif = 7 AND ders = 'Din Kulturu';
