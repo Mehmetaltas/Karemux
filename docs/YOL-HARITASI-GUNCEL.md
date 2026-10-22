@@ -5,7 +5,7 @@ Bu belge, `docs/` altındaki eski raporların (FULL-AUDIT-TAKIP, V3-DALGA-PLANI,
 ## 1. Piyasaya çıkış engelleri (A sınıfı)
 | # | Madde | Durum |
 |---|---|---|
-| 1 | AI kapasitesi: Gemini ücretsiz 20 istek/gün/model doldu; Groq TPM 8000, OpenRouter kredi yok, Anthropic 10k token çıktıda 30 sn zaman aşımı | ⬜ AÇIK — kullanıcı kararı bekliyor (faturalama) + Anthropic haiku/sonnet hız testi |
+| 1 | AI kapasitesi ve içerik kalitesi: Gemini ücretsiz 20 istek/gün/model (sıfırlanma ~10:00 İstanbul, 22 Ekim'de doğrulandı); Groq TPM 8000; OpenRouter kredi yok | 🔶 KISMEN — 22 Ekim: gizli `AI_PROVIDER_ORDER_JSON` (65 gün önce) Anthropic'i devre dışı bırakıyordu, kaldırıldı; `konu_paketi` 3 paralel parçaya bölündü (53,7 sn → 34,9 sn, anlatım 82 → 173 kelime), anlatımda `a^b=sonuç` doğrulaması eklendi. KALAN: Gemini faturalama kararı (kullanıcı), yoğun saatte kapasite ölçümü |
 | 2 | Ulusal deneme (VPS server.js) cevap anahtarı sızıntısı, çift gönderim, snapshot | ✅ KAPANDI 21 Ekim, canlıda kanıtlı (anahtar boş, çift gönderim 400/400, anahtar ucu 403); kod `vps/karemux-deneme/` altında |
 | 3 | Ücretli özellik yetkisi sunucuda | ✅ canlı kanıtlı (ayrı uç + vekil reddi). Faz 2 tamamlandı |
 | 4 | Yedekleme | ✅ gece şifreli pg_dump (GitHub, 14 gün) + restore iş akışı + VPS JSON dışa aktarım + Contabo yedek. Kalan: VPS yedek dizini izinleri (`chmod -R go-rwx`), Actions maillerini 1-2 gün izleme |
@@ -39,3 +39,12 @@ Gerçek kodda var + test edildi + canlıda doğrulandı + sonucu belgelendi. Tah
 3. VPS yedek izinleri.
 4. Faz 2: `/api/claude` kapatma.
 5. Faz 3: seviye-tespit/olustur'dan ortak üretim çekirdeğine geçiş.
+
+## 6. 21-22 Ekim eklemeleri (canlıda kanıtlı)
+- **Lint CI** (`.github/workflows/lint.yml`): her push'ta `next lint`; 22 Ekim'de `no-useless-escape` hatasını yakaladı (Vercel build'i düşmeden önce haber verir).
+- **AI sağlayıcı kaydı**: `ai_saglayici_log.hata` sütunu + `tur` etiketleri (`ai_islem_<kod>`, `ucretli_<paket>`, `konu_paketi_anlatim`, `konu_paketi_odev`); hangi akışın hangi sağlayıcıda kaç ms sürdüğü Neon'dan okunur.
+- **Mistral** sağlayıcısı kodda hazır (`MISTRAL_API_KEY` yoksa atlanır); ücretsiz koşullar/KVKK doğrulanmadı.
+- **JSON toleransı**: sağlayıcı JSON öncesine metin eklerse ayıklanır.
+- **Tüm AI sırası**: kodun varsayılanı `gemini,anthropic` (JSON) — Vercel ortam değişkeni YOK; yeniden tanımlanırsa bu varsayılanı geçersiz kılar, dikkat.
+- **Araçlar**: `scripts/ai-islem-test.mjs` (14 akış canlı doğrulama), `scripts/paket-incele.mjs` (konu paketi kalite raporu: süre, kelime sayıları, bozuk karakter).
+- Not: `ogrenci-test.js` otomasyon modunda paketi KAYDETMEZ ve önbellekten dönebilir; üretimi kanıtlamak için önce `icerik_onbellek` satırlarını silip `paket-incele.mjs` kullan.
