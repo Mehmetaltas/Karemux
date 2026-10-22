@@ -35,6 +35,12 @@ export async function GET(req) {
       if (maliyetTl > esik) uyarilar.push({ anahtar: "ai-maliyet", mesaj: `💸 KAREMUX: Bugünkü tahmini yapay zekâ maliyeti ${maliyetTl.toFixed(2)} TL (eşik ${esik} TL).` });
     } catch (e) { console.error("Maliyet kontrolu atlandi:", e.message); }
 
+    // Destek SLA'si: 24 saatten uzun suredir yanitsiz acik talep
+    try {
+      const gecikmis = await sql`SELECT COUNT(*)::int AS adet FROM destek_talebi WHERE durum = 'acik' AND admin_yaniti IS NULL AND olusturulma < now() - interval '24 hours'`;
+      if (gecikmis[0].adet > 0) uyarilar.push({ anahtar: "destek-sla", mesaj: `🎫 KAREMUX: ${gecikmis[0].adet} destek talebi 24 saatten uzun süredir yanıtsız (SLA aşıldı).` });
+    } catch (e) { console.error("Destek SLA kontrolu atlandi:", e.message); }
+
     let gonderilen = 0;
     for (const u of uyarilar) if (await yoneticiUyar(u.anahtar, u.mesaj, 6)) gonderilen++;
     return Response.json({ ok: true, toplam, basarisiz, maliyetTl, uyari: uyarilar.length, gonderilen });

@@ -2292,7 +2292,7 @@ export default function YonetimPaneli() {
                 {destekTalepleri.map((t) => (
                   <div key={t.id} style={{ background: t.durum === "acik" ? "#FDF6E8" : T.surfaceHover, borderRadius: 10, padding: 12, marginBottom: 10, border: `1px solid ${t.durum === "acik" ? "#E8D9A8" : T.line}` }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                      <span style={{ fontSize: TYPO.caption, fontWeight: 700 }}>{t.konu}</span>
+                      <span style={{ fontSize: TYPO.caption, fontWeight: 700 }}>{t.konu}{t.slaAsildi && <span style={{ marginLeft: 8, fontSize: TYPO.micro, color: "#B3392B" }}>SLA aşıldı ({t.beklemeSaat} sa)</span>}</span>
                       <span style={{ fontSize: TYPO.micro, color: T.textMuted }}>{t.rol} · {new Date(t.olusturulma).toLocaleString("tr-TR")}</span>
                     </div>
                     <p style={{ fontSize: TYPO.caption, marginBottom: 6, whiteSpace: "pre-wrap" }}>{t.mesaj}</p>

@@ -251,6 +251,8 @@ export default function OgretmenPanel() {
     window.history.pushState({ kxSahte: true }, "");
     const geriTusu = () => {
       if (menuAcik) { setMenuAcik(false); window.history.pushState({ kxSahte: true }, ""); return; }
+      // 22 Ekim (Madde 40): ogrenci/admin panelleriyle ayni davranis - alt ekrandayken geri tusu once Genel Bakis'a doner.
+      if (sekmeRef.current !== "ozet") { setSekme("ozet"); window.history.pushState({ kxSahte: true }, ""); return; }
       const simdi = Date.now();
       if (simdi - sonGeriBasimRef.current < 2000) return;
       sonGeriBasimRef.current = simdi;
@@ -262,6 +264,8 @@ export default function OgretmenPanel() {
     return () => window.removeEventListener("popstate", geriTusu);
   }, [menuAcik]);
   const [sekme, setSekme] = useState("ozet");
+  const sekmeRef = useRef("ozet");
+  useEffect(() => { sekmeRef.current = sekme; }, [sekme]);
   const router = useRouter();
 
   useEffect(() => {
