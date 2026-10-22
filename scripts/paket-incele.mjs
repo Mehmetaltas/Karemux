@@ -23,11 +23,13 @@ console.log("Soru sayisi:", havuz.length, "| elenen:", (p.soruHavuzuElenen || []
 console.log("Kalite kontrol:", JSON.stringify(p.kaliteKontrol || {}).slice(0, 200));
 console.log("Bozuk karakter (Ã, Ä, �):", /[ÃÄ�]/.test(hepsi) ? "VAR" : "yok");
 console.log("Turkce karakter (ğüşıöç):", (hepsi.match(/[ğüşıöçĞÜŞİÖÇ]/g) || []).length, "adet");
-const gecersiz = havuz.filter((s) => !s.soru || !Array.isArray(s.secenekler) || s.secenekler.length < 4 || !Number.isInteger(s.dogruIndex) || s.dogruIndex < 0 || s.dogruIndex >= s.secenekler.length).length;
-console.log("Yapisal gecersiz soru:", gecersiz);
+const gecersiz = havuz.filter((s) => !s.soru || !Array.isArray(s.secenekler) || s.secenekler.length < 4).length; // dogruIndex herkese acik pakette gizli, o yuzden bakilmaz
+console.log("Yapisal gecersiz soru (soru/secenek eksik):", gecersiz);
 console.log("Tekrar eden soru:", havuz.length - new Set(havuz.map((s) => (s.soru || "").trim())).size);
+const kelime = (t) => String(t || "").trim().split(/\s+/).filter(Boolean).length;
+console.log("Kelime sayilari -> temel:", kelime(p.anlatim?.temelAnlatim), "(istenen 150-200) | derin:", kelime(p.anlatim?.derinAnlatim), "(200-250) | yeni nesil:", kelime(p.anlatim?.yeniNesilUygulama), "(120-150)");
 console.log("\n--- Anlatim (ilk 500) ---\n" + (p.anlatim?.temelAnlatim || "").slice(0, 500));
 for (const s of havuz.slice(0, 3)) {
-  console.log(`\n--- Soru ---\n${s.soru}\n` + (s.secenekler || []).map((o, i) => `${i === s.dogruIndex ? "*" : " "} ${"ABCD"[i]}) ${o}`).join("\n"));
+  console.log(`\n--- Soru ---\n${s.soru}\n` + (s.secenekler || []).map((o) => `  ${o}`).join("\n"));
   if (s.aciklama) console.log("Aciklama:", String(s.aciklama).slice(0, 200));
 }
