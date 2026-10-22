@@ -635,7 +635,8 @@ function Siniflarim() {
     listele();
   }
   async function analizAc(id) {
-    setAcikId(id); setAnaliz(null); setYukleniyor(true);
+    setAcikId(id); setAnaliz(null); setYukleniyor(true); setOdevler([]);
+    odevleriGetir(id);
     try {
       const r = await fetch(`/api/ogretmen/sinif-analiz?id=${id}`);
       const d = await r.json();
@@ -647,6 +648,26 @@ function Siniflarim() {
     }
   }
   const durumEtiketi = { iyi: "İyi", dusus: "Düşüşte", pasif: "Pasif", veri_yok: "Veri yok" };
+  const [odevler, setOdevler] = useState([]);
+  const [odevBaslik, setOdevBaslik] = useState("");
+  const [odevDers, setOdevDers] = useState("Matematik");
+  const [odevKonu, setOdevKonu] = useState("");
+  const [odevTarih, setOdevTarih] = useState("");
+  async function odevleriGetir(sinifId) {
+    try {
+      const r = await fetch(`/api/ogretmen/odev?sinifId=${sinifId}`);
+      const d = await r.json();
+      setOdevler(d.odevler || []);
+    } catch (e) { setOdevler([]); }
+  }
+  async function odevVer(sinifId) {
+    setHata("");
+    const r = await fetch("/api/ogretmen/odev", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sinifId, baslik: odevBaslik, ders: odevDers, konu: odevKonu, sonTarih: odevTarih || undefined }) });
+    const d = await r.json();
+    if (!r.ok) { setHata(d.error || "Ödev verilemedi"); return; }
+    setOdevBaslik(""); setOdevKonu(""); setOdevTarih("");
+    odevleriGetir(sinifId);
+  }
 
   return (
     <div>
@@ -700,6 +721,24 @@ function Siniflarim() {
                       {analiz.zayifKonular.map((k, i) => <p key={i} style={{ fontSize: 12, padding: "2px 0" }}>{k.ders} · {k.konu}: {k.etkilenenOgrenci} öğrenci, {k.hata} hata</p>)}
                     </div>
                   )}
+                  <div style={{ marginTop: 12, borderTop: "1px solid #eee", paddingTop: 10 }}>
+                    <p style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 6 }}>Ödev ver</p>
+                    <input aria-label="Ödev başlığı" placeholder="Başlık (ör. Üslü ifadeler 10 soru)" value={odevBaslik} onChange={(e) => setOdevBaslik(e.target.value)} maxLength={120} style={{ width: "100%", boxSizing: "border-box", padding: "7px 9px", borderRadius: 7, border: "1px solid #ddd", fontSize: 12.5, marginBottom: 6 }} />
+                    <div style={{ display: "flex", gap: 6, marginBottom: 6 }}>
+                      <select aria-label="Ödev dersi" value={odevDers} onChange={(e) => setOdevDers(e.target.value)} style={{ flex: 1, padding: "7px 9px", borderRadius: 7, border: "1px solid #ddd", fontSize: 12.5 }}>
+                        {MATERYAL_DERSLER.map((d) => <option key={d} value={d}>{d}</option>)}
+                      </select>
+                      <input aria-label="Son tarih" type="date" value={odevTarih} onChange={(e) => setOdevTarih(e.target.value)} style={{ padding: "7px 9px", borderRadius: 7, border: "1px solid #ddd", fontSize: 12.5 }} />
+                    </div>
+                    <input aria-label="Konu" placeholder="Konu (isteğe bağlı)" value={odevKonu} onChange={(e) => setOdevKonu(e.target.value)} maxLength={160} style={{ width: "100%", boxSizing: "border-box", padding: "7px 9px", borderRadius: 7, border: "1px solid #ddd", fontSize: 12.5, marginBottom: 6 }} />
+                    <button onClick={() => odevVer(sn.id)} disabled={odevBaslik.trim().length < 3} style={{ padding: "7px 14px", borderRadius: 7, border: "none", background: C.yesil, color: "#fff", fontWeight: 700, fontSize: 12.5, cursor: "pointer" }}>Ödevi ver</button>
+                    {odevler.map((o) => (
+                      <p key={o.id} style={{ fontSize: 12, padding: "6px 0", borderBottom: "1px solid #f0f0f0" }}>
+                        <b>{o.baslik}</b> · {o.ders}{o.son_tarih ? ` · son ${new Date(o.son_tarih).toLocaleDateString("tr-TR")}` : ""}<br />
+                        Çalışma kaydı olan: {o.dogrulananOgrenci}/{o.ogrenciSayisi} · Yaptım diyen: {o.isaretleyenOgrenci}/{o.ogrenciSayisi}
+                      </p>
+                    ))}
+                  </div>
                 </>
               )}
             </div>

@@ -56,6 +56,8 @@ export async function DELETE(req) {
     const silinen = await sql`UPDATE ogretmen_siniflari SET aktif = false WHERE id = ${id} AND ogretmen_id = ${ogretmen.id} RETURNING id`;
     if (silinen.length === 0) return Response.json({ error: "Sinif bulunamadi" }, { status: 404 });
     await sql`DELETE FROM ogretmen_sinif_ogrencileri WHERE sinif_id = ${id}`;
+    await sql`DELETE FROM ogretmen_odev_teslim WHERE odev_id IN (SELECT id FROM ogretmen_odevleri WHERE sinif_id = ${id})`;
+    await sql`DELETE FROM ogretmen_odevleri WHERE sinif_id = ${id}`;
     return Response.json({ ok: true });
   } catch (e) {
     console.error(e);

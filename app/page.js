@@ -1708,13 +1708,19 @@ export default function Ana() {
   }
   const [sinifKodu, setSinifKodu] = useState("");
   const [ogrSiniflari, setOgrSiniflari] = useState(null);
+  const [ogrOdevleri, setOgrOdevleri] = useState([]);
   const [sinifMesaj, setSinifMesaj] = useState("");
   async function ogrSiniflariGetir() {
     try {
       const res = await fetch(`/api/ogrenci-sinif?cihazId=${cihazIdRef.current}`);
       const d = await res.json();
       setOgrSiniflari(d.siniflar || []);
+      setOgrOdevleri(d.odevler || []);
     } catch (e) { setOgrSiniflari([]); }
+  }
+  async function odevYaptimIsaretle(odevId) {
+    await fetch("/api/ogrenci-sinif", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cihazId: cihazIdRef.current, islem: "odev_isaretle", odevId }) });
+    ogrSiniflariGetir();
   }
   async function sinifaKatil() {
     setSinifMesaj("");
@@ -7520,6 +7526,19 @@ export default function Ana() {
               <button onClick={sinifaKatil} disabled={sinifKodu.trim().length !== 6} style={{ padding: "9px 16px", borderRadius: 8, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, cursor: "pointer" }}>Katıl</button>
             </div>
             {sinifMesaj && <p role="status" style={{ fontSize: 12.5, color: COLORS.muted, marginBottom: 8 }}>{sinifMesaj}</p>}
+            {ogrOdevleri.length > 0 && (
+              <div style={{ marginTop: 10 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Ödevlerin</p>
+                {ogrOdevleri.map((o) => (
+                  <div key={o.id} style={{ padding: "7px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12.5 }}>
+                    <p style={{ fontWeight: 700 }}>{o.baslik} <span style={{ fontWeight: 500, color: COLORS.muted }}>· {o.ders}{o.konu ? ` · ${o.konu}` : ""}{o.son_tarih ? ` · son ${new Date(o.son_tarih).toLocaleDateString("tr-TR")}` : ""}</span></p>
+                    {o.dogrulandi ? <p style={{ color: RENK_BASARI, fontWeight: 700, fontSize: 12 }}>✓ Bu derste çalışma kaydın var</p> : o.isaretledi ? <p style={{ color: COLORS.muted, fontSize: 12 }}>Yaptım olarak işaretledin (çalışma kaydı henüz görünmüyor)</p> : (
+                      <button onClick={() => odevYaptimIsaretle(o.id)} style={{ marginTop: 3, padding: "5px 12px", borderRadius: 7, border: `1px solid ${COLORS.line}`, background: "#fff", fontSize: 12, cursor: "pointer" }}>Yaptım</button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
             {ogrSiniflari && ogrSiniflari.length > 0 && (
               <div style={{ marginTop: 10 }}>
                 <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Katıldığın sınıflar</p>
