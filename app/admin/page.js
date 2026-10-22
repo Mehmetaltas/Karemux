@@ -48,7 +48,20 @@ const TYPO = {
   display: 24,        // buyuk KPI rakamlari
 };
 
-function KpiKart({ etiket, deger, renk, altYazi, ikon }) {
+// tur: "GERCEK" (olculmus kayit) | "TAHMIN" (varsayimla hesaplanmis) | "SENARYO" (simulasyon, gercek degil).
+// Yatirimci/karar ekraninda hangi rakamin hangi turde oldugu her zaman gorunur olmali.
+const KPI_TUR = {
+  GERCEK: { yazi: "GERÇEK", renk: "#1E7A46", arka: "rgba(30,122,70,0.12)" },
+  TAHMIN: { yazi: "TAHMİN", renk: "#B7791F", arka: "rgba(183,121,31,0.14)" },
+  SENARYO: { yazi: "SENARYO", renk: "#6B46C1", arka: "rgba(107,70,193,0.12)" },
+};
+function TurRozeti({ tur }) {
+  const t = KPI_TUR[tur];
+  if (!t) return null;
+  return <span style={{ display: "inline-block", padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: t.renk, background: t.arka }}>{t.yazi}</span>;
+}
+function KpiKart({ etiket, deger, renk, altYazi, ikon, tur }) {
+  const t = tur ? KPI_TUR[tur] : null;
   return (
     <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "16px 18px", flex: "1 1 140px", minWidth: 140 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
@@ -57,6 +70,7 @@ function KpiKart({ etiket, deger, renk, altYazi, ikon }) {
       </div>
       <p style={{ fontFamily: T.mono, fontSize: TYPO.display, fontWeight: 700, color: renk || T.text, letterSpacing: -0.5, fontVariantNumeric: "tabular-nums" }}>{deger}</p>
       {altYazi && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginTop: 4 }}>{altYazi}</p>}
+      {t && <span style={{ display: "inline-block", marginTop: 8, padding: "2px 7px", borderRadius: 4, fontSize: 10, fontWeight: 700, letterSpacing: 0.5, color: t.renk, background: t.arka }}>{t.yazi}</span>}
     </div>
   );
 }
@@ -1428,24 +1442,25 @@ export default function YonetimPaneli() {
 
         {sekme === "genel" && sirketMerkezi && (
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
-            <KpiKart etiket="Toplam Öğrenci/Veli" deger={sirketMerkezi.kullaniciSayisi} renk={T.accent} ikon="👥" />
-            <KpiKart etiket="Öğretmen" deger={sirketMerkezi.ogretmenSayisi} renk={T.accent} ikon="👨‍🏫" />
-            <KpiKart etiket="Kurum" deger={sirketMerkezi.kurumSayisi} renk={T.accent} ikon="🏫" />
-            <KpiKart etiket="Bugünkü Ziyaretçi" deger={sirketMerkezi.bugunkuZiyaretci} renk={T.accent} ikon="👀" />
-            <KpiKart etiket="Aktif Abonelik" deger={sirketMerkezi.aktifAbonelikSayisi} renk={T.accent} ikon="💎" />
-            <KpiKart etiket="Açık Destek Talebi" deger={sirketMerkezi.acikDestekTalebi} renk={sirketMerkezi.acikDestekTalebi > 0 ? T.danger : T.accent} ikon="🎧" />
-            <KpiKart etiket="Soru Bankası" deger={sirketMerkezi.soruBankasiToplam} renk={T.accent} ikon="🗂️" />
-            <KpiKart etiket="Bu Ay AI Maliyeti" deger={`~${sirketMerkezi.buAyAiMaliyetTl.toFixed(0)} ₺`} renk={T.amber} ikon="🤖" />
+            <KpiKart etiket="Toplam Öğrenci/Veli" deger={sirketMerkezi.kullaniciSayisi} renk={T.accent} ikon="👥" tur="GERCEK" />
+            <KpiKart etiket="Öğretmen" deger={sirketMerkezi.ogretmenSayisi} renk={T.accent} ikon="👨‍🏫" tur="GERCEK" />
+            <KpiKart etiket="Kurum" deger={sirketMerkezi.kurumSayisi} renk={T.accent} ikon="🏫" tur="GERCEK" />
+            <KpiKart etiket="Bugünkü Ziyaretçi" deger={sirketMerkezi.bugunkuZiyaretci} renk={T.accent} ikon="👀" tur="GERCEK" />
+            <KpiKart etiket="Aktif Abonelik" deger={sirketMerkezi.aktifAbonelikSayisi} renk={T.accent} ikon="💎" tur="GERCEK" />
+            <KpiKart etiket="Açık Destek Talebi" deger={sirketMerkezi.acikDestekTalebi} renk={sirketMerkezi.acikDestekTalebi > 0 ? T.danger : T.accent} ikon="🎧" tur="GERCEK" />
+            <KpiKart etiket="Soru Bankası" deger={sirketMerkezi.soruBankasiToplam} renk={T.accent} ikon="🗂️" tur="GERCEK" />
+            <KpiKart etiket="Bu Ay AI Maliyeti" deger={`~${sirketMerkezi.buAyAiMaliyetTl.toFixed(0)} ₺`} renk={T.amber} ikon="🤖" tur="TAHMIN" />
           </div>
         )}
+        {sekme === "genel" && sirketMerkezi && <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 14 }}>Etiketler: GERÇEK = veritabanında ölçülmüş kayıt (test hesapları hariç) · TAHMİN = varsayımla hesaplanmış · SENARYO = simülasyon, gerçek değil.</p>}
 
         {sekme === "genel" && muhasebeVeri && (
           <>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 14 }}>
-              <KpiKart etiket="Bu Ay Gelir" deger={`${muhasebeVeri.buAy.gelir.toFixed(0)} ₺`} renk={T.accent} altYazi={`${muhasebeVeri.buAy.satisAdedi} satış`} ikon="💵" />
-              <KpiKart etiket="Bu Ay Gider" deger={`${muhasebeVeri.buAy.gider.toFixed(0)} ₺`} renk={T.danger} ikon="📉" />
-              <KpiKart etiket={muhasebeVeri.buAy.kar >= 0 ? "Bu Ay Kâr" : "Bu Ay Zarar"} deger={`${muhasebeVeri.buAy.kar.toFixed(0)} ₺`} renk={muhasebeVeri.buAy.kar >= 0 ? T.accent : T.danger} ikon={muhasebeVeri.buAy.kar >= 0 ? "📈" : "⚠️"} />
-              <KpiKart etiket="Tahmini AI Maliyeti" deger={`~${muhasebeVeri.buAy.tahminiAiMaliyetTl || 0} ₺`} renk={T.amber} altYazi="Gerçek fatura için sağlayıcı paneli" ikon="🤖" />
+              <KpiKart etiket="Bu Ay Gelir" deger={`${muhasebeVeri.buAy.gelir.toFixed(0)} ₺`} renk={T.accent} altYazi={`${muhasebeVeri.buAy.satisAdedi} satış`} ikon="💵" tur="GERCEK" />
+              <KpiKart etiket="Bu Ay Gider" deger={`${muhasebeVeri.buAy.gider.toFixed(0)} ₺`} renk={T.danger} ikon="📉" tur="GERCEK" />
+              <KpiKart etiket={muhasebeVeri.buAy.kar >= 0 ? "Bu Ay Kâr" : "Bu Ay Zarar"} deger={`${muhasebeVeri.buAy.kar.toFixed(0)} ₺`} renk={muhasebeVeri.buAy.kar >= 0 ? T.accent : T.danger} ikon={muhasebeVeri.buAy.kar >= 0 ? "📈" : "⚠️"} tur="GERCEK" />
+              <KpiKart etiket="Tahmini AI Maliyeti" deger={`~${muhasebeVeri.buAy.tahminiAiMaliyetTl || 0} ₺`} renk={T.amber} altYazi="Gerçek fatura için sağlayıcı paneli" ikon="🤖" tur="TAHMIN" />
             </div>
 
             <Panel baslik="Genel Toplam (Kuruluştan Beri)" ikon="🏦">
@@ -1798,7 +1813,7 @@ export default function YonetimPaneli() {
             )}
 
             {maliyetVeri.uretimGiderleri?.length > 0 && (
-              <Panel baslik="Uretim Gideri Kategorileri (Bu Ay)" ikon="🏭">
+              <Panel baslik="Uretim Gideri Kategorileri (Bu Ay)" ikon="🏭" sagUst={<TurRozeti tur="TAHMIN" />}>
                 {maliyetVeri.uretimGiderleri.map((g, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.uretimGiderleri.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
                     <span style={{ color: T.textMuted, textTransform: "capitalize" }}>{g.kategori}</span>
@@ -1809,7 +1824,7 @@ export default function YonetimPaneli() {
             )}
 
             {maliyetVeri.enCokKullananlar?.length > 0 && (
-              <Panel baslik="En Cok AI Kullanan 10 Ogrenci (Bu Ay)" ikon="📊">
+              <Panel baslik="En Cok AI Kullanan 10 Ogrenci (Bu Ay)" ikon="📊" sagUst={<TurRozeti tur="GERCEK" />}>
                 {maliyetVeri.enCokKullananlar.map((k, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < maliyetVeri.enCokKullananlar.length - 1 ? `1px solid ${T.border}` : "none", fontSize: TYPO.body }}>
                     <span>{k.ad} <span style={{ color: T.textMuted, fontSize: TYPO.micro }}>#{k.id}</span></span>
@@ -1835,14 +1850,14 @@ export default function YonetimPaneli() {
               </button>
             </Panel>
 
-            <Panel baslik="Hedef vs Gerceklesen" ikon="📊">
+            <Panel baslik="Hedef vs Gerceklesen" ikon="📊" sagUst={<TurRozeti tur="GERCEK" />}>
               <div style={{ display: "flex", gap: 20, marginBottom: 4 }}>
                 <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>GELIR (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gelir.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gelir_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
                 <div><p style={{ fontSize: TYPO.micro, color: T.textMuted, marginBottom: 3 }}>GIDER (Gerceklesen / Hedef)</p><p style={{ fontFamily: T.mono, fontSize: TYPO.heading, fontWeight: 700 }}>{planlamaVeri.gerceklesen.gider.toFixed(0)} ₺ / {planlamaVeri.hedef ? Number(planlamaVeri.hedef.gider_hedefi_tl).toFixed(0) : "—"} ₺</p></div>
               </div>
             </Panel>
 
-            <Panel baslik="Basit Projeksiyon (Bir Sonraki Ay)" ikon="🔮" sagUst={<span style={{ fontSize: TYPO.micro, color: T.textMuted }}>{planlamaVeri.projeksiyon.veriliAySayisi} aylik veri</span>}>
+            <Panel baslik="Basit Projeksiyon (Bir Sonraki Ay)" ikon="🔮" sagUst={<span style={{ display: "flex", gap: 8, alignItems: "center" }}><TurRozeti tur="TAHMIN" /><span style={{ fontSize: TYPO.micro, color: T.textMuted }}>{planlamaVeri.projeksiyon.veriliAySayisi} aylik veri</span></span>}>
               <div style={{ background: T.amberSoft, border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 12, fontSize: TYPO.caption, color: T.amber }}>
                 ⚠️ "Hicbir sey degismezse" senaryosu: son tamamlanmis aylarin ortalama geliri, tekrarlayan giderler dusulerek. Gercek is planlaması yerine gecmez.
               </div>
@@ -1864,7 +1879,7 @@ export default function YonetimPaneli() {
               <div style={{ background: T.amberSoft, border: `1px solid ${T.amber}44`, borderRadius: 10, padding: "10px 14px", marginBottom: 14, fontSize: TYPO.caption, color: T.amber }}>
                 ⚠️ Bu bir SIMULASYONDUR - gercek kullanim GEREKCE farkli olabilir. Model: {simulasyonVeri.varsayimlar.model}, Kur: {simulasyonVeri.varsayimlar.usdTry} TL/USD.
               </div>
-              <Panel baslik="Bir Ayda Senaryo (Kisi Basi)" ikon="👤">
+              <Panel baslik="Bir Ayda Senaryo (Kisi Basi)" ikon="👤" sagUst={<TurRozeti tur="SENARYO" />}>
                 <p style={etiketStil}>Konu Anlatimi (adet)</p>
                 <input type="number" value={senaryoKonuAnlatimi} aria-label="Konu anlatimi maliyeti" onChange={(e) => setSenaryoKonuAnlatimi(Number(e.target.value))} style={{ ...girdiStil, marginBottom: 10 }} />
                 <p style={etiketStil}>Soru Cozumu (adet)</p>
