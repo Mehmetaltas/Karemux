@@ -1659,6 +1659,53 @@ export default function Ana() {
     }
   }
 
+  const [oyssDers, setOyssDers] = useState("");
+  const [oyssUnite, setOyssUnite] = useState("");
+  const [oyssSorular, setOyssSorular] = useState(null);
+  const [oyssCevaplar, setOyssCevaplar] = useState({});
+  const [oyssSonuclar, setOyssSonuclar] = useState({});
+  const [oyssYukleniyor, setOyssYukleniyor] = useState("");
+  const [oyssHata, setOyssHata] = useState("");
+  function oyssJsonCoz(metin) {
+    const temiz = String(metin || "").replace(/^\s*```(?:json)?/i, "").replace(/```\s*$/, "").trim();
+    return JSON.parse(stringIcindekiKontrolKarakterleriKaciscala(bilinenMojibakeyiOnar(temiz)));
+  }
+  async function oyssSorulariUret() {
+    setOyssHata(""); setOyssYukleniyor("uret"); setOyssSorular(null); setOyssCevaplar({}); setOyssSonuclar({});
+    try {
+      const metin = await aiIslem("oyss_uret", { sinif, ders: oyssDers, unite: oyssUnite || undefined, adet: 4 }, cihazIdRef.current);
+      const liste = oyssJsonCoz(metin);
+      const gecerli = Array.isArray(liste) ? liste.filter((x) => x && x.soru && Array.isArray(x.rubrik) && x.rubrik.length > 0 && x.ornekCevap) : [];
+      if (gecerli.length === 0) throw new Error("Sorular hazırlanamadı, tekrar dene.");
+      setOyssSorular(gecerli);
+    } catch (e) {
+      setOyssHata(e.message || "Sorular hazırlanamadı, tekrar dene.");
+    } finally {
+      setOyssYukleniyor("");
+    }
+  }
+  async function oyssCevapDegerlendir(i) {
+    const soru = oyssSorular[i];
+    const cevap = (oyssCevaplar[i] || "").trim();
+    if (!cevap) return;
+    setOyssHata(""); setOyssYukleniyor(`deg${i}`);
+    try {
+      const metin = await aiIslem("oyss_degerlendir", { ders: oyssDers, soru: soru.soru, rubrik: soru.rubrik, ornekCevap: soru.ornekCevap, ogrenciCevabi: cevap }, cihazIdRef.current);
+      const sonuc = oyssJsonCoz(metin);
+      const olcutler = (Array.isArray(sonuc.olcutler) ? sonuc.olcutler : []).map((o, k) => {
+        const azami = Number(soru.rubrik[k]?.puan) || 0;
+        const alinan = Math.max(0, Math.min(azami, Math.round(Number(o.alinan) || 0)));
+        return { olcut: soru.rubrik[k]?.olcut || o.olcut, alinan, azami, gerekce: o.gerekce || "" };
+      });
+      const azamiToplam = soru.rubrik.reduce((t, r) => t + (Number(r.puan) || 0), 0);
+      const alinanToplam = olcutler.reduce((t, o) => t + o.alinan, 0);
+      setOyssSonuclar((eski) => ({ ...eski, [i]: { olcutler, alinanToplam: Math.min(alinanToplam, azamiToplam), azamiToplam, guclu: sonuc.guclu, eksik: sonuc.eksik, oneri: sonuc.oneri } }));
+    } catch (e) {
+      setOyssHata(e.message || "Değerlendirme yapılamadı, tekrar dene.");
+    } finally {
+      setOyssYukleniyor("");
+    }
+  }
   const [analizVeri, setAnalizVeri] = useState(null);
   const [analizYukleniyor, setAnalizYukleniyor] = useState(false);
   const [hedefNetler, setHedefNetler] = useState({});
@@ -7373,6 +7420,66 @@ export default function Ana() {
           </div>
         )}
 
+        {mod === "oyss" && (
+          <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
+            <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>📋 OYSS Hazırlık</p>
+            <p style={{ fontSize: 12, color: COLORS.muted, marginBottom: 10, lineHeight: 1.5 }}>
+              Ortak yazılı sınavlara benzer açık uçlu soruları kendi cümlelerinle cevapla. Karemux cevabını rubriğe göre değerlendirir.
+              Bu bir hazırlık aracıdır: sorular MEB havuzundan değil, özgün üretilir; yapay zekâ puanı <b>resmî puan değildir</b>, sadece çalışman için geri bildirimdir.
+            </p>
+            {sinif < 5 || sinif > 7 ? (
+              <p style={{ fontSize: 13, color: COLORS.muted }}>OYSS ortaokul 5, 6 ve 7. sınıfları kapsar. Sınıfını profilinden değiştirebilirsin.</p>
+            ) : (
+              <>
+                <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Ders</label>
+                <select value={oyssDers} onChange={(e) => { setOyssDers(e.target.value); setOyssUnite(""); setOyssSorular(null); }} style={{ width: "100%", padding: 9, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 10, fontSize: 13 }}>
+                  <option value="">Ders seç</option>
+                  {gorunurDersler(sinif).map((d) => d.ad).filter((ad) => ad !== "T.C. Inkilap Tarihi" && !(ad === "Ingilizce" && sinif === 7)).map((ad) => <option key={ad} value={ad}>{{ Turkce: "Türkçe", "Din Kulturu": "Din Kültürü", Ingilizce: "İngilizce" }[ad] || ad}</option>)}
+                </select>
+                {oyssDers && (
+                  <>
+                    <label style={{ display: "block", fontSize: 12, fontWeight: 700, marginBottom: 4 }}>Ünite / tema (isteğe bağlı)</label>
+                    <select value={oyssUnite} onChange={(e) => setOyssUnite(e.target.value)} style={{ width: "100%", padding: 9, borderRadius: 8, border: `1px solid ${COLORS.line}`, marginBottom: 12, fontSize: 13 }}>
+                      <option value="">Tüm dönem</option>
+                      {dersinUniteleri(oyssDers, sinif).map((u) => <option key={u} value={u}>{u}</option>)}
+                    </select>
+                    <button onClick={oyssSorulariUret} disabled={!!oyssYukleniyor} style={{ width: "100%", padding: "11px 0", borderRadius: 10, border: "none", background: COLORS.coral, color: "#fff", fontWeight: 700, cursor: "pointer" }}>
+                      {oyssYukleniyor === "uret" ? "Sorular hazırlanıyor..." : oyssSorular ? "Yeni sorular üret" : "4 açık uçlu soru üret"}
+                    </button>
+                  </>
+                )}
+                {oyssHata && <p role="alert" style={{ fontSize: 12.5, color: "#B3392B", marginTop: 10 }}>{oyssHata}</p>}
+                {oyssSorular && oyssSorular.map((q, i) => {
+                  const son = oyssSonuclar[i];
+                  return (
+                    <div key={i} style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${COLORS.line}` }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{i + 1}. {q.soru} <span style={{ fontWeight: 600, color: COLORS.muted }}>({q.puan || q.rubrik.reduce((t, r) => t + (Number(r.puan) || 0), 0)} puan)</span></p>
+                      <textarea value={oyssCevaplar[i] || ""} onChange={(e) => setOyssCevaplar((eski) => ({ ...eski, [i]: e.target.value }))} maxLength={1500} rows={4} placeholder="Cevabını buraya yaz" aria-label={`${i + 1}. soru cevabı`} style={{ width: "100%", padding: 9, borderRadius: 8, border: `1px solid ${COLORS.line}`, fontSize: 13, fontFamily: "inherit", boxSizing: "border-box" }} />
+                      {!son && (
+                        <button onClick={() => oyssCevapDegerlendir(i)} disabled={!!oyssYukleniyor || !(oyssCevaplar[i] || "").trim()} style={{ marginTop: 6, padding: "8px 14px", borderRadius: 8, border: "none", background: COLORS.ink, color: "#fff", fontWeight: 600, fontSize: 12.5, cursor: "pointer" }}>
+                          {oyssYukleniyor === `deg${i}` ? "Değerlendiriliyor..." : "Cevabımı değerlendir"}
+                        </button>
+                      )}
+                      {son && (
+                        <div style={{ marginTop: 8, background: "rgba(232,179,57,0.1)", border: `1px solid ${COLORS.mustard}`, borderRadius: 10, padding: 12 }}>
+                          <p style={{ fontSize: 14, fontWeight: 800, marginBottom: 6 }}>{son.alinanToplam} / {son.azamiToplam} <span style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted }}>(ön değerlendirme, resmî puan değildir)</span></p>
+                          {son.olcutler.map((o, k) => <p key={k} style={{ fontSize: 12, padding: "2px 0" }}>{o.alinan}/{o.azami} · {o.olcut}{o.gerekce ? ` — ${o.gerekce}` : ""}</p>)}
+                          {son.guclu && <p style={{ fontSize: 12, marginTop: 6 }}><b>Güçlü yanın:</b> {son.guclu}</p>}
+                          {son.eksik && <p style={{ fontSize: 12 }}><b>Eksik:</b> {son.eksik}</p>}
+                          {son.oneri && <p style={{ fontSize: 12 }}><b>Öneri:</b> {son.oneri}</p>}
+                          <details style={{ marginTop: 6 }}>
+                            <summary style={{ fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Model cevabı göster</summary>
+                            <p style={{ fontSize: 12, marginTop: 4, whiteSpace: "pre-wrap" }}>{q.ornekCevap}</p>
+                          </details>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        )}
         {mod === "sinavanaliz" && (
           <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}` }}>
             <p style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>📊 Sınav Analizlerim</p>
