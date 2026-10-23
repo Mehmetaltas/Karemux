@@ -6,11 +6,17 @@ on:
       limit:
         description: 'En fazla kac video (1-20)'
         default: '3'
+      onizleme:
+        description: 'true = mp4 dosyalarini video-onizleme dalina koy (onay icin izleme)'
+        default: 'false'
       sinif:
         description: 'Yalniz bu sinif (bos = hepsi)'
         default: ''
   schedule:
     - cron: '30 3 * * *'  # her gun kucuk parti; kayitlar yalniz 'kalite_bekliyor' acilir
+
+permissions:
+  contents: write
 
 jobs:
   uret:
@@ -47,3 +53,16 @@ jobs:
           path: mini-video-cikti/*.mp4
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Onizleme dalina koy
+        if: inputs.onizleme == 'true'
+        run: |
+          set -e
+          mkdir -p /tmp/onz && cp mini-video-cikti/*.mp4 /tmp/onz/
+          git config user.name "karemux-bot"; git config user.email "bot@karemux.com"
+          git checkout --orphan video-onizleme
+          git rm -rf -q . || true
+          cp /tmp/onz/*.mp4 .
+          git add *.mp4
+          git commit -q -m "mini video onizleme"
+          git push -f origin video-onizleme
