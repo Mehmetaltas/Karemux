@@ -172,8 +172,8 @@ export default function Tanitim() {
 
           {[
             { baslik: "📖 Öğrenme", ogeler: ["Sınırsız Konu Anlatımı (6 ders)", "Yeni Nesil Soru Çözümü", "Paragraf Stüdyosu (8 tür pratik)", "Formül ve Kural Kartları", "Kelime Kartları (İngilizce + Türkçe)", "Fotoğrafla Soru Çözme"] },
-            { baslik: "📝 Sınav Hazırlığı", ogeler: ["Deneme Sınavı", "Yazılı Hazırlığı", "Türkiye Geneli Deneme (gerçek sıralama)", "Deneme Kulübü (bireysel üyelik)", "Bursluluk Sınavı (İOKBS) Hazırlığı", "Sınav Stratejisi Rehberi", "Sınav Kaygısı Desteği"] },
-            { baslik: "🎯 Kişisel Takip", ogeler: ["Zayıf Konu Haritası", "Aralıklı Tekrar Sistemi", "Haftalık Çalışma Planı", "Hedef Okulum ve Puan Hesaplayıcı", "Karne ve İlerleme Raporu", "Ara Tatil ve Yaz Tatili Programları", "Kütüphanem (geçmiş içeriğin tek yerde)"] },
+            { baslik: "📝 Sınav Hazırlığı", ogeler: ["Deneme Sınavı", "Yazılı Hazırlığı", "Türkiye Geneli Deneme (gerçek sıralama; hesapsız ücretsiz katılım)", "Deneme Kulübü (bireysel üyelik)", "Bursluluk Sınavı (İOKBS) Hazırlığı", "Sınav Stratejisi Rehberi", "Sınav Kaygısı Desteği"] },
+            { baslik: "🎯 Kişisel Takip", ogeler: ["Zayıf Konu Haritası", "Aralıklı Tekrar Sistemi", "Haftalık Çalışma Planı", "Bu Hafta Okulda (resmî MEB yıllık planı ve geride kalan konular)", "Hedef Okulum ve Puan Hesaplayıcı", "Karne ve İlerleme Raporu", "Ara Tatil ve Yaz Tatili Programları", "Kütüphanem (geçmiş içeriğin tek yerde)"] },
             { baslik: "👥 İnsan Desteği", ogeler: ["Öğretmenle Görüntülü Özel Ders", "Canlı Grup Dersi", "Canlı Konu Kampı", "Canlı Soru Çözüm Saati", "Rehber Öğretmenle Danışmanlık", "Veli Paneli (canlı takip)", "Kurum/Dershane Paneli (toplu rapor)", "Kurumlara Özel Toplu Lisans", "Kurumlara Özel Deneme Satışı"] },
           ].map((grup, gi) => (
             <div key={gi} style={{ marginBottom: 22 }}>
