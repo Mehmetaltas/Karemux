@@ -125,6 +125,7 @@ for (const a of adaylar) {
   } catch (e) {
     atlanan++;
     console.log(`::error title=uretilemedi::${etiket}: ${String(e.message).slice(0, 250)}`);
+    if (/TTS 429|per day/i.test(String(e.message))) { console.log("::error title=kota::Gemini TTS gunluk ucretsiz kota doldu; kalan adaylar denenmiyor (Gemini faturalandirmasi acilmali ya da SESSIZ=true)"); break; }
   }
 }
 console.log(`::notice title=ozet::uretilen ${uretilen}, atlanan ${atlanan}`);
