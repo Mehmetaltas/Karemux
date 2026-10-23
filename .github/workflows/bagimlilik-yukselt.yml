@@ -22,7 +22,19 @@ jobs:
       - run: npm ci
       - name: Yukselt
         run: |
-          if [ "${{ inputs.mod }}" = "next16" ]; then
+          if [ "${{ inputs.mod }}" = "webauthn" ]; then
+            npm install @simplewebauthn/server @simplewebauthn/browser
+            v=$(node -p "require('./node_modules/@simplewebauthn/server/package.json').version")
+            echo "::notice title=server surum::$v"
+            for f in generateRegistrationOptions verifyRegistrationResponse generateAuthenticationOptions verifyAuthenticationResponse; do
+              d=$(find node_modules/@simplewebauthn/server -name "$f.d.ts" | head -1)
+              echo "::notice title=$f::$(tr '\n' ' ' < $d | tr -s ' ' | cut -c1-1400)"
+            done
+            d=$(find node_modules/@simplewebauthn/browser -name "startRegistration.d.ts" | head -1)
+            echo "::notice title=startRegistration::$(tr '\n' ' ' < $d | tr -s ' ' | cut -c1-700)"
+            d=$(find node_modules/@simplewebauthn/browser -name "startAuthentication.d.ts" | head -1)
+            echo "::notice title=startAuthentication::$(tr '\n' ' ' < $d | tr -s ' ' | cut -c1-700)"
+          elif [ "${{ inputs.mod }}" = "next16" ]; then
             npm install next@^16 react@^19 react-dom@^19 --save-exact=false
             sed -i 's/  reactStrictMode: true,/  reactStrictMode: true,\n  serverExternalPackages: ["iyzipay"],/' next.config.js
           else
