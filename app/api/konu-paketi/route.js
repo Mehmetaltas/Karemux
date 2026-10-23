@@ -80,7 +80,9 @@ export async function GET(req) {
     // 21 Eylul, Full Audit'te bulunan KRITIK acik: bu route'ta hicbir erisim
     // kontrolu yoktu - kimliksiz/sinirsiz cagrilabiliyordu (gercek maliyet
     // riski). soru-coz'daki kanitlanmis desenle (gunlukLimitKontrolEt) kapatildi.
-    const limit = await gunlukLimitKontrolEt(req, cihazId);
+    // Toplu arsiv uretimi (GitHub Actions): yalniz x-health-check-secret ile gunluk kullanici limiti atlanir; ogretmen e-postasi gonderilmez.
+    const topluUretim = !!(process.env.HEALTH_CHECK_SECRET && req.headers.get("x-health-check-secret") === process.env.HEALTH_CHECK_SECRET);
+    const limit = topluUretim ? { izinVar: true } : await gunlukLimitKontrolEt(req, cihazId);
     if (!limit.izinVar) {
       return Response.json(
         { error: limit.premium ? "Bugunluk yogun kullanim sinirina ulastin (" + limit.limit + "/gun), yarin devam edebilirsin." : "Gunluk ucretsiz kullanim hakkin doldu (" + limit.limit + "/gun). Premium ile daha fazla kullanabilirsin." },
@@ -460,7 +462,7 @@ SADECE JSON dondur: {"odevSorulari":[{"soru":"...", "cozum":"adim adim detayli c
     } catch (e) { console.error("konu_paketi cache yazilamadi:", e); }
 
     // Isaretlenen paket icin eslesen branstaki ogretmen(ler)e bildirim gonder
-    if (onayDurumu === "bekliyor" && !zatenBekliyor) {
+    if (onayDurumu === "bekliyor" && !zatenBekliyor && !topluUretim) {
       try {
         const ilgiliOgretmenler = await sql`SELECT eposta, ad FROM ogretmenler WHERE brans = ${ders} AND aktif = true`;
         for (const o of ilgiliOgretmenler) {

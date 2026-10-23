@@ -1,0 +1,36 @@
+name: Konu Paketi Toplu Uret
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'En fazla kac YENI paket uretilsin'
+        default: '10'
+      sinif:
+        description: 'Yalniz bu sinif (bos = hepsi)'
+        default: ''
+      ders:
+        description: 'Yalniz bu ders (bos = hepsi)'
+        default: ''
+
+jobs:
+  uret:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Eksikleri tara
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scripts/eksik-konu-paketi-raporu.mjs
+      - name: Eksikleri uret
+        env:
+          HEALTH_CHECK_SECRET: ${{ secrets.HEALTH_CHECK_SECRET }}
+          LIMIT: ${{ inputs.limit }}
+          SINIF: ${{ inputs.sinif }}
+          DERS: ${{ inputs.ders }}
+        run: node scripts/konu-paketi-toplu-uret.mjs
