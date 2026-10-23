@@ -24,6 +24,7 @@ jobs:
         run: |
           if [ "${{ inputs.mod }}" = "next16" ]; then
             npm install next@^16 react@^19 react-dom@^19 --save-exact=false
+            sed -i 's/  reactStrictMode: true,/  reactStrictMode: true,\n  serverExternalPackages: ["iyzipay"],/' next.config.js
           else
             npm audit fix --omit=dev || true
           fi
@@ -42,7 +43,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@users.noreply.github.com"
           git checkout -b deps/${{ inputs.mod }}
-          git add package.json package-lock.json
+          git add package.json package-lock.json next.config.js
           git commit -m "deps: ${{ inputs.mod }} (CI build gecti)" || echo "degisiklik yok"
           git push -f origin deps/${{ inputs.mod }}
       - name: Audit sonrasi
