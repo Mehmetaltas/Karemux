@@ -4,10 +4,7 @@ on:
   schedule:
     - cron: '0 8 * * *'  # her gun 08:00 UTC
   workflow_dispatch:
-  push:
-    paths:
-      - 'app/api/ogretmen/materyal-uret/**'
-      - 'scripts/ogretmen-test.js'
+  # push tetikleyicisi kaldirildi: her calisma 11 uretim harcar, test hesabinin 30/gun limiti 3 push'ta doluyordu
 
 jobs:
   test:
