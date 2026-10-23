@@ -1,0 +1,53 @@
+{
+ "sinif": 6,
+ "ders": "Türkçe",
+ "unite": "Fiilimsiler",
+ "konu": "Fiilimsiler",
+ "hoca": "erkek",
+ "slaytlar": [
+  {
+   "baslik": "Fiilimsiler",
+   "konusma": "Merhaba! Bugün Fiilimsiler konusunu birlikte, adım adım öğreneceğiz. Hazırsan başlayalım."
+  },
+  {
+   "baslik": "Fiilimsiler Nedir?",
+   "konusma": "Cümle içinde hem eylem anlamını koruyan hem de isim, sıfat ya da zarf gibi davranan harika sözcükler vardır. İşte biz bunlara fiilimsi diyoruz. Fiilimsiler, doğrudan fiil köküne getirilen özel eklerle türetilir. En güzel yanı da cümledeki özne-yüklem ilişkisini hiç bozmadan farklı görevler üstlenmeleridir."
+  },
+  {
+   "baslik": "Fiilimsi Nasıl Oluşur?",
+   "konusma": "Peki, bir fiilimsi tam olarak nasıl oluşur? Süreç iki adımdan geçer. İlk adımda fiilimizin kökünü belirleriz. İkinci adımda ise bu köke uygun fiilimsi eklerini ekleriz. Böylece kelimemiz artık cümlede isim, sıfat veya zarf işlevi görmeye hazır hale gelir. Mantığı kavrayınca tanımak çok kolaylaşacak."
+  },
+  {
+   "baslik": "İsim-Fiil ve Ekleri",
+   "konusma": "İlk olarak isim-fiillere bakalım. En yaygın eklerimizden biri -mek veya -mak ekidir. Bu ek, özne-yüklem ilişkisine girmeden \"okumak\" ya da \"yazmak\" gibi bir eylemi adeta bir nesne gibi gösterir. Mesela \"Sabah erken kalkmak zor.\" cümlesinde geçen \"kalkmak\" sözcüğü tam bir isim-fiil örneğidir."
+  },
+  {
+   "baslik": "Olumsuzluk ve İsim-Fiil",
+   "konusma": "Bir diğer önemli ekimiz -me ve -ma ekidir. Bu ek, fiili olumsuzlaştırır ve isim-fiil görevinde kullanılır. \"Okumama\" ya da \"yazmama\" sözcüklerinde bunu net bir şekilde görürüz. Burada dikkat etmemiz gereken küçük bir detay var; olumsuz isim-fiil oluştururken -me yerine yanlışlıkla -ma yazma hatasına düşmemeliyiz."
+  },
+  {
+   "baslik": "Zaman-Zarf Fiilimsi",
+   "konusma": "Şimdi de zaman-zarf fiilimsisine geçelim. Burada unutmamamız gereken ek -ken ekidir. Bu ek, aynı anda gerçekleşen iki eylemi birbirine bağlar. Mesela \"Yazarken dikkat et.\" dediğimizde, \"yazarken\" sözcüğü zaman-zarf fiilimsisidir. Fakat -ken ekini yanlış yere koyup zaman-zarf yapısını bozmamaya çok dikkat etmeliyiz."
+  },
+  {
+   "baslik": "Eylemin Süreci ve Geçmiş",
+   "konusma": "Eylemin gerçekleşme sürecini vurgulamak istediğimizde -iş ekini kullanırız. \"Yazış\" veya \"çalışış\" gibi sözcükler bu ekle oluşur ve çoğunlukla isim-fiil işlevi görür. Geçmişte tamamlanmış bir eylemi göstermek içinse -miş eki gelir; \"okumuş\" veya \"gelmiş\" örneklerinde olduğu gibi tamamlanma anlamı katar."
+  },
+  {
+   "baslik": "Gelecek Zaman Anlamı",
+   "konusma": "Gelecek zaman anlamı katan eklerimize bakalım. -ecek ve -acak ekleri, cümlede gelecek zamanı işaret ederken sözcük hâlâ fiil özelliğini korur. Örneğin \"okuyacak\" kelimesi gelecek fiilimsi için çok güzel bir örnektir. Cümledeki görevini çözümlerken bu ekin kattığı gelecek anlamını göz önünde bulundururuz."
+  },
+  {
+   "baslik": "Doğru Görev Tespiti",
+   "konusma": "Bir cümledeki fiilimsinin görevini belirlemek için harika bir yöntemimiz var. Önce sözcüğün ekine, ardından cümledeki yerine bakarız. Ekin tipi doğruysa görev de otomatik olarak ortaya çıkar. Sakın ekin yokluğunda fiilimsiyi normal bir isimle karıştırma hatasına düşmeyin. Ekleri ve cümledeki yerini incelemek işinizi kolaylaştırır."
+  },
+  {
+   "baslik": "Örnek Soru Çözümü",
+   "konusma": "Karşımıza şöyle bir cümle çıksın: \"Ders çalışırken müzik dinlemek, odaklanmayı artırır.\" Buradaki \"çalışırken\" sözcüğü zaman-zarf fiilimsi, \"dinlemek\" sözcüğü ise isim-fiildir. İşte ekleri tanıyıp görevlerini ayırt etmek, fiilimsi sorularını hızlı ve hatasız çözmenizi sağlar. Hepinize başarılar diliyorum!"
+  },
+  {
+   "baslik": "Şimdi Sıra Sende!",
+   "konusma": "Dersimiz burada bitti. Şimdi sıra sende: konuyla ilgili soruları çözerek öğrendiklerini pekiştir. Karemux ile başarılar!"
+  }
+ ]
+}
