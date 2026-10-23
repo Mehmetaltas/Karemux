@@ -1,0 +1,33 @@
+name: Bagimlilik Denetimi
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'  # her pazartesi
+
+jobs:
+  denetim:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: npm audit (uretim bagimliliklari)
+        run: |
+          npm install --package-lock-only --ignore-scripts >/dev/null 2>&1 || true
+          npm audit --omit=dev --json > audit.json || true
+          node -e '
+            const a=JSON.parse(require("fs").readFileSync("audit.json","utf8"));
+            const v=a.vulnerabilities||{};
+            const m=(a.metadata&&a.metadata.vulnerabilities)||{};
+            console.log("::notice title=audit ozet::"+JSON.stringify(m));
+            for(const [ad,x] of Object.entries(v)){
+              const via=(x.via||[]).map(y=>typeof y==="string"?y:(y.title||"")).filter(Boolean).slice(0,2).join(" | ");
+              const fix=x.fixAvailable===true?"npm audit fix":(x.fixAvailable?("yukselt:"+x.fixAvailable.name+"@"+x.fixAvailable.version+(x.fixAvailable.isSemVerMajor?" (MAJOR)":"")):"duzeltme yok");
+              console.log("::warning title="+ad+" ["+x.severity+"]::"+via+" -> "+fix);
+            }
+          '
+      - name: Guncel surumler
+        run: |
+          for p in next react react-dom; do echo "::notice title=$p::$(npm view $p dist-tags.latest 2>/dev/null)"; done
