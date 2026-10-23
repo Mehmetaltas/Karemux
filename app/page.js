@@ -9,6 +9,7 @@ import { gorselUret } from "@/lib/gorsel-motoru";
 import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { listeSatiriStili, bolumBasligiStili } from "@/lib/tasarim-sistemi";
 import Tanitim from "@/app/tanitim/page";
+import YillikPlanEkrani from "./YillikPlanEkrani";
 import { KARNE_DEGERLENDIRME_MENU, SINAVLAR_MENU, TEK_KONU_OGRENME_ARACLARI_MENU, SINAV_DESTEGI_MENU, PLANLAMA_HEDEFLER_MENU, BAGLANTILAR_MENU } from "@/lib/ogrenci-menu";
 
 // Bos, basilabilir Optik Cevap Kagidi sablonu (8 Eylul) - ogrenci/veli
@@ -8062,6 +8063,8 @@ export default function Ana() {
             )}
           </div>
         )}
+
+        {mod === "yillikplan" && <YillikPlanEkrani sinif={sinif} COLORS={COLORS} />}
 
         {mod === "hedefokul" && (
           <div>
