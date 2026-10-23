@@ -32,14 +32,14 @@
 22. [BEN] Sınav Analizleri ekranı: durum etiketleri, öneriler, hedef net, kazanım analizi.
 
 ## E. Müfredat/içerik
-23. [BEN] Din 5-7, Fen 5, 4. sınıf, Sosyal/Din 5, 8. sınıf ünite adları, İngilizce 4/6/7/8 (resmî MEB kaynağı).
+23. [BEN] ✅ Plan doğrulamalı 4-8 (Mat/Fen/Sosyal/Türkçe/İnkılap/Din/İng, 23 Ekim). Eski not: Din 5-7, Fen 5, 4. sınıf, Sosyal/Din 5, 8. sınıf ünite adları, İngilizce 4/6/7/8 (resmî MEB kaynağı).
 24. [BEN] Kazanım kodu referans JSON.
 25. [BEN] OYSS hazırlık modu (MEB sistemi 26 Ekim).
 26. [BEN] MEB değişiklik takip cron'u.
 27. [BEN] "Fazla üret + kırp" mantığını deneme/yazılı/paragrafa yaygınlaştır.
 
 ## F. Ürün/ticari (V3 dalgaları)
-28. [BEN] D3 Paket Tasarım Merkezi. 29. [BEN] D4-5 akademik takvim + plan motoru. 30. [BEN] D6 Content Core. 31. [BEN] D7-8 video motoru+katalog, 5.350 arşiv altyapısı (gerçek video launch sonrası). 32. [BEN] D10 Deneme Kulübü analiz/tekrar döngüsü.
+28. [BEN] ✅ D3 Paket Tasarım Merkezi (23 Ekim, canlı doğrulama bekliyor). 29. [BEN] ✅ D4-5 akademik takvim + plan motoru (23 Ekim, canlı doğrulama bekliyor). 30. [BEN] ✅ D6 Content Core (23 Ekim): lib/icerik-cekirdegi.js + /api/admin/icerik-cekirdegi kapsam raporu; 207 üniteden 206'sı plana bağlı, kalan: 8. sınıf Matematik (planda öğrenme alanı, kodda konu adı). 31. [BEN] D7-8 video motoru+katalog, 5.350 arşiv altyapısı (gerçek video launch sonrası). 32. [BEN] D10 Deneme Kulübü analiz/tekrar döngüsü.
 33. [SEN] Fiyat kararı: maliyet doğrulanınca kesinleşir.
 
 ## G. Öğretmen/öğrenci/kurum
