@@ -5,6 +5,7 @@ import { GosterGizleInput } from "@/lib/sifreAlaniBileseni";
 import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { SEKME_GRUPLARI } from "@/lib/admin-sekmeleri";
+import PaketTasarim from "./PaketTasarim";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -1497,6 +1498,7 @@ export default function YonetimPaneli() {
 
         {sekme === "paketler" && muhasebeVeri && (
           <>
+          <PaketTasarim sifre={sifre} T={T} TYPO={TYPO} Panel={Panel} girdiStil={girdiStil} etiketStil={etiketStil} butonStil={butonStil} />
           <Panel baslik="Özel Ders / Canlı Ders Referans Fiyatları" ikon="🎓">
             <p style={{ fontSize: TYPO.caption, color: T.textMuted, marginBottom: 12 }}>
               Bunlar satılabilir "paket" değil — öğretmen kademesine (A/B/C) göre değişen, otomatik hesaplanan fiyatlardır (bkz. lib/fiyatlandirma.js). Referans amaçlıdır, buradan düzenlenemez.
