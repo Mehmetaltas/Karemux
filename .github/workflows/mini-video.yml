@@ -1,0 +1,47 @@
+name: Mini Ders Videosu Uret
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: 'En fazla kac video (1-20)'
+        default: '3'
+      sinif:
+        description: 'Yalniz bu sinif (bos = hepsi)'
+        default: ''
+  schedule:
+    - cron: '30 3 * * *'  # her gun kucuk parti; kayitlar yalniz 'kalite_bekliyor' acilir
+
+jobs:
+  uret:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Araclar (ffmpeg, yazi tipi, edge-tts, playwright)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-noto-core
+          pip install --quiet edge-tts
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+      - name: Uretim hattini sessiz sesle dogrula
+        run: node scripts/mini-video-test.mjs
+      - name: Mini videolari uret
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
+          LIMIT: ${{ inputs.limit || '3' }}
+          SINIF: ${{ inputs.sinif }}
+        run: node scripts/mini-video-uret.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mini-videolar
+          path: mini-video-cikti/*.mp4
+          if-no-files-found: ignore
+          retention-days: 7
