@@ -6,6 +6,9 @@ on:
       limit:
         description: 'En fazla kac video (1-20)'
         default: '3'
+      sessiz:
+        description: 'true = sessiz uret (dis seslendirme icin); konusma metni .senaryo.json olarak gelir'
+        default: 'false'
       onizleme:
         description: 'true = mp4 dosyalarini video-onizleme dalina koy (onay icin izleme)'
         default: 'false'
@@ -44,6 +47,7 @@ jobs:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           LIMIT: ${{ inputs.limit || '3' }}
           SINIF: ${{ inputs.sinif }}
+          SESSIZ: ${{ inputs.sessiz }}
         run: |
           npx --yes esbuild@0.25.0 scripts/mini-video-uret.mjs --bundle --platform=node --format=esm --alias:@=. --external:playwright --external:@neondatabase/serverless --external:@vercel/blob --outfile=mini-video-paket.mjs --log-level=warning
           node mini-video-paket.mjs
@@ -51,7 +55,9 @@ jobs:
         if: always()
         with:
           name: mini-videolar
-          path: mini-video-cikti/*.mp4
+          path: |
+            mini-video-cikti/*.mp4
+            mini-video-cikti/*.senaryo.json
           if-no-files-found: ignore
           retention-days: 7
 
@@ -59,11 +65,11 @@ jobs:
         if: inputs.onizleme == 'true'
         run: |
           set -e
-          mkdir -p /tmp/onz && cp mini-video-cikti/*.mp4 /tmp/onz/
+          mkdir -p /tmp/onz && cp mini-video-cikti/*.mp4 mini-video-cikti/*.senaryo.json /tmp/onz/
           git config user.name "karemux-bot"; git config user.email "bot@karemux.com"
           git checkout --orphan video-onizleme
           git rm -rf -q . || true
-          cp /tmp/onz/*.mp4 .
-          git add *.mp4
+          cp /tmp/onz/* .
+          git add *.mp4 *.json
           git commit -q -m "mini video onizleme"
           git push -f origin video-onizleme

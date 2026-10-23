@@ -85,7 +85,9 @@ export function senaryodanSlaytlar(senaryo, paket, baglam) {
   const konu = baglam.konu || baglam.unite;
   const sl = (senaryo || []).filter((x) => x && x.baslik && x.konusma && String(x.konusma).length >= 80);
   if (sl.length < 6) return { slaytlar: [], neden: `senaryo yetersiz (${sl.length} slayt)` };
-  const s = [{ tip: "kapak", baslik: konu, alt: `${baglam.ders} · ${baglam.sinif}. Sınıf`, ses: `Merhaba! Bugün ${konu} konusunu birlikte, adım adım öğreneceğiz. Hazırsan başlayalım.` }];
+  const s = [{ tip: "kapak", baslik: konu, kunye: [[`${baglam.sinif}. Sınıf`, baglam.ders], ["Ünite", baglam.unite], ["Konu", konu]], ses: `Merhaba! Bugün ${konu} konusunu birlikte, adım adım öğreneceğiz. Hazırsan başlayalım.` }];
+  const kaz = (baglam.kazanimlar || []).filter((k) => k && k.metin).slice(0, 4);
+  if (kaz.length) s.push({ tip: "liste", baslik: "Bu Derste Öğreneceklerin", maddeler: kaz.map((k) => `${k.metin} (${k.kod})`), ses: "Önce bu derste neleri öğreneceğimize bir bakalım." });
   const svg = typeof paket?.gorselSvg === "string" ? paket.gorselSvg : paket?.gorselSvg?.svg;
   const svgVar = typeof svg === "string" && /^\s*<svg[\s>]/i.test(svg) && svg.length < 20000;
   sl.forEach((x, i) => {
@@ -94,30 +96,33 @@ export function senaryodanSlaytlar(senaryo, paket, baglam) {
       s.push({ tip: "gorsel", baslik: "Şekle Bakalım", svg: svg.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/\son\w+="[^"]*"/gi, ""), ses: "Şimdi konuyu bir şekil üzerinden görelim. Ekrandaki şekle dikkatle bak." });
     }
   });
-  s.push({ tip: "kapanis", baslik: "Şimdi Sıra Sende!", alt: "Soruları çöz, öğrendiklerini pekiştir.", ses: "Dersimiz burada bitti. Şimdi sıra sende: konuyla ilgili soruları çözerek öğrendiklerini pekiştir. Karemux ile başarılar!" });
+  s.push({ tip: "kapanis", baslik: "Şimdi Sıra Sende!", alt: "Soruları çöz, öğrendiklerini pekiştir.", logo: true, ses: "Dersimiz burada bitti. Şimdi sıra sende: konuyla ilgili soruları çözerek öğrendiklerini pekiştir. Karemux ile başarılar!" });
   return { slaytlar: s.map((x) => ({ ...x, ses: sesMetni(x.ses) })), neden: null };
 }
 
 const esc = (t) => ekranMetni(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 export function slaytHtml(sl, sira, toplam, baglam) {
+  const buyuk = sl.tip === "kapak" || sl.tip === "kapanis";
+  const logo = baglam.logoUri && (sl.tip === "kapak" || sl.tip === "kapanis") ? `<img class="logo" src="${baglam.logoUri}" alt="">` : "";
+  const kunye = sl.kunye ? `<table class="kunye">${sl.kunye.map(([a, b]) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("")}</table>` : "";
   const govde = sl.tip === "gorsel"
     ? `<div class="kart">${sl.svg}</div>`
     : sl.tip === "madde"
     ? `<ul>${sl.maddeler.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>`
     : sl.tip === "liste"
     ? `<ol>${sl.maddeler.map((m) => `<li>${esc(m)}</li>`).join("")}</ol>`
+    : sl.kunye ? kunye
     : sl.govde ? `<p class="g">${esc(sl.govde)}</p>` : sl.alt ? `<p class="alt">${esc(sl.alt)}</p>` : "";
-  const buyuk = sl.tip === "kapak" || sl.tip === "kapanis";
   return `<!doctype html><html lang="tr"><meta charset="utf-8"><style>
 *{box-sizing:border-box;margin:0}body{width:1280px;height:720px;background:#1F3D2E;color:#FFF8E8;font-family:"DejaVu Sans","Noto Sans",Arial,sans-serif;display:flex;flex-direction:column;padding:56px 72px;position:relative}
 .ust{font-size:22px;color:#E8B339;letter-spacing:1px;font-weight:700;margin-bottom:26px}
-h1{font-size:${buyuk ? 66 : 46}px;line-height:1.2;margin-bottom:30px;${buyuk ? "margin-top:120px;" : ""}color:#fff}
+h1{font-size:${buyuk ? 66 : 46}px;line-height:1.2;margin-bottom:30px;${buyuk ? "margin-top:40px;" : ""}color:#fff}
 .g{font-size:34px;line-height:1.55}.alt{font-size:32px;color:#E8B339;line-height:1.5}
 ul{font-size:36px;line-height:1.5;padding-left:44px}ul li::marker{color:#E8B339}ol{font-size:32px;line-height:1.5;padding-left:44px}li{margin-bottom:16px}
 .kart{background:#fff;border-radius:18px;padding:20px;display:flex;justify-content:center;align-items:center;height:430px}.kart svg{max-width:100%;max-height:390px;width:auto;height:auto}
 .alt-bar{position:absolute;left:72px;right:72px;bottom:34px;display:flex;justify-content:space-between;font-size:20px;color:#9FB8A8}
-.cizgi{position:absolute;left:0;bottom:0;height:8px;background:#E8B339;width:${Math.round((sira / toplam) * 100)}%}
-</style><body><div class="ust">KAREMUX · MİNİ DERS</div><h1>${esc(sl.baslik)}</h1>${govde}
+.logo{width:120px;height:120px;border-radius:26px;margin:36px 0 0 0}.kunye{font-size:34px;border-collapse:collapse}.kunye td{padding:8px 28px 8px 0;vertical-align:top}.kunye td:first-child{color:#E8B339;font-weight:700;white-space:nowrap}.cizgi{position:absolute;left:0;bottom:0;height:8px;background:#E8B339;width:${Math.round((sira / toplam) * 100)}%}
+</style><body><div class="ust">KAREMUX · MİNİ DERS</div>${logo}<h1>${esc(sl.baslik)}</h1>${govde}
 <div class="alt-bar"><span>${esc(baglam.ders)} · ${esc(baglam.sinif)}. Sınıf</span><span>${sira} / ${toplam}</span></div><div class="cizgi"></div></body></html>`;
 }

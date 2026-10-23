@@ -50,17 +50,25 @@ async function yardim(govde, deneme = 4) {
 // Her ders icin hep ayni hoca: dersin adindan kadin/erkek secilir (bir kadin, bir erkek ogretmen).
 const hocaSec = (ders) => ([...String(ders)].reduce((t, c) => t + c.charCodeAt(0), 0) % 2 === 0 ? "kadin" : "erkek");
 let HOCA = "kadin";
+const SESSIZ = String(process.env.SESSIZ || "") === "true"; // true: sessiz uret (dis seslendirme icin); konusma metni .senaryo.json olarak kaydedilir
+const LOGO_URI = (() => { try { return "data:image/png;base64," + fs.readFileSync("public/icons/icon-512.png").toString("base64"); } catch { return ""; } })();
 let HARCAMA_USD = 0; // her video icin sifirlanir; senaryo + ses ucretlerinin toplami
 const MUFREDAT_YILI = process.env.MUFREDAT_YILI || "2026-2027";
 async function tts(metin, hedef) {
+  if (SESSIZ) {
+    const sn = Math.max(2, metin.length / 14);
+    execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-t", sn.toFixed(2), "-c:a", "pcm_s16le", "-f", "wav", hedef]);
+    return;
+  }
   const j = await yardim({ islem: "ses", metin, ses: HOCA });
   HARCAMA_USD += Number(j.ucretUsd) || 0;
   fs.writeFileSync(hedef, Buffer.from(j.wav, "base64"));
   if (fs.statSync(hedef).size < 4000) throw new Error("ses dosyasi bos");
 }
 
+if (SESSIZ) console.log("::notice title=tts::SESSIZ mod: ses uretilmeyecek, konusma metni .senaryo.json olarak kaydedilecek");
 if (!GIZLI) { console.log("::error title=tts::HEALTH_CHECK_SECRET yok"); process.exit(1); }
-try { await tts("Merhaba, bu bir deneme.", `${CIKTI}/on-kontrol.wav`); console.log("::notice title=tts::gemini tts calisiyor"); }
+try { if (!SESSIZ) await tts("Merhaba, bu bir deneme.", `${CIKTI}/on-kontrol.wav`); console.log("::notice title=tts::gemini tts calisiyor"); }
 catch (e) { console.log(`::error title=tts::gemini tts calismiyor: ${String(e.message).slice(0, 300)}`); process.exit(1); }
 
 await tablo();
@@ -82,13 +90,14 @@ for (const a of adaylar) {
   const etiket = `${a.sinif}. ${a.ders} / ${a.unite} / ${a.konu}`;
   try {
     const paket = typeof a.icerik_json === "string" ? JSON.parse(a.icerik_json) : a.icerik_json;
-    const baglam = { sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu, kazanimlar: kazanimlariGetir(a.ders, a.sinif, a.konu, a.unite, 3) };
+    const baglam = { sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu, kazanimlar: kazanimlariGetir(a.ders, a.sinif, a.konu, a.unite, 4), logoUri: LOGO_URI };
     HARCAMA_USD = 0;
     const sj = await yardim({ islem: "senaryo", baglam, paket: { anlatim: paket.anlatim } });
     HARCAMA_USD += Number(sj.ucretUsd) || 0;
     const { slaytlar, neden } = senaryodanSlaytlar(sj.slaytlar, paket, baglam);
     HOCA = hocaSec(a.ders);
     if (!slaytlar.length) { atlanan++; console.log(`::warning title=atlandi::${etiket}: ${neden}`); continue; }
+    fs.writeFileSync(`${CIKTI}/mini-${a.id}.senaryo.json`, JSON.stringify({ sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu, hoca: HOCA, slaytlar: slaytlar.map((x) => ({ baslik: x.baslik, konusma: x.ses })) }, null, 1));
     const dizin = `${CIKTI}/p${a.id}`;
     const cikti = `${CIKTI}/mini-${a.id}.mp4`;
     console.log(`::notice title=basladi::${etiket}: ${slaytlar.length} slayt`);
