@@ -28,7 +28,7 @@ export async function mp4Uret({ slaytlar, baglam, tts, dizin, cikti }) {
     }
   } finally { await tarayici.close(); }
   const liste = path.join(dizin, "liste.txt");
-  fs.writeFileSync(liste, parcalar.map((p) => `file '${p}'`).join("\n"));
+  fs.writeFileSync(liste, parcalar.map((p) => `file '${path.resolve(p)}'`).join("\n"));
   execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "concat", "-safe", "0", "-i", liste, "-c", "copy", "-movflags", "+faststart", cikti]);
   return { sureSn: Math.round(sureOku(cikti)), slaytSayisi: slaytlar.length };
 }
