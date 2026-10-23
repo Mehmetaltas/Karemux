@@ -2543,12 +2543,16 @@ export default function Ana() {
   const [denemeKulubuHavaleBilgisi, setDenemeKulubuHavaleBilgisi] = useState(null);
   const [denemeKulubuHata, setDenemeKulubuHata] = useState("");
 
+  const [denemeKulubuDongu, setDenemeKulubuDongu] = useState(null);
   async function denemeKulubuDurumGetir() {
     setDenemeKulubuYukleniyor(true);
     try {
       const res = await fetch(`/api/deneme-kulubu/durum?cihazId=${cihazIdRef.current}`);
       const data = await res.json();
       setDenemeKulubuDurum(data);
+      if (data && data.uye) {
+        fetch(`/api/deneme-kulubu/dongu?cihazId=${cihazIdRef.current}`).then((r) => r.json()).then((d) => { if (d && d.adimlar) setDenemeKulubuDongu(d); }).catch(() => {});
+      }
     } catch (e) {} finally { setDenemeKulubuYukleniyor(false); }
   }
 
@@ -6977,6 +6981,23 @@ export default function Ana() {
                 <p style={{ fontSize: 13, fontWeight: 700, color: "#2E7D4F" }}>✓ {denemeKulubuDurum.seviyeAdi} üyesisin</p>
                 {denemeKulubuDurum.bitis && <p style={{ fontSize: 11.5, color: COLORS.muted, marginTop: 4 }}>Bitiş: {new Date(denemeKulubuDurum.bitis).toLocaleDateString("tr-TR")}</p>}
                 <button className="kx-btn" onClick={() => setMod("ucretlideneme")} style={{ marginTop: 12, padding: "10px 24px", borderRadius: 10, border: "none", background: "#2E7D4F", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Denemeleri Gör</button>
+              </div>
+            )}
+
+            {!denemeKulubuYukleniyor && denemeKulubuDurum?.uye && denemeKulubuDongu && (
+              <div style={{ background: COLORS.page, borderRadius: 12, padding: 16, border: `1px solid ${COLORS.line}`, marginBottom: 14 }}>
+                <p style={{ fontWeight: 700, fontSize: 14, margin: "0 0 4px" }}>Sıradaki adımların</p>
+                {denemeKulubuDongu.trend?.yeterliVeri && (
+                  <p style={{ fontSize: 12.5, color: COLORS.muted, margin: "0 0 10px" }}>
+                    Son denemede netin {denemeKulubuDongu.trend.yon === "yukseliyor" ? `${denemeKulubuDongu.trend.fark} yükseldi` : denemeKulubuDongu.trend.yon === "dusuyor" ? `${Math.abs(denemeKulubuDongu.trend.fark)} düştü` : "değişmedi"}.
+                  </p>
+                )}
+                {denemeKulubuDongu.adimlar.map((a) => (
+                  <div key={a.sira} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderTop: `1px solid ${COLORS.line}` }}>
+                    <div style={{ flex: 1, fontSize: 13 }}><b>{a.sira}. {a.baslik}</b><br /><span style={{ color: COLORS.muted, fontSize: 12 }}>{a.aciklama}</span></div>
+                    <button onClick={() => setMod(a.mod)} style={{ minHeight: 44, padding: "0 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: COLORS.page, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Başla</button>
+                  </div>
+                ))}
               </div>
             )}
 

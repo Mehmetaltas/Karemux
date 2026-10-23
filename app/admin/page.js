@@ -6,6 +6,7 @@ import { TEMALAR, temaOku, temaKaydet } from "@/lib/temalar";
 import CerezBildirimi from "@/lib/CerezBildirimi";
 import { SEKME_GRUPLARI } from "@/lib/admin-sekmeleri";
 import PaketTasarim from "./PaketTasarim";
+import IcerikMerkezi from "./IcerikMerkezi";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -2383,6 +2384,7 @@ export default function YonetimPaneli() {
 
         {sekme === "mufredat" && (
           <>
+            <IcerikMerkezi sifre={sifre} T={T} TYPO={TYPO} Panel={Panel} butonStil={butonStil} />
             <Panel baslik="Müfredat Kapsamı Özeti" ikon="📚">
               {!mufredatVeri ? <p aria-live="polite" style={{ fontSize: TYPO.body, color: T.textMuted }}>Yükleniyor...</p> : (
                 <>
