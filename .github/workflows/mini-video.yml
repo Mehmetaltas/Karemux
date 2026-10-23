@@ -37,7 +37,9 @@ jobs:
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           LIMIT: ${{ inputs.limit || '3' }}
           SINIF: ${{ inputs.sinif }}
-        run: node scripts/mini-video-uret.mjs
+        run: |
+          npx --yes esbuild@0.25.0 scripts/mini-video-uret.mjs --bundle --platform=node --format=esm --alias:@=. --external:playwright --external:@neondatabase/serverless --external:@vercel/blob --outfile=mini-video-paket.mjs --log-level=warning
+          node mini-video-paket.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

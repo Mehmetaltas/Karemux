@@ -13,7 +13,10 @@ const paket = { anlatim: {
   sikHatalar: ["(-2)^2 ile -2^2 aynı sanılır.", "Tabanlar toplanır sanılır.", "Üs ile çarpan karıştırılır."],
   yeniNesilUygulama: "Bir bakteri her saat ikiye bölünüyor. " + w(60) + ". 3 saat sonra 2^3 = 8 bakteri olur.",
 } };
-const { slaytlar, neden } = slaytlariOlustur(paket, { sinif: 8, ders: "Matematik", unite: "Üslü İfadeler", konu: "Üslü İfadeler" });
+paket.gorselSvg = '<svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg"><polygon points="40,200 280,200 160,40" fill="none" stroke="#1B2430" stroke-width="4"/><text x="150" y="225">a = 8 cm</text><script>alert(1)</script></svg>';
+const { slaytlar, neden } = slaytlariOlustur(paket, { kazanimlar: [{ kod: "M.8.1.2.1", metin: "Tam sayıların üslü ifadelerle gösterilebildiğini fark eder." }], sinif: 8, ders: "Matematik", unite: "Üslü İfadeler", konu: "Üslü İfadeler" });
+if (!slaytlar.some((x) => x.tip === "gorsel") || slaytlar.some((x) => /<script/i.test(x.svg || ""))) { console.log("::error title=mini video::gorsel slayti yok ya da script temizlenmedi"); process.exit(1); }
+if (!slaytlar.some((x) => x.baslik.startsWith("Bu Derste"))) { console.log("::error title=mini video::kazanim slayti yok"); process.exit(1); }
 if (neden || slaytlar.length < 8) { console.log(`::error title=mini video::slayt uretimi basarisiz: ${neden} (${slaytlar.length})`); process.exit(1); }
 
 // sesMetni kontrolleri

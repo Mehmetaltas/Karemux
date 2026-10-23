@@ -5,6 +5,7 @@ import { neon } from "@neondatabase/serverless";
 import { put } from "@vercel/blob";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
+import { kazanimlariGetir } from "@/lib/kazanimlar";
 import { slaytlariOlustur } from "./mini-video/slaytlar.mjs";
 import { mp4Uret } from "./mini-video/uret.mjs";
 
@@ -55,7 +56,7 @@ for (const a of adaylar) {
   const etiket = `${a.sinif}. ${a.ders} / ${a.unite} / ${a.konu}`;
   try {
     const paket = typeof a.icerik_json === "string" ? JSON.parse(a.icerik_json) : a.icerik_json;
-    const baglam = { sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu };
+    const baglam = { sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu, kazanimlar: kazanimlariGetir(a.ders, a.sinif, a.konu, a.unite, 3) };
     const { slaytlar, neden } = slaytlariOlustur(paket, baglam);
     if (!slaytlar.length) { atlanan++; console.log(`::warning title=atlandi::${etiket}: ${neden}`); continue; }
     const dizin = `${CIKTI}/p${a.id}`;

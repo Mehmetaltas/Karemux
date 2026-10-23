@@ -5,7 +5,7 @@ import path from "node:path";
 import { slaytHtml } from "./slaytlar.mjs";
 
 async function playwrightYukle() {
-  try { return await import("playwright"); } catch { return await import("/opt/npm-tools/node_modules/playwright/index.mjs"); }
+  try { return await import("playwright"); } catch { const yedek = "/opt/npm-tools/node_modules/playwright/index.mjs"; return await import(/* @vite-ignore */ yedek); }
 }
 const sureOku = (dosya) => parseFloat(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", dosya]).toString().trim());
 
