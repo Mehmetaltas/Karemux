@@ -7,6 +7,17 @@ export const maxDuration = 60;
 // Yalniz x-health-check-secret ile cagrilir (CI'daki mevcut gizli anahtar). Yeni bilgi uretilmez: konusma metni onayli konu paketinden yazilir.
 const SESLER = { kadin: "Sulafat", erkek: "Sadaltager" };
 const TTS_MODEL = "gemini-3.8-flash-tts";
+// Liste fiyatlari (ai.google.dev/gemini-api/docs/pricing, 23 Ekim 2026 dogrulandi; 1 Ocak 2027'de TTS fiyati ikiye katlanir).
+// Ucretsiz katman kullanilsa bile muhasebe liste fiyatini yazar (muhafazakar). Ses: 25 token/sn; WAV 24kHz 16bit mono = 48000 bayt/sn.
+const TTS_GIRDI_USD_MTOK = 0.5, TTS_CIKTI_USD_MTOK = 9.0;
+const SENARYO_GIRDI_USD_MTOK = 0.75, SENARYO_CIKTI_USD_MTOK = 3.75;
+function ttsUcretUsd(metin, wavBase64) {
+  const sn = (Buffer.from(wavBase64, "base64").length - 44) / 48000;
+  return (Math.ceil(String(metin).length / 3.5) * TTS_GIRDI_USD_MTOK + Math.max(0, sn) * 25 * TTS_CIKTI_USD_MTOK) / 1e6;
+}
+function senaryoUcretUsd(istem, cikti) {
+  return (Math.ceil(istem.length / 3.5) * SENARYO_GIRDI_USD_MTOK + Math.ceil(cikti.length / 3.5) * SENARYO_CIKTI_USD_MTOK) / 1e6;
+}
 
 function yetkili(req) {
   const s = process.env.HEALTH_CHECK_SECRET;
@@ -65,19 +76,20 @@ export async function POST(req) {
   try {
     if (b.islem === "senaryo") {
       if (!b.paket?.anlatim || !b.baglam) return NextResponse.json({ hata: "paket/baglam eksik" }, { status: 400 });
-      const { metin, saglayici } = await aiCagirDetay({ prompt: senaryoIstemi(b), maxTokens: 6000, jsonModu: true, tur: "video_senaryo" }, null, 55000);
+      const istem = senaryoIstemi(b);
+      const { metin, saglayici } = await aiCagirDetay({ prompt: istem, maxTokens: 6000, jsonModu: true, tur: "video_senaryo" }, null, 55000);
       const j = JSON.parse(metin.trim().replace(/^```json\s*|^```\s*|```\s*$/g, ""));
       const sl = (j.slaytlar || []).filter((s) => s?.baslik && s?.konusma).map((s) => ({
         baslik: String(s.baslik).slice(0, 60), maddeler: (s.maddeler || []).map((m) => String(m).slice(0, 90)).slice(0, 4), konusma: String(s.konusma).slice(0, 700),
       }));
-      return NextResponse.json({ slaytlar: sl, saglayici });
+      return NextResponse.json({ slaytlar: sl, saglayici, ucretUsd: senaryoUcretUsd(istem, metin) });
     }
     if (b.islem === "ses") {
       const ses = SESLER[b.ses] || SESLER.kadin;
       const metin = String(b.metin || "").slice(0, 900);
       if (!metin) return NextResponse.json({ hata: "metin yok" }, { status: 400 });
       const r = await sesUret(metin, ses, "Sıcak, sakin ve anlaşılır; deneyimli bir öğretmen gibi doğal ve canlı anlat.");
-      return NextResponse.json({ wav: r.wav, mime: r.mime });
+      return NextResponse.json({ wav: r.wav, mime: r.mime, ucretUsd: ttsUcretUsd(metin, r.wav) });
     }
     return NextResponse.json({ hata: "bilinmeyen islem" }, { status: 400 });
   } catch (e) {
