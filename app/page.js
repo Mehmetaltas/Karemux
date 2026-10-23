@@ -4063,6 +4063,7 @@ export default function Ana() {
         .kx-card:active { transform: scale(0.97); }
         .kx-btn { transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease; }
         .kx-btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+        button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #1B4FD8; outline-offset: 2px; }
         .kx-btn:active { transform: scale(0.96); }
         .kx-hero { background-size: 200% 100%; }
         .kx-hero::after { content: ""; }

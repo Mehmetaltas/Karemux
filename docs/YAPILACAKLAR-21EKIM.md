@@ -43,7 +43,7 @@
 33. [SEN] Fiyat kararı: maliyet doğrulanınca kesinleşir.
 
 ## G. Öğretmen/öğrenci/kurum
-34. [BEN] Öğretmen↔öğrenci↔sınıf, Sınıf Analizi, Zayıf Konu Koçluğu. 35. [BEN] Koç görev doğrulaması. 36. [BEN] Öğrenci ödev takibi. 37. [BEN] Öğrenme Hafızası bağlantısı. 38. [BEN] Veli ayrı giriş/ödeme; kurum kodu+okul no girişi; QR giriş. 39. [BEN] Kurum logosu Blob (SSRF). 40. [BEN] Geri tuşu, Design System.
+34. [BEN] Öğretmen↔öğrenci↔sınıf, Sınıf Analizi, Zayıf Konu Koçluğu. 35. [BEN] Koç görev doğrulaması. 36. [BEN] Öğrenci ödev takibi. 37. [BEN] Öğrenme Hafızası bağlantısı. 38. [BEN] Veli ayrı giriş/ödeme; kurum kodu+okul no girişi; QR giriş. 39. [BEN] Kurum logosu Blob (SSRF). 40. [BEN] ✅ Geri tuşu + Design System (docs/TASARIM-SISTEMI.md, erişilebilirlik sabitleri, 23 Ekim).
 
 ## H. Operasyon/kalite
 41. [BEN] Merkezi KPI (GERÇEK/TAHMİN/SENARYO). 42. [BEN] Kota uyarısı Telegram + AI fiyat bekçisi. 43. [BEN] Destek/SLA, Live Academy testi. 44. [BEN] Next.js 16, npm audit, WebAuthn — YAPILAMADI: sandbox npm kayıt sunucusuna erişemiyor (npm audit ENOTFOUND, 23 Ekim); Termux/CI üzerinden yapılmalı. 45. [BEN] Soru Çöz'ü otomatik öğrenci testine ekle. 46. [SEN] Hesap e-postalarını kurumsala geçir.
