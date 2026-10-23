@@ -1188,6 +1188,25 @@ export default function Ana() {
   const [ders, setDers] = useState(null);
   const [konu, setKonu] = useState("");
   const [uniteSec, setUniteSec] = useState(null);
+  // Okul ilerlemesi (resmi yillik plan): okulda baslamis uniteler konu anlatiminda kilitsiz acilir; ayrica "sirayi kaldir" secenegi.
+  const [okulAcik, setOkulAcik] = useState({});
+  const [serbestSira, setSerbestSira] = useState(false);
+  useEffect(() => {
+    try { setSerbestSira(localStorage.getItem("karemux_serbest_sira") === "1"); } catch (e) {}
+  }, []);
+  useEffect(() => {
+    let iptal = false;
+    fetch(`/api/yillik-plan?sinif=${sinif}`).then((r) => r.json()).then((d) => { if (!iptal && d && d.okulAcik) setOkulAcik(d.okulAcik); }).catch(() => {});
+    return () => { iptal = true; };
+  }, [sinif]);
+  function serbestSiraDegistir() {
+    const yeni = !serbestSira; setSerbestSira(yeni);
+    try { localStorage.setItem("karemux_serbest_sira", yeni ? "1" : "0"); } catch (e) {}
+  }
+  function yillikPlandanCalis(dersAdi, uniteAdi) {
+    setDers(dersAdi); setUniteSec(uniteAdi); setAktifAltKonu(null); altKonulariGetir(dersAdi, uniteAdi); setMod("anlatim");
+    if (typeof window !== "undefined") window.scrollTo(0, 0);
+  }
   const [tamamlananUniteler, setTamamlananUniteler] = useState({}); // { [ders]: [unite1, unite2, ...] }
   const [tamamlananAltKonular, setTamamlananAltKonular] = useState({}); // { [ders+"::"+unite]: [altKonu1, ...] }
   const [altKonuCache, setAltKonuCache] = useState({}); // { [ders+"::"+unite]: [altKonu1, altKonu2, ...] }
@@ -1473,6 +1492,7 @@ export default function Ana() {
     const tumUniteler = dersinUniteleri(dersAdi, sinif);
     const indeks = tumUniteler.indexOf(uniteAdi);
     if (indeks <= 0) return true; // ilk unite her zaman acik
+    if (serbestSira || (okulAcik[dersAdi] || []).includes(uniteAdi)) return true; // okulda islenmis ya da ogrenci sirayi kaldirmis
     const tamamlanan = tamamlananUniteler[dersAdi] || [];
     return tamamlanan.includes(tumUniteler[indeks - 1]); // bir onceki unite tamamlanmis mi
   }
@@ -8064,7 +8084,7 @@ export default function Ana() {
           </div>
         )}
 
-        {mod === "yillikplan" && <YillikPlanEkrani sinif={sinif} COLORS={COLORS} />}
+        {mod === "yillikplan" && <YillikPlanEkrani sinif={sinif} COLORS={COLORS} onDers={yillikPlandanCalis} />}
 
         {mod === "hedefokul" && (
           <div>
@@ -8377,7 +8397,8 @@ export default function Ana() {
             <div style={{ background: COLORS.page, borderRadius: 12, padding: 14, marginBottom: 14, border: `1px solid ${COLORS.line}` }}>
               {ders && sinif === 8 && MUFREDAT[ders] && (
                 <div style={{ marginBottom: 10 }}>
-                  <p style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>UNITE SEC (sirayla acilir - MEB mufredati, dogrulanmis)</p>
+                  <p style={{ fontSize: 11, fontWeight: 600, color: COLORS.muted, display: "block", marginBottom: 6 }}>UNITE SEC (okulda islenenler ve tamamladigin siradakiler acik - MEB mufredati, dogrulanmis)</p>
+                  <button onClick={serbestSiraDegistir} aria-pressed={serbestSira} style={{ minHeight: 44, marginBottom: 8, padding: "0 12px", borderRadius: 8, border: `1.5px solid ${serbestSira ? COLORS.coral : COLORS.line}`, background: serbestSira ? "#FFF1EF" : COLORS.page, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{serbestSira ? "🔓 Sıra serbest (kapatmak için dokun)" : "🔒 Okulda ilerledim: sırayı kaldır"}</button>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                     {MUFREDAT[ders].map((u) => {
                       const acikMi = uniteAcikMi(ders, u);

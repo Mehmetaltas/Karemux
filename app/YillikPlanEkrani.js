@@ -74,6 +74,20 @@ export default function YillikPlanEkrani({ sinif, COLORS, onDers }) {
               ))}
             </div>
           )}
+          {veri.gecmis && veri.gecmis.length > 0 && (
+            <div style={kart}>
+              <p style={{ margin: "0 0 4px", fontWeight: 700 }}>Okulda geçilen, geride kalmış olabileceğin konular</p>
+              <p style={{ margin: "0 0 10px", fontSize: 12.5, color: COLORS.muted, lineHeight: 1.5 }}>
+                Sıra serbest: istediğin dersten, istediğin üniteden başlayabilirsin. Önerimiz: önce bu haftanın konuları, sonra aşağıdaki listeyi en yakından geriye doğru çalış. Nerede eksiğin olduğundan emin değilsen Seviye Tespit Sınavı’nı çöz.
+              </p>
+              {veri.gecmis.slice(0, 40).map((g) => (
+                <div key={g.ders + g.unite} style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 0", borderTop: `1px solid ${COLORS.line}` }}>
+                  <div style={{ flex: 1, fontSize: 13 }}><b>{g.dersAdi}</b> — {g.unite}<span style={{ color: COLORS.muted }}> ({g.ilkHafta === g.sonHafta ? `${g.ilkHafta}. hafta` : `${g.ilkHafta}–${g.sonHafta}. hafta`})</span></div>
+                  {onDers && <button onClick={() => onDers(g.ders, g.unite)} style={{ minHeight: 44, padding: "0 12px", borderRadius: 8, border: `1.5px solid ${COLORS.line}`, background: COLORS.page, fontWeight: 600, fontSize: 12, cursor: "pointer" }}>Çalış</button>}
+                </div>
+              ))}
+            </div>
+          )}
           <div style={kart}>
             <p style={{ margin: "0 0 8px", fontWeight: 700 }}>Tüm yıl planı</p>
             {veri.dersler.map((ders) => (
@@ -94,7 +108,7 @@ export default function YillikPlanEkrani({ sinif, COLORS, onDers }) {
               </div>
             ))}
           </div>
-          {onDers && <p style={{ fontSize: 12, color: COLORS.muted }}>Bir dersin bu haftaki konusunu çalışmak için Konu Anlatımı bölümünden dersi seçebilirsin.</p>}
+          
         </>
       )}
     </div>
