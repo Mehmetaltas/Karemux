@@ -2,7 +2,7 @@ import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { personelAdminMi } from "@/lib/personel";
 import { tumCekirdek } from "@/lib/icerik-cekirdegi";
-import { videoTablosuHazirla, VIDEO_DURUMLARI, VIDEO_TURLERI, gecisGecerliMi, videoUrlGecerliMi } from "@/lib/video-katalogu";
+import { videoTablosuHazirla, VIDEO_DURUMLARI, VIDEO_TURLERI, YAYIN_YERI, gecisGecerliMi, videoUrlGecerliMi } from "@/lib/video-katalogu";
 
 async function yetkiKontrol(req, sifre) {
   const ip = istekIpAdresi(req);
@@ -23,7 +23,7 @@ export async function GET(req) {
   if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
   await videoTablosuHazirla();
   const durumlar = await sql`SELECT durum, COUNT(*)::int AS adet FROM video_katalogu GROUP BY durum`;
-  const liste = await sql`SELECT id, sinif, ders, unite, alt_konu, video_turu, durum, url, sure_sn FROM video_katalogu ORDER BY id DESC LIMIT 100`;
+  const liste = await sql`SELECT id, sinif, ders, unite, alt_konu, video_turu, yayin_yeri, durum, url, sure_sn FROM video_katalogu ORDER BY id DESC LIMIT 100`;
   return Response.json({ durumlar, liste, izinliDurumlar: VIDEO_DURUMLARI, izinliTurler: VIDEO_TURLERI });
 }
 
@@ -36,23 +36,27 @@ export async function POST(req) {
   await videoTablosuHazirla();
 
   if (g.islem === "planla_hepsi") {
-    // Her resmi unite icin 1 'mini_ders' kaydi 'planli' acilir (idempotent: kimlik indeksi cift kaydi engeller).
+    // Her resmi unite icin 1 'mini_ders' (slayt, Karemux'ta) ve 1 'uzun_anlatim' (ogretmen, YouTube) kaydi 'planli' acilir
+    // (idempotent: kimlik indeksi cift kaydi engeller).
     let eklenen = 0;
     for (const c of tumCekirdek()) {
       for (const un of c.uniteler) {
-        const r = await sql`INSERT INTO video_katalogu (sinif, ders, unite, video_turu) VALUES (${c.sinif}, ${c.ders}, ${un.unite}, 'mini_ders') ON CONFLICT DO NOTHING RETURNING id`;
-        eklenen += r.length;
+        const a = await sql`INSERT INTO video_katalogu (sinif, ders, unite, video_turu, yayin_yeri) VALUES (${c.sinif}, ${c.ders}, ${un.unite}, 'mini_ders', 'karemux') ON CONFLICT DO NOTHING RETURNING id`;
+        const b = await sql`INSERT INTO video_katalogu (sinif, ders, unite, video_turu, yayin_yeri) VALUES (${c.sinif}, ${c.ders}, ${un.unite}, 'uzun_anlatim', 'youtube') ON CONFLICT DO NOTHING RETURNING id`;
+        eklenen += a.length + b.length;
       }
     }
     return Response.json({ ok: true, eklenen });
   }
   const id = Number(g.id);
   if (!Number.isInteger(id)) return Response.json({ error: "id gerekli" }, { status: 400 });
-  const mevcut = await sql`SELECT durum, url FROM video_katalogu WHERE id = ${id}`;
+  const mevcut = await sql`SELECT durum, url, video_turu FROM video_katalogu WHERE id = ${id}`;
   if (!mevcut[0]) return Response.json({ error: "Kayit yok" }, { status: 404 });
 
   if (g.islem === "url") {
-    if (!videoUrlGecerliMi(g.url)) return Response.json({ error: "Gecersiz video adresi (https; YouTube/Vimeo/Vercel Blob)" }, { status: 400 });
+    if (!videoUrlGecerliMi(g.url, mevcut[0].video_turu)) {
+      return Response.json({ error: YAYIN_YERI[mevcut[0].video_turu] === "youtube" ? "Uzun anlatim icin YouTube adresi gerekli (https://www.youtube.com/... ya da youtu.be/...)" : "Karemux videosu icin Vercel Blob adresi gerekli" }, { status: 400 });
+    }
     await sql`UPDATE video_katalogu SET url = ${g.url}, guncelleme = now() WHERE id = ${id}`;
     return Response.json({ ok: true });
   }

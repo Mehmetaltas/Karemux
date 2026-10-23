@@ -74,8 +74,8 @@ export default function IcerikMerkezi({ sifre, T, TYPO, Panel, butonStil }) {
       {video && (
         <div>
           <p style={{ fontSize: TYPO.body, fontWeight: 700 }}>Video kataloğu: {video.durumlar.length ? video.durumlar.map((d) => `${d.durum} ${d.adet}`).join(" · ") : "kayıt yok"}</p>
-          <button disabled={bekle} onClick={videoPlanla} style={butonStil}>Tüm resmî üniteler için "planlı" video kaydı aç</button>
-          <p style={p}>Gerçek video yoktur; kayıt "yayında" olabilmesi için önce geçerli bir video adresi girilmelidir. Yayın akışı: planlı → üretimde → kalite bekliyor → yayında.</p>
+          <button disabled={bekle} onClick={videoPlanla} style={butonStil}>Tüm resmî üniteler için "planlı" video kaydı aç (mini ders + uzun anlatım)</button>
+          <p style={p}>İki tür: mini ders (6-7 dk slayt + ses, Karemux'ta barınır, adres Vercel Blob) ve uzun anlatım (öğretmen, kamera + akıllı tahta, YouTube adresi). Gerçek video yoktur; "yayında" olabilmesi için türüne uygun adres girilmelidir. Akış: planlı → üretimde → kalite bekliyor → yayında.</p>
         </div>
       )}
     </Panel>
