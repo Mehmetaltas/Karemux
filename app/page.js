@@ -3191,6 +3191,13 @@ export default function Ana() {
     setZayifDersler((l) => (l.includes(ad) ? l.filter((x) => x !== ad) : [...l, ad]));
   }
 
+  // Harici katilimci (madde 20): hesapsiz girilen ulusal deneme sonuclari bu cihazdan yeni/mevcut hesaba tasinir. Sessiz.
+  async function hariciSonuclariAktar() {
+    try {
+      await fetch("/api/harici/aktar", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ cihazId: cihazIdRef.current }) });
+    } catch (e) {}
+  }
+
   async function girisTamamlandiktanSonra() {
     try {
       if (beniHatirlaOgrenci) {
@@ -3199,6 +3206,7 @@ export default function Ana() {
         localStorage.removeItem("karemux_hatirla_ana");
       }
     } catch (e) {}
+    await hariciSonuclariAktar();
     const me = await fetch("/api/auth/me").then((r) => r.json());
     if (me.girisYapmis) setHesap(me.kullanici);
     const p = await fetch(`/api/ilerleme?cihazId=${cihazIdRef.current}`).then((r) => r.json());
@@ -3233,6 +3241,7 @@ export default function Ana() {
       }
 
       if (hesapModu === "giris") await girisTamamlandiktanSonra();
+      else await hariciSonuclariAktar();
     } catch (e) {
       setHesapHata(e.message || "Islem basarisiz");
     }
