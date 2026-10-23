@@ -27,7 +27,7 @@
 ## D. Sınav Merkezi
 18. [BEN] Ortak üretim çekirdeği: seviye-tespit/olustur → onay-sinavi → ulusalDenemeOlustur.
 19. [BEN] Oturum/katılım modeli, hata/süre analizi, öğretmen analizi, telafi zinciri.
-20. [BEN] Harici katılımcı (hesapsız katıl, sonra hesaba taşı).
+20. [BEN] ✅ Harici katılımcı (23 Ekim): /harici-deneme (hesapsız ulusal deneme), hesap açınca/girişte /api/harici/aktar ile sonuç aktarımı. Canlı doğrulama bekliyor.
 21. [BEN] Sıralama eşikleri, min grup büyüklüğü, okul/sınıf ortalaması.
 22. [BEN] Sınav Analizleri ekranı: durum etiketleri, öneriler, hedef net, kazanım analizi.
 
