@@ -74,15 +74,26 @@ export async function POST(req) {
   if (!yetkili(req)) return NextResponse.json({ hata: "yetkisiz" }, { status: 401 });
   let b; try { b = await req.json(); } catch { return NextResponse.json({ hata: "gecersiz govde" }, { status: 400 }); }
   try {
+    const ayikla = (m) => JSON.parse(m.trim().replace(/^```json\s*|^```\s*|```\s*$/g, ""));
     if (b.islem === "senaryo") {
       if (!b.paket?.anlatim || !b.baglam) return NextResponse.json({ hata: "paket/baglam eksik" }, { status: 400 });
-      const istem = senaryoIstemi(b);
-      const { metin, saglayici } = await aiCagirDetay({ prompt: istem, maxTokens: 6000, jsonModu: true, tur: "video_senaryo" }, null, 55000);
-      const j = JSON.parse(metin.trim().replace(/^```json\s*|^```\s*|```\s*$/g, ""));
-      const sl = (j.slaytlar || []).filter((s) => s?.baslik && s?.konusma).map((s) => ({
+      let istem = senaryoIstemi(b);
+      if (Array.isArray(b.duzeltmeler) && b.duzeltmeler.length) istem += `\n\nÖNCEKİ DENEMEDE DENETÇİ ŞU HATALARI BULDU; bunları KESİNLİKLE düzelt, aynı hatayı tekrarlama: ${JSON.stringify(b.duzeltmeler).slice(0, 2500)}`;
+      const r = await aiCagirDetay({ prompt: istem, maxTokens: 6000, jsonModu: true, tur: "video_senaryo" }, null, 55000);
+      const sl = (ayikla(r.metin).slaytlar || []).filter((s) => s?.baslik && s?.konusma).map((s) => ({
         baslik: String(s.baslik).slice(0, 60), maddeler: (s.maddeler || []).map((m) => String(m).slice(0, 90)).slice(0, 4), konusma: String(s.konusma).slice(0, 700),
       }));
-      return NextResponse.json({ slaytlar: sl, saglayici, ucretUsd: senaryoUcretUsd(istem, metin) });
+      return NextResponse.json({ slaytlar: sl, saglayici: r.saglayici, ucretUsd: senaryoUcretUsd(istem, r.metin) });
+    }
+    if (b.islem === "denetim") {
+      // Bagimsiz denetim: konusmadaki her iddia kaynakta var mi, konu/dil bilgisi dogru mu?
+      if (!b.paket?.anlatim || !Array.isArray(b.slaytlar)) return NextResponse.json({ hata: "paket/slaytlar eksik" }, { status: 400 });
+      const dIstem = `Sen titiz bir ${b.baglam.ders} öğretmenisin ve denetçisin. KAYNAK anlatım ile ders SENARYOSU aşağıda. SENARYODA şunları bul: (1) kaynakta olmayan ya da kaynakla çelişen iddia, (2) konu bilgisi/dil bilgisi bakımından YANLIŞ ya da yanıltıcı ifade (ek adları, kural, örnek, hesap). Yalnızca gerçek hataları yaz; üslup eleştirisi yapma.
+KAYNAK: ${JSON.stringify(b.paket.anlatim)}
+SENARYO: ${JSON.stringify(b.slaytlar)}
+SADECE JSON döndür: {"hatalar":[{"slayt":"başlık","sorun":"...","dogrusu":"..."}]}`;
+      const d = await aiCagirDetay({ prompt: dIstem, maxTokens: 2500, jsonModu: true, tur: "video_senaryo_denetim" }, null, 55000);
+      return NextResponse.json({ hatalar: ayikla(d.metin).hatalar || [], ucretUsd: senaryoUcretUsd(dIstem, d.metin) });
     }
     if (b.islem === "ses") {
       const ses = SESLER[b.ses] || SESLER.kadin;

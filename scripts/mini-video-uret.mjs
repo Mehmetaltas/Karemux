@@ -92,8 +92,18 @@ for (const a of adaylar) {
     const paket = typeof a.icerik_json === "string" ? JSON.parse(a.icerik_json) : a.icerik_json;
     const baglam = { sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu, kazanimlar: kazanimlariGetir(a.ders, a.sinif, a.konu, a.unite, 4), logoUri: LOGO_URI };
     HARCAMA_USD = 0;
-    const sj = await yardim({ islem: "senaryo", baglam, paket: { anlatim: paket.anlatim } });
-    HARCAMA_USD += Number(sj.ucretUsd) || 0;
+    // Senaryo -> bagimsiz denetim -> hata varsa duzeltmeyle yeniden yaz (en fazla 2 tur). Denetimden gecmeyen senaryo SESLENDIRILMEZ.
+    let sj = null, duzeltmeler = [];
+    for (let tur = 0; tur < 3; tur++) {
+      sj = await yardim({ islem: "senaryo", baglam, paket: { anlatim: paket.anlatim }, duzeltmeler });
+      HARCAMA_USD += Number(sj.ucretUsd) || 0;
+      const d = await yardim({ islem: "denetim", baglam, paket: { anlatim: paket.anlatim }, slaytlar: sj.slaytlar });
+      HARCAMA_USD += Number(d.ucretUsd) || 0;
+      if (!d.hatalar.length) { console.log(`::notice title=denetim::${etiket}: senaryo denetimden gecti (tur ${tur + 1})`); break; }
+      console.log(`::warning title=denetim::${etiket}: tur ${tur + 1}: ${d.hatalar.length} hata bulundu: ${JSON.stringify(d.hatalar).slice(0, 400)}`);
+      duzeltmeler = d.hatalar;
+      if (tur === 2) throw new Error("senaryo denetimden gecemedi");
+    }
     const { slaytlar, neden } = senaryodanSlaytlar(sj.slaytlar, paket, baglam);
     HOCA = hocaSec(a.ders);
     if (!slaytlar.length) { atlanan++; console.log(`::warning title=atlandi::${etiket}: ${neden}`); continue; }
