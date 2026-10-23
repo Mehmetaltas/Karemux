@@ -7,6 +7,7 @@ import CerezBildirimi from "@/lib/CerezBildirimi";
 import { SEKME_GRUPLARI } from "@/lib/admin-sekmeleri";
 import PaketTasarim from "./PaketTasarim";
 import IcerikMerkezi from "./IcerikMerkezi";
+import PasskeyYonetimi from "./PasskeyYonetimi";
 
 // ==== Tasarim tokenlari - "Kayit Defteri" estetigi: bir ogretmenin
 // karne/not defterini andiran, kagit + kirmizi kalem + tebesir yesili dili ====
@@ -650,6 +651,39 @@ export default function YonetimPaneli() {
     } catch (e) {}
   }, []);
 
+  const [passkeyGecici, setPasskeyGecici] = useState(null);
+
+  // Sifre (ve varsa passkey) dogrulandiktan sonra ortak adimlar
+  async function girisTamamla(girisData) {
+    setPersonelAd(girisData.ad);
+    setSifre(girisData.sifre);
+    try {
+      if (personelBeniHatirla) {
+        localStorage.setItem("karemux_hatirla_admin", JSON.stringify({ eposta: personelEposta, sifre: personelSifre }));
+      } else {
+        localStorage.removeItem("karemux_hatirla_admin");
+      }
+    } catch (e) {}
+    const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(girisData.sifre)}`);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Giriş başarısız");
+    setMuhasebeVeri(data);
+    setPasskeyGecici(null);
+    setGirisYapildi(true);
+  }
+
+  async function passkeyIleDogrula(gecici) {
+    const { startAuthentication } = await import("@simplewebauthn/browser");
+    const bRes = await fetch("/api/personel/passkey/giris-baslat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gecici }) });
+    const opts = await bRes.json();
+    if (!bRes.ok) throw new Error(opts.error || "Passkey başlatılamadı");
+    const yanit = await startAuthentication({ optionsJSON: opts });
+    const tRes = await fetch("/api/personel/passkey/giris-bitir", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ gecici, yanit, beniHatirla: personelBeniHatirla }) });
+    const tData = await tRes.json();
+    if (!tRes.ok) throw new Error(tData.error || "Doğrulanamadı");
+    await girisTamamla(tData);
+  }
+
   async function girisDene() {
     mesajTemizle();
     setYukleniyor(true);
@@ -661,21 +695,12 @@ export default function YonetimPaneli() {
       });
       const girisData = await girisRes.json();
       if (!girisRes.ok) throw new Error(girisData.error || "Giris basarisiz");
-      setPersonelAd(girisData.ad);
-      setSifre(girisData.sifre);
-      try {
-        if (personelBeniHatirla) {
-          localStorage.setItem("karemux_hatirla_admin", JSON.stringify({ eposta: personelEposta, sifre: personelSifre }));
-        } else {
-          localStorage.removeItem("karemux_hatirla_admin");
-        }
-      } catch (e) {}
-
-      const res = await fetch(`/api/admin/muhasebe?sifre=${encodeURIComponent(girisData.sifre)}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Giriş başarısız");
-      setMuhasebeVeri(data);
-      setGirisYapildi(true);
+      if (girisData.passkeyGerekli) {
+        setPasskeyGecici(girisData.gecici);
+        await passkeyIleDogrula(girisData.gecici);
+        return;
+      }
+      await girisTamamla(girisData);
     } catch (e) {
       setHata(e.message || "Hatali giris ya da baglanti sorunu.");
     } finally {
@@ -2024,6 +2049,7 @@ export default function YonetimPaneli() {
         )}
 
         {sekme === "hesabim" && (
+          <>
           <div style={{ background: T.surface, borderRadius: 10, border: `1px solid ${T.border}`, padding: 16, maxWidth: 360 }}>
             <p style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>👤 Hesabım</p>
             <p style={{ fontSize: 11.5, color: T.textMuted, marginBottom: 14 }}>{personelAd}</p>
@@ -2034,6 +2060,8 @@ export default function YonetimPaneli() {
             {pSifreSonuc?.basari && <p style={{ color: T.success || "#1E7A46", fontSize: 12, marginBottom: 8 }}>Şifren güncellendi ✓</p>}
             <button onClick={personelSifreDegistir} disabled={pSifreYukleniyor || !pEskiSifre || !pYeniSifre} style={{ width: "100%", padding: "10px 0", borderRadius: 8, border: "none", background: T.accent, color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (pSifreYukleniyor || !pEskiSifre || !pYeniSifre) ? 0.5 : 1 }}>{pSifreYukleniyor ? "Güncelleniyor..." : "Şifreyi Güncelle"}</button>
           </div>
+          <PasskeyYonetimi T={T} />
+          </>
         )}
 
         {sekme === "butunluk" && butunlukVeri && (() => {

@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { sifreDogrula } from "@/lib/auth";
 import { personelTokenUret, personelOturumCookieBaslik } from "@/lib/personel";
+import { passkeyleriGetir, geciciPasskeyTokenUret } from "@/lib/webauthn";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 
 export async function POST(req) {
@@ -25,6 +26,14 @@ export async function POST(req) {
     }
 
     await denemeKaydet(ip, "personel_giris", true);
+
+    // Ikinci adim: passkey kaydetmis personel yalniz sifreyle iceri alinmaz (oturum cerezi VERILMEZ).
+    // Tablo/sorgu hatasinda giris eski haliyle surer (kilitlenme riski yok); passkey olanda hata ise girisi REDDEDER.
+    let passkeyVar = false;
+    try { passkeyVar = (await passkeyleriGetir(personel[0].id)).length > 0; } catch (e) { console.error("passkey kontrol:", e.message); }
+    if (passkeyVar) {
+      return Response.json({ passkeyGerekli: true, gecici: geciciPasskeyTokenUret(personel[0].id) });
+    }
     await sql`UPDATE personel SET son_giris = now() WHERE id = ${personel[0].id}`;
 
     const token = personelTokenUret(personel[0].id);
