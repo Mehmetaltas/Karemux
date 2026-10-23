@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ["iyzipay"],
   images: {
     // 25 Eylul: Kurum logolari artik Vercel Blob'da barinacagi icin
     // next/image'in optimize edebilmesi icin bu domain izinli olmali.
