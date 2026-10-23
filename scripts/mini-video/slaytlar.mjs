@@ -80,11 +80,31 @@ export function slaytlariOlustur(paket, baglam) {
   return { slaytlar: s.map((x) => ({ ...x, ses: sesMetni(x.ses) })), neden: null };
 }
 
+// Ogretmen senaryosu (Gemini, onayli konu paketinden) -> slayt listesi. Konusma ayri, ekranda yalniz kisa maddeler.
+export function senaryodanSlaytlar(senaryo, paket, baglam) {
+  const konu = baglam.konu || baglam.unite;
+  const sl = (senaryo || []).filter((x) => x && x.baslik && x.konusma && String(x.konusma).length >= 80);
+  if (sl.length < 6) return { slaytlar: [], neden: `senaryo yetersiz (${sl.length} slayt)` };
+  const s = [{ tip: "kapak", baslik: konu, alt: `${baglam.ders} · ${baglam.sinif}. Sınıf`, ses: `Merhaba! Bugün ${konu} konusunu birlikte, adım adım öğreneceğiz. Hazırsan başlayalım.` }];
+  const svg = typeof paket?.gorselSvg === "string" ? paket.gorselSvg : paket?.gorselSvg?.svg;
+  const svgVar = typeof svg === "string" && /^\s*<svg[\s>]/i.test(svg) && svg.length < 20000;
+  sl.forEach((x, i) => {
+    s.push({ tip: "madde", baslik: x.baslik, maddeler: (x.maddeler || []).filter(Boolean), ses: x.konusma });
+    if (svgVar && i === Math.min(1, sl.length - 1)) {
+      s.push({ tip: "gorsel", baslik: "Şekle Bakalım", svg: svg.replace(/<script[\s\S]*?<\/script>/gi, "").replace(/\son\w+="[^"]*"/gi, ""), ses: "Şimdi konuyu bir şekil üzerinden görelim. Ekrandaki şekle dikkatle bak." });
+    }
+  });
+  s.push({ tip: "kapanis", baslik: "Şimdi Sıra Sende!", alt: "Soruları çöz, öğrendiklerini pekiştir.", ses: "Dersimiz burada bitti. Şimdi sıra sende: konuyla ilgili soruları çözerek öğrendiklerini pekiştir. Karemux ile başarılar!" });
+  return { slaytlar: s.map((x) => ({ ...x, ses: sesMetni(x.ses) })), neden: null };
+}
+
 const esc = (t) => ekranMetni(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 export function slaytHtml(sl, sira, toplam, baglam) {
   const govde = sl.tip === "gorsel"
     ? `<div class="kart">${sl.svg}</div>`
+    : sl.tip === "madde"
+    ? `<ul>${sl.maddeler.map((m) => `<li>${esc(m)}</li>`).join("")}</ul>`
     : sl.tip === "liste"
     ? `<ol>${sl.maddeler.map((m) => `<li>${esc(m)}</li>`).join("")}</ol>`
     : sl.govde ? `<p class="g">${esc(sl.govde)}</p>` : sl.alt ? `<p class="alt">${esc(sl.alt)}</p>` : "";
@@ -94,7 +114,7 @@ export function slaytHtml(sl, sira, toplam, baglam) {
 .ust{font-size:22px;color:#E8B339;letter-spacing:1px;font-weight:700;margin-bottom:26px}
 h1{font-size:${buyuk ? 66 : 46}px;line-height:1.2;margin-bottom:30px;${buyuk ? "margin-top:120px;" : ""}color:#fff}
 .g{font-size:34px;line-height:1.55}.alt{font-size:32px;color:#E8B339;line-height:1.5}
-ol{font-size:32px;line-height:1.5;padding-left:44px}li{margin-bottom:16px}
+ul{font-size:36px;line-height:1.5;padding-left:44px}ul li::marker{color:#E8B339}ol{font-size:32px;line-height:1.5;padding-left:44px}li{margin-bottom:16px}
 .kart{background:#fff;border-radius:18px;padding:20px;display:flex;justify-content:center;align-items:center;height:430px}.kart svg{max-width:100%;max-height:390px;width:auto;height:auto}
 .alt-bar{position:absolute;left:72px;right:72px;bottom:34px;display:flex;justify-content:space-between;font-size:20px;color:#9FB8A8}
 .cizgi{position:absolute;left:0;bottom:0;height:8px;background:#E8B339;width:${Math.round((sira / toplam) * 100)}%}

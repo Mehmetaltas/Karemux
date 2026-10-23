@@ -6,13 +6,12 @@ import { put } from "@vercel/blob";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import { kazanimlariGetir } from "@/lib/kazanimlar";
-import { slaytlariOlustur } from "./mini-video/slaytlar.mjs";
+import { senaryodanSlaytlar } from "./mini-video/slaytlar.mjs";
 import { mp4Uret } from "./mini-video/uret.mjs";
 
 const sql = neon(process.env.DATABASE_URL);
 const LIMIT = Math.max(1, Math.min(20, Number(process.env.LIMIT) || 3));
 const SINIF = process.env.SINIF ? Number(process.env.SINIF) : null;
-const SES = process.env.TTS_SES || "tr-TR-EmelNeural";
 const TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
 const CIKTI = "mini-video-cikti";
 fs.mkdirSync(CIKTI, { recursive: true });
@@ -27,16 +26,36 @@ async function tablo() {
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS video_katalogu_kimlik ON video_katalogu (sinif, ders, unite, COALESCE(alt_konu, ''), video_turu)`;
 }
 
-// Edge neural TTS (resmi olmayan istemci). Hata olursa cikis kodu != 0 -> is bu paketi atlar.
-function tts(metin, hedef) {
-  fs.writeFileSync(hedef + ".txt", metin);
-  execFileSync("edge-tts", ["--voice", SES, "--file", hedef + ".txt", "--write-media", hedef], { stdio: ["ignore", "ignore", "pipe"], timeout: 60000 });
-  if (!fs.existsSync(hedef) || fs.statSync(hedef).size < 2000) throw new Error("ses dosyasi bos");
+// Dogal ses + ogretmen senaryosu: Karemux sunucusundaki /api/admin/video-yardim (Gemini TTS; anahtar Vercel'de, burada yok).
+const SITE = process.env.SITE_URL || "https://www.karemux.com";
+const GIZLI = process.env.HEALTH_CHECK_SECRET || "";
+const bekle = (ms) => new Promise((r) => setTimeout(r, ms));
+async function yardim(govde, deneme = 4) {
+  let son = "";
+  for (let k = 0; k < deneme; k++) {
+    try {
+      const res = await fetch(`${SITE}/api/admin/video-yardim`, { method: "POST", headers: { "Content-Type": "application/json", "x-health-check-secret": GIZLI }, body: JSON.stringify(govde), signal: AbortSignal.timeout(65000) });
+      const j = await res.json().catch(() => ({}));
+      if (res.ok) return j;
+      son = `${res.status} ${j.hata || ""}`;
+    } catch (e) { son = String(e.message); }
+    await bekle(8000 * (k + 1));
+  }
+  throw new Error("video-yardim: " + son.slice(0, 250));
+}
+// Her ders icin hep ayni hoca: dersin adindan kadin/erkek secilir (bir kadin, bir erkek ogretmen).
+const hocaSec = (ders) => ([...String(ders)].reduce((t, c) => t + c.charCodeAt(0), 0) % 2 === 0 ? "kadin" : "erkek");
+let HOCA = "kadin";
+async function tts(metin, hedef) {
+  const j = await yardim({ islem: "ses", metin, ses: HOCA });
+  fs.writeFileSync(hedef, Buffer.from(j.wav, "base64"));
+  if (fs.statSync(hedef).size < 4000) throw new Error("ses dosyasi bos");
 }
 
-// Ses saglayicisi calisiyor mu? Takilirsa tum is bosuna beklemesin.
-try { tts("Merhaba, bu bir deneme.", `${CIKTI}/on-kontrol.mp3`); console.log("::notice title=tts::edge-tts calisiyor"); }
-catch (e) { console.log(`::error title=tts::edge-tts calismiyor: ${String(e.message).slice(0, 250)} ${String(e.stderr || "").slice(0, 250)}`); process.exit(1); }
+if (!GIZLI) { console.log("::error title=tts::HEALTH_CHECK_SECRET yok"); process.exit(1); }
+try { await tts("Merhaba, bu bir deneme.", `${CIKTI}/on-kontrol.wav`); console.log("::notice title=tts::gemini tts calisiyor"); }
+catch (e) { console.log(`::error title=tts::gemini tts calismiyor: ${String(e.message).slice(0, 300)}`); process.exit(1); }
+
 await tablo();
 const adaylar = await sql`
   SELECT DISTINCT ON (o.sinif, o.ders, o.unite, o.konu) o.id, o.sinif, o.ders, o.unite, o.konu, o.icerik_json
@@ -57,7 +76,9 @@ for (const a of adaylar) {
   try {
     const paket = typeof a.icerik_json === "string" ? JSON.parse(a.icerik_json) : a.icerik_json;
     const baglam = { sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu, kazanimlar: kazanimlariGetir(a.ders, a.sinif, a.konu, a.unite, 3) };
-    const { slaytlar, neden } = slaytlariOlustur(paket, baglam);
+    const sj = await yardim({ islem: "senaryo", baglam, paket: { anlatim: paket.anlatim } });
+    const { slaytlar, neden } = senaryodanSlaytlar(sj.slaytlar, paket, baglam);
+    HOCA = hocaSec(a.ders);
     if (!slaytlar.length) { atlanan++; console.log(`::warning title=atlandi::${etiket}: ${neden}`); continue; }
     const dizin = `${CIKTI}/p${a.id}`;
     const cikti = `${CIKTI}/mini-${a.id}.mp4`;
@@ -67,7 +88,7 @@ for (const a of adaylar) {
       const { url } = await put(`mini-ders/${a.sinif}-${a.id}.mp4`, fs.readFileSync(cikti), { access: "public", contentType: "video/mp4", token: TOKEN, addRandomSuffix: true });
       await sql`
         INSERT INTO video_katalogu (sinif, ders, unite, alt_konu, video_turu, yayin_yeri, url, sure_sn, durum, kalite_notu)
-        VALUES (${a.sinif}, ${a.ders}, ${a.unite}, ${a.konu}, 'mini_ders', 'karemux', ${url}, ${r.sureSn}, 'kalite_bekliyor', 'otomatik uretim (slayt + edge-tts); insan incelemesi bekliyor')
+        VALUES (${a.sinif}, ${a.ders}, ${a.unite}, ${a.konu}, 'mini_ders', 'karemux', ${url}, ${r.sureSn}, 'kalite_bekliyor', 'otomatik uretim (ogretmen senaryosu + gemini tts); insan incelemesi bekliyor')
         ON CONFLICT (sinif, ders, unite, COALESCE(alt_konu, ''), video_turu)
         DO UPDATE SET url = EXCLUDED.url, sure_sn = EXCLUDED.sure_sn, durum = 'kalite_bekliyor', guncelleme = now()
         WHERE video_katalogu.durum <> 'yayinda'`;

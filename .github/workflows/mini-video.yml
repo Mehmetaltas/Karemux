@@ -28,11 +28,10 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
-      - name: Araclar (ffmpeg, yazi tipi, edge-tts, playwright)
+      - name: Araclar (ffmpeg, yazi tipi, playwright)
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg fonts-dejavu-core fonts-noto-core
-          pip install --quiet edge-tts
           npm install --no-save --no-audit --no-fund playwright
           npx playwright install --with-deps chromium
       - name: Uretim hattini sessiz sesle dogrula
@@ -40,6 +39,7 @@ jobs:
       - name: Mini videolari uret
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          HEALTH_CHECK_SECRET: ${{ secrets.HEALTH_CHECK_SECRET }}
           BLOB_READ_WRITE_TOKEN: ${{ secrets.BLOB_READ_WRITE_TOKEN }}
           LIMIT: ${{ inputs.limit || '3' }}
           SINIF: ${{ inputs.sinif }}
