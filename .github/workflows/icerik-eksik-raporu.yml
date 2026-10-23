@@ -1,0 +1,33 @@
+name: Eksik Konu Paketi Raporu
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rapor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Eksikleri say
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scripts/eksik-konu-paketi-raporu.mjs
+      - name: Rapor dalina yaz
+        run: |
+          set -e
+          cp eksik-konu-paketleri.json /tmp/rapor.json
+          git config user.name "karemux-bot"; git config user.email "bot@karemux.com"
+          git checkout --orphan rapor
+          git rm -rf -q . || true
+          cp /tmp/rapor.json eksik-konu-paketleri.json
+          git add eksik-konu-paketleri.json
+          git commit -q -m "eksik konu paketi raporu"
+          git push -f origin rapor
