@@ -1,0 +1,50 @@
+name: Bagimlilik Yukselt (dal acar)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mod:
+        description: 'audit-fix veya next16'
+        required: true
+        default: 'audit-fix'
+
+permissions:
+  contents: write
+
+jobs:
+  yukselt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - name: Yukselt
+        run: |
+          if [ "${{ inputs.mod }}" = "next16" ]; then
+            npm install next@^16 react@^19 react-dom@^19 --save-exact=false
+          else
+            npm audit fix --omit=dev || true
+          fi
+      - name: Build
+        id: build
+        env:
+          DATABASE_URL: postgresql://x:x@localhost/x
+        run: |
+          if npm run build > build.log 2>&1; then echo "::notice title=build::BASARILI"; else
+            echo "::error title=build::BASARISIZ"
+            grep -iE "error|failed|cannot|not found|deprecat" build.log | head -25 | while read -r l; do echo "::error title=build satiri::${l:0:400}"; done
+            exit 1
+          fi
+      - name: Dali gonder
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git checkout -b deps/${{ inputs.mod }}
+          git add package.json package-lock.json
+          git commit -m "deps: ${{ inputs.mod }} (CI build gecti)" || echo "degisiklik yok"
+          git push -f origin deps/${{ inputs.mod }}
+      - name: Audit sonrasi
+        run: |
+          npm audit --omit=dev --json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const a=JSON.parse(s);console.log("::notice title=audit sonrasi::"+JSON.stringify(a.metadata.vulnerabilities))})'
