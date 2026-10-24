@@ -1776,7 +1776,10 @@ export default function Ana() {
     setAnalizYukleniyor(true);
     try {
       const res = await fetch(`/api/sinav-analizi?cihazId=${cihazIdRef.current}`);
-      setAnalizVeri(await res.json());
+      const veri = await res.json();
+      let telafi = [];
+      try { const tr = await fetch(`/api/telafi?cihazId=${cihazIdRef.current}`); const tj = await tr.json(); telafi = Array.isArray(tj.konular) ? tj.konular : []; } catch (e) { /* telafi opsiyonel */ }
+      setAnalizVeri({ ...veri, telafi });
     } catch (e) {
       setAnalizVeri({ dersler: [], konular: [], oneriler: [], sinavSayisi: 0 });
     } finally {
@@ -7701,6 +7704,21 @@ export default function Ana() {
                       <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
                         <span>{k.ders} · {k.konu}</span>
                         <span><b>{k.hata}</b> hata <span style={{ fontSize: 10.5, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: "rgba(232,80,63,0.12)", color: "#B3392B", marginLeft: 6 }}>{k.etiket}</span></span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {Array.isArray(analizVeri.telafi) && analizVeri.telafi.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <p style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>Telafi Takibi (önce / sonra)</p>
+                    <p style={{ fontSize: 11, color: COLORS.muted, marginBottom: 8 }}>Zayıf konuda Tek Konu testini çöz, çalış, yinele; ilk ve son puanını (10 üzerinden) karşılaştırırız.</p>
+                    {analizVeri.telafi.map((t, i) => (
+                      <div key={i} style={{ padding: "6px 0", borderBottom: `1px solid ${COLORS.line}`, fontSize: 12 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                          <span>{t.ders} · {t.konu}</span>
+                          <b>{t.durum === "iyilesti" ? `⬆ +${t.fark}` : t.durum === "geriledi" ? `⬇ ${t.fark}` : t.durum === "degismedi" ? "= aynı" : t.durum === "ilk_olcum" ? `ilk: ${Math.round(t.ilkPuan * 10) / 10}` : "ölçülmedi"}</b>
+                        </div>
+                        <p style={{ fontSize: 11, color: COLORS.muted, margin: "2px 0 0" }}>{t.sonrakiAdim}</p>
                       </div>
                     ))}
                   </div>
