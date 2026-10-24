@@ -70,6 +70,7 @@ jobs:
           git checkout --orphan video-onizleme
           git rm -rf -q . || true
           cp /tmp/onz/* .
-          git add *.mp4 *.json
-          git commit -q -m "mini video onizleme"
+          echo '{"git":{"deploymentEnabled":false}}' > vercel.json
+          git add *.mp4 *.json vercel.json
+          git commit -q -m "mini video onizleme [skip ci]"
           git push -f origin video-onizleme

@@ -34,6 +34,7 @@ jobs:
           git checkout --orphan rapor
           git rm -rf -q . || true
           cp /tmp/rapor.json eksik-konu-paketleri.json
-          git add eksik-konu-paketleri.json
-          git commit -q -m "eksik konu paketi raporu"
+          echo '{"git":{"deploymentEnabled":false}}' > vercel.json
+          git add eksik-konu-paketleri.json vercel.json
+          git commit -q -m "eksik konu paketi raporu [skip ci]"
           git push -f origin rapor
