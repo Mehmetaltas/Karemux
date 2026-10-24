@@ -19,3 +19,8 @@ await dene("soru_bankasi yetim", async () => {
   const yet = await sql`SELECT ders, COUNT(*)::int n FROM soru_bankasi s WHERE unite IS NOT NULL AND unite<>'' AND NOT EXISTS (SELECT 1 FROM mufredat m WHERE m.ders ILIKE s.ders AND m.sinif::text=s.sinif::text AND m.unite ILIKE s.unite) GROUP BY ders ORDER BY n DESC`;
   not(`soru_bankasi: toplam ${t[0].n}, unitesiz ${bos[0].n}, ingilizce mufredatta olmayan unite ${ing[0].n}; mufredatta eslesmeyen unite (ders bazli): ` + (yet.map((x) => `${x.ders}=${x.n}`).join(", ") || "yok"));
 });
+await dene("konu_hakimiyet sema", async () => {
+  const c = await sql`SELECT column_name, data_type FROM information_schema.columns WHERE table_name='konu_hakimiyet' ORDER BY ordinal_position`;
+  const n = await sql`SELECT COUNT(*)::int n FROM konu_hakimiyet`;
+  not(`konu_hakimiyet kolonlari: ${c.map((x) => x.column_name + ":" + x.data_type).join(", ")} | satir: ${n[0].n}`);
+});
