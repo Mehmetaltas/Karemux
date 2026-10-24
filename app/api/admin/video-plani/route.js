@@ -1,7 +1,7 @@
 import { sql } from "@/lib/db";
 import { denemeSiniriKontrolEt, denemeKaydet, istekIpAdresi } from "@/lib/guvenlik";
 import { personelAdminMi } from "@/lib/personel";
-import { MUFREDAT_YILI, kaynakBosluklari, planTablosuHazirla, planiTohumla } from "@/lib/video-plani";
+import { MUFREDAT_YILI, kaynakBosluklari, planTablosuHazirla, planiTohumla, yilDevri } from "@/lib/video-plani";
 
 export const maxDuration = 60;
 
@@ -41,6 +41,10 @@ export async function POST(req) {
   const g = await req.json().catch(() => ({}));
   const yetki = await yetkiKontrol(req, g.sifre);
   if (!yetki.izinVar) return Response.json({ error: yetki.hata }, { status: 401 });
+  if (g.islem === "yil_devri") {
+    try { return Response.json({ ok: true, ...(await yilDevri(String(g.eskiYil || ""), String(g.yeniYil || ""))) }); }
+    catch (e) { return Response.json({ error: e.message }, { status: 400 }); }
+  }
   if (g.islem !== "tohumla") return Response.json({ error: "bilinmeyen islem" }, { status: 400 });
   const r = await planiTohumla();
   return Response.json({ ok: true, ...r });

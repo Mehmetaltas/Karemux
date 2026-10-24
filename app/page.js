@@ -10,6 +10,7 @@ import YazdirmaBasligi, { YazdirmaAltligi } from "@/lib/YazdirmaBasligi";
 import { listeSatiriStili, bolumBasligiStili } from "@/lib/tasarim-sistemi";
 import Tanitim from "@/app/tanitim/page";
 import YillikPlanEkrani from "./YillikPlanEkrani";
+import KonuVideolari from "./KonuVideolari";
 import { KARNE_DEGERLENDIRME_MENU, SINAVLAR_MENU, TEK_KONU_OGRENME_ARACLARI_MENU, SINAV_DESTEGI_MENU, PLANLAMA_HEDEFLER_MENU, BAGLANTILAR_MENU } from "@/lib/ogrenci-menu";
 
 // Bos, basilabilir Optik Cevap Kagidi sablonu (8 Eylul) - ogrenci/veli
@@ -719,7 +720,7 @@ function konuKatmanlaraAyir(metin) {
 // konuKatmanlaraAyir()'dan gelir - varsa bu bileseni goster, yoksa (null ise)
 // cagiran taraf eski tek-blok gorunume geri duser (JSX'te "if (katmanlar) return"
 // ile - bu bilesen ESKI kodu DEGISTIRMEZ, ona ek bir yeni yol acar).
-function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, onMiniTestTikla }) {
+function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, onMiniTestTikla, videoBaglam }) {
   const KATMANLAR_META = [
     { anahtar: "hizliOgren", baslik: "⚡ Hızlı Öğren", altbaslik: "30 saniyede özet" },
     { anahtar: "temelAnlatim", baslik: "📘 Temel Anlatım", altbaslik: "Ana kavramlar" },
@@ -730,6 +731,7 @@ function KatmanliAnlatim({ katmanlar, acikKatman, setAcikKatman, onMiniTestTikla
   ];
   return (
     <div style={{ marginBottom: 16 }}>
+      {videoBaglam && <KonuVideolari sinif={videoBaglam.sinif} ders={videoBaglam.ders} unite={videoBaglam.unite} konu={videoBaglam.konu} />}
       {KATMANLAR_META.map((k) => {
         const acik = acikKatman === k.anahtar;
         const icerik = katmanlar[k.anahtar];
@@ -4801,7 +4803,7 @@ export default function Ana() {
                     <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: aciklamaGorselSvg }} />
                   )}
                   {aciklama && (() => {
-                    const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
+                    const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} videoBaglam={{ sinif, ders, unite: uniteSec, konu }} />;
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
                     const bloklar = konuMetniBloklaraAyir(govde);
                     return (
@@ -4936,7 +4938,7 @@ export default function Ana() {
                     <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: aciklamaGorselSvg }} />
                   )}
                   {aciklama && (() => {
-                    const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
+                    const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} videoBaglam={{ sinif, ders, unite: uniteSec, konu }} />;
                     const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
                     const bloklar = konuMetniBloklaraAyir(govde);
                     return (
@@ -8504,7 +8506,7 @@ export default function Ana() {
               <div style={{ background: "#fff", borderRadius: 12, border: `1px solid ${COLORS.line}`, padding: 16, marginBottom: 12, textAlign: "center" }} dangerouslySetInnerHTML={{ __html: aciklamaGorselSvg }} />
             )}
             {aciklama && (() => {
-              const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} />;
+              const _katmanlar = konuKatmanlaraAyir(aciklama); if (_katmanlar) return <KatmanliAnlatim katmanlar={_katmanlar} acikKatman={acikKatman} setAcikKatman={setAcikKatman} onMiniTestTikla={oneriliUniteSoruCoz} videoBaglam={{ sinif, ders, unite: uniteSec, konu }} />;
               const { govde, dikkatMaddeleri } = konuMetniAyir(aciklama);
               const bloklar = konuMetniBloklaraAyir(govde);
               return (

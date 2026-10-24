@@ -58,3 +58,10 @@ Bugün/yarın: 2 → 3 → 1(test) → 8. Bu hafta: 9, 10, 11-17. Paralel: 4-7 (
 - Maliyet: üretim anında `giderler` (kategori `video_uretimi`, tarih/ay ile). Gemini ücretsiz kota ses için günde 10 istek → faturalandırma şart.
 - Kaynak boşlukları (uydurulmaz): Türkçe 5-7 ~13-14 konusuz hafta; 8. İnkılap ve 8. Din kazanımı yok; İngilizce plan tema bazlı.
 - Yıl değişimi: `mufredat_yili` ile yeni satır seti; kaynağı değişmeyen konular tekrar üretilmez.
+
+## 24 Ekim (devam): altyapı durumu — hazır olanlar
+- Kazanımlar: Din 8 (28, kod türetilmiş), Türkçe 5-7 (80/100/102), İngilizce 5-8 (160/184/56/55) tam yıllık plandan eklendi. İnkılap kazanımı `Sosyal Bilgiler::8` anahtarında (eşleme çalışıyor). İngilizce 5-6 için tema adı eşleşirse prompta kazanım girer; Türkçe için güvenli konu eşlemesi yok (kod her temada tekrar ediyor) → boş.
+- Türkçe 5-7 haftalık metin adı olmayan haftalar MEB dosyasında da boş (6 saatlik haftalarda metin birkaç haftaya yayılıyor) → "ünite devamı", uydurulmaz.
+- Üretim planı: `video_uretim_plani` (649 satır), admin "Üretim planı", yıl devri (`/api/admin/video-plani` POST `yil_devri`: kaynağı değişmeyen konular durumuyla devralınır, kaldırılanlar işaretlenir).
+- Öğrenci tarafı: konu anlatımının üstünde yalnız YAYINDAKİ videolar (mini ders mp4, uzun anlatım YouTube) görünür; video yoksa hiçbir şey çizilmez. Erişim kısıtı (ücretli/ücretsiz) KARARI YOK → şu an yayındaki video herkese açık.
+- Bekleyen (para/hesap gerektiren): Gemini faturalandırma (646 paket + senaryo + ses), `BLOB_READ_WRITE_TOKEN` (mp4 depolama), Vercel Pro.
