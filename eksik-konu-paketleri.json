@@ -1,0 +1,4529 @@
+{
+ "tarih": "2026-10-24T14:01:55.091Z",
+ "toplam": 649,
+ "var": 3,
+ "eksik": [
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Allah İnancı",
+   "konu": "Evrendeki Mükemmel Düzen",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Allah İnancı",
+   "konu": "Allah’ın Varlığı ve Birliği",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Allah İnancı",
+   "konu": "Allah’ın Güzel İsimleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Allah İnancı",
+   "konu": "Bir Sure Öğreniyorum: İhlas Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Kur'an-ı Kerim",
+   "konu": "Kur’an-ı Kerim’in",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Kur'an-ı Kerim",
+   "konu": "İç Düzeni",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Kur'an-ı Kerim",
+   "konu": "Kur’an-ı Kerim’in Temel Özellikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Kur'an-ı Kerim",
+   "konu": "Kur’an-ı Kerim’in Ana Konuları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Kur'an-ı Kerim",
+   "konu": "Bir Sure Öğreniyorum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Kur'an-ı Kerim",
+   "konu": "Kevser Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Mimarimizdeki Dinî Motifler",
+   "konu": "Dinin Mimarimize",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Mimarimizdeki Dinî Motifler",
+   "konu": "Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Mimarimizdeki Dinî Motifler",
+   "konu": "Camileri Tanıyalım",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Mimarimizdeki Dinî Motifler",
+   "konu": "Kültürümüzden Cami Örnekleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Namaz",
+   "konu": "Allah’ın Huzurunda Olmak: Namaz",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Namaz",
+   "konu": "Namazın Kılınışı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Namaz",
+   "konu": "Namazın İnsana Kazandırdıkları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Namaz",
+   "konu": "Bir Dua Öğreniyorum: Tahiyyat Duası",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Kıssaları",
+   "konu": "Allah’ın Elçileri: Peygamberler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Kıssaları",
+   "konu": "Kur’an-ı Kerim’den Öğütler: Peygamber Kıssaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Kıssaları",
+   "konu": "Bir SureÖğreniyorum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Kıssaları",
+   "konu": "Kureyş Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Canlıların Yapısına Yolculuk",
+   "konu": "Hücre ve Organelleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Canlıların Yapısına Yolculuk",
+   "konu": "Destek ve Hareket Sistemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Gökyüzündeki Komşularımız ve Biz",
+   "konu": "Gökyüzündeki Komşumuz: Güneş",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Gökyüzündeki Komşularımız ve Biz",
+   "konu": "Gökyüzündeki Komşumuz: Ay",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Gökyüzündeki Komşularımız ve Biz",
+   "konu": "Dünya’mız ve Gökyüzündeki Komşularımız",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Dünyası",
+   "konu": "Işığın Yayılması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Dünyası",
+   "konu": "Madde ve Işık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Dünyası",
+   "konu": "Tam Gölgenin Oluşumu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Dünyası / Maddenin Doğası",
+   "konu": "Tam Gölgenin Oluşumu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Dünyası / Maddenin Doğası",
+   "konu": "Maddenin Tanecikli Yapısı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvveti Tanıyalım",
+   "konu": "Kuvvet ve Kuvvetin Ölçülmesi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvveti Tanıyalım",
+   "konu": "Kütle ve Ağırlık İlişkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvveti Tanıyalım",
+   "konu": "Sürtünme Kuvveti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğası",
+   "konu": "Maddenin Tanecikli Yapısı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğası",
+   "konu": "Isı ve Sıcaklık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğası",
+   "konu": "Maddenin Hâl Değişimi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğası",
+   "konu": "Madde ve Isı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Sürdürülebilir Yaşam ve Geri Dönüşüm",
+   "konu": "Evsel Atıklar ve Geri Dönüşüm",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Yaşamımızdaki Elektrik",
+   "konu": "Devre Elemanlarının Sembollerle Gösterimi ve Devre Şemaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Yaşamımızdaki Elektrik",
+   "konu": "Devre Elemanlarının Sembollerle Gösterimi ve Devre Şemalar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Fen Bilimleri",
+   "unite": "Yaşamımızdaki Elektrik",
+   "konu": "Basit Bir Elektrik Devresinde Ampul Parlaklığını Etkileyen Değişkenler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the World",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the World",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the World",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Life in the World",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler",
+   "konu": "Dikdörtgenin Çevre Uzunluğu ve Alanı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller",
+   "konu": "Temel Geometrik Çizimler ve İnşalar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller",
+   "konu": "Açı Ölçme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller",
+   "konu": "Çokgenler ve Çember",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme",
+   "konu": "Değişme-Birleşme ve Dağılma Özellikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme",
+   "konu": "İşlem Önceliği",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme",
+   "konu": "Örüntüler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme",
+   "konu": "Temel Aritmetik İşlemler ve Algoritma",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme / Veriden Olasılığa",
+   "konu": "Temel Aritmetik İşlemler ve Algoritma",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme / Veriden Olasılığa",
+   "konu": "Öznel Olasılık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci",
+   "konu": "Kategorik Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci İşlemlerle Cebirsel Düşünme",
+   "konu": "Kategorik Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci İşlemlerle Cebirsel Düşünme",
+   "konu": "Eşitliğin Korunumu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Çok Basamaklı Sayıları Okuma ve Yazma",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Basamak Değerlerini Çözümleme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Doğal Sayılarla Dört İşlem İçeren Problem Çözme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1) / Geometrik Nicelikler",
+   "konu": "Doğal Sayılarla Dört İşlem İçeren Problem Çözme Dikdörtgenin Çevre Uzunluğu ve Alanı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Kesirlerin Farklı Gösterimleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Kesirlerin Karşılaştırılması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Matematik",
+   "unite": "Veriden Olasılığa",
+   "konu": "Öznel Olasılık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Gruplar ve Roller",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Kültürel Özelliklere Saygı ve Birlikte Yaşama Kültürü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Yardımlaşma ve Dayanışma Faaliyetlerinin Toplumsal Birliğe Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak / Evimiz Dünya",
+   "konu": "Yardımlaşma ve Dayanışma Faaliyetlerinin Toplumsal Birliğe Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak / Evimiz Dünya",
+   "konu": "Yaşadığı İlin Göreceli Konumu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Yaşadığı İlin Göreceli Konumu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Yaşadığı İlde Doğal ve Beşerî Çevredeki Değişim",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Yaşadığı İlde Meydana Gelebilecek Afetlerin Etkileri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Ülkemize Komşu Devletler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Kaynakların Verimli Kullanımı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Bütçe Oluşturma",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Yaşadığım İldeki Ekonomik Faaliyetler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "Ortak Miras Ögeleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "Anadolu’nun İlk Yerleşim Yerlerinde Sosyal Hayat",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "Mezopotamya ve Anadolu Medeniyetlerinin Ortak Mirasa Katkıları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız / Yaşayan Demokrasimiz",
+   "konu": "Mezopotamya ve Anadolu Medeniyetlerinin Ortak Mirasa Katkıları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız / Yaşayan Demokrasimiz",
+   "konu": "Demokrasi ve Cumhuriyet Kavramının Temel Nitelikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Teknolojik Gelişmelerin Toplum Hayatına Etkileri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Teknolojik Ürünlerin Bilinçli Kullanımı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Etkin Vatandaşın Özellikleri ve Önemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Temel Haklar, Sorumluluklar ve Önemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "İhtiyaç Durumunda veya Sorunların Çözümünde Başvurulabilecek Kurumlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "İhtiyaç Durumunda veya",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Sorunların Çözümünde",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Başvurulabilecek Kurumlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "İhtiyaç Durumunda veya",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Sorunların Çözümünde",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Başvurulabilecek Kurumlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Kaynakların Verimli Kullanımı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Atatürk'ü Tanımak",
+   "konu": "Bir Güzel Hediye",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Atatürk'ü Tanımak",
+   "konu": "Mustafa (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Atatürk'ü Tanımak",
+   "konu": "Oğlu Hüseyin’den Emine Ana'ya Mektuplar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Atatürk'ü Tanımak",
+   "konu": "Gazi Mustafa Kemal ve Sığırtmaç Mustafa",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Atatürk'ü Tanımak",
+   "konu": "Atataürk ve Çiftlik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Duygularımı Tanıyorum",
+   "konu": "Duygularımız",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Duygularımı Tanıyorum",
+   "konu": "Her Yüreğe Nakış Gerek",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Duygularımı Tanıyorum",
+   "konu": "Korkuluk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Duygularımı Tanıyorum",
+   "konu": "Altı Üstü Bir Yarış (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Geleneklerimiz",
+   "konu": "Nasreddin Hoca",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Geleneklerimiz",
+   "konu": "Misafir Odası",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Geleneklerimiz",
+   "konu": "Çömlekçilik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Ev",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Tatlı Günler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Gülü İncitme Gönül",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Komşumuz Nergis Teyze \"Çiçek Dayanışması\" (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Oyun Dünyası",
+   "konu": "Oyun Durdu! (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Oyun Dünyası",
+   "konu": "Topsuz Basketbol Oyunu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Oyun Dünyası",
+   "konu": "Bir İp Bul, Oyuna Başla!",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Sağlıklı Yaşıyorum",
+   "konu": "Haydi Doğa Yürüyüşüne!",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Sağlıklı Yaşıyorum",
+   "konu": "Ne Olacak Bu Yemek Sorunu?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Sağlıklı Yaşıyorum",
+   "konu": "Benim Zamanım-okçuluk (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 5,
+   "ders": "Turkce",
+   "unite": "Sağlıklı Yaşıyorum",
+   "konu": "Obezite",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ahlaki Davranışlar",
+   "konu": "Doğru Sözlü Olmak",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ahlaki Davranışlar",
+   "konu": "Merhametli Olmak",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ahlaki Davranışlar",
+   "konu": "Adap ve Nezaket Kurallarına Uymak",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ahlaki Davranışlar",
+   "konu": "Vatanımızı Sevmek",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ahlaki Davranışlar",
+   "konu": "Bir Dua Öğreniyorum: Kunut Duaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Kültürümüzde Dini Motifler",
+   "konu": "Geleneğimizde Dinin İzleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Kültürümüzde Dini Motifler",
+   "konu": "Edebiyatımızda Dinin İzleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Kültürümüzde Dini Motifler",
+   "konu": "Musikimizde Dinin İzleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber ve İlahi Kitap İnancı",
+   "konu": "İnsanlara Rehber: Peygamber",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber ve İlahi Kitap İnancı",
+   "konu": "Peygamberlerin İlettiği Mesaj: Vahiy",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber ve İlahi Kitap İnancı",
+   "konu": "İlahi Kitaplar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber ve İlahi Kitap İnancı",
+   "konu": "Bir Sure Öğreniyorum: Felak Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamberliğinden Önce Hz. Muhammed",
+   "konu": "Hz. Muhammed’in (sav) Doğduğu Çevre",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamberliğinden Önce Hz. Muhammed",
+   "konu": "Hz. Muhammed’in (sav) Ailesi ve Çocukluğu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamberliğinden Önce Hz. Muhammed",
+   "konu": "Hz. Muhammed’in (sav) Gençlik Yılları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Peygamberliğinden Önce Hz. Muhammed",
+   "konu": "Bir Sure Öğreniyorum: Fil Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ramazan ve Oruç",
+   "konu": "Oruç ve Kur’an Ayı Ramazan",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ramazan ve Oruç",
+   "konu": "Oruç İbadeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ramazan ve Oruç",
+   "konu": "Orucun İnsana Kazandırdıkları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Din Kulturu",
+   "unite": "Ramazan ve Oruç",
+   "konu": "Bir Dua Öğreniyorum: İftar Duası",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Canlılarda Sistemler",
+   "konu": "Bitki ve Hayvanlarda Üreme, Büyüme ve Gelişme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Canlılarda Sistemler",
+   "konu": "Denetleyici ve Düzenleyici Sistemler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Canlılarda Sistemler / Işığın Yansıması ve Renkler",
+   "konu": "Denetleyici ve Düzenleyici Sistemler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Canlılarda Sistemler / Işığın Yansıması ve Renkler",
+   "konu": "Işığın Yansıması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektriğin İletimi ve Direnç",
+   "konu": "Elektriğin İletimi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektriğin İletimi ve Direnç",
+   "konu": "Elektriksel Direnç ve Bağlı Olduğu Faktörler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektriğin İletimi ve Direnç / Sürdürülebilir Yaşam ve Etkileşim",
+   "konu": "Elektriksel Direnç ve Bağlı Olduğu Faktörler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektriğin İletimi ve Direnç / Sürdürülebilir Yaşam ve Etkileşim",
+   "konu": "Biyoçeşitlilik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Güneş Sistemi ve Tutulmalar",
+   "konu": "Güneş Sistemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Güneş Sistemi ve Tutulmalar",
+   "konu": "Güneş ve Ay Tutulmaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Yansıması ve Renkler",
+   "konu": "Işığın Yansıması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Yansıması ve Renkler",
+   "konu": "Aynalar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Yansıması ve Renkler",
+   "konu": "Işığın Soğurulması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Yansıması ve Renkleri / Maddenin Ayırt Edici Özellikleri",
+   "konu": "Işığın Soğurulması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Yansıması ve Renkleri / Maddenin Ayırt Edici Özellikleri",
+   "konu": "Genleşme ve Büzülme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvvetin Etkisinde Hareket",
+   "konu": "Bileşke Kuvvet",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvvetin Etkisinde Hareket",
+   "konu": "Sabit Süratli ve Sabit Hızlı Hareket",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvvetin Etkisinde Hareket / Canlılarda Sistemler",
+   "konu": "Sabit Süratli ve Sabit Hızlı Hareket",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvvetin Etkisinde Hareket / Canlılarda Sistemler",
+   "konu": "Bitki ve Hayvanlarda Üreme, Büyüme ve Gelişme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvvetin Etkisinde Hareket / Güneş Sistemi ve Tutulmalar",
+   "konu": "Bileşke Kuvvet",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Ayırt Edici Özellikleri",
+   "konu": "Genleşme ve Büzülme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Ayırt Edici Özellikleri",
+   "konu": "Maddenin Hâl Değişim Noktaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Ayırt Edici Özellikleri",
+   "konu": "Yoğunluk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Ayırt Edici Özellikleri / Elektriğin İletimi ve Direnç",
+   "konu": "Yoğunluk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Ayırt Edici Özellikleri / Elektriğin İletimi ve Direnç",
+   "konu": "Elektriğin İletimi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Sürdürülebilir Yaşam ve Etkileşim",
+   "konu": "Biyoçeşitlilik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Fen Bilimleri",
+   "unite": "Sürdürülebilir Yaşam ve Etkileşim",
+   "konu": "İnsan ve Çevre Etkileşimi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Classroom Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Family Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature & Global Problems",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature & Global Problems",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature & Global Problems",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in Nature & Global Problems",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Neighbourhood & City",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the Universe & Future",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the World & Culture",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the World & Culture",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the World & Culture",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Life in the World & Culture",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "Personal Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Ingilizce",
+   "unite": "School Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler",
+   "konu": "Uzunluk ve Alan Ölçme Birimleri Arasındaki İlişki",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler",
+   "konu": "Paralelkenar ve Üçgenin Alanı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler",
+   "konu": "Çemberin ve Çapın Uzunlukları Arasındaki İlişki",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler",
+   "konu": "Çemberde Merkez Açı ve Gördüğü Yay Uzunluğu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller",
+   "konu": "İki Paralel Doğrunun Bir Kesenile Oluşturduğu Açılar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller",
+   "konu": "Üçgenin Açıları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller",
+   "konu": "Yamuk, Paralelkenar, Eşkenar Dörtgen, Dikdörtgen ve Karenin Kenar, Açı ve Köşegen Özellikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme ve Değişimler",
+   "konu": "Bilinmeyen Nicelikler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme ve Değişimler",
+   "konu": "Örüntü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme ve Değişimler",
+   "konu": "Cebirsel İfadeler ve Algoritma",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci",
+   "konu": "Kategorik ve Nicel (Kesikli) Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci",
+   "konu": "Kategorik ve Nicel (Sürekli) Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Bir Doğal Sayının Çarpanları ve Katları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Bölünebilme Kriterleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Asal Sayılar ve Asal Çarpanlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Ondalık Gösterimleri Çözümleme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Kesir-Bölme İlişkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Kesirlerle Dört İşlem İçeren Problem Çözme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Uzunluk Ölçme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2) / İstatistiksel Araştırma Süreci",
+   "konu": "Uzunluk Ölçme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2) / İstatistiksel Araştırma Süreci",
+   "konu": "Kategorik ve Nicel (Kesikli) Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Veriden Olasılığa",
+   "konu": "Deneysel Olasılık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Veriden Olasılığa / Sayılar ve Nicelikler(2)",
+   "konu": "Deneysel Olasılık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Matematik",
+   "unite": "Veriden Olasılığa / Sayılar ve Nicelikler(2)",
+   "konu": "Ondalık Gösterimleri Çözümleme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Zaman İçinde Değişen Gruplar ve Roller",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Kültürel Bağlarımızın ve Millî Değerlerimizin Toplumsal Birlikteliğe Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Toplumsal Sorunlar ve Çözümler Önerileri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak / Evimiz Dünya",
+   "konu": "Toplumsal Sorunlar ve Çözümler Önerileri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak / Evimiz Dünya",
+   "konu": "Ülkemizin, Kıtaların ve Okyanusların Konum Özellikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Ülkemizin, Kıtaların ve Okyanusların Konum Özellikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Doğal ve Beşerî Çevre Özellikleri Arasındaki İlişki",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Ülkemizin Türk Dünyasıyla Kültürel İş birlikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya / Ortak Mirasımız",
+   "konu": "Ülkemizin Türk Dünyasıyla Kültürel İş birlikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya / Ortak Mirasımız",
+   "konu": "Türkistan’da Kurulan İlk Türk Devletlerinin Medeniyetimize Katkıları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Ülkemizin Kaynakları ve",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Ekonomik Faaliyetler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Ekonomik Faaliyetler ve Meslekler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi / Teknoloji ve Sosyal Bilimler",
+   "konu": "Tasarlanan Bir Ürünün Yatırım ve Pazarlama Süreci",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "Türkistan’da Kurulan İlk Türk Devletlerinin Medeniyetimize Katkıları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "VII-XIII. Yüzyıllar Arasında İslam Medeniyetinin İnsanlığın Ortak Mirasına Katkıları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "İslamiyet’in Kabulüyle Türklerin Sosyal ve Kültürel Hayatlarında Meydana Gelen Değişimler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "XI- XIII. Yüzyıllar Arasında Meydana Gelen Askerî Mücadelelerin Anadolu’nun Türkleşmesi ve İslamlaşmasına…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız / Yaşayan Demokrasimiz",
+   "konu": "XI- XIII. Yüzyıllar Arasında Meydana Gelen Askerî Mücadelelerin Anadolu’nun Türkleşmesi ve İslamlaşmasına…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız / Yaşayan Demokrasimiz",
+   "konu": "Yönetimin Karar Alma Sürecini Etkileyen Unsurlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız / Yaşayan Demokrasimiz",
+   "konu": "Temel Hak ve Sorumlulukların Toplumsal Düzenin Sürdürülmesindeki Önemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Tasarlanan Bir Ürünün Yatırım ve Pazarlama Süreci",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Ulaşım ve İletişim Teknolojilerinin Kültürel Etkileşimdeki Rolü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Telif ve Patent Süreci",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Yönetimin Karar Alma Sürecini Etkileyen Unsurlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Temel Hak ve Sorumlulukların Toplumsal Düzenin Sürdürülmesindeki Önemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Dijitalleşme ve Teknolojik Gelişmelerin Vatandaşlık Hak ve Sorumluluklarına Etkileri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Dijitalleşme ve Teknolojik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Gelişmelerin Vatandaşlık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Hak ve Sorumluluklarına Etkileri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Dijitalleşme ve Teknolojik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Gelişmelerin Vatandaşlık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Hak ve Sorumluluklarına Etkileri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Ülkemizin Kaynakları ve",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bağımsızlık Yolu",
+   "konu": "Türk Dil Kurumu Sunar (Kaşık) (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bağımsızlık Yolu",
+   "konu": "Cepheye Koşan At",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bağımsızlık Yolu",
+   "konu": "Vatan",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bağımsızlık Yolu",
+   "konu": "Rafadan Tayfa-istiklâl Marşı (Dinleme/İzleme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bağımsızlık Yolu",
+   "konu": "1071'den 1922'ye Tek Millet İki Zafer",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Dünya ve Zaman",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Sesli Asistan (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Teknoloji Doğayı Taklit Ediyor",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Bu Festival Bir Başka",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Dilimizin Zenginliği",
+   "konu": "Bir Kelime Seyyahı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Dilimizin Zenginliği",
+   "konu": "Türkçenin Beyliği",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Dilimizin Zenginliği",
+   "konu": "Türküz, Türkçe Konuşuruz",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Farklı Dünyalar",
+   "konu": "Ova Çocuk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Farklı Dünyalar",
+   "konu": "Mısır-ispanya-norveç",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Farklı Dünyalar",
+   "konu": "Çocuklar Neredeyse Okulları Orada (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Farklı Dünyalar",
+   "konu": "Ay Avcısı Eskimolar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Yeni Mahalleye Alışma Kılavuzu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Ekrana Bakma Bana Bak!",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Zeynir ve Peytin",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Gündelik Hayatın Bilimi (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Lider Ruhlar",
+   "konu": "Avrupa Şampiyonu Dünya İkincisi Gönüllerin Birincisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Lider Ruhlar",
+   "konu": "Sümeyye Boyacı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Lider Ruhlar",
+   "konu": "Yunus Emrem",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Lider Ruhlar",
+   "konu": "Tarihimizin Gizli Kahramanları (Jale İnan) (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 6,
+   "ders": "Turkce",
+   "unite": "Lider Ruhlar",
+   "konu": "Türk Denizcileri-piri Reis",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Hac, Umre ve Kurban",
+   "konu": "Hac ve Umre İbadeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Hac, Umre ve Kurban",
+   "konu": "Kurban İbadeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Hac, Umre ve Kurban",
+   "konu": "Hac ve Kurban İbadetinin Kültürümüze Yansımaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Hac, Umre ve Kurban",
+   "konu": "Bir Sure Öğreniyorum: Kâfirun Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "İslam Düşüncesinde Yorumlar",
+   "konu": "Din Anlayışındaki Yorum Farklılıkları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "İslam Düşüncesinde Yorumlar",
+   "konu": "İslam Düşüncesinde Yorum Biçimleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "İslam Düşüncesinde Yorumlar",
+   "konu": "Kültürümüzdeki Tasavvufi Yorumlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "İslam Düşüncesinde Yorumlar",
+   "konu": "Alevilik Bektaşilik ile İlgili Temel Kavramlar ve Cem Erkânları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Melek ve Ahiret İnancı",
+   "konu": "Varlıklar Âlemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Melek ve Ahiret İnancı",
+   "konu": "Dünya ve Ahiret Hayatı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Melek ve Ahiret İnancı",
+   "konu": "Melek ve Ahiret İnancının İnsana Kazandırdıkları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Melek ve Ahiret İnancı",
+   "konu": "Bir Sure Öğreniyorum: Nâs Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Olarak Hz. Muhammed",
+   "konu": "Hz. Muhammed’in Daveti: Mekke Dönemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Olarak Hz. Muhammed",
+   "konu": "Hicret",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Olarak Hz. Muhammed",
+   "konu": "Hz. Muhammed’in Daveti: Medine Dönemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Peygamber Olarak Hz. Muhammed",
+   "konu": "Bir Sure Öğreniyorum: Nasr Suresi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Yaşayan Dünya Dinleri",
+   "konu": "Yahudilik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Yaşayan Dünya Dinleri",
+   "konu": "Hristiyanlık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Yaşayan Dünya Dinleri",
+   "konu": "Hinduizm",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Din Kulturu",
+   "unite": "Yaşayan Dünya Dinleri",
+   "konu": "Budizm",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektriklenme",
+   "konu": "Elektrik Yükleri ve Elektriklenme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Kırılması ve Mercekler",
+   "konu": "Işığın Kırılması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Işığın Kırılması ve Mercekler",
+   "konu": "Mercekler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvvet ve Enerjiyi Keşfedelim",
+   "konu": "Kuvvet, İş ve Enerji İlişkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Kuvvet ve Enerjiyi Keşfedelim",
+   "konu": "Enerji Dönüşümleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğasına Yolculuk",
+   "konu": "Maddenin Tanecikli Yapısı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğasına Yolculuk",
+   "konu": "Saf Maddeler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğasına Yolculuk",
+   "konu": "Karışımlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Maddenin Doğasına Yolculuk",
+   "konu": "Karışımların Ayrılması",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Sürdürülebilir Yaşam ve Enerji",
+   "konu": "Besin Zinciri ve Enerji Akışı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Sürdürülebilir Yaşam ve Enerji",
+   "konu": "Sürdürülebilir Yaşam",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Uzay Çağı",
+   "konu": "Türkiye ve Uzay Araştırmaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Uzay Çağı",
+   "konu": "Uzayda Neler Var?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Vücudumuzdaki Sistemler",
+   "konu": "Sindirim Sistemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Vücudumuzdaki Sistemler",
+   "konu": "Dolaşım Sistemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Vücudumuzdaki Sistemler",
+   "konu": "Solunum Sistemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Fen Bilimleri",
+   "unite": "Vücudumuzdaki Sistemler",
+   "konu": "Boşaltım Sistemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Appearance And Personality",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Appearance And Personality",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Appearance And Personality",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Appearance And Personality",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Biographies",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Biographies",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Biographies",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Biographies",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Celebrations",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Celebrations",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Celebrations",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Celebrations",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Dreams",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Dreams",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Dreams",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Dreams",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Environment",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Environment",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Environment",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Environment",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Planets",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Planets",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Planets",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Planets",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Public Buildings",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Public Buildings",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Public Buildings",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Public Buildings",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Sports",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Sports",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Sports",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Sports",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Television",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Television",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Television",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Television",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Wild Animals",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Wild Animals",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Wild Animals",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Ingilizce",
+   "unite": "Wild Animals",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Dönüşüm",
+   "konu": "Yansıma Dönüşümü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Dönüşüm",
+   "konu": "Orta Dikme ve Açıortay İnşası",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler (1)",
+   "konu": "Dikdörtgenler Prizmasının Hacmi ve Yüzey Alanı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler (1)",
+   "konu": "Hacim Ölçme Birimleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler (1) / İstatistiksel Araştırma Süreci",
+   "konu": "Dikdörtgenler Prizmasının Hacmi ve Yüzey Alanı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler (1) / İstatistiksel Araştırma Süreci",
+   "konu": "Kategorik ve Nicel (Sürekli) Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler (2)",
+   "konu": "Daire ve Daire Diliminin Alanı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Nicelikler (2)",
+   "konu": "Eşkenar Dörtgen ve Yamuk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller",
+   "konu": "Üçgenlerde Kenarortay ve İnşası, Açıortay, Yükseklik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller / Sayılar ve Nicelikler (2)",
+   "konu": "Üçgenlerde Kenarortay ve İnşası, Açıortay, Yükseklik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Geometrik Şekiller / Sayılar ve Nicelikler (2)",
+   "konu": "Oran",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme / Ve Değişimler",
+   "konu": "Cebirsel İfadelerle İşlemler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme / Ve Değişimler",
+   "konu": "Denklem ve Eşitsizlikler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme / Ve Değişimler",
+   "konu": "İspat",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "İşlemlerle Cebirsel Düşünme / Ve Değişimler",
+   "konu": "Cebirsel İfadelerle İşlemler ve Algoritma",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci",
+   "konu": "Kategorik ve Nicel (Sürekli) Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci / Dönüşüm",
+   "konu": "Kategorik ve Nicel (Sürekli) Veri Dağılımları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "İstatistiksel Araştırma Süreci / Dönüşüm",
+   "konu": "Yansıma Dönüşümü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Tam Sayılar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Rasyonel Sayılar ve Farklı Temsilleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Rasyonel Sayılarda Karşılaştırma ve Sıralama",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1)",
+   "konu": "Rasyonel Sayılarla İşlemler ve Problem Çözme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1) / Geometrik Nicelikler (1)",
+   "konu": "Rasyonel Sayılarla İşlemler ve Problem Çözme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (1) / Geometrik Nicelikler (1)",
+   "konu": "Cisimlerin Farklı Yönlerden Görünümleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Oran",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Orantılı Durumlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2)",
+   "konu": "Doğru Orantılı Durumlara İlişkin Problem Çözme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2) / Veriden Olasılığa",
+   "konu": "Doğru Orantılı Durumlara İlişkin Problem Çözme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Sayılar ve Nicelikler (2) / Veriden Olasılığa",
+   "konu": "Teorik Olasılık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Matematik",
+   "unite": "Veriden Olasılığa",
+   "konu": "Teorik Olasılık",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Gruplarda ve Sosyal Hayatta İletişimin Önemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Özel Gereksinimli Bireyler İçin Fırsat Eşitliği",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak",
+   "konu": "Millî Meseleler Karşısında Türk Toplumunun Tutum ve Davranışları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak / Evimiz Dünya",
+   "konu": "Millî Meseleler Karşısında Türk Toplumunun Tutum ve Davranışları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Birlikte Yaşamak / Evimiz Dünya",
+   "konu": "Küreselleşmenin İnsan ve Toplum Hayatına Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Küreselleşmenin İnsan ve Toplum Hayatına Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Evimiz Dünya",
+   "konu": "Bölgesel ve Küresel Sorunların Çözümünde Ülkemizin Rolü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Millî Kalkınma Hamleleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi",
+   "konu": "Ekonomik Gelişmişlik ile Üretim, Dağıtım ve Tüketim Arasındaki Döngü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi / Teknoloji ve Sosyal Bilimler",
+   "konu": "Ekonomik Gelişmişlik ile Üretim, Dağıtım ve Tüketim Arasındaki Döngü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Hayatımızdaki Ekonomi / Teknoloji ve Sosyal Bilimler",
+   "konu": "Bilimsel ve Teknolojik Gelişmelerin Gelecekteki Hayata Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "Osmanlı Devleti’nin Cihan Devleti Hâline Gelmesini Sağlayan Politikalar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "Osmanlı Devleti’nin Uygulamaya Koyduğu Yenilikler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız",
+   "konu": "Osmanlı Kültür ve Medeniyeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız / Yaşayan Demokrasimiz",
+   "konu": "Osmanlı Kültür ve Medeniyeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Ortak Mirasımız / Yaşayan Demokrasimiz",
+   "konu": "Türkiye Cumhuriyeti’nin Nitelikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Bilimsel ve Teknolojik Gelişmelerin Gelecekteki Hayata Etkisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Sosyal Bilimlerin Çalışma Alanları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Teknoloji ve Sosyal Bilimler",
+   "konu": "Toplumsal Hayatta Karşılaşılabilecek Problemlere Çözüm Üretme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Türkiye Cumhuriyeti’nin Nitelikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Türkiye Cumhuriyeti’nin Yönetim Yapısı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Ülkemizde Demokrasinin Gelişimi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz",
+   "konu": "Demokrasinin Uygulanma Sürecinde Karşılaşılan Sorunlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Demokrasinin Uygulanma Sürecinde Karşılaşılan Sorunlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Sosyal Bilgiler",
+   "unite": "Yaşayan Demokrasimiz / Hayatımızdaki Ekonomi",
+   "konu": "Millî Kalkınma Hamleleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Bir Hilal Uğruna",
+   "konu": "Adını Göklere Yazdıran Çocuk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Bir Hilal Uğruna",
+   "konu": "Bayrağımızın Altında",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Bir Hilal Uğruna",
+   "konu": "Mustafa 1881-1920 Tarihe Atılan İmza",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Bir Hilal Uğruna",
+   "konu": "Milli Mücadele Sergisi Kahraman Çocuklar (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Bir Hilal Uğruna",
+   "konu": "Mustafa Kemal’in Kağnısı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Hak ve Sorumluluklar",
+   "konu": "Kutadgu Bilig",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Hak ve Sorumluluklar",
+   "konu": "Siyah İnci",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Hak ve Sorumluluklar",
+   "konu": "Çocuk Hakları Sözleşmesi (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Hak ve Sorumluluklar",
+   "konu": "Üç Soru",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Hayat Boyu Gelişim",
+   "konu": "Martı Jonathan Livingston",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Hayat Boyu Gelişim",
+   "konu": "Gençliğin Kıymeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Hayat Boyu Gelişim",
+   "konu": "Sen Sor O Yanıtlasın-sporda ve Yaşamda Hedefe Odaklan (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Eskici",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Ya Hayır Söyle..",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Dijital Tayfa - Komik mi Şimdi? (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "İletişim ve Sosyal İlişkiler",
+   "konu": "Öğüt",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Çocuklar Soruyor İlber Hoca Cevaplıyor Gazi Mustafa Kemal Atatürk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Kitap",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Küçük Şeylerin Hikâyesi: Kütüphaneler (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Kitaplarla Kurulan Dostluk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Türk Sanatı",
+   "konu": "Anadolu’da Kilim Demek",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Türk Sanatı",
+   "konu": "Geleneksel Türk Tiyatrosu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Türk Sanatı",
+   "konu": "Ebru: Türk Kağıt Süsleme Sanatı (Dinleme/İzleme)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 7,
+   "ders": "Turkce",
+   "unite": "Türk Sanatı",
+   "konu": "Süleymaniye",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Din ve Hayat",
+   "konu": "Din, Birey ve Toplum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Din ve Hayat",
+   "konu": "Dinin Temel Gayesi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Din ve Hayat",
+   "konu": "Bir Peygamber Tanıyorum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Din ve Hayat",
+   "konu": "Hz. Yusuf (as)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Din ve Hayat",
+   "konu": "Bir Sure Tanıyorum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Din ve Hayat",
+   "konu": "Asr Suresi ve Anlamı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Hz. Muhammed’in Örnekliği",
+   "konu": "Hz. Muhammed’in (sav) Doğruluğu ve Güvenilir Kişiliği",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Hz. Muhammed’in Örnekliği",
+   "konu": "Hz. Muhammed’in (sav) Merhametli ve Affedici Oluşu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Hz. Muhammed’in Örnekliği",
+   "konu": "Hz. Muhammed’in (sav) İstişareye Önem Vermesi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Hz. Muhammed’in Örnekliği",
+   "konu": "Hz. Muhammed’in Davasındaki Cesaret ve Kararlılığı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Hz. Muhammed’in Örnekliği",
+   "konu": "Hz. Muhammed’in (sav) Hakkı Gözetmedeki Hassasiyeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Hz. Muhammed’in Örnekliği",
+   "konu": "Hz. Muhammed’in (sav) İnsanlara Değer Vermesi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Hz. Muhammed’in Örnekliği",
+   "konu": "Bir Sure Tanıyorum: Kureyş Suresi ve Anlamı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kader İnancı",
+   "konu": "Kader ve Kaza İnancı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kader İnancı",
+   "konu": "İnsanın İradesi ve Kader",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kader İnancı",
+   "konu": "Kaderle İlgili Kavramlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kader İnancı",
+   "konu": "Bir Peygamber Tanıyorum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kader İnancı",
+   "konu": "Hz. Musa (a.s.)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kader İnancı",
+   "konu": "Bir Ayet Tanıyorum: Ayetelkürsi ve Anlamı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kur’an-ı Kerim ve Özellikleri",
+   "konu": "İslam Dininin Temel Kaynakları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kur’an-ı Kerim ve Özellikleri",
+   "konu": "Kur’an-ı Kerim’in Ana Konuları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kur’an-ı Kerim ve Özellikleri",
+   "konu": "Kur’an-ı Kerim’in Temel Özellikleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kur’an-ı Kerim ve Özellikleri",
+   "konu": "Bir Peygamber Tanıyorum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Kur’an-ı Kerim ve Özellikleri",
+   "konu": "Hz. Nuh (a.s.)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Zekât ve Sadaka",
+   "konu": "İslam’ın Paylaşma ve Yardımlaşmaya Verdiği Önem",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Zekât ve Sadaka",
+   "konu": "Zekât ve Sadaka İbadeti",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Zekât ve Sadaka",
+   "konu": "Zekât ve Sadakanın Bireysel ve Toplumsal Faydaları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Zekât ve Sadaka",
+   "konu": "Bir Peygamber Tanıyorum",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Zekât ve Sadaka",
+   "konu": "Hz. Şuayb (as)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Din Kulturu",
+   "unite": "Zekât ve Sadaka",
+   "konu": "Bir Sure Tanıyorum: Maun Suresi ve Anlamı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Basit Makineler",
+   "konu": "Basit Makineler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Basınç",
+   "konu": "Basınç",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Basınç / Madde ve Endüstri",
+   "konu": "Basınç",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Basınç / Madde ve Endüstri",
+   "konu": "Periyodik Sistem",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "DNA ve Genetik Kod",
+   "konu": "DNA ve Genetik Kod",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "DNA ve Genetik Kod",
+   "konu": "Kalıtım",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "DNA ve Genetik Kod",
+   "konu": "Mutasyon ve Modifikasyon",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "DNA ve Genetik Kod",
+   "konu": "Adaptasyon (Çevreye Uyum)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "DNA ve Genetik Kod",
+   "konu": "Biyoteknoloji",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektrik Yükleri ve Elektrik Enerjisi",
+   "konu": "Elektrik Yükleri ve Elektriklenme",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektrik Yükleri ve Elektrik Enerjisi",
+   "konu": "Elektrik Yüklü Cisimler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Elektrik Yükleri ve Elektrik Enerjisi",
+   "konu": "Elektrik Enerjisinin Dönüşümü",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Enerji Dönüşümleri ve Çevre Bilimi",
+   "konu": "Besin Zinciri ve Enerji Akışı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Enerji Dönüşümleri ve Çevre Bilimi",
+   "konu": "Enerji Dönüşümleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Enerji Dönüşümleri ve Çevre Bilimi",
+   "konu": "Madde Döngüleri ve Çevre Sorunları",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Enerji Dönüşümleri ve Çevre Bilimi",
+   "konu": "Sürdürülebilir Kalkınma",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Fen Mühendislik ve Girişimcilik Uygulamaları",
+   "konu": "Yıl Sonu Bilim Şenliği",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Fen Mühendislik ve Girişimcilik Uygulamaları",
+   "konu": "(Öğrencilerin yıl içerisinde ortaya çıkardıkları ürünü etkili bir şekilde sunmaları beklenir.)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri",
+   "konu": "Periyodik Sistem",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri",
+   "konu": "Fiziksel ve Kimyasal Değişimler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri",
+   "konu": "Kimyasal Tepkimeler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri",
+   "konu": "Asitler ve Bazlar",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri",
+   "konu": "Maddenin Isı ile Etkileşimi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri",
+   "konu": "Türkiye’de Kimya Endüstrisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri / Basit Makineler",
+   "konu": "Türkiye’de Kimya Endüstrisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Madde ve Endüstri / Basit Makineler",
+   "konu": "Basit Makineler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Mevsimler ve İklim",
+   "konu": "Mevsimlerin Oluşumu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Mevsimler ve İklim",
+   "konu": "İklim ve Hava Hareketleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Mevsimler ve İklim / DNA ve Genetik Kod",
+   "konu": "İklim ve Hava Hareketleri",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Fen Bilimleri",
+   "unite": "Mevsimler ve İklim / DNA ve Genetik Kod",
+   "konu": "DNA ve Genetik Kod",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Adventures",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Adventures",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Adventures",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Adventures",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Chores",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Chores",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Chores",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Chores",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Friendship",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Friendship",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Friendship",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Friendship",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "In The Kitchen",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "In The Kitchen",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "In The Kitchen",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "In The Kitchen",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Natural Forces",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Natural Forces",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Natural Forces",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Natural Forces",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "On The Phone",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "On The Phone",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "On The Phone",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "On The Phone",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Science",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Science",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Science",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Science",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Teen Life",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Teen Life",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Teen Life",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Teen Life",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "The Internet",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "The Internet",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "The Internet",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "The Internet",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Tourism",
+   "konu": "Yazma (Writing)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Tourism",
+   "konu": "Okuma (Reading)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Tourism",
+   "konu": "Konusma (Speaking)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Ingilizce",
+   "unite": "Tourism",
+   "konu": "Dinleme (Listening)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Cebir",
+   "konu": "Cebirsel İfadeler ve Özdeşlikler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Cebir",
+   "konu": "Doğrusal Denklemler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Cebir",
+   "konu": "Eşitsizlikler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Cebir / Geometri ve Ölçme",
+   "konu": "Eşitsizlikler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Cebir / Geometri ve Ölçme",
+   "konu": "Üçgenler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Geometri ve Ölçme",
+   "konu": "Üçgenler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Geometri ve Ölçme",
+   "konu": "Eşlik ve Benzerlik",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Geometri ve Ölçme",
+   "konu": "Dönüşüm Geometrisi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Geometri ve Ölçme",
+   "konu": "Geometrik Cisimler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Olasılık",
+   "konu": "Basit Olayların Olma Olasılığı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Olasılık / Cebir",
+   "konu": "Basit Olayların Olma Olasılığı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Olasılık / Cebir",
+   "konu": "Cebirsel İfadeler ve Özdeşlikler",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Veri İşleme",
+   "konu": "Veri Analizi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Veri İşleme / Olasılık",
+   "konu": "Veri Analizi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Matematik",
+   "unite": "Veri İşleme / Olasılık",
+   "konu": "Basit Olayların Olma Olasılığı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürk Dönemi Türk Dış Politikası",
+   "konu": "Atatürk Dönemi Türk dış politikasının temel ilkelerini ve amaçlarını açıklar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürk Dönemi Türk Dış Politikası",
+   "konu": "Atatürk Dönemi Türk dış politikasında yaşanan gelişmeleri analiz eder.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürk Dönemi Türk Dış Politikası",
+   "konu": "Atatürk’ün Hatay’ı ülkemize katmak konusunda yaptıklarına ve bu uğurda gösterdiği özveriye kanıtlar gösterir.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürk’ün Ölümü ve Sonrası",
+   "konu": "Atatürk’ün ölümüne ilişkin yansıma ve değerlendirmelerden hareketle onun fikir ve eserlerinin evrensel…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürk’ün Ölümü ve Sonrası",
+   "konu": "Atatürk’ün Türk Milleti’ne bıraktığı eserlerinden örnekler verir.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürk’ün Ölümü ve Sonrası",
+   "konu": "Atatürk’ün İkinci Dünya Savaşı öncesi tespitleri ve girişimleri Türkiye’nin savaşta izlediği denge siyaseti…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürk’ün Ölümü ve Sonrası",
+   "konu": "Türkiye’de çok partili siyasi hayata geçişi hızlandıran gelişmeleri, demokrasinin gerekleri açısından analiz…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürkçülük ve Çağdaşlaşan Türkiye",
+   "konu": "Çağdaşlaşan Türkiye’nin temeli olan Atatürk ilkelerini açıklar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürkçülük ve Çağdaşlaşan Türkiye",
+   "konu": "Siyasi alanda meydana gelen gelişmeleri kavrar. iTA.8.4.3. Hukuk alanında meydana gelen gelişmelerin…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürkçülük ve Çağdaşlaşan Türkiye",
+   "konu": "Eğitim ve kültür alanında yapılan inkılapları ve gelişmeleri kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürkçülük ve Çağdaşlaşan Türkiye",
+   "konu": "Ekonomi alanında meydana gelen gelişmeleri kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürkçülük ve Çağdaşlaşan Türkiye",
+   "konu": "Cumhuriyet’in sağladığı kazanımları ve Atatürk’ün Türk milleti için gösterdiği hedeﬂeri analiz eder.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Atatürkçülük ve Çağdaşlaşan Türkiye",
+   "konu": "Atatürk ilke ve inkılaplarını oluşturan temel esasları kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Bir Kahraman Doğuyor",
+   "konu": "Avrupa’daki gelişmelerin yansımaları bağlamında Osmanlı Devleti’nin yirminci yüzyılın başlarındaki siyasi ve…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Bir Kahraman Doğuyor",
+   "konu": "Mustafa Kemal’in çocukluk ve öğrenim hayatından hareketle onun kişilik özelliklerinin oluşumu hakkında…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Bir Kahraman Doğuyor",
+   "konu": "Gençlik döneminde Mustafa Kemal’in fikir hayatını etkileyen önemli kişileri ve olayları kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Bir Kahraman Doğuyor",
+   "konu": "Mustafa Kemal’in askerlik hayatı ile ilgili olayları ve olguları onun kişilik özellikleri ile ilişkilendirir.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Demokratikleşme Çabaları",
+   "konu": "Atatürk Dönemi’ndeki demokratikleşme yolunda atılan adımları açıklar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Demokratikleşme Çabaları",
+   "konu": "Mustafa Kemal’e suikast girişimini analiz eder.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Demokratikleşme Çabaları",
+   "konu": "Cumhuriyetin ilk yıllarında Türkiye Cumhuriyetine yönelik tehditleri analiz eder.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Bir Destan: Ya İstiklal Ya Ölüm!",
+   "konu": "Millî Mücadele Dönemi’nde Doğu Cephesi ve Güney Cephesi’nde meydana gelen gelişmeleri kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Bir Destan: Ya İstiklal Ya Ölüm!",
+   "konu": "Millî Mücadele Dönemi’nde Batı Cephesi’nde meydana gelen gelişmeleri kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Bir Destan: Ya İstiklal Ya Ölüm!",
+   "konu": "Millî Mücadele’nin zor bir döneminde Maarif Kongresi yapan Atatürk’ün, millî ve çağdaş eğitime verdiği önemi…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Bir Destan: Ya İstiklal Ya Ölüm!",
+   "konu": "Sakarya Meydan Savaşı’nın kazanılmasında ve Büyük Taarruz’un başarılı olmasında Mustafa Kemal’in rolüne…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Bir Destan: Ya İstiklal Ya Ölüm!",
+   "konu": "Lozan Antlaşması’nın sağladığı kazanımları analiz eder.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Bir Destan: Ya İstiklal Ya Ölüm!",
+   "konu": "Millî Mücadele Dönemi’nin siyasi, sosyal ve kültürel olaylarının sanat ve edebiyat ürünlerine yansımalarına…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Birinci Dünya Savaşı’nın sebeplerini ve savaşın başlamasına yol açan gelişmeleri kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Birinci Dünya Savaşı’nda Osmanlı Devleti’nin durumu hakkında çıkarımlarda bulunur.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Mondros Ateşkes Antlaşması’nın imzalanması ve uygulanması karşısında Osmanlı yönetiminin, Mustafa Kemal’in ve…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Kuvâ-yı Millîye’nin oluşum sürecini ve sonrasında meydana gelen gelişmeleri kavrar.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Millî Mücadele’nin hazırlık döneminde Mustafa Kemal’in yaptığı çalışmaları analiz eder.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Misakımilli’nin kabulünü ve Büyük Millet Meclisinin açılışını vatanın bütünlüğü esası ile “ulusal egemenlik”…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Büyük Millet Meclisine karşı ayaklanmalar ile ayaklanmaların bastırılması için alınan tedbirleri analiz eder.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "T.C. Inkilap Tarihi",
+   "unite": "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+   "konu": "Mustafa Kemal’in ve Türk milletinin Sevr Antlaşması’na karşı tepkilerini değerlendirir.",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Hezarfen Ahmet Çelebi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Yankı Odası Nedir?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Hava Nasıl Oralarda?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Bilim ve Teknoloji",
+   "konu": "Uzayın Derinliklerine Yolculuk: Robotlar Gezegeni (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Doğa ve Evren",
+   "konu": "Ardahan’dan Gelen Mektup",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Doğa ve Evren",
+   "konu": "Bitkiler Nasıl Hareket Eder?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Doğa ve Evren",
+   "konu": "Gazlı Göl",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Doğa ve Evren",
+   "konu": "“Gökyüzünden Mektuplar “ Kar Kristalleri (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Duygular",
+   "konu": "Tepedeki Yalnız Ağaç",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Duygular",
+   "konu": "Bu Çağrı Sanadır",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Duygular",
+   "konu": "Umut…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Duygular",
+   "konu": "Dostluk Dediğin (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Erdemler",
+   "konu": "Bir Somun Ekmekten Alınan Ders",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Erdemler",
+   "konu": "Gardaşım",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Erdemler",
+   "konu": "Yanlışlarımız…",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Erdemler",
+   "konu": "Meşe ile Saz (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Kültürümüz",
+   "konu": "Ergenekon Destanı",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Kültürümüz",
+   "konu": "Türkiye",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Kültürümüz",
+   "konu": "Bir Hikâye Yaz İçinde İnsan Olsun",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Kültürümüz",
+   "konu": "Türk Halk Edebiyatı: Âşık Veysel (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Mücadele ve Atatürk",
+   "konu": "Bu Vatan Kimin?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Mücadele ve Atatürk",
+   "konu": "215 Okkalık Mermi Nasıl Kaldırıldı?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Mücadele ve Atatürk",
+   "konu": "Memleketin Hayatı Söz Konusu",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Millî Mücadele ve Atatürk",
+   "konu": "Atatürk ve Eğitim, Öğretim, Öğretmen (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Kağıdın Serüveni",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Çamur Tabletten Elektronik Tablete: Kitap",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Umutla Umutsuzluk",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Okuma Kültürü",
+   "konu": "Atatürk Bizimle (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Sağlık ve Spor",
+   "konu": "Kahvaltının Önemi",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Sağlık ve Spor",
+   "konu": "Spor Yap, Beynin Formda Kalsın!",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Sağlık ve Spor",
+   "konu": "Obezite Nedir?",
+   "kalite_bekliyor": false
+  },
+  {
+   "sinif": 8,
+   "ders": "Turkce",
+   "unite": "Sağlık ve Spor",
+   "konu": "Atatürk ve Spor (Dinleme/İzleme Metni)",
+   "kalite_bekliyor": false
+  }
+ ]
+}
