@@ -6,6 +6,7 @@ export default function IcerikMerkezi({ sifre, T, TYPO, Panel, butonStil }) {
   const [kapsam, setKapsam] = useState(null);
   const [arsiv, setArsiv] = useState(null);
   const [video, setVideo] = useState(null);
+  const [plan, setPlan] = useState(null);
   const [hata, setHata] = useState("");
   const [bilgi, setBilgi] = useState("");
   const [bekle, setBekle] = useState(false);
@@ -37,6 +38,7 @@ export default function IcerikMerkezi({ sifre, T, TYPO, Panel, butonStil }) {
         <button disabled={bekle} onClick={() => getir(`/api/admin/icerik-cekirdegi?sifre=${q}`, setKapsam)} style={butonStil}>Kapsam raporu</button>
         <button disabled={bekle} onClick={() => getir(`/api/admin/arsiv-ilerleme?sifre=${q}`, setArsiv)} style={butonStil}>Arşiv ilerlemesi</button>
         <button disabled={bekle} onClick={() => getir(`/api/admin/video-katalogu?sifre=${q}`, setVideo)} style={butonStil}>Video kataloğu</button>
+        <button disabled={bekle} onClick={() => getir(`/api/admin/video-plani?sifre=${q}`, setPlan)} style={butonStil}>Üretim planı</button>
       </div>
       {hata && <p role="alert" style={{ color: T.danger || "#B42318", fontSize: TYPO.body }}>{hata}</p>}
       {bilgi && <p role="status" style={{ fontSize: TYPO.body }}>{bilgi}</p>}
@@ -68,6 +70,26 @@ export default function IcerikMerkezi({ sifre, T, TYPO, Panel, butonStil }) {
           <p style={p}>Hedef = {arsiv.hedefAltKonu} alt konu × {arsiv.materyalBasina} materyal. Soru bankasında {arsiv.soruBankasiSoruSayisi} soru var.</p>
           {arsiv.turler.map((t) => <p key={t.icerik_turu} style={p}>{t.icerik_turu}: toplam {t.toplam}, onaylı {t.onayli}, kalite geçti {t.kalite_gecti}, bekleyen {t.bekleyen}, reddedilen {t.reddedilen}</p>)}
           <p style={p}>{arsiv.not}</p>
+        </div>
+      )}
+
+      {plan && (
+        <div style={{ marginBottom: 14 }}>
+          <p style={{ fontSize: TYPO.body, fontWeight: 700 }}>Üretim planı ({plan.mufredatYili}): her alt konu için paket → senaryo → ses → video</p>
+          <div style={{ overflowX: "auto", maxHeight: 340, overflowY: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: TYPO.caption }}>
+              <thead><tr><th align="left">Sınıf / Ders</th><th>Toplam</th><th>Paket</th><th>Senaryo</th><th>Ses</th><th>Video</th><th>Yayında</th><th>₺</th></tr></thead>
+              <tbody>
+                {plan.ozet.map((o) => (
+                  <tr key={o.sinif + o.ders} style={{ borderTop: `1px solid ${T.border}` }}>
+                    <td>{o.sinif}. {o.ders}</td><td align="center">{o.toplam}</td><td align="center">{o.paket}</td><td align="center">{o.senaryo}</td><td align="center">{o.ses}</td><td align="center">{o.video}</td><td align="center">{o.yayinda}</td><td align="center">{o.maliyet_tl}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {plan.kaynakBosluklari.length > 0 && <p style={p}>Kaynakta eksik (uydurulmaz): {plan.kaynakBosluklari.map((b) => `${b.sinif}. ${b.ders}${b.konusuz_hafta ? ` konusuz hafta ${b.konusuz_hafta}` : ""}${b.kazanim_eksik ? " kazanım yok" : ""}`).join(" · ")}</p>}
+          <p style={p}>Videolar bir kez üretilir ve kalıcı saklanır; müfredat yılı değişince yalnızca kaynağı değişen konular yeniden üretim işaretlenir.</p>
         </div>
       )}
 

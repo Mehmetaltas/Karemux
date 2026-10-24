@@ -50,3 +50,11 @@
 
 ## Sıra
 Bugün/yarın: 2 → 3 → 1(test) → 8. Bu hafta: 9, 10, 11-17. Paralel: 4-7 (sen). Launch sonrası: D-H.
+
+## 24 Ekim: Video üretim hattı (özet)
+- Kaynak liste: resmî yıllık plan alt konuları (5-8) + İngilizce temaları = 649 alt konu; 646'sının konu paketi YOK (gerçek DB taraması, `rapor` dalı). Önceki "730" rakamı yeniden üretilemedi, geçersiz.
+- Aşamalar: konu paketi → senaryo (bağımsız denetim + düzeltme turu) → ses (Gemini TTS / klon / dış seslendirme) → video → insan onayı → yayın. Takip tablosu `video_uretim_plani` (admin: İçerik Merkezi > Üretim planı).
+- Kalite kapıları: paket kalite kontrolü; senaryo kaynakla karşılaştırma; ses teknik kontrol (seviye, uzun sessizlik); video insan onayı.
+- Maliyet: üretim anında `giderler` (kategori `video_uretimi`, tarih/ay ile). Gemini ücretsiz kota ses için günde 10 istek → faturalandırma şart.
+- Kaynak boşlukları (uydurulmaz): Türkçe 5-7 ~13-14 konusuz hafta; 8. İnkılap ve 8. Din kazanımı yok; İngilizce plan tema bazlı.
+- Yıl değişimi: `mufredat_yili` ile yeni satır seti; kaynağı değişmeyen konular tekrar üretilmez.

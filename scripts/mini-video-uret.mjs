@@ -3,11 +3,12 @@
 // Ortam: DATABASE_URL (zorunlu), BLOB_READ_WRITE_TOKEN (yoksa mp4 yalniz CI artifact'i olur, katalog degismez), LIMIT, SINIF.
 import { neon } from "@neondatabase/serverless";
 import { put } from "@vercel/blob";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import { kazanimlariGetir } from "@/lib/kazanimlar";
 import { senaryodanSlaytlar } from "./mini-video/slaytlar.mjs";
 import { usdTryKuruGetir } from "@/lib/ai-fiyatlandirma";
+import { planTablosuHazirla } from "@/lib/video-plani";
 import { mp4Uret } from "./mini-video/uret.mjs";
 
 const sql = neon(process.env.DATABASE_URL);
@@ -72,6 +73,7 @@ try { if (!SESSIZ) await tts("Merhaba, bu bir deneme.", `${CIKTI}/on-kontrol.wav
 catch (e) { console.log(`::error title=tts::gemini tts calismiyor: ${String(e.message).slice(0, 300)}`); process.exit(1); }
 
 await tablo();
+await planTablosuHazirla();
 const adaylar = await sql`
   SELECT DISTINCT ON (o.sinif, o.ders, o.unite, o.konu) o.id, o.sinif, o.ders, o.unite, o.konu, o.icerik_json
   FROM icerik_onbellek o
@@ -93,17 +95,19 @@ for (const a of adaylar) {
     const baglam = { sinif: a.sinif, ders: a.ders, unite: a.unite, konu: a.konu, kazanimlar: kazanimlariGetir(a.ders, a.sinif, a.konu, a.unite, 4), logoUri: LOGO_URI };
     HARCAMA_USD = 0;
     // Senaryo -> bagimsiz denetim -> hata varsa duzeltmeyle yeniden yaz (en fazla 2 tur). Denetimden gecmeyen senaryo SESLENDIRILMEZ.
-    let sj = null, duzeltmeler = [];
+    let sj = null, duzeltmeler = [], denetimTuru = 0;
     for (let tur = 0; tur < 3; tur++) {
       sj = await yardim({ islem: "senaryo", baglam, paket: { anlatim: paket.anlatim }, duzeltmeler });
       HARCAMA_USD += Number(sj.ucretUsd) || 0;
       const d = await yardim({ islem: "denetim", baglam, paket: { anlatim: paket.anlatim }, slaytlar: sj.slaytlar });
       HARCAMA_USD += Number(d.ucretUsd) || 0;
-      if (!d.hatalar.length) { console.log(`::notice title=denetim::${etiket}: senaryo denetimden gecti (tur ${tur + 1})`); break; }
+      if (!d.hatalar.length) { denetimTuru = tur + 1; console.log(`::notice title=denetim::${etiket}: senaryo denetimden gecti (tur ${tur + 1})`); break; }
       console.log(`::warning title=denetim::${etiket}: tur ${tur + 1}: ${d.hatalar.length} hata bulundu: ${JSON.stringify(d.hatalar).slice(0, 400)}`);
       duzeltmeler = d.hatalar;
       if (tur === 2) throw new Error("senaryo denetimden gecemedi");
     }
+    await sql`UPDATE video_uretim_plani SET senaryo_durum = 'gecti', senaryo_json = ${JSON.stringify(sj.slaytlar)}::jsonb, senaryo_hatalar = '[]'::jsonb, senaryo_denetim_tur = ${denetimTuru}, guncelleme = now()
+      WHERE mufredat_yili = ${MUFREDAT_YILI} AND sinif = ${a.sinif} AND ders = ${a.ders} AND lower(konu) = lower(${a.konu})`.catch(() => {});
     const { slaytlar, neden } = senaryodanSlaytlar(sj.slaytlar, paket, baglam);
     HOCA = hocaSec(a.ders);
     if (!slaytlar.length) { atlanan++; console.log(`::warning title=atlandi::${etiket}: ${neden}`); continue; }
@@ -112,12 +116,26 @@ for (const a of adaylar) {
     const cikti = `${CIKTI}/mini-${a.id}.mp4`;
     console.log(`::notice title=basladi::${etiket}: ${slaytlar.length} slayt`);
     const r = await mp4Uret({ slaytlar, baglam, tts, dizin, cikti });
+    // Ses teknik kalite kapisi: ortalama ses seviyesi ve sessizlik orani (sessiz modda atlanir).
+    let sesKalite = { mod: SESSIZ ? "sessiz" : "gemini" };
+    if (!SESSIZ) {
+      const pr = spawnSync("ffmpeg", ["-i", cikti, "-af", "volumedetect,silencedetect=n=-45dB:d=2", "-vn", "-f", "null", "-"], { encoding: "utf8" });
+      const log = String(pr.stderr || "");
+      const m = /mean_volume:\s*(-?[\d.]+) dB/.exec(log); const mx = /max_volume:\s*(-?[\d.]+) dB/.exec(log);
+      const sessiz = [...log.matchAll(/silence_duration:\s*([\d.]+)/g)].reduce((t, x) => t + Number(x[1]), 0);
+      sesKalite = { mod: "gemini", ortDb: m ? Number(m[1]) : null, maksDb: mx ? Number(mx[1]) : null, uzunSessizlikSn: Math.round(sessiz) };
+      const sorunlu = sesKalite.ortDb == null || sesKalite.ortDb < -35 || (sesKalite.uzunSessizlikSn || 0) > r.sureSn * 0.25;
+      if (sorunlu) { sesKalite.sorun = true; console.log(`::warning title=ses kalite::${etiket}: ${JSON.stringify(sesKalite)}`); }
+    }
     // Muhasebe: harcama gercekten yapildi -> blob olsun olmasin gider olarak, uretim gunu/ayi ile yazilir (yillik ve aylik raporlarda gorunur).
     const kur = await usdTryKuruGetir();
     const maliyetTl = Math.round(HARCAMA_USD * kur * 100) / 100;
     const bugun = new Date().toISOString().slice(0, 10);
     await sql`INSERT INTO giderler (kategori, tutar_tl, aciklama, tekrarlayan, tarih)
       VALUES ('video_uretimi', ${maliyetTl}, ${`Mini video (${a.sinif}. sinif ${a.ders} / ${a.konu}): senaryo + Gemini TTS ${HARCAMA_USD.toFixed(4)} USD x ${kur} kur; ${r.sureSn} sn; muhasebe ayi ${bugun.slice(0, 7)}; mufredat yili ${MUFREDAT_YILI}; liste fiyati`}, false, ${bugun})`;
+    await sql`UPDATE video_uretim_plani SET ses_durum = ${SESSIZ ? "dis_seslendirme" : sesKalite.sorun ? "kalite_hatali" : "gemini"}, ses_kalite = ${JSON.stringify(sesKalite)}::jsonb, hoca = ${HOCA}, video_durum = 'uretildi',
+      maliyet_tl = maliyet_tl + ${maliyetTl}, guncelleme = now()
+      WHERE mufredat_yili = ${MUFREDAT_YILI} AND sinif = ${a.sinif} AND ders = ${a.ders} AND lower(konu) = lower(${a.konu})`.catch(() => {});
     console.log(`::notice title=maliyet::${etiket}: ${HARCAMA_USD.toFixed(4)} USD = ${maliyetTl} TL (kur ${kur}) giderlere yazildi`);
     if (TOKEN) {
       const { url } = await put(`mini-ders/${a.sinif}-${a.id}.mp4`, fs.readFileSync(cikti), { access: "public", contentType: "video/mp4", token: TOKEN, addRandomSuffix: true });
