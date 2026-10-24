@@ -15,6 +15,12 @@ on:
       sinif:
         description: 'Yalniz bu sinif (bos = hepsi)'
         default: ''
+      dis_ses:
+        description: 'true = repodaki dis-ses/<paket id>/s0.mp3... dosyalarini ses olarak kullan (gercek ogretmen sesi)'
+        default: 'false'
+      dis_ses_maliyet_tl:
+        description: 'dis seslendirme video basina ucret (TL, bilinmiyorsa 0)'
+        default: '0'
   schedule:
     - cron: '30 3 * * *'  # her gun kucuk parti; kayitlar yalniz 'kalite_bekliyor' acilir
 
@@ -48,6 +54,8 @@ jobs:
           LIMIT: ${{ inputs.limit || '3' }}
           SINIF: ${{ inputs.sinif }}
           SESSIZ: ${{ inputs.sessiz }}
+          DIS_SES_DIZIN: ${{ inputs.dis_ses == 'true' && 'dis-ses' || '' }}
+          DIS_SES_MALIYET_TL: ${{ inputs.dis_ses_maliyet_tl }}
         run: |
           npx --yes esbuild@0.25.0 scripts/mini-video-uret.mjs --bundle --platform=node --format=esm --alias:@=. --external:playwright --external:@neondatabase/serverless --external:@vercel/blob --outfile=mini-video-paket.mjs --log-level=warning
           node mini-video-paket.mjs

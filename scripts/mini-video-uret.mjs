@@ -5,6 +5,7 @@ import { neon } from "@neondatabase/serverless";
 import { put } from "@vercel/blob";
 import { execFileSync, spawnSync } from "node:child_process";
 import fs from "node:fs";
+import path from "node:path";
 import { kazanimlariGetir } from "@/lib/kazanimlar";
 import { senaryodanSlaytlar } from "./mini-video/slaytlar.mjs";
 import { usdTryKuruGetir } from "@/lib/ai-fiyatlandirma";
@@ -52,10 +53,21 @@ async function yardim(govde, deneme = 4) {
 const hocaSec = (ders) => ([...String(ders)].reduce((t, c) => t + c.charCodeAt(0), 0) % 2 === 0 ? "kadin" : "erkek");
 let HOCA = "kadin";
 const SESSIZ = String(process.env.SESSIZ || "") === "true"; // true: sessiz uret (dis seslendirme icin); konusma metni .senaryo.json olarak kaydedilir
+// DIS_SES_DIZIN: dis seslendirme (gercek ogretmen sesi) modu. Klasor yapisi: <DIS_SES_DIZIN>/<konu paketi id>/s0.mp3, s1.mp3 ...
+// (slayt sirasiyla; mp3/wav/m4a/ogg olabilir). Slaytlar ve senaryo ayni hattan uretilir, ses yalnizca bu dosyalardan alinir.
+const DIS = String(process.env.DIS_SES_DIZIN || "").trim();
+const DIS_MALIYET_TL = Number(process.env.DIS_SES_MALIYET_TL || 0) || 0; // video basina, bilinen dis seslendirme ucreti (muhasebeye yazilir)
 const LOGO_URI = (() => { try { return "data:image/png;base64," + fs.readFileSync("public/icons/icon-512.png").toString("base64"); } catch { return ""; } })();
 let HARCAMA_USD = 0; // her video icin sifirlanir; senaryo + ses ucretlerinin toplami
 const MUFREDAT_YILI = process.env.MUFREDAT_YILI || "2026-2027";
 async function tts(metin, hedef) {
+  if (DIS) {
+    const m = /s(\d+)\.mp3$/.exec(hedef); const id = path.basename(path.dirname(hedef)).replace(/^p/, "");
+    const kaynak = m && ["mp3", "wav", "m4a", "ogg"].map((u) => `${DIS}/${id}/s${m[1]}.${u}`).find((f) => fs.existsSync(f));
+    if (!kaynak) throw new Error(`dis ses dosyasi yok: ${DIS}/${id}/s${m ? m[1] : "?"}.*`);
+    fs.copyFileSync(kaynak, hedef);
+    return;
+  }
   if (SESSIZ) {
     const sn = Math.max(2, metin.length / 14);
     execFileSync("ffmpeg", ["-y", "-loglevel", "error", "-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-t", sn.toFixed(2), "-c:a", "pcm_s16le", "-f", "wav", hedef]);
@@ -69,12 +81,12 @@ async function tts(metin, hedef) {
 
 if (SESSIZ) console.log("::notice title=tts::SESSIZ mod: ses uretilmeyecek, konusma metni .senaryo.json olarak kaydedilecek");
 if (!GIZLI) { console.log("::error title=tts::HEALTH_CHECK_SECRET yok"); process.exit(1); }
-try { if (!SESSIZ) await tts("Merhaba, bu bir deneme.", `${CIKTI}/on-kontrol.wav`); console.log("::notice title=tts::gemini tts calisiyor"); }
+try { if (!SESSIZ && !DIS) await tts("Merhaba, bu bir deneme.", `${CIKTI}/on-kontrol.wav`); console.log("::notice title=tts::gemini tts calisiyor"); }
 catch (e) { console.log(`::error title=tts::gemini tts calismiyor: ${String(e.message).slice(0, 300)}`); process.exit(1); }
 
 await tablo();
 await planTablosuHazirla();
-const adaylar = await sql`
+let adaylar = await sql`
   SELECT DISTINCT ON (o.sinif, o.ders, o.unite, o.konu) o.id, o.sinif, o.ders, o.unite, o.konu, o.icerik_json
   FROM icerik_onbellek o
   WHERE o.icerik_turu = 'konu_paketi' AND (o.onay_durumu = 'onaylandi' OR o.onay_durumu IS NULL)
@@ -83,6 +95,7 @@ const adaylar = await sql`
     AND NOT EXISTS (SELECT 1 FROM video_katalogu v WHERE v.sinif = o.sinif AND v.ders = o.ders AND v.unite = o.unite
                     AND v.alt_konu = o.konu AND v.video_turu = 'mini_ders' AND v.url IS NOT NULL)
   ORDER BY o.sinif, o.ders, o.unite, o.konu, (o.onay_durumu = 'onaylandi') DESC NULLS LAST, o.olusturulma DESC`;
+if (DIS) adaylar = adaylar.filter((a) => fs.existsSync(`${DIS}/${a.id}`));
 console.log(`::notice title=aday::${adaylar.length} konu paketi video bekliyor, bu calismada en fazla ${LIMIT} uretilecek`);
 
 fs.mkdirSync(CIKTI, { recursive: true });
@@ -117,23 +130,23 @@ for (const a of adaylar) {
     console.log(`::notice title=basladi::${etiket}: ${slaytlar.length} slayt`);
     const r = await mp4Uret({ slaytlar, baglam, tts, dizin, cikti });
     // Ses teknik kalite kapisi: ortalama ses seviyesi ve sessizlik orani (sessiz modda atlanir).
-    let sesKalite = { mod: SESSIZ ? "sessiz" : "gemini" };
+    let sesKalite = { mod: SESSIZ ? "sessiz" : DIS ? "dis_ses" : "gemini" };
     if (!SESSIZ) {
       const pr = spawnSync("ffmpeg", ["-i", cikti, "-af", "volumedetect,silencedetect=n=-45dB:d=2", "-vn", "-f", "null", "-"], { encoding: "utf8" });
       const log = String(pr.stderr || "");
       const m = /mean_volume:\s*(-?[\d.]+) dB/.exec(log); const mx = /max_volume:\s*(-?[\d.]+) dB/.exec(log);
       const sessiz = [...log.matchAll(/silence_duration:\s*([\d.]+)/g)].reduce((t, x) => t + Number(x[1]), 0);
-      sesKalite = { mod: "gemini", ortDb: m ? Number(m[1]) : null, maksDb: mx ? Number(mx[1]) : null, uzunSessizlikSn: Math.round(sessiz) };
+      sesKalite = { mod: DIS ? "dis_ses" : "gemini", ortDb: m ? Number(m[1]) : null, maksDb: mx ? Number(mx[1]) : null, uzunSessizlikSn: Math.round(sessiz) };
       const sorunlu = sesKalite.ortDb == null || sesKalite.ortDb < -35 || (sesKalite.uzunSessizlikSn || 0) > r.sureSn * 0.25;
       if (sorunlu) { sesKalite.sorun = true; console.log(`::warning title=ses kalite::${etiket}: ${JSON.stringify(sesKalite)}`); }
     }
     // Muhasebe: harcama gercekten yapildi -> blob olsun olmasin gider olarak, uretim gunu/ayi ile yazilir (yillik ve aylik raporlarda gorunur).
     const kur = await usdTryKuruGetir();
-    const maliyetTl = Math.round(HARCAMA_USD * kur * 100) / 100;
+    const maliyetTl = Math.round((HARCAMA_USD * kur + (DIS ? DIS_MALIYET_TL : 0)) * 100) / 100;
     const bugun = new Date().toISOString().slice(0, 10);
     await sql`INSERT INTO giderler (kategori, tutar_tl, aciklama, tekrarlayan, tarih)
-      VALUES ('video_uretimi', ${maliyetTl}, ${`Mini video (${a.sinif}. sinif ${a.ders} / ${a.konu}): senaryo + Gemini TTS ${HARCAMA_USD.toFixed(4)} USD x ${kur} kur; ${r.sureSn} sn; muhasebe ayi ${bugun.slice(0, 7)}; mufredat yili ${MUFREDAT_YILI}; liste fiyati`}, false, ${bugun})`;
-    await sql`UPDATE video_uretim_plani SET ses_durum = ${SESSIZ ? "dis_seslendirme" : sesKalite.sorun ? "kalite_hatali" : "gemini"}, ses_kalite = ${JSON.stringify(sesKalite)}::jsonb, hoca = ${HOCA}, video_durum = 'uretildi',
+      VALUES ('video_uretimi', ${maliyetTl}, ${`Mini video (${a.sinif}. sinif ${a.ders} / ${a.konu}): senaryo + ${DIS ? `dis seslendirme ${DIS_MALIYET_TL} TL` : "Gemini TTS"} ${HARCAMA_USD.toFixed(4)} USD x ${kur} kur; ${r.sureSn} sn; muhasebe ayi ${bugun.slice(0, 7)}; mufredat yili ${MUFREDAT_YILI}; liste fiyati`}, false, ${bugun})`;
+    await sql`UPDATE video_uretim_plani SET ses_durum = ${SESSIZ || DIS ? "dis_seslendirme" : sesKalite.sorun ? "kalite_hatali" : "gemini"}, ses_kalite = ${JSON.stringify(sesKalite)}::jsonb, hoca = ${HOCA}, video_durum = 'uretildi',
       maliyet_tl = maliyet_tl + ${maliyetTl}, guncelleme = now()
       WHERE mufredat_yili = ${MUFREDAT_YILI} AND sinif = ${a.sinif} AND ders = ${a.ders} AND lower(konu) = lower(${a.konu})`.catch(() => {});
     console.log(`::notice title=maliyet::${etiket}: ${HARCAMA_USD.toFixed(4)} USD = ${maliyetTl} TL (kur ${kur}) giderlere yazildi`);
@@ -141,7 +154,7 @@ for (const a of adaylar) {
       const { url } = await put(`mini-ders/${a.sinif}-${a.id}.mp4`, fs.readFileSync(cikti), { access: "public", contentType: "video/mp4", token: TOKEN, addRandomSuffix: true });
       await sql`
         INSERT INTO video_katalogu (sinif, ders, unite, alt_konu, video_turu, yayin_yeri, url, sure_sn, durum, kalite_notu, mufredat_yili, uretim_tarihi, uretim_maliyet_tl)
-        VALUES (${a.sinif}, ${a.ders}, ${a.unite}, ${a.konu}, 'mini_ders', 'karemux', ${url}, ${r.sureSn}, 'kalite_bekliyor', 'otomatik uretim (ogretmen senaryosu + gemini tts); insan incelemesi bekliyor', ${MUFREDAT_YILI}, ${new Date().toISOString().slice(0, 10)}, ${maliyetTl})
+        VALUES (${a.sinif}, ${a.ders}, ${a.unite}, ${a.konu}, 'mini_ders', 'karemux', ${url}, ${r.sureSn}, 'kalite_bekliyor', 'otomatik uretim (ogretmen senaryosu + ses); insan incelemesi bekliyor', ${MUFREDAT_YILI}, ${new Date().toISOString().slice(0, 10)}, ${maliyetTl})
         ON CONFLICT (sinif, ders, unite, COALESCE(alt_konu, ''), video_turu)
         DO UPDATE SET url = EXCLUDED.url, sure_sn = EXCLUDED.sure_sn, durum = 'kalite_bekliyor', guncelleme = now(), mufredat_yili = EXCLUDED.mufredat_yili, uretim_tarihi = EXCLUDED.uretim_tarihi, uretim_maliyet_tl = COALESCE(video_katalogu.uretim_maliyet_tl, 0) + EXCLUDED.uretim_maliyet_tl
         WHERE video_katalogu.durum <> 'yayinda'`;

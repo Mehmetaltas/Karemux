@@ -36,8 +36,15 @@ export async function POST(req) {
     if (logoTemiz && !logoTemiz.startsWith("https://") ) {
       return Response.json({ error: "Gecersiz logo adresi" }, { status: 400 });
     }
-    if (logoTemiz && !/\.vercel-storage\.com\//.test(logoTemiz)) {
-      return Response.json({ error: "Logo, sadece /api/kurum/logo-yukle uzerinden yuklenebilir" }, { status: 400 });
+    if (logoTemiz) {
+      // 24 Ekim: eski regex "https://baska-site.com/.vercel-storage.com/x" gibi adresi de geciriyordu.
+      // Simdi adres COZULUR: sunucu adi Vercel Blob alan adi olmali, yol bu kurumun logo klasorunde baslamali.
+      let u = null;
+      try { u = new URL(logoTemiz); } catch { /* gecersiz */ }
+      const hostTamam = u && u.protocol === "https:" && !u.username && !u.password && /^[a-z0-9-]+\.public\.blob\.vercel-storage\.com$/.test(u.hostname);
+      if (!hostTamam || !u.pathname.startsWith("/kurum-logolari/")) {
+        return Response.json({ error: "Logo, sadece /api/kurum/logo-yukle uzerinden yuklenebilir" }, { status: 400 });
+      }
     }
 
     await sql`
