@@ -25,7 +25,9 @@ export default function KonuVideolari({ sinif, ders, unite, konu }) {
         <div key={v.id} style={{ background: "#FDFBF6", borderRadius: 12, border: "1px solid #E5DFD3", padding: 12, marginBottom: 10 }}>
           <p style={{ fontSize: 14, fontWeight: 700, margin: "0 0 8px" }}>{v.video_turu === "mini_ders" ? "🎬 Mini Ders" : "👩‍🏫 Öğretmen Anlatımı"}{v.sure_sn ? ` · ${Math.round(v.sure_sn / 60)} dk` : ""}</p>
           {v.video_turu === "mini_ders" ? (
-            <video controls preload="metadata" playsInline style={{ width: "100%", borderRadius: 8, background: "#000" }} src={v.url} aria-label={`${v.alt_konu || v.unite} mini ders videosu`} />
+            <video controls preload="metadata" playsInline style={{ width: "100%", borderRadius: 8, background: "#000" }} src={v.url} aria-label={`${v.alt_konu || v.unite} mini ders videosu`}>
+              <track kind="captions" srcLang="tr" label="Türkçe" />
+            </video>
           ) : ytId(v.url) ? (
             <iframe title={`${v.alt_konu || v.unite} öğretmen anlatımı`} src={`https://www.youtube-nocookie.com/embed/${ytId(v.url)}`} loading="lazy" allowFullScreen style={{ width: "100%", aspectRatio: "16 / 9", border: 0, borderRadius: 8 }} />
           ) : null}
