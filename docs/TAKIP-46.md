@@ -20,7 +20,7 @@
 | 15 | Repo public/private | — | — | [SEN] |
 | 16 | Yedek izleme | ✅ | ✅ | 22-24 Ekim yedekleri başarılı; restore doğrulaması 24 Ekim geçti |
 | 17 | Yetim soru kayıtları | ✅ | ✅ | eşleşmeyen ünite 0; 279 ünitesiz kayıt (genel/bursluluk) kasıtlı |
-| 18 | Ortak üretim çekirdeği | hayır | — | tara raporu + uygulama |
+| 18 | Ortak üretim çekirdeği | kısmen | — | Deneme (ulusal/paket/ücretli) zaten ortak çekirdekte; tek konu, oturum uçları ve seviye tespit ikilisi için `docs/SINAV-URETIM-TARA-v2-24EKIM.md` planı |
 | 19 | Oturum/analiz/telafi | hayır | — | tara raporu + uygulama |
 | 20 | Harici katılımcı | ✅ | hayır | canlı doğrulama |
 | 21 | Sıralama eşikleri | ✅ | kısmen | — |
@@ -33,7 +33,7 @@
 | 28 | Paket Tasarım Merkezi | ✅ | hayır | canlı doğrulama |
 | 29 | Takvim + plan motoru | ✅ | hayır | canlı doğrulama |
 | 30 | Content Core | ✅ | ✅ | 8. sınıf Matematik adı |
-| 31 | Video motoru + katalog | ✅ | sessiz modda | Gemini faturası, BLOB token, sesli örnek onayı |
+| 31 | Video motoru + katalog | ✅ | sessiz modda | Gemini faturası, BLOB token, sesli örnek onayı; dış ses modu (`dis_ses=true`) yazıldı, henüz denenmedi |
 | 32 | Deneme Kulübü döngüsü | hayır | — | — |
 | 33 | Fiyat kararı | — | — | [SEN] |
 | 34 | Öğretmen↔öğrenci↔sınıf | ✅ | kısmen | — |
@@ -41,7 +41,7 @@
 | 36 | Ödev takibi | ✅ | kısmen | — |
 | 37 | Öğrenme Hafızası | ✅ | kısmen | — |
 | 38 | Kurum/QR giriş | ✅ | kısmen | veli girişi/ödemesi |
-| 39 | Kurum logosu Blob | hayır | — | SSRF korumalı yükleme |
+| 39 | Kurum logosu Blob | ✅ | hayır | Yükleme Blob'a (25 Eylül); 24 Ekim: adres doğrulaması sertleştirildi (eski kontrol sahte alan adıyla atlatılabiliyordu). BLOB token yok → canlı test bekliyor |
 | 40 | Geri tuşu + tasarım sistemi | ✅ | kısmen | cihaz testi |
 | 41 | Merkezi KPI | ✅ | kısmen | — |
 | 42 | Kota uyarısı + fiyat bekçisi | ✅ | kısmen | — |
