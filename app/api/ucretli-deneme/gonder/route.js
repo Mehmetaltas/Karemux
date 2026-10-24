@@ -1,6 +1,7 @@
 import { sql } from "@/lib/db";
 import { kullaniciIdCoz } from "@/lib/kullanici";
 import { denemeKulubuUyeMi } from "@/lib/deneme-kulubu";
+import { telafiGorevleriYaz } from "@/lib/sinav-telafi";
 import { kitapcikOlustur, puanla, PUANLAMA_SURUMU } from "@/lib/puanlama";
 
 // Ucretsiz ulusal-deneme/gonder'in aynisi AMA once kullanicinin kurumunun
@@ -102,6 +103,13 @@ export async function POST(req) {
         }
       } catch (e) { console.error("Hata kitapcigi kaydi basarisiz:", e); }
     }
+
+    // Sinav Merkezi madde 19: zayif alt konular ertesi gune telafi gorevi olur (hata sonucu bozmaz).
+    try {
+      const kirilim = {};
+      for (const [k, v] of Object.entries(altKonuOzet)) if (k !== "Genel") kirilim[k] = { dogru: v.dogru, toplam: v.dogru + v.yanlis + v.bos };
+      await telafiGorevleriYaz({ kullaniciId, cihazId, ders, altKonuKirilim: kirilim });
+    } catch (e) { console.error("Telafi gorevi yazilamadi:", e.message); }
 
     // 24 Eylul: GERCEK testte bulundu - DB net'i yuvarlanmis (numeric kolon)
     // saklarken JS'deki HAM (yuvarlanmamis) net ile karsilastirma yapiliyordu,
