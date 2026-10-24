@@ -88,7 +88,7 @@ export default function IcerikMerkezi({ sifre, T, TYPO, Panel, butonStil }) {
               </tbody>
             </table>
           </div>
-          {plan.kaynakBosluklari.length > 0 && <p style={p}>Kaynakta eksik (uydurulmaz): {plan.kaynakBosluklari.map((b) => `${b.sinif}. ${b.ders}${b.konusuz_hafta ? ` konusuz hafta ${b.konusuz_hafta}` : ""}${b.kazanim_eksik ? " kazanım yok" : ""}`).join(" · ")}</p>}
+          {plan.kaynakBosluklari.length > 0 && <p style={p}>Kaynakta eksik (uydurulmaz): {plan.kaynakBosluklari.map((b) => `${b.sinif}. ${b.ders}${b.gercek_bosluk_hafta ? ` planda konusu yazmayan ${b.gercek_bosluk_hafta} hafta` : ""}${b.kazanim_eksik ? " kazanım yok" : ""}`).join(" · ")}</p>}
           <p style={p}>Videolar bir kez üretilir ve kalıcı saklanır; müfredat yılı değişince yalnızca kaynağı değişen konular yeniden üretim işaretlenir.</p>
         </div>
       )}

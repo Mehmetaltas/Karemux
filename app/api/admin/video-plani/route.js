@@ -32,7 +32,7 @@ export async function GET(req) {
       COUNT(*) FILTER (WHERE video_durum = 'yeniden_uretim')::int AS yeniden,
       COALESCE(SUM(maliyet_tl), 0)::numeric(10,2) AS maliyet_tl
     FROM video_uretim_plani WHERE mufredat_yili = ${MUFREDAT_YILI} GROUP BY sinif, ders ORDER BY sinif, ders`;
-  return Response.json({ mufredatYili: MUFREDAT_YILI, ozet, kaynakBosluklari: kaynakBosluklari().filter((b) => b.konusuz_hafta || b.kazanim_eksik) });
+  return Response.json({ mufredatYili: MUFREDAT_YILI, ozet, kaynakBosluklari: kaynakBosluklari().filter((b) => b.gercek_bosluk_hafta || b.kazanim_eksik) });
 }
 
 // POST {sifre, islem:"tohumla"}: plandaki tum alt konulari satir olarak acar (idempotent), paket/video durumlarini senkronlar,
