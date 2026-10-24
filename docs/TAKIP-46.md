@@ -21,7 +21,7 @@
 | 16 | Yedek izleme | ✅ | ✅ | 22-24 Ekim yedekleri başarılı; restore doğrulaması 24 Ekim geçti |
 | 17 | Yetim soru kayıtları | ✅ | ✅ | eşleşmeyen ünite 0; 279 ünitesiz kayıt (genel/bursluluk) kasıtlı |
 | 18 | Ortak üretim çekirdeği | kısmen | — | Deneme (ulusal/paket/ücretli) zaten ortak çekirdekte; tek konu, oturum uçları ve seviye tespit ikilisi için `docs/SINAV-URETIM-TARA-v2-24EKIM.md` planı |
-| 19 | Oturum/analiz/telafi | hayır | — | tara raporu + uygulama |
+| 19 | Oturum/analiz/telafi | kısmen | hayır | Hata/süre analizi (22 Ekim) ve telafi önce-sonra takibi (24 Ekim, `/api/telafi`) kodda; canlı doğrulama ve oturum/katılım şeması bekliyor |
 | 20 | Harici katılımcı | ✅ | hayır | canlı doğrulama |
 | 21 | Sıralama eşikleri | ✅ | kısmen | — |
 | 22 | Sınav Analizleri | ✅ | kısmen | — |
