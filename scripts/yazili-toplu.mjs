@@ -11,6 +11,7 @@ import { soruFormatGecerliMi } from "../lib/soruFormatDogrula.js";
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const [dizin = "yazili-toplu", sinifF, dersF] = process.argv.slice(2);
+console.log("::notice::yazili-toplu basladi");
 const sql = neon(process.env.DATABASE_URL);
 const nrm = (s) => String(s || "").toLocaleLowerCase("tr-TR").replace(/\s*\(\d+\)\s*/g, " ").replace(/[^a-z0-9çğıöşü ]/gi, " ").replace(/\s+/g, " ").trim();
 // [dönem, yazılı, ilk hafta, son hafta]  (1. dönem hafta 1-18, 2. dönem 19-37; 16 Kasım ara tatili 9. haftadan sonra)
@@ -21,7 +22,7 @@ const HARF = "ABCDE";
 const rapor = [];
 
 for (const ev of ["unhandledRejection", "uncaughtException"]) process.on(ev, (e) => { console.log("::error::" + String(e && e.stack || e).replace(/\n/g, " | ").slice(0, 700)); process.exit(1); });
-const tumSorular = await sql`SELECT id, ders, sinif::text AS sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index AS "dogruIndex", aciklama FROM soru_bankasi WHERE soru IS NOT NULL`;
+let tumSorular; try { tumSorular = await sql`SELECT id, ders, sinif::text AS sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index AS "dogruIndex", aciklama FROM soru_bankasi WHERE soru IS NOT NULL`; } catch (e) { console.log("::error::DB sorgu hatasi: " + String(e.message).slice(0, 300)); process.exit(1); }
 console.log(`::notice::soru_bankasi: ${tumSorular.length} satır`);
 const dersAnahtar = (d) => nrm(d).replace(/\s/g, "");
 const tarayici = await chromium.launch();
