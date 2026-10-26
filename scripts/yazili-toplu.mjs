@@ -50,6 +50,12 @@ for (const anahtar of Object.keys(YILLIK_PLAN)) {
     const anahtarlar = [...new Set([...uniteler, ...satirlar.flatMap(([, , k]) => String(k).split(";"))].map(nrm).filter((x) => x.length > 3))];
     const el = elYazimi(ders, sinif, `${donem}.${yazili}`);
     const elSorular = (el || []).map((e, i) => ({ ...karistir({ id: `el-${etiket}-${i}`, soru: e[0], secenekler: e[1], dogruIndex: e[2], aciklama: e[3] }), gorsel: e[4] || null }));
+    // havuz 12'den büyükse: tüm görselli sorular + metin sorularından eşit aralıklı örnek (görseller sona yakın dağıtılır)
+    if (elSorular.length > SORU_SAYISI) {
+      const gor = elSorular.filter((q) => q.gorsel), met = elSorular.filter((q) => !q.gorsel), nMet = SORU_SAYISI - gor.length;
+      const sec = Array.from({ length: nMet }, (_, i) => met[Math.floor((i * met.length) / nMet)]);
+      elSorular.splice(0, elSorular.length, ...sec.slice(0, nMet - Math.ceil(gor.length / 2)), ...gor.slice(0, 1), ...sec.slice(nMet - Math.ceil(gor.length / 2)), ...gor.slice(1));
+    }
     const eslesen = havuz.filter((q) => !kullanilan.has(q.id) && anahtarlar.some((a) => { const u = nrm(q.unite), k = nrm(q.alt_konu); return (u && (u.includes(a) || a.includes(u))) || (k && (k.includes(a) || a.includes(k))); }));
     // konulara göre dengeli seçim (round-robin), deterministik sıra
     const gruplar = {}; for (const q of eslesen.sort((a, b) => a.id - b.id)) (gruplar[nrm(q.alt_konu || q.unite)] = gruplar[nrm(q.alt_konu || q.unite)] || []).push(q);
