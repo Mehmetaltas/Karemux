@@ -1,0 +1,33 @@
+name: Yazili Toplu Uretim
+
+on:
+  workflow_dispatch:
+    inputs:
+      sinif:
+        description: "Sınıf (boş = hepsi)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  uret:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: node scripts/yazili-toplu.mjs cikti "${{ inputs.sinif }}"
+      - name: Sonuçları yazili-cikti dalına yaz
+        run: |
+          cd cikti && git init -q -b yazili-cikti && git config user.name "karemux-bot" && git config user.email "bot@karemux.com"
+          echo '{"git":{"deploymentEnabled":false}}' > vercel.json
+          git add -A && git commit -qm "yazili ciktilari [skip ci]"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" yazili-cikti
