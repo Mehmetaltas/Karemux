@@ -2,7 +2,7 @@ import { KAGITLAR } from "@/lib/yazili-hazirlik/index";
 import { kagitHtml } from "@/lib/yazili-hazirlik/render";
 import { gorselUret } from "@/lib/gorsel-motoru";
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 // "Yazılıya Hazırlanıyorum" çalışma kâğıtları: yazdır/PDF olarak kaydet (tarayıcı: Yazdır → PDF).
 // ?kagit=mat7 → kâğıt (HTML, A4 sayfalı) ; parametresiz → hazır kâğıtların listesi (JSON).
