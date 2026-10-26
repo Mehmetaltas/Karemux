@@ -1,0 +1,34 @@
+Din Kulturu|8|Kader Inanci|-|19
+Din Kulturu|8|Zekat ve Sadaka|-|25
+Fen Bilimleri|5|Gokyuzundeki Komsularimiz ve Biz|-|15
+Fen Bilimleri|7|-|-|20
+Fen Bilimleri|8|-|-|5
+Fen Bilimleri|8|-|alt|30
+Fen Bilimleri|8|Basinc|-|2180
+Fen Bilimleri|8|Mevsimler ve Iklim|alt|20
+Ingilizce|6|Classroom Life|-|101
+Ingilizce|6|Family Life|-|101
+Ingilizce|6|Life in Nature & Global Problems|-|111
+Ingilizce|6|Life in the Neighbourhood & City|-|103
+Ingilizce|6|Life in the Universe & Future|-|94
+Ingilizce|6|Life in the World & Culture|-|94
+Ingilizce|6|Personal Life|-|81
+Ingilizce|6|School Life|-|73
+Matematik|5|Geometrik Sekiller|alt|18
+Matematik|7|-|-|19
+Matematik|7|-|alt|10
+Matematik|8|-|-|5
+Matematik|8|-|alt|170
+Matematik|8|Carpanlar ve Katlar|alt|48
+Matematik|8|Cebirsel Ifadeler ve Ozdeslikler|alt|5
+Matematik|8|Geometrik Cisimler|alt|20
+Matematik|8|Uslu Ifadeler|-|2879
+Matematik|8|Uslu Ifadeler|alt|29
+Matematik|8|Veri Analizi|-|8
+Sosyal Bilgiler|7|Ortak Mirasimiz|-|12
+Sosyal Bilgiler|8|-|-|5
+Turkce|4|-|-|10
+Turkce|5|Ataturk'u Tanimak|-|6
+Turkce|5|Oyun Dunyasi|-|37
+Turkce|8|-|-|5
+Turkce|8|Okuma Kulturu|-|82

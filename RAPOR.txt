@@ -1,0 +1,180 @@
+Matematik-4-D1-Y1: OK 10 soru, sayfa başı 4
+Matematik-4-D1-Y2: OK 10 soru, sayfa başı 4
+Matematik-4-D1-Y3: OK 10 soru, sayfa başı 4
+Matematik-4-D2-Y1: OK 10 soru, sayfa başı 4
+Matematik-4-D2-Y2: OK 10 soru, sayfa başı 4
+Matematik-4-D2-Y3: OK 10 soru, sayfa başı 4
+Matematik-5-D1-Y1: OK 10 soru, sayfa başı 4
+Matematik-5-D1-Y2: OK 10 soru, sayfa başı 4
+Matematik-5-D1-Y3: OK 10 soru, sayfa başı 4
+Matematik-5-D2-Y1: OK 10 soru, sayfa başı 3
+Matematik-5-D2-Y2: OK 10 soru, sayfa başı 4
+Matematik-5-D2-Y3: OK 10 soru, sayfa başı 4
+Matematik-6-D1-Y1: OK 10 soru, sayfa başı 4
+Matematik-6-D1-Y2: OK 10 soru, sayfa başı 4
+Matematik-6-D1-Y3: OK 10 soru, sayfa başı 4
+Matematik-6-D2-Y1: OK 10 soru, sayfa başı 4
+Matematik-6-D2-Y2: OK 10 soru, sayfa başı 4
+Matematik-6-D2-Y3: OK 10 soru, sayfa başı 4
+Matematik-7-D1-Y1: ATLANDI (elle hazırlanmış görselli kâğıt: yazili-pdf.mjs)
+Matematik-7-D1-Y2: OK 10 soru, sayfa başı 4
+Matematik-7-D1-Y3: OK 10 soru, sayfa başı 4
+Matematik-7-D2-Y1: OK 10 soru, sayfa başı 4
+Matematik-7-D2-Y2: OK 10 soru, sayfa başı 4
+Matematik-7-D2-Y3: OK 10 soru, sayfa başı 4
+Matematik-8-D1-Y1: OK 12 soru, sayfa başı 4
+Matematik-8-D1-Y2: OK 12 soru, sayfa başı 4
+Matematik-8-D1-Y3: OK 12 soru, sayfa başı 4
+Matematik-8-D2-Y1: OK 10 soru, sayfa başı 4
+Matematik-8-D2-Y2: OK 10 soru, sayfa başı 4
+Matematik-8-D2-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-4-D1-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-4-D1-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-4-D1-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-4-D2-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-4-D2-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-4-D2-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-5-D1-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-5-D1-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-5-D1-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-5-D2-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-5-D2-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-5-D2-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-6-D1-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-6-D1-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-6-D1-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-6-D2-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-6-D2-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-6-D2-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-7-D1-Y1: ATLANDI (elle hazırlanmış görselli kâğıt: yazili-pdf.mjs)
+Fen Bilimleri-7-D1-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-7-D1-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-7-D2-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-7-D2-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-7-D2-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-8-D1-Y1: OK 11 soru, sayfa başı 3
+Fen Bilimleri-8-D1-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-8-D1-Y3: OK 10 soru, sayfa başı 4
+Fen Bilimleri-8-D2-Y1: OK 10 soru, sayfa başı 4
+Fen Bilimleri-8-D2-Y2: OK 10 soru, sayfa başı 4
+Fen Bilimleri-8-D2-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-4-D1-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-4-D1-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-4-D1-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-4-D2-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-4-D2-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-4-D2-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-5-D1-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-5-D1-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-5-D1-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-5-D2-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-5-D2-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-5-D2-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-6-D1-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-6-D1-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-6-D1-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-6-D2-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-6-D2-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-6-D2-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-7-D1-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-7-D1-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-7-D1-Y3: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-7-D2-Y1: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-7-D2-Y2: OK 10 soru, sayfa başı 4
+Sosyal Bilgiler-7-D2-Y3: OK 10 soru, sayfa başı 4
+Turkce-4-D1-Y1: OK 10 soru, sayfa başı 4
+Turkce-4-D1-Y2: OK 10 soru, sayfa başı 4
+Turkce-4-D1-Y3: OK 10 soru, sayfa başı 4
+Turkce-4-D2-Y1: OK 10 soru, sayfa başı 4
+Turkce-4-D2-Y2: OK 10 soru, sayfa başı 4
+Turkce-4-D2-Y3: OK 10 soru, sayfa başı 4
+Turkce-5-D1-Y1: OK 10 soru, sayfa başı 4
+Turkce-5-D1-Y2: OK 10 soru, sayfa başı 4
+Turkce-5-D1-Y3: OK 10 soru, sayfa başı 4
+Turkce-5-D2-Y1: OK 10 soru, sayfa başı 4
+Turkce-5-D2-Y2: OK 10 soru, sayfa başı 4
+Turkce-5-D2-Y3: OK 10 soru, sayfa başı 4
+Turkce-6-D1-Y1: OK 10 soru, sayfa başı 4
+Turkce-6-D1-Y2: OK 10 soru, sayfa başı 4
+Turkce-6-D1-Y3: OK 10 soru, sayfa başı 4
+Turkce-6-D2-Y1: OK 10 soru, sayfa başı 4
+Turkce-6-D2-Y2: OK 10 soru, sayfa başı 4
+Turkce-6-D2-Y3: OK 10 soru, sayfa başı 4
+Turkce-7-D1-Y1: OK 10 soru, sayfa başı 4
+Turkce-7-D1-Y2: OK 10 soru, sayfa başı 4
+Turkce-7-D1-Y3: OK 10 soru, sayfa başı 4
+Turkce-7-D2-Y1: OK 10 soru, sayfa başı 4
+Turkce-7-D2-Y2: OK 10 soru, sayfa başı 4
+Turkce-7-D2-Y3: OK 10 soru, sayfa başı 4
+Turkce-8-D1-Y1: OK 10 soru, sayfa başı 4
+Turkce-8-D1-Y2: OK 10 soru, sayfa başı 4
+Turkce-8-D1-Y3: OK 10 soru, sayfa başı 4
+Turkce-8-D2-Y1: OK 10 soru, sayfa başı 4
+Turkce-8-D2-Y2: OK 10 soru, sayfa başı 4
+Turkce-8-D2-Y3: OK 10 soru, sayfa başı 4
+T.C. Inkilap Tarihi-8-D1-Y1: OK 10 soru, sayfa başı 4
+T.C. Inkilap Tarihi-8-D1-Y2: OK 10 soru, sayfa başı 4
+T.C. Inkilap Tarihi-8-D1-Y3: OK 10 soru, sayfa başı 4
+T.C. Inkilap Tarihi-8-D2-Y1: OK 10 soru, sayfa başı 4
+T.C. Inkilap Tarihi-8-D2-Y2: OK 10 soru, sayfa başı 4
+T.C. Inkilap Tarihi-8-D2-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-4-D1-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-4-D1-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-4-D1-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-4-D2-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-4-D2-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-4-D2-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-5-D1-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-5-D1-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-5-D1-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-5-D2-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-5-D2-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-5-D2-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-6-D1-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-6-D1-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-6-D1-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-6-D2-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-6-D2-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-6-D2-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-7-D1-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-7-D1-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-7-D1-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-7-D2-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-7-D2-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-7-D2-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-8-D1-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-8-D1-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-8-D1-Y3: OK 10 soru, sayfa başı 4
+Din Kulturu-8-D2-Y1: OK 10 soru, sayfa başı 4
+Din Kulturu-8-D2-Y2: OK 10 soru, sayfa başı 4
+Din Kulturu-8-D2-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-4-D1-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-4-D1-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-4-D1-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-4-D2-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-4-D2-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-4-D2-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-5-D1-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-5-D1-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-5-D1-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-5-D2-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-5-D2-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-5-D2-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-6-D1-Y1: OK 12 soru, sayfa başı 4
+Ingilizce-6-D1-Y2: OK 12 soru, sayfa başı 4
+Ingilizce-6-D1-Y3: OK 12 soru, sayfa başı 3
+Ingilizce-6-D2-Y1: OK 12 soru, sayfa başı 4
+Ingilizce-6-D2-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-6-D2-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-7-D1-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-7-D1-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-7-D1-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-7-D2-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-7-D2-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-7-D2-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-8-D1-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-8-D1-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-8-D1-Y3: OK 10 soru, sayfa başı 4
+Ingilizce-8-D2-Y1: OK 10 soru, sayfa başı 4
+Ingilizce-8-D2-Y2: OK 10 soru, sayfa başı 4
+Ingilizce-8-D2-Y3: OK 10 soru, sayfa başı 4
