@@ -21,6 +21,7 @@ const SORU_SAYISI = 12, EN_AZ = 6;
 const GORSELE_BAGLI = /\b(şekil|şekle|şekilde|grafik|tablo|tabloda|görsel|resim|harita|haritada|çizim|yukarıdaki|aşağıdaki (?:şekil|tablo|grafik|harita))/i;
 const HARF = "ABCDE";
 const rapor = [];
+const LOGO = "data:image/png;base64," + fs.readFileSync(path.resolve("public/icons/icon-192.png")).toString("base64");
 const EL_KAGIT = new Set(["Matematik-7-D1-Y1", "Fen Bilimleri-7-D1-Y1"]);
 const tohum = (str) => { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 function karistir(q) { let h = tohum(q.soru); const idx = q.secenekler.map((_, i) => i); for (let i = idx.length - 1; i > 0; i--) { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; const j = h % (i + 1); [idx[i], idx[j]] = [idx[j], idx[i]]; } return { ...q, secenekler: idx.map((i) => q.secenekler[i]), dogruIndex: idx.indexOf(q.dogruIndex) }; }
@@ -57,8 +58,8 @@ for (const anahtar of Object.keys(YILLIK_PLAN)) {
     for (let i = 0; !elSorular.length && secilen.length < SORU_SAYISI && g.some((x) => x.length > i); i++) for (const x of g) if (x[i] && secilen.length < SORU_SAYISI) secilen.push(x[i]);
     if (secilen.length < EN_AZ) { rapor.push(`${etiket}: YETERSİZ (${secilen.length}/${EN_AZ}; eşleşen ${eslesen.length}, havuz ${havuz.length})`); continue; }
     secilen.forEach((q) => kullanilan.add(q.id));
-    const sorular = secilen.map((q, i) => ({ no: i + 1, yonerge: "", paragraflar: [q.soru.trim(), ...q.secenekler.map((s, j) => `**${HARF[j]})** ${String(s).trim()}`)], _id: q.id }));
-    const cozumler = secilen.map((q, i) => ({ no: i + 1, paragraflar: [`**Doğru cevap: ${HARF[q.dogruIndex]}) ${String(q.secenekler[q.dogruIndex]).trim()}**`, ...(q.aciklama ? [String(q.aciklama).trim()] : [])] }));
+    const sorular = secilen.map((q, i) => ({ no: i + 1, yonerge: "", paragraflar: [q.soru.trim(), ...q.secenekler.map((s, j) => `**${HARF[j]})** ${String(s).trim().replace(/^[A-Ea-e][).]\s+/, "")}`)], _id: q.id }));
+    const cozumler = secilen.map((q, i) => ({ no: i + 1, paragraflar: [`**Doğru cevap: ${HARF[q.dogruIndex]}) ${String(q.secenekler[q.dogruIndex]).trim().replace(/^[A-Ea-e][).]\s+/, "")}**`, ...(q.aciklama ? [String(q.aciklama).trim()] : [])] }));
     const kapsam = uniteler.join("; ") + " — " + [...new Set(satirlar.flatMap(([, , k]) => String(k).split(";").map((x) => x.trim())))].join(", ");
     // sayfalama: taşma olursa sayfa başına soru sayısını azalt
     let basarili = false;
@@ -66,7 +67,7 @@ for (const anahtar of Object.keys(YILLIK_PLAN)) {
       const sayfalar = []; for (let i = 0; i < sorular.length; i += sp) sayfalar.push({ sorular: sorular.slice(i, i + sp) });
       const cs = []; for (let i = 0; i < cozumler.length; i += 8) cs.push({ cozumler: cozumler.slice(i, i + 8) });
       const kagit = { sinif: Number(sinif), ders, donem, yazili, kapsam, notMetni: "Bu içerik, öğrencilerin yazılı öncesi çalışmaları amacıyla Karemux tarafından hazırlanmıştır. Resmî sınav değildir. Doğru seçeneği işaretleyiniz; cevap anahtarı son sayfadadır.", sayfalar, kazanimTablosu: [], cozumSayfalari: cs };
-      const html = kagitHtml(kagit, { logoUri: "", gorselUret });
+      const html = kagitHtml(kagit, { logoUri: LOGO, gorselUret });
       const sayfa = await tarayici.newPage({ viewport: { width: 900, height: 1200 } });
       await sayfa.setContent(html);
       const tasan = await sayfa.evaluate(() => [...document.querySelectorAll(".sayfa")].some((s) => { const a = s.querySelector(".icerik-alani"); return a.scrollHeight > a.clientHeight + 2; }));
