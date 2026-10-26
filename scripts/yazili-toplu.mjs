@@ -20,6 +20,7 @@ const GORSELE_BAGLI = /\b(şekil|şekle|şekilde|grafik|tablo|tabloda|görsel|re
 const HARF = "ABCDE";
 const rapor = [];
 
+process.on("unhandledRejection", (e) => { console.log("::error::" + String(e && e.stack || e).replace(/\n/g, " | ").slice(0, 700)); process.exit(1); });
 const tumSorular = await sql`SELECT id, ders, sinif::text AS sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index AS "dogruIndex", aciklama FROM soru_bankasi WHERE soru IS NOT NULL`;
 console.log(`::notice::soru_bankasi: ${tumSorular.length} satır`);
 const dersAnahtar = (d) => nrm(d).replace(/\s/g, "");
