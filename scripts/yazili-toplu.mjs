@@ -24,6 +24,7 @@ const rapor = [];
 for (const ev of ["unhandledRejection", "uncaughtException"]) process.on(ev, (e) => { console.log("::error::" + String(e && e.stack || e).replace(/\n/g, " | ").slice(0, 700)); process.exit(1); });
 let tumSorular; try { tumSorular = await sql`SELECT id, ders, sinif::text AS sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index AS "dogruIndex", aciklama FROM soru_bankasi WHERE soru IS NOT NULL`; } catch (e) { console.log("::error::DB sorgu hatasi: " + String(e.message).slice(0, 300)); process.exit(1); }
 console.log(`::notice::soru_bankasi: ${tumSorular.length} satır`);
+{ const say = {}; for (const q of tumSorular) { const k = `${q.ders}|${q.sinif}|${q.unite || "-"}|${q.alt_konu ? "alt" : "-"}`; say[k] = (say[k] || 0) + 1; } fs.mkdirSync(dizin, { recursive: true }); fs.writeFileSync(path.join(dizin, "BANKA.txt"), Object.entries(say).sort().map(([k, n]) => `${k}|${n}`).join("\n")); }
 const dersAnahtar = (d) => nrm(d).replace(/\s/g, "");
 const tarayici = await chromium.launch();
 fs.mkdirSync(dizin, { recursive: true });
