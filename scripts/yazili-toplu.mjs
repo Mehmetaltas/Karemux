@@ -21,7 +21,7 @@ const GORSELE_BAGLI = /\b(şekil|şekle|şekilde|grafik|tablo|tabloda|görsel|re
 const HARF = "ABCDE";
 const rapor = [];
 const LOGO = "data:image/png;base64," + fs.readFileSync(path.resolve("public/icons/icon-192.png")).toString("base64");
-const EL_KAGIT = new Set(["Matematik-7-D1-Y1", "Fen Bilimleri-7-D1-Y1"]);
+const EL_KAGIT = new Set([]);  // tüm kâğıtlar aynı üreticiden çıkar (7. sınıf D1-Y1 dahil)
 const tohum = (str) => { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 function karistir(q) { let h = tohum(q.soru); const idx = q.secenekler.map((_, i) => i); for (let i = idx.length - 1; i > 0; i--) { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; const j = h % (i + 1); [idx[i], idx[j]] = [idx[j], idx[i]]; } return { ...q, secenekler: idx.map((i) => q.secenekler[i]), dogruIndex: idx.indexOf(q.dogruIndex) }; }
 const elYazimi = (ders, sinif, anahtar) => ((HAVUZ[ders] || {})[sinif] || {})[anahtar];
