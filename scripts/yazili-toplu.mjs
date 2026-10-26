@@ -7,6 +7,7 @@ import { neon } from "@neondatabase/serverless";
 import { YILLIK_PLAN } from "../lib/yillik-plan.data.js";
 import { kagitHtml } from "../lib/yazili-hazirlik/render.js";
 import { gorselUret } from "../lib/gorsel-motoru.js";
+import { HAVUZ } from "../lib/yazili-hazirlik/havuz/index.js";
 import { soruFormatGecerliMi } from "../lib/soruFormatDogrula.js";
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -20,6 +21,10 @@ const SORU_SAYISI = 12, EN_AZ = 6;
 const GORSELE_BAGLI = /\b(şekil|şekle|şekilde|grafik|tablo|tabloda|görsel|resim|harita|haritada|çizim|yukarıdaki|aşağıdaki (?:şekil|tablo|grafik|harita))/i;
 const HARF = "ABCDE";
 const rapor = [];
+const EL_KAGIT = new Set(["Matematik-7-D1-Y1", "Fen Bilimleri-7-D1-Y1"]);
+const tohum = (str) => { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+function karistir(q) { let h = tohum(q.soru); const idx = q.secenekler.map((_, i) => i); for (let i = idx.length - 1; i > 0; i--) { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; const j = h % (i + 1); [idx[i], idx[j]] = [idx[j], idx[i]]; } return { ...q, secenekler: idx.map((i) => q.secenekler[i]), dogruIndex: idx.indexOf(q.dogruIndex) }; }
+const elYazimi = (ders, sinif, anahtar) => ((HAVUZ[ders] || {})[sinif] || {})[anahtar];
 
 for (const ev of ["unhandledRejection", "uncaughtException"]) process.on(ev, (e) => { console.log("::error::" + String(e && e.stack || e).replace(/\n/g, " | ").slice(0, 700)); process.exit(1); });
 let tumSorular; try { tumSorular = await sql`SELECT id, ders, sinif::text AS sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index AS "dogruIndex", aciklama FROM soru_bankasi WHERE soru IS NOT NULL`; } catch (e) { console.log("::error::DB sorgu hatasi: " + String(e.message).slice(0, 300)); process.exit(1); }
@@ -38,15 +43,18 @@ for (const anahtar of Object.keys(YILLIK_PLAN)) {
   const kullanilan = new Set();
   for (const [donem, yazili, h1, h2] of PENCERE) {
     const etiket = `${ders}-${sinif}-D${donem}-Y${yazili}`;
+    if (EL_KAGIT.has(etiket)) { rapor.push(`${etiket}: ATLANDI (elle hazırlanmış görselli kâğıt: yazili-pdf.mjs)`); continue; }
     const satirlar = plan.filter(([h]) => h >= h1 && h <= h2);
     if (!satirlar.length) { rapor.push(`${etiket}: planda hafta yok`); continue; }
     const uniteler = [...new Set(satirlar.flatMap(([, u]) => String(u).split(" / ")))];
     const anahtarlar = [...new Set([...uniteler, ...satirlar.flatMap(([, , k]) => String(k).split(";"))].map(nrm).filter((x) => x.length > 3))];
+    const el = elYazimi(ders, sinif, `${donem}.${yazili}`);
+    const elSorular = (el || []).map((e, i) => karistir({ id: `el-${etiket}-${i}`, soru: e[0], secenekler: e[1], dogruIndex: e[2], aciklama: e[3] }));
     const eslesen = havuz.filter((q) => !kullanilan.has(q.id) && anahtarlar.some((a) => { const u = nrm(q.unite), k = nrm(q.alt_konu); return (u && (u.includes(a) || a.includes(u))) || (k && (k.includes(a) || a.includes(k))); }));
     // konulara göre dengeli seçim (round-robin), deterministik sıra
     const gruplar = {}; for (const q of eslesen.sort((a, b) => a.id - b.id)) (gruplar[nrm(q.alt_konu || q.unite)] = gruplar[nrm(q.alt_konu || q.unite)] || []).push(q);
-    const secilen = []; const g = Object.values(gruplar);
-    for (let i = 0; secilen.length < SORU_SAYISI && g.some((x) => x.length > i); i++) for (const x of g) if (x[i] && secilen.length < SORU_SAYISI) secilen.push(x[i]);
+    const secilen = [...elSorular]; const g = Object.values(gruplar);
+    for (let i = 0; !elSorular.length && secilen.length < SORU_SAYISI && g.some((x) => x.length > i); i++) for (const x of g) if (x[i] && secilen.length < SORU_SAYISI) secilen.push(x[i]);
     if (secilen.length < EN_AZ) { rapor.push(`${etiket}: YETERSİZ (${secilen.length}/${EN_AZ}; eşleşen ${eslesen.length}, havuz ${havuz.length})`); continue; }
     secilen.forEach((q) => kullanilan.add(q.id));
     const sorular = secilen.map((q, i) => ({ no: i + 1, yonerge: "", paragraflar: [q.soru.trim(), ...q.secenekler.map((s, j) => `**${HARF[j]})** ${String(s).trim()}`)], _id: q.id }));
