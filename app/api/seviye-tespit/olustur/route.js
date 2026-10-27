@@ -53,36 +53,43 @@ ${kaliteMetni}Her soru o unitenin temel/orta zorluktaki bir kazanimini olcmeli -
     // "sadelestirme" egilimini de azaltir, nested array daha az riskli).
     // 28 Eylul: gemini'de thinkingBudget:700 var (lib/ai.js); 750'lik tavan dusunme tokenlariyla
     // paylasiliyorsa yanit kesiliyor olabilir (2 ornek, KANITLANMADI) - tavan 1000 yukseltildi.
+    // 27 Ekim: tek konulu testte denetim tek soruyu eleyince 0 kaliyor ve 500 donuyordu
+    // (Ogrenci Akislari Testi aralikli kirildi). Uretim+denetim en fazla 2 kez denenir.
+    const uretVeDenetle = async () => {
     const azamiTokenSeviye = Math.min(8000, 1400 + konular.length * 350);
-    const { metin: cevap, saglayici: uretenSaglayici } = await aiCagirDetay({ prompt: p, maxTokens: azamiTokenSeviye, jsonModu: true });
-    let sorularHam;
-    try {
-      sorularHam = jsonAyikla(cevap).sorular;
-    } catch (e) {
-      // 28 Eylul: TANI - yalnizca SEKIL bilgisi (icerik yok), davranis DEGISMEDI.
-      console.error("seviye-tespit jsonAyikla basarisiz:", e.message, "| saglayici:", uretenSaglayici, "| maxTokens:", azamiTokenSeviye, "| uzunluk:", String(cevap).length, "| bas:", JSON.stringify(String(cevap).slice(0, 3)), "| son:", JSON.stringify(String(cevap).slice(-3)));
-      sorularHam = null;
-    }
-
-    const sorular = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
-      soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: true })
-    );
-
-    if (sorular.length === 0) {
-      // 28 Eylul: TANI - hata mesaji/akis ayni, sadece elenen yanitin SEKLI loglaniyor.
-      const ilk = Array.isArray(sorularHam) ? sorularHam[0] : undefined;
-      console.error("seviye-tespit sorular bos:", JSON.stringify({
-        sorularTuru: Array.isArray(sorularHam) ? "dizi" : typeof sorularHam,
-        uzunluk: Array.isArray(sorularHam) ? sorularHam.length : null,
-        ilkAnahtarlar: ilk && typeof ilk === "object" ? Object.keys(ilk) : null,
-        alanTurleri: ilk && typeof ilk === "object" ? Object.fromEntries(["soru", "secenekler", "dogruIndex", "ders", "unite"].map((k) => [k, Array.isArray(ilk[k]) ? "dizi" : typeof ilk[k]])) : null,
-        secenekSayisi: ilk && Array.isArray(ilk.secenekler) ? ilk.secenekler.length : null,
-        dogruIndexDegeri: ilk && "dogruIndex" in ilk ? String(ilk.dogruIndex).slice(0, 10) : null,
-      }));
-      throw new Error("Sorular uretilemedi, tekrar dene");
-    }
-
-    const { gecenler: denetlenmisSorular, elenenSayisi } = await sorulariDenetle(sorular, "Bu sorular bir SEVIYE TESPIT sinavinda kullanilacak, ogrencinin yerlestirilecegi kademeyi belirliyor, cok yuksek dogruluk gerekiyor.");
+      const { metin: cevap, saglayici: uretenSaglayici } = await aiCagirDetay({ prompt: p, maxTokens: azamiTokenSeviye, jsonModu: true });
+      let sorularHam;
+      try {
+        sorularHam = jsonAyikla(cevap).sorular;
+      } catch (e) {
+        // 28 Eylul: TANI - yalnizca SEKIL bilgisi (icerik yok), davranis DEGISMEDI.
+        console.error("seviye-tespit jsonAyikla basarisiz:", e.message, "| saglayici:", uretenSaglayici, "| maxTokens:", azamiTokenSeviye, "| uzunluk:", String(cevap).length, "| bas:", JSON.stringify(String(cevap).slice(0, 3)), "| son:", JSON.stringify(String(cevap).slice(-3)));
+        sorularHam = null;
+      }
+  
+      const sorular = (Array.isArray(sorularHam) ? sorularHam : []).filter((s) =>
+        soruFormatGecerliMi(s, { soruTrimGerekli: true, dersUniteGerekli: true })
+      );
+  
+      if (sorular.length === 0) {
+        // 28 Eylul: TANI - hata mesaji/akis ayni, sadece elenen yanitin SEKLI loglaniyor.
+        const ilk = Array.isArray(sorularHam) ? sorularHam[0] : undefined;
+        console.error("seviye-tespit sorular bos:", JSON.stringify({
+          sorularTuru: Array.isArray(sorularHam) ? "dizi" : typeof sorularHam,
+          uzunluk: Array.isArray(sorularHam) ? sorularHam.length : null,
+          ilkAnahtarlar: ilk && typeof ilk === "object" ? Object.keys(ilk) : null,
+          alanTurleri: ilk && typeof ilk === "object" ? Object.fromEntries(["soru", "secenekler", "dogruIndex", "ders", "unite"].map((k) => [k, Array.isArray(ilk[k]) ? "dizi" : typeof ilk[k]])) : null,
+          secenekSayisi: ilk && Array.isArray(ilk.secenekler) ? ilk.secenekler.length : null,
+          dogruIndexDegeri: ilk && "dogruIndex" in ilk ? String(ilk.dogruIndex).slice(0, 10) : null,
+        }));
+        throw new Error("Sorular uretilemedi, tekrar dene");
+      }
+  
+      return await sorulariDenetle(sorular, "Bu sorular bir SEVIYE TESPIT sinavinda kullanilacak, ogrencinin yerlestirilecegi kademeyi belirliyor, cok yuksek dogruluk gerekiyor.");
+    };
+    let sonuc = await uretVeDenetle().catch((e) => { console.error("seviye-tespit 1. deneme:", e.message); return null; });
+    if (!sonuc || sonuc.gecenler.length === 0) sonuc = await uretVeDenetle();
+    const { gecenler: denetlenmisSorular, elenenSayisi } = sonuc;
     if (denetlenmisSorular.length === 0) throw new Error("Sorular kalite denetiminden gecemedi, tekrar dene");
 
     // Faz E: dogru cevaplar ARTIK istemciye gitmez. Denetimden gecen sorular

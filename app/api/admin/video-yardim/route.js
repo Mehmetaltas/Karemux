@@ -75,12 +75,16 @@ export async function POST(req) {
   let b; try { b = await req.json(); } catch { return NextResponse.json({ hata: "gecersiz govde" }, { status: 400 }); }
   try {
     const ayikla = (m) => JSON.parse(m.trim().replace(/^```json\s*|^```\s*|```\s*$/g, ""));
+    // Model bazen JSON'u yarıda keser ("Unterminated string"); bozuk yanıtta aynı istek bir kez daha denenir.
+    const jsonCagri = async (ayar, sure) => { const t0 = Date.now(); let son; for (let i = 0; i < 3; i++) { const kalan = sure - (Date.now() - t0); if (i > 0 && kalan < 12000) break; const r = await aiCagirDetay(ayar, null, i === 0 ? sure : kalan); try { return { r, j: ayikla(r.metin) }; } catch (e) { son = e; } } throw son; };
+    // Denetçi bazen "hata yok" diye açıklayan öğeleri de hatalar dizisine koyar; bunlar gerçek hata değildir.
+    const gercekHata = (h) => { if (!h || typeof h !== "object") return false; if (h.kesin === false) return false; const m = `${h.sorun || ""} ${h.dogrusu || ""}`.toLocaleLowerCase("tr-TR"); if (/çeliş|kaynakta (yok|bulunmuyor)/.test(m)) return true; return !/(gerçek bir hata yok|hata yok|hata yoktur|sorun yok|sorun yoktur|düzeltme gerekmiyor|düzeltme gerekmez|bu slayt doğru|bu slaytta .{0,40}(yok|doğru)|^\s*yok\b)/.test(m); };
     if (b.islem === "senaryo") {
       if (!b.paket?.anlatim || !b.baglam) return NextResponse.json({ hata: "paket/baglam eksik" }, { status: 400 });
       let istem = senaryoIstemi(b);
       if (Array.isArray(b.duzeltmeler) && b.duzeltmeler.length) istem += `\n\nÖNCEKİ DENEMEDE DENETÇİ ŞU HATALARI BULDU; bunları KESİNLİKLE düzelt, aynı hatayı tekrarlama: ${JSON.stringify(b.duzeltmeler).slice(0, 2500)}`;
-      const r = await aiCagirDetay({ prompt: istem, maxTokens: 6000, jsonModu: true, tur: "video_senaryo" }, null, 55000);
-      const sl = (ayikla(r.metin).slaytlar || []).filter((s) => s?.baslik && s?.konusma).map((s) => ({
+      const { r, j: sj } = await jsonCagri({ prompt: istem, maxTokens: 6000, jsonModu: true, tur: "video_senaryo" }, 55000);
+      const sl = (sj.slaytlar || []).filter((s) => s?.baslik && s?.konusma).map((s) => ({
         baslik: String(s.baslik).slice(0, 60), maddeler: (s.maddeler || []).map((m) => String(m).slice(0, 90)).slice(0, 4), konusma: String(s.konusma).slice(0, 700),
       }));
       return NextResponse.json({ slaytlar: sl, saglayici: r.saglayici, ucretUsd: senaryoUcretUsd(istem, r.metin) });
@@ -88,12 +92,12 @@ export async function POST(req) {
     if (b.islem === "denetim") {
       // Bagimsiz denetim: konusmadaki her iddia kaynakta var mi, konu/dil bilgisi dogru mu?
       if (!b.paket?.anlatim || !Array.isArray(b.slaytlar)) return NextResponse.json({ hata: "paket/slaytlar eksik" }, { status: 400 });
-      const dIstem = `Sen titiz bir ${b.baglam.ders} öğretmenisin ve denetçisin. KAYNAK anlatım ile ders SENARYOSU aşağıda. SENARYODA şunları bul: (1) kaynakta olmayan ya da kaynakla çelişen iddia, (2) konu bilgisi/dil bilgisi bakımından YANLIŞ ya da yanıltıcı ifade (ek adları, kural, örnek, hesap). Yalnızca gerçek hataları yaz; üslup eleştirisi yapma.
+      const dIstem = `Sen titiz bir ${b.baglam.ders} öğretmenisin ve denetçisin. KAYNAK anlatım ile ders SENARYOSU aşağıda. SENARYODA şunları bul: (1) kaynakta olmayan ya da kaynakla çelişen iddia, (2) konu bilgisi/dil bilgisi bakımından YANLIŞ ya da yanıltıcı ifade (ek adları, kural, örnek, hesap). Yalnızca GERÇEK hataları yaz; üslup eleştirisi yapma. Bir slaytta hata yoksa o slaytı hiç yazma; hata yoksa "hatalar" boş dizi olsun. "Hata yok/doğru" diyen öğe YAZMA.
 KAYNAK: ${JSON.stringify(b.paket.anlatim)}
 SENARYO: ${JSON.stringify(b.slaytlar)}
-SADECE JSON döndür: {"hatalar":[{"slayt":"başlık","sorun":"...","dogrusu":"..."}]}`;
-      const d = await aiCagirDetay({ prompt: dIstem, maxTokens: 2500, jsonModu: true, tur: "video_senaryo_denetim" }, null, 55000);
-      return NextResponse.json({ hatalar: ayikla(d.metin).hatalar || [], ucretUsd: senaryoUcretUsd(dIstem, d.metin) });
+SADECE JSON döndür: {"hatalar":[{"slayt":"başlık","sorun":"...","dogrusu":"...","kesin":true}]}  (kesin: yalnız kaynakla açık çelişki veya kesin yanlış bilgi için true)`;
+      const { r: d, j: dj } = await jsonCagri({ prompt: dIstem, maxTokens: 3500, jsonModu: true, tur: "video_senaryo_denetim" }, 55000);
+      return NextResponse.json({ hatalar: (dj.hatalar || []).filter(gercekHata), ucretUsd: senaryoUcretUsd(dIstem, d.metin) });
     }
     if (b.islem === "ses") {
       const ses = SESLER[b.ses] || SESLER.kadin;
