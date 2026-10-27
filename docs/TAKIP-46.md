@@ -34,7 +34,7 @@
 | 29 | Takvim + plan motoru | ✅ | hayır | canlı doğrulama |
 | 30 | Content Core | ✅ | ✅ | 8. sınıf Matematik adı |
 | 31 | Video motoru + katalog | ✅ | sessiz modda | Gemini faturası, BLOB token, sesli örnek onayı; dış ses modu (`dis_ses=true`) yazıldı, henüz denenmedi |
-| 32 | Deneme Kulübü döngüsü | hayır | — | — |
+| 32 | Deneme Kulübü döngüsü | ✅ | kısmen | `lib/deneme-kulubu-dongu.js` + `/api/deneme-kulubu/dongu` + app/page.js bağlı; sorgu sütunları `db/schema.sql` ile eşleşti (27 Ekim). Canlı doğrulama: Kulüp üyesi hesapla uçtan uca deneme gerekir |
 | 33 | Fiyat kararı | — | — | [SEN] |
 | 34 | Öğretmen↔öğrenci↔sınıf | ✅ | kısmen | — |
 | 35 | Koç görev doğrulaması | ✅ | kısmen | — |
@@ -49,3 +49,8 @@
 | 44 | Next 16 + passkey | ✅ | kısmen | cihaz testi; 4 orta açık |
 | 45 | Soru Çöz otomatik test | ✅ | ✅ | 24 Ekim test geçti |
 | 46 | Kurumsal e-posta | — | — | [SEN] |
+
+## 27 Ekim notları
+- Öğrenci Akışları Testi: seviye tespit tek konuda denetim soruyu eleyince 500 dönüyordu; üretim+denetim 2 denemeye çıkarıldı, canlı çalıştırma ✅.
+- Mini Ders Videosu: denetçi 'hata yok' diyen öğeleri hata sayıyordu; filtre eklendi, canlı çalıştırma: senaryo denetimi tur 1'de geçti. Kalan engeller kullanıcı tarafı: Gemini TTS ücretsiz kota (faturalandırma) ve BLOB_READ_WRITE_TOKEN.
+- Yazılı sistemi: 180 PDF, yıllık plana göre otomatik üretim (`docs/YAZILI-YILLIK-GUNCELLEME.md`).
