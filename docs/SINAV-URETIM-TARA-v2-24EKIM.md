@@ -26,5 +26,7 @@ AI sağlayıcısına doğrudan istek yalnızca `lib/ai.js`, `lib/rag.js` ve vide
 3. Konu paketi gölge/eleme ayrımı bu işin dışında kalır.
 4. Her adım için kabul ölçütü: aynı girdide çıktı alanları birebir aynı, AI çağrı sayısı aynı, `dogruIndex` istemciye gitmiyor.
 
-## 4. Henüz yapılmadı
-Yukarıdaki 3. bölüm yalnızca plan; kod değişmedi.
+## 4. Durum (27 Ekim)
+- Yapıldı: `lib/soru-hatti.js` `hamdanDenetliye` (süzgeç → denetim → asgari eşik). Tek konu ve ortak deneme çekirdeği buna geçti; hata iletileri ve eşikler birebir aynı, AI çağrı sayısı aynı.
+- Seviye tespit ilk uç: 2 deneme ile sertleştirildi, kendi ders/ünite biçimi nedeniyle ayrı kaldı.
+- Bilerek ayrı kalanlar: sınav/pratik oturumu (bütçe sınırlı denetim, Vercel süre payı), konu paketi gölge modu.
