@@ -74,7 +74,7 @@ export async function POST(req) {
 
       return new Response(JSON.stringify({ ok: true, anonimlestirildi: true }), {
         status: 200,
-        headers: { "Content-Type": "application/json", "Set-Cookie": cikisCookieBaslik() },
+        headers: { "Content-Type": "application/json", "Set-Cookie": cikisCookieBaslik(req) },
       });
     }
 
@@ -88,7 +88,7 @@ export async function POST(req) {
 
     return new Response(JSON.stringify({ ok: true, anonimlestirildi: false }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": cikisCookieBaslik() },
+      headers: { "Content-Type": "application/json", "Set-Cookie": cikisCookieBaslik(req) },
     });
   } catch (e) {
     console.error(e);

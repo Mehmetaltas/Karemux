@@ -69,7 +69,7 @@ export async function POST(req) {
 
     return new Response(JSON.stringify({ ok: true, ad: kullanici.ad, rol: rolTemiz }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(token) },
+      headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(token, true, req) },
     });
   } catch (e) {
     console.error(e);

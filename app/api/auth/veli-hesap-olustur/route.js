@@ -66,7 +66,7 @@ export async function POST(req) {
     const oturumToken = tokenUret(veliId);
     return new Response(JSON.stringify({ ok: true, ogrenciAdi, girisYapildi: mevcutVeli.length === 0 }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(oturumToken) },
+      headers: { "Content-Type": "application/json", "Set-Cookie": oturumCookieBaslik(oturumToken, true, req) },
     });
   } catch (e) {
     console.error(e);
