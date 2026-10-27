@@ -30,6 +30,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm i --no-save --no-audit --no-fund playwright
       - run: npx playwright install --with-deps chromium
+      - name: Soru havuzu doğrulaması (biçim, çift doğru riski, etiketlerin plana uyumu)
+        run: node scripts/yazili-havuz-dogrula.mjs
       - env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           OGRETIM_YILI: ${{ inputs.ogretim_yili }}
@@ -39,7 +41,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh issue create --title "Yazılı: yeni yıllık plan boşluk raporu $(date +%Y)" --body-file cikti/BOSLUK.txt || true
+          gh issue create --title "Yazılı: yeni yıllık plan boşluk raporu $(date +%Y)" --body "$(head -c 60000 cikti/BOSLUK.txt)" || true
       - name: Sonuçları yazili-cikti dalına yaz
         run: |
           cd cikti && git init -q -b yazili-cikti && git config user.name "karemux-bot" && git config user.email "bot@karemux.com"
