@@ -8,6 +8,7 @@ import { kagitHtml } from "../lib/yazili-hazirlik/render.js";
 import { gorselUret } from "../lib/gorsel-motoru.js";
 import { HAVUZ } from "../lib/yazili-hazirlik/havuz/index.js";
 import { soruFormatGecerliMi } from "../lib/soruFormatDogrula.js";
+import { etiketliSorular, yazililariPlanla, bosluklar } from "../lib/yazili-hazirlik/secici.js";
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const [dizin = "yazili-toplu", sinifF, dersF] = process.argv.slice(2);
@@ -24,7 +25,10 @@ const LOGO = "data:image/png;base64," + fs.readFileSync(path.resolve("public/ico
 const EL_KAGIT = new Set([]);  // tüm kâğıtlar aynı üreticiden çıkar (7. sınıf D1-Y1 dahil)
 const tohum = (str) => { let h = 2166136261; for (const c of str) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
 function karistir(q) { let h = tohum(q.soru); const idx = q.secenekler.map((_, i) => i); for (let i = idx.length - 1; i > 0; i--) { h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; const j = h % (i + 1); [idx[i], idx[j]] = [idx[j], idx[i]]; } return { ...q, secenekler: idx.map((i) => q.secenekler[i]), dogruIndex: idx.indexOf(q.dogruIndex) }; }
-const elYazimi = (ders, sinif, anahtar) => ((HAVUZ[ders] || {})[sinif] || {})[anahtar];
+const ETIKET = fs.existsSync("lib/yazili-hazirlik/havuz/etiketler.json") ? JSON.parse(fs.readFileSync("lib/yazili-hazirlik/havuz/etiketler.json", "utf8")) : {};
+// Öğretim yılı: Eylül'den itibaren yeni yıl (OGRETIM_YILI ile ezilebilir)
+const OGRETIM_YILI = process.env.OGRETIM_YILI || (() => { const d = new Date(); const y = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1; return `${y}-${y + 1}`; })();
+const bosluk = [];
 
 for (const ev of ["unhandledRejection", "uncaughtException"]) process.on(ev, (e) => { console.log("::error::" + String(e && e.stack || e).replace(/\n/g, " | ").slice(0, 700)); process.exit(1); });
 let tumSorular; try { tumSorular = await sql`SELECT id, ders, sinif::text AS sinif, unite, alt_konu, zorluk, soru, secenekler, dogru_index AS "dogruIndex", aciklama FROM soru_bankasi WHERE soru IS NOT NULL`; } catch (e) { console.log("::error::DB sorgu hatasi: " + String(e.message).slice(0, 300)); process.exit(1); }
@@ -41,21 +45,17 @@ for (const anahtar of Object.keys(YILLIK_PLAN)) {
   const havuz = tumSorular.filter((q) => String(q.sinif) === sinif && dersAnahtar(q.ders) === dersAnahtar(ders)).map((q) => ({ ...q, secenekler: typeof q.secenekler === "string" ? JSON.parse(q.secenekler) : q.secenekler }))
     .filter((q) => soruFormatGecerliMi(q) && !GORSELE_BAGLI.test(q.soru) && q.secenekler.length >= 3 && q.secenekler.length <= 5);
   const kullanilan = new Set();
-  for (const [donem, yazili, h1, h2] of PENCERE) {
+  const tumHavuz = etiketliSorular(((HAVUZ[ders] || {})[sinif]) ? Object.fromEntries(Object.entries(HAVUZ[ders][sinif])) : {}, ETIKET, sinif);
+  const planlama = yazililariPlanla(tumHavuz, plan, PENCERE, { adet: SORU_SAYISI });
+  { const b = bosluklar(tumHavuz, plan); bosluk.push(`${ders} ${sinif}. sınıf: havuz ${tumHavuz.length}, etiketsiz ${b.etiketsiz}, plan dışı/yetim ${b.yetim}, DIŞI ${b.dis}, soru bulunmayan konu ${b.eksik.length}` + b.eksik.map((e) => `\n    - [${e.unite}] ${e.ad} (hafta ${e.hafta})`).join()); }
+  for (const [pi, [donem, yazili, h1, h2]] of PENCERE.entries()) {
     const etiket = `${ders}-${sinif}-D${donem}-Y${yazili}`;
     if (EL_KAGIT.has(etiket)) { rapor.push(`${etiket}: ATLANDI (elle hazırlanmış görselli kâğıt: yazili-pdf.mjs)`); continue; }
     const satirlar = plan.filter(([h]) => h >= h1 && h <= h2);
     if (!satirlar.length) { rapor.push(`${etiket}: planda hafta yok`); continue; }
     const uniteler = [...new Set(satirlar.flatMap(([, u]) => String(u).split(" / ")))];
     const anahtarlar = [...new Set([...uniteler, ...satirlar.flatMap(([, , k]) => String(k).split(";"))].map(nrm).filter((x) => x.length > 3))];
-    const el = elYazimi(ders, sinif, `${donem}.${yazili}`);
-    const elSorular = (el || []).map((e, i) => ({ ...karistir({ id: `el-${etiket}-${i}`, soru: e[0], secenekler: e[1], dogruIndex: e[2], aciklama: e[3] }), gorsel: e[4] || null }));
-    // havuz 12'den büyükse: tüm görselli sorular + metin sorularından eşit aralıklı örnek (görseller sona yakın dağıtılır)
-    if (elSorular.length > SORU_SAYISI) {
-      const gor = elSorular.filter((q) => q.gorsel), met = elSorular.filter((q) => !q.gorsel), nMet = SORU_SAYISI - gor.length;
-      const sec = Array.from({ length: nMet }, (_, i) => met[Math.floor((i * met.length) / nMet)]);
-      elSorular.splice(0, elSorular.length, ...sec.slice(0, nMet - Math.ceil(gor.length / 2)), ...gor.slice(0, 1), ...sec.slice(nMet - Math.ceil(gor.length / 2)), ...gor.slice(1));
-    }
+    const elSorular = (planlama[pi].secilen || []).map((x, i) => ({ ...karistir({ id: `el-${etiket}-${x.id}`, soru: x.q[0], secenekler: x.q[1], dogruIndex: x.q[2], aciklama: x.q[3] }), gorsel: x.q[4] || null }));
     const eslesen = havuz.filter((q) => !kullanilan.has(q.id) && anahtarlar.some((a) => { const u = nrm(q.unite), k = nrm(q.alt_konu); return (u && (u.includes(a) || a.includes(u))) || (k && (k.includes(a) || a.includes(k))); }));
     // konulara göre dengeli seçim (round-robin), deterministik sıra
     const gruplar = {}; for (const q of eslesen.sort((a, b) => a.id - b.id)) (gruplar[nrm(q.alt_konu || q.unite)] = gruplar[nrm(q.alt_konu || q.unite)] || []).push(q);
@@ -76,7 +76,7 @@ for (const anahtar of Object.keys(YILLIK_PLAN)) {
       if (cur.length) sayfalar.push({ sorular: cur });
       const sp = kap;
       const cs = []; for (let i = 0; i < cozumler.length; i += 8) cs.push({ cozumler: cozumler.slice(i, i + 8) });
-      const kagit = { sinif: Number(sinif), ders, donem, yazili, kapsam, notMetni: "Bu içerik, öğrencilerin yazılı öncesi çalışmaları amacıyla Karemux tarafından hazırlanmıştır. Resmî sınav değildir. Doğru seçeneği işaretleyiniz; cevap anahtarı son sayfadadır.", sayfalar, kazanimTablosu: [], cozumSayfalari: cs };
+      const kagit = { sinif: Number(sinif), ders, donem, yazili, kapsam, notMetni: `${OGRETIM_YILI} öğretim yılı yıllık planına göre hazırlanmıştır. Bu içerik, öğrencilerin yazılı öncesi çalışmaları amacıyla Karemux tarafından hazırlanmıştır. Resmî sınav değildir. Doğru seçeneği işaretleyiniz; cevap anahtarı son sayfadadır.`, sayfalar, kazanimTablosu: [], cozumSayfalari: cs };
       const html = kagitHtml(kagit, { logoUri: LOGO, gorselUret });
       const sayfa = await tarayici.newPage({ viewport: { width: 900, height: 1200 } });
       await sayfa.setContent(html);
@@ -88,7 +88,8 @@ for (const anahtar of Object.keys(YILLIK_PLAN)) {
   }
 }
 await tarayici.close();
-fs.writeFileSync(path.join(dizin, "RAPOR.txt"), rapor.join("\n"));
+fs.writeFileSync(path.join(dizin, "RAPOR.txt"), `Öğretim yılı: ${OGRETIM_YILI}\n` + rapor.join("\n"));
+fs.writeFileSync(path.join(dizin, "BOSLUK.txt"), `Öğretim yılı: ${OGRETIM_YILI} — yıllık plan / soru havuzu boşluk raporu\n` + bosluk.join("\n"));
 const ok = rapor.filter((r) => r.includes(": OK")).length;
 console.log(`::notice::yazılı üretimi: ${ok}/${rapor.length} başarılı`);
 for (const r of rapor.filter((x) => !x.includes(": OK"))) console.log(`::warning::${r}`);
